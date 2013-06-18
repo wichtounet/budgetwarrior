@@ -77,8 +77,6 @@ add_library(Budget OBJECT ${source_files})
 
 add_executable(budget $<TARGET_OBJECTS:Budget> src/budget.cpp)
 
-target_link_libraries (budget boost_program_options)
-
 # Specifications for the installation of budgetwarrior
 
 INSTALL(TARGETS budget
