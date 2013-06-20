@@ -9,7 +9,7 @@
 
 #include "debts.hpp"
 #include "guid.hpp"
-#include "utils.hpp"
+#include "money.hpp"
 
 using namespace budget;
 
@@ -46,9 +46,13 @@ int budget::handle_debts(const std::vector<std::string>& args){
                 return 1;
             }
 
-            auto amount = to_number<int>(amount_string);
+            auto amount = parse_money(amount_string);
 
-            std::cout << amount << std::endl;
+            if(amount.dollars < 0 || amount.cents < 0){
+                std::cout << "Amount of the debt cannot be negative" << std::endl;
+
+                return 1;
+            }
 
             //TODO Implement creation of debts
         } else {
