@@ -9,6 +9,7 @@
 
 #include "debts.hpp"
 #include "guid.hpp"
+#include "utils.hpp"
 
 using namespace budget;
 
@@ -21,11 +22,33 @@ int budget::handle_debts(const std::vector<std::string>& args){
         auto& subcommand = args[1];
 
         if(subcommand == "add"){
-            std::cout << "Add a new debt" << std::endl;
+            if(args.size() < 5){
+                std::cout << "Not enough args for debt add" << std::endl;
+
+                return 1;
+            }
 
             std::string guid = generate_guid();
+            std::string direction = args[2];
+            std::string name = args[3];
+            std::string amount_string = args[4];
+            std::string title = "";
 
-            std::cout << guid << std::endl;
+            if(args.size() > 5){
+                for(std::size_t i = 5; i < args.size(); ++i){
+                    title += args[i];
+                }
+            }
+
+            if(direction != "to" && direction != "from"){
+                std::cout << "Invalid direction, only \"to\" and \"from\" are valid" << std::endl;
+
+                return 1;
+            }
+
+            auto amount = to_number<int>(amount_string);
+
+            std::cout << amount << std::endl;
 
             //TODO Implement creation of debts
         } else {
