@@ -8,6 +8,9 @@
 #include <iostream>
 
 #include "debts.hpp"
+#include "guid.hpp"
+
+using namespace budget;
 
 int budget::handle_debts(const std::vector<std::string>& args){
     if(args.size() == 1){
@@ -19,6 +22,10 @@ int budget::handle_debts(const std::vector<std::string>& args){
 
         if(subcommand == "add"){
             std::cout << "Add a new debt" << std::endl;
+
+            std::string guid = generate_guid();
+
+            std::cout << guid << std::endl;
 
             //TODO Implement creation of debts
         } else {
