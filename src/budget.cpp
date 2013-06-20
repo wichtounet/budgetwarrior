@@ -15,6 +15,7 @@ using namespace budget;
 
 int main(int argc, const char* argv[]) {
     if(argc == 1){
+        //TODO In the future, display the default module
         std::cout << "A command is necessary" << std::endl;
 
         return 1;
@@ -31,7 +32,7 @@ int main(int argc, const char* argv[]) {
     } else if(command == "debt"){
         return handle_debts(args);
     } else {
-        std::cout << "Invalid command \"" << command << "\"" << std::endl;
+        std::cout << "Unhandled command \"" << command << "\"" << std::endl;
 
         return 1;
     }
