@@ -8,8 +8,24 @@
 #include <vector>
 #include <string>
 
+#include "money.hpp"
+
 namespace budget {
 
 int handle_debts(const std::vector<std::string>& args);
+
+struct debt {
+    int id;
+    std::string guid;
+    bool direction;
+    std::string name;
+    money amount;
+    std::string title;
+};
+
+struct debts {
+    int next_id;
+    std::vector<debt> debts;
+};
 
 } //end of namespace budget
