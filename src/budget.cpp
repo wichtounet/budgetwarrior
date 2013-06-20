@@ -8,12 +8,20 @@
 #include <string>
 #include <iostream>
 
+#include "config.hpp"
 #include "args.hpp"
 #include "debts.hpp"
 
 using namespace budget;
 
 int main(int argc, const char* argv[]) {
+    //TODO Load the configuration
+
+    //Verify that the data folder exists
+    if(!verify_folder()){
+        return 0;
+    }
+
     if(argc == 1){
         //TODO In the future, display the default module
         std::cout << "A command is necessary" << std::endl;
