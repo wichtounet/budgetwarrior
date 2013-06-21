@@ -5,6 +5,9 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
+#ifndef DEBTS_H
+#define DEBTS_H
+
 #include <vector>
 #include <string>
 
@@ -29,3 +32,5 @@ struct debts {
 };
 
 } //end of namespace budget
+
+#endif

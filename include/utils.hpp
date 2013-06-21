@@ -5,6 +5,9 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <string>
 #include <sstream>
 
@@ -35,3 +38,5 @@ inline int to_number (const std::string& text) {
 }
 
 } //end of namespace budget
+
+#endif

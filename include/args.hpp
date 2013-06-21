@@ -5,6 +5,9 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
+#ifndef ARGS_H
+#define ARGS_H
+
 #include <vector>
 #include <string>
 
@@ -13,3 +16,5 @@ namespace budget {
 std::vector<std::string> parse_args(int argc, const char* argv[]);
 
 } //end of namespace budget
+
+#endif

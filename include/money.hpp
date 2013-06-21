@@ -5,6 +5,9 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
+#ifndef MONEY_H
+#define MONEY_H
+
 #include <string>
 #include <ostream>
 
@@ -20,3 +23,5 @@ std::ostream& operator<<(std::ostream& stream, const money& amount);
 money parse_money(const std::string& money_string);
 
 } //end of namespace budget
+
+#endif
