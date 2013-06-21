@@ -66,7 +66,7 @@ int budget::handle_debts(const std::vector<std::string>& args){
 
             if(args.size() > 5){
                 for(std::size_t i = 5; i < args.size(); ++i){
-                    debt.title += args[i];
+                    debt.title += args[i] + " ";
                 }
             }
 
