@@ -55,3 +55,7 @@ std::string budget::home_folder(){
 std::string budget::path_to_home_file(const std::string& file){
     return home_folder() + "/" + file;
 }
+
+std::string budget::path_to_budget_file(const std::string& file){
+    return path_to_home_file(".budget/" + file);
+}

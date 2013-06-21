@@ -19,8 +19,6 @@ namespace budget {
 
 typedef boost::posix_time::ptime time;
 
-int handle_debts(const std::vector<std::string>& args);
-
 struct debt {
     int id;
     std::string guid;
@@ -35,6 +33,12 @@ struct debts {
     int next_id;
     std::vector<debt> debts;
 };
+
+void load_debts();
+void save_debts();
+void add_debt(debt&& debt);
+
+int handle_debts(const std::vector<std::string>& args);
 
 } //end of namespace budget
 

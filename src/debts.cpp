@@ -6,14 +6,20 @@
 //=======================================================================
 
 #include <iostream>
+#include <fstream>
 
 #include "debts.hpp"
 #include "guid.hpp"
 #include "money.hpp"
+#include "config.hpp"
 
 using namespace budget;
 
+static debts saved_debts;
+
 int budget::handle_debts(const std::vector<std::string>& args){
+    load_debts();
+
     if(args.size() == 1){
         std::cout << "List of debts" << std::endl;
 
@@ -59,8 +65,7 @@ int budget::handle_debts(const std::vector<std::string>& args){
                 }
             }
 
-
-            //TODO Implement creation of debts
+            add_debt(std::move(debt));
         } else {
             std::cout << "Invalid subcommand \"" << subcommand << "\"" << std::endl;
 
@@ -68,5 +73,28 @@ int budget::handle_debts(const std::vector<std::string>& args){
         }
     }
 
+    save_debts();
+
     return 0;
+}
+
+void budget::add_debt(budget::debt&& debt){
+    debt.id = saved_debts.next_id++;
+
+    saved_debts.debts.push_back(std::forward<budget::debt>(debt));
+}
+
+void budget::load_debts(){
+    //TODO
+}
+
+void budget::save_debts(){
+    auto file_path = path_to_budget_file("debts.data");
+
+    std::ofstream file(file_path);
+    file << saved_debts.next_id << std::endl;
+
+    for(auto& debt : saved_debts.debts){
+        file << debt.id  << ':' << debt.guid << ':' << debt.creation_time << ':' << debt.direction << ':' << debt.name << ':' << debt.amount << ':' << debt.title << std::endl;
+    }
 }
