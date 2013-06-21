@@ -116,7 +116,7 @@ void budget::load_debts(){
                     debt.amount = parse_money(parts[5]);
                     debt.title = parts[6];
 
-                    add_debt(std::move(debt));
+                    saved_debts.debts.push_back(std::move(debt));
                 }
             }
         }
