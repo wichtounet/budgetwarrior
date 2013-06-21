@@ -28,17 +28,11 @@ int budget::handle_debts(const std::vector<std::string>& args){
                 return 1;
             }
 
-            std::string guid = generate_guid();
-            std::string direction = args[2];
-            std::string name = args[3];
-            std::string amount_string = args[4];
-            std::string title = "";
+            debt debt;
+            debt.guid = generate_guid();
+            debt.creation_time = boost::posix_time::second_clock::local_time();
 
-            if(args.size() > 5){
-                for(std::size_t i = 5; i < args.size(); ++i){
-                    title += args[i];
-                }
-            }
+            std::string direction = args[2];
 
             if(direction != "to" && direction != "from"){
                 std::cout << "Invalid direction, only \"to\" and \"from\" are valid" << std::endl;
@@ -46,13 +40,25 @@ int budget::handle_debts(const std::vector<std::string>& args){
                 return 1;
             }
 
-            auto amount = parse_money(amount_string);
+            debt.direction = direction == "to" ? true : false;
 
-            if(amount.dollars < 0 || amount.cents < 0){
+            debt.name = args[3];
+
+            std::string amount_string = args[4];
+            debt.amount = parse_money(amount_string);
+
+            if(debt.amount.dollars < 0 || debt.amount.cents < 0){
                 std::cout << "Amount of the debt cannot be negative" << std::endl;
 
                 return 1;
             }
+
+            if(args.size() > 5){
+                for(std::size_t i = 5; i < args.size(); ++i){
+                    debt.title += args[i];
+                }
+            }
+
 
             //TODO Implement creation of debts
         } else {

@@ -11,19 +11,24 @@
 #include <vector>
 #include <string>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include "money.hpp"
 
 namespace budget {
+
+typedef boost::posix_time::ptime time;
 
 int handle_debts(const std::vector<std::string>& args);
 
 struct debt {
     int id;
     std::string guid;
+    time creation_time;
     bool direction;
     std::string name;
     money amount;
-    std::string title;
+    std::string title = "";
 };
 
 struct debts {
