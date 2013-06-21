@@ -79,6 +79,7 @@ add_executable(budget $<TARGET_OBJECTS:Budget> src/budget.cpp)
 target_link_libraries(budget uuid)
 target_link_libraries(budget boost_system)
 target_link_libraries(budget boost_filesystem)
+target_link_libraries(budget boost_date_time)
 
 # Specifications for the installation of budgetwarrior
 

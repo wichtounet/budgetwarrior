@@ -7,11 +7,16 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
+
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "debts.hpp"
 #include "guid.hpp"
 #include "money.hpp"
 #include "config.hpp"
+#include "utils.hpp"
 
 using namespace budget;
 
@@ -85,7 +90,37 @@ void budget::add_debt(budget::debt&& debt){
 }
 
 void budget::load_debts(){
-    //TODO
+    auto file_path = path_to_budget_file("debts.data");
+
+    if(!boost::filesystem::exists(file_path)){
+        saved_debts.next_id = 1;
+    } else {
+        std::ifstream file(file_path);
+
+        if(file.is_open()){
+            if(file.good()){
+                file >> saved_debts.next_id;
+                file.get();
+
+                std::string line;
+                while(file.good() && getline(file, line)){
+                    std::vector<std::string> parts;
+                    boost::split(parts, line, boost::is_any_of(":"), boost::token_compress_on);
+
+                    debt debt;
+                    debt.id = to_number<int>(parts[0]);
+                    debt.guid = parts[1];
+                    debt.creation_time = boost::posix_time::from_iso_string(parts[2]);
+                    debt.direction = to_number<bool>(parts[3]);
+                    debt.name = parts[4];
+                    debt.amount = parse_money(parts[5]);
+                    debt.title = parts[6];
+
+                    add_debt(std::move(debt));
+                }
+            }
+        }
+    }
 }
 
 void budget::save_debts(){
@@ -95,6 +130,6 @@ void budget::save_debts(){
     file << saved_debts.next_id << std::endl;
 
     for(auto& debt : saved_debts.debts){
-        file << debt.id  << ':' << debt.guid << ':' << debt.creation_time << ':' << debt.direction << ':' << debt.name << ':' << debt.amount << ':' << debt.title << std::endl;
+        file << debt.id  << ':' << debt.guid << ':' << boost::posix_time::to_iso_string(debt.creation_time) << ':' << debt.direction << ':' << debt.name << ':' << debt.amount << ':' << debt.title << std::endl;
     }
 }
