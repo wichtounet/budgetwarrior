@@ -49,6 +49,17 @@ void budget::list_debts(){
     std::cout << std::string(3, ' ') << "Money deserved: " << deserved << std::endl;
 }
 
+void budget::all_debts(){
+    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Paid", "Title"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& debt : saved_debts.debts){
+        contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), (debt.state == 0 ? "No" : "Yes"), debt.title});
+    }
+
+    display_table(columns, contents);
+}
+
 int budget::handle_debts(const std::vector<std::string>& args){
     load_debts();
 
@@ -59,6 +70,8 @@ int budget::handle_debts(const std::vector<std::string>& args){
 
         if(subcommand == "list"){
             list_debts();
+        } else if(subcommand == "all"){
+            all_debts();
         } else if(subcommand == "add"){
             if(args.size() < 5){
                 std::cout << "Not enough args for debt add" << std::endl;
