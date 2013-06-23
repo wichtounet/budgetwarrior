@@ -71,6 +71,19 @@ int budget::handle_debts(const std::vector<std::string>& args){
             }
 
             add_debt(std::move(debt));
+        } else if(subcommand == "delete"){
+            int id = to_number<int>(args[2]);
+
+            int before = saved_debts.debts.size();
+            saved_debts.debts.erase(std::remove_if(saved_debts.debts.begin(), saved_debts.debts.end(), [id](const debt& debt){ return debt.id == id; }), saved_debts.debts.end());
+
+            if(before == saved_debts.debts.size()){
+                std::cout << "There are no debt with id " << id << std::endl;
+
+                return 1;
+            } else {
+                std::cout << "Debt " << id << " has been deleted" << std::endl;
+            }
         } else {
             std::cout << "Invalid subcommand \"" << subcommand << "\"" << std::endl;
 
