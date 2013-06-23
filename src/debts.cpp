@@ -76,22 +76,43 @@ void display_table(std::vector<std::string> columns, std::vector<std::vector<std
     }
 }
 
+void budget::list_debts(){
+    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title"};
+    std::vector<std::vector<std::string>> contents;
+
+    money owed;
+    money deserved;
+
+    for(auto& debt : saved_debts.debts){
+        if(debt.state == 0){
+            contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), debt.title});
+
+            if(debt.direction){
+                owed += debt.amount;
+            } else {
+                deserved += debt.amount;
+            }
+        }
+    }
+
+    display_table(columns, contents);
+    std::cout << std::endl;
+
+    std::cout << std::string(7, ' ') << "Money owed: " << owed << std::endl;
+    std::cout << std::string(3, ' ') << "Money deserved: " << deserved << std::endl;
+}
+
 int budget::handle_debts(const std::vector<std::string>& args){
     load_debts();
 
     if(args.size() == 1){
-        std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title"};
-        std::vector<std::vector<std::string>> contents;
-
-        for(auto& debt : saved_debts.debts){
-            contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), debt.title});
-        }
-
-        display_table(columns, contents);
+        list_debts();
     } else {
         auto& subcommand = args[1];
 
-        if(subcommand == "add"){
+        if(subcommand == "list"){
+            list_debts();
+        } else if(subcommand == "add"){
             if(args.size() < 5){
                 std::cout << "Not enough args for debt add" << std::endl;
 

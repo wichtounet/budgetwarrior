@@ -38,6 +38,7 @@ struct debts {
 void load_debts();
 void save_debts();
 void add_debt(debt&& debt);
+void list_debts();
 
 int handle_debts(const std::vector<std::string>& args);
 
