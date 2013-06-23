@@ -21,6 +21,7 @@ typedef boost::posix_time::ptime time;
 
 struct debt {
     int id;
+    int state;
     std::string guid;
     time creation_time;
     bool direction;

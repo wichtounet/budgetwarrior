@@ -40,6 +40,7 @@ int budget::handle_debts(const std::vector<std::string>& args){
             }
 
             debt debt;
+            debt.state = 0;
             debt.guid = generate_guid();
             debt.creation_time = boost::posix_time::second_clock::local_time();
 
@@ -71,10 +72,30 @@ int budget::handle_debts(const std::vector<std::string>& args){
             }
 
             add_debt(std::move(debt));
+        } else if(subcommand == "paid"){
+            int id = to_number<int>(args[2]);
+
+            bool found = false;
+            for(auto& debt : saved_debts.debts){
+                if(debt.id == id){
+                    debt.state = 1;
+
+                    found = true;
+                    std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
+
+                    break;
+                }
+            }
+
+            if(!found){
+                std::cout << "There are no debt with id " << id << std::endl;
+
+                return 1;
+            }
         } else if(subcommand == "delete"){
             int id = to_number<int>(args[2]);
 
-            int before = saved_debts.debts.size();
+            std::size_t before = saved_debts.debts.size();
             saved_debts.debts.erase(std::remove_if(saved_debts.debts.begin(), saved_debts.debts.end(), [id](const debt& debt){ return debt.id == id; }), saved_debts.debts.end());
 
             if(before == saved_debts.debts.size()){
@@ -122,12 +143,13 @@ void budget::load_debts(){
 
                     debt debt;
                     debt.id = to_number<int>(parts[0]);
-                    debt.guid = parts[1];
-                    debt.creation_time = boost::posix_time::from_iso_string(parts[2]);
-                    debt.direction = to_number<bool>(parts[3]);
-                    debt.name = parts[4];
-                    debt.amount = parse_money(parts[5]);
-                    debt.title = parts[6];
+                    debt.state = to_number<int>(parts[1]);
+                    debt.guid = parts[2];
+                    debt.creation_time = boost::posix_time::from_iso_string(parts[3]);
+                    debt.direction = to_number<bool>(parts[4]);
+                    debt.name = parts[5];
+                    debt.amount = parse_money(parts[6]);
+                    debt.title = parts[7];
 
                     saved_debts.debts.push_back(std::move(debt));
                 }
@@ -143,6 +165,6 @@ void budget::save_debts(){
     file << saved_debts.next_id << std::endl;
 
     for(auto& debt : saved_debts.debts){
-        file << debt.id  << ':' << debt.guid << ':' << boost::posix_time::to_iso_string(debt.creation_time) << ':' << debt.direction << ':' << debt.name << ':' << debt.amount << ':' << debt.title << std::endl;
+        file << debt.id  << ':' << debt.state << ':' << debt.guid << ':' << boost::posix_time::to_iso_string(debt.creation_time) << ':' << debt.direction << ':' << debt.name << ':' << debt.amount << ':' << debt.title << std::endl;
     }
 }
