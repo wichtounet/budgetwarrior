@@ -37,6 +37,11 @@ inline int to_number (const std::string& text) {
     return strtol(text.c_str(), 0, 10);
 }
 
+template<typename T>
+inline std::string to_string(T value){
+    return std::to_string(value);
+}
+
 } //end of namespace budget
 
 #endif
