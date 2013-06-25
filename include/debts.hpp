@@ -20,7 +20,7 @@ namespace budget {
 typedef boost::posix_time::ptime time;
 
 struct debt {
-    int id;
+    std::size_t id;
     int state;
     std::string guid;
     time creation_time;
@@ -30,10 +30,8 @@ struct debt {
     std::string title = "";
 };
 
-struct debts {
-    int next_id;
-    std::vector<debt> debts;
-};
+std::ostream& operator<<(std::ostream& stream, const debt& debt);
+void operator>>(const std::vector<std::string>& parts, debt& debt);
 
 void load_debts();
 void save_debts();
