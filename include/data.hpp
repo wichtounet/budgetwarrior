@@ -5,29 +5,16 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
-#ifndef ACCOUNTS_H
-#define ACCOUNTS_H
-
-#include <vector>
-#include <string>
-
-#include "money.hpp"
+#ifndef DATA_H
+#define DATA_H
 
 namespace budget {
 
-struct account {
-    std::size_t id;
-    std::string guid;
-    std::string name;
-    money amount;
+template<typename T>
+struct data_handler {
+    std::size_t next_id;
+    std::vector<T> data;
 };
-
-void load_accounts();
-void save_accounts();
-void add_account(account&& account);
-void show_accounts();
-
-int handle_accounts(const std::vector<std::string>& args);
 
 } //end of namespace budget
 
