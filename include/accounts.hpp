@@ -22,6 +22,8 @@ struct account {
     money amount;
 };
 
+std::ostream& operator<<(std::ostream& stream, const account& account);
+
 void load_accounts();
 void save_accounts();
 void add_account(account&& account);

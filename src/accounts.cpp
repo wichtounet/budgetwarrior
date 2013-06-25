@@ -118,14 +118,7 @@ void budget::load_accounts(){
 }
 
 void budget::save_accounts(){
-    auto file_path = path_to_budget_file("accounts.data");
-
-    std::ofstream file(file_path);
-    file << accounts.next_id << std::endl;
-
-    for(auto& account : accounts.data){
-        file << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount << std::endl;
-    }
+    save_data(accounts, "accounts.data");
 }
 
 void budget::show_accounts(){
@@ -143,4 +136,8 @@ void budget::show_accounts(){
     contents.push_back({"", "Total", to_string(total)});
 
     display_table(columns, contents);
+}
+
+std::ostream& budget::operator<<(std::ostream& stream, const account& account){
+    return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount;
 }
