@@ -54,7 +54,7 @@ int budget::handle_accounts(const std::vector<std::string>& args){
                 return 1;
             }
 
-            add_account(std::move(account));
+            add_data(accounts, std::move(account));
         } else if(subcommand == "delete"){
             std::size_t id = to_number<std::size_t>(args[2]);
 
@@ -77,12 +77,6 @@ int budget::handle_accounts(const std::vector<std::string>& args){
     save_accounts();
 
     return 0;
-}
-
-void budget::add_account(budget::account&& account){
-    account.id = accounts.next_id++;
-
-    accounts.data.push_back(std::forward<budget::account>(account));
 }
 
 void budget::load_accounts(){

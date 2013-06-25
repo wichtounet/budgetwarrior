@@ -75,7 +75,7 @@ int budget::handle_debts(const std::vector<std::string>& args){
                 }
             }
 
-            add_debt(std::move(debt));
+            add_data(debts, std::move(debt));
         } else if(subcommand == "paid"){
             std::size_t id = to_number<std::size_t>(args[2]);
 
@@ -118,18 +118,12 @@ int budget::handle_debts(const std::vector<std::string>& args){
     return 0;
 }
 
-void budget::add_debt(budget::debt&& debt){
-    debt.id = debts.next_id++;
-
-    debts.data.push_back(std::forward<budget::debt>(debt));
-}
-
 void budget::load_debts(){
     load_data(debts, "debts.data");
 }
 
 void budget::save_debts(){
-    save_data(debts, "accounts.data");
+    save_data(debts, "debts.data");
 }
 
 void budget::all_debts(){

@@ -77,6 +77,13 @@ void remove(data_handler<T>& data, std::size_t id){
         [id](const T& entry){ return entry.id == id; }), data.data.end());
 }
 
+template<typename T>
+void add_data(data_handler<T>& data, T&& entry){
+    entry.id = data.next_id++;
+
+    data.data.push_back(std::forward<T>(entry));
+}
+
 } //end of namespace budget
 
 #endif

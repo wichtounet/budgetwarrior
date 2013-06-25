@@ -27,7 +27,6 @@ void operator>>(const std::vector<std::string>& parts, account& account);
 
 void load_accounts();
 void save_accounts();
-void add_account(account&& account);
 void show_accounts();
 
 int handle_accounts(const std::vector<std::string>& args);

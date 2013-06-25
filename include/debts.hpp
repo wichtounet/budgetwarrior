@@ -35,7 +35,6 @@ void operator>>(const std::vector<std::string>& parts, debt& debt);
 
 void load_debts();
 void save_debts();
-void add_debt(debt&& debt);
 void list_debts();
 void all_debts();
 
