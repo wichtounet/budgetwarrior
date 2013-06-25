@@ -30,6 +30,36 @@ void save_data(const data_handler<T>& data, const std::string& path){
     }
 }
 
+template<typename T>
+void load_data(data_handler<T>& data, const std::string& path){
+    auto file_path = path_to_budget_file(path);
+
+    if(!boost::filesystem::exists(file_path)){
+        data.next_id = 1;
+    } else {
+        std::ifstream file(file_path);
+
+        if(file.is_open()){
+            if(file.good()){
+                file >> data.next_id;
+                file.get();
+
+                std::string line;
+                while(file.good() && getline(file, line)){
+                    std::vector<std::string> parts;
+                    boost::split(parts, line, boost::is_any_of(":"), boost::token_compress_on);
+
+                    T entry;
+
+                    parts >> entry;
+
+                    data.data.push_back(std::move(entry));
+                }
+            }
+        }
+    }
+}
+
 } //end of namespace budget
 
 #endif

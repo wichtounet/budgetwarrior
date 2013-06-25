@@ -23,6 +23,7 @@ struct account {
 };
 
 std::ostream& operator<<(std::ostream& stream, const account& account);
+void operator>>(const std::vector<std::string>& parts, account& account);
 
 void load_accounts();
 void save_accounts();

@@ -87,34 +87,7 @@ void budget::add_account(budget::account&& account){
 }
 
 void budget::load_accounts(){
-    auto file_path = path_to_budget_file("accounts.data");
-
-    if(!boost::filesystem::exists(file_path)){
-        accounts.next_id = 1;
-    } else {
-        std::ifstream file(file_path);
-
-        if(file.is_open()){
-            if(file.good()){
-                file >> accounts.next_id;
-                file.get();
-
-                std::string line;
-                while(file.good() && getline(file, line)){
-                    std::vector<std::string> parts;
-                    boost::split(parts, line, boost::is_any_of(":"), boost::token_compress_on);
-
-                    account account;
-                    account.id = to_number<std::size_t>(parts[0]);
-                    account.guid = parts[1];
-                    account.name = parts[2];
-                    account.amount = parse_money(parts[3]);
-
-                    accounts.data.push_back(std::move(account));
-                }
-            }
-        }
-    }
+    load_data(accounts, "accounts.data");
 }
 
 void budget::save_accounts(){
@@ -140,4 +113,11 @@ void budget::show_accounts(){
 
 std::ostream& budget::operator<<(std::ostream& stream, const account& account){
     return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount;
+}
+
+void budget::operator>>(const std::vector<std::string>& parts, account& account){
+    account.id = to_number<std::size_t>(parts[0]);
+    account.guid = parts[1];
+    account.name = parts[2];
+    account.amount = parse_money(parts[3]);
 }
