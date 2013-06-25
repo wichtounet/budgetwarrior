@@ -58,15 +58,14 @@ int budget::handle_accounts(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             std::size_t id = to_number<std::size_t>(args[2]);
 
-            std::size_t before = accounts.data.size();
-            accounts.data.erase(std::remove_if(accounts.data.begin(), accounts.data.end(), [id](const account& account){ return account.id == id; }), accounts.data.end());
+            if(exists(accounts, id)){
+                remove(accounts, id);
 
-            if(before == accounts.data.size()){
+                std::cout << "Account " << id << " has been deleted" << std::endl;
+            } else {
                 std::cout << "There are no account with id " << id << std::endl;
 
                 return 1;
-            } else {
-                std::cout << "Account " << id << " has been deleted" << std::endl;
             }
         } else {
             std::cout << "Invalid subcommand \"" << subcommand << "\"" << std::endl;

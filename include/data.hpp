@@ -60,6 +60,23 @@ void load_data(data_handler<T>& data, const std::string& path){
     }
 }
 
+template<typename T>
+bool exists(const data_handler<T>& data, std::size_t id){
+    for(auto& entry : data.data){
+        if(entry.id == id){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+template<typename T>
+void remove(data_handler<T>& data, std::size_t id){
+    data.data.erase(std::remove_if(data.data.begin(), data.data.end(),
+        [id](const T& entry){ return entry.id == id; }), data.data.end());
+}
+
 } //end of namespace budget
 
 #endif
