@@ -11,12 +11,11 @@
 #include "config.hpp"
 #include "args.hpp"
 #include "debts.hpp"
+#include "accounts.hpp"
 
 using namespace budget;
 
 int main(int argc, const char* argv[]) {
-    //TODO Load the configuration
-
     //Verify that the data folder exists
     if(!verify_folder()){
         return 0;
@@ -39,6 +38,8 @@ int main(int argc, const char* argv[]) {
         //TODO Display complete help
     } else if(command == "debt"){
         return handle_debts(args);
+    } else if(command == "account"){
+        return handle_accounts(args);
     } else {
         std::cout << "Unhandled command \"" << command << "\"" << std::endl;
 
