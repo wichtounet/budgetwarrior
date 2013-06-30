@@ -58,6 +58,31 @@ int budget::handle_expenses(const std::vector<std::string>& args){
             }
 
             add_data(expenses, std::move(expense));
+        } else if(subcommand == "addd"){
+            if(args.size() < 5){
+                std::cout << "Not enough args for expense add date" << std::endl;
+
+                return 1;
+            }
+
+            expense expense;
+            expense.guid = generate_guid();
+            expense.expense_date = boost::gregorian::from_string(args[2]);
+
+            std::string amount_string = args[3];
+            expense.amount = parse_money(amount_string);
+
+            if(expense.amount.dollars < 0 || expense.amount.cents < 0){
+                std::cout << "Amount of the expense cannot be negative" << std::endl;
+
+                return 1;
+            }
+
+            for(std::size_t i = 4; i < args.size(); ++i){
+                expense.name += args[i] + " ";
+            }
+
+            add_data(expenses, std::move(expense));
         } else if(subcommand == "delete"){
             std::size_t id = to_number<std::size_t>(args[2]);
 
