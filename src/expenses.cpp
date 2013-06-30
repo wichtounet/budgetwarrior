@@ -147,18 +147,24 @@ void budget::show_expenses(boost::gregorian::greg_month month, boost::gregorian:
     std::vector<std::vector<std::string>> contents;
 
     money total;
+    std::size_t count = 0;
 
     for(auto& expense : expenses.data){
         if(expense.expense_date.year() == year && expense.expense_date.month() == month){
             contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.name, to_string(expense.amount)});
 
             total += expense.amount;
+            ++count;
         }
     }
 
-    contents.push_back({"", "", "Total", to_string(total)});
+    if(count == 0){
+        std::cout << "No expenses for " << month << "-" << year << std::endl;
+    } else {
+        contents.push_back({"", "", "Total", to_string(total)});
 
-    display_table(columns, contents);
+        display_table(columns, contents);
+    }
 }
 
 void budget::all_expenses(){
