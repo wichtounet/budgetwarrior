@@ -91,21 +91,20 @@ void budget::save_expenses(){
 }
 
 void budget::show_expenses(){
-    std::vector<std::string> columns = {"ID", "Name", "Amount"};
+    std::vector<std::string> columns = {"ID", "Date", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
     //TODO Filter by the current month
 
     money total;
 
-    //TODO Display date
     for(auto& expense : expenses.data){
-        contents.push_back({to_string(expense.id), expense.name, to_string(expense.amount)});
+        contents.push_back({to_string(expense.id), to_string(expense.expense_time.date()), expense.name, to_string(expense.amount)});
 
         total += expense.amount;
     }
 
-    contents.push_back({"", "Total", to_string(total)});
+    contents.push_back({"", "", "Total", to_string(total)});
 
     display_table(columns, contents);
 }

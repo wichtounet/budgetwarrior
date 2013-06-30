@@ -11,6 +11,9 @@
 #include <string>
 #include <sstream>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 namespace budget {
 
 /*!
@@ -40,6 +43,11 @@ inline int to_number (const std::string& text) {
 template<typename T>
 inline std::string to_string(T value){
     return std::to_string(value);
+}
+
+template<>
+inline std::string to_string(boost::gregorian::date date){
+    return boost::gregorian::to_iso_extended_string(date);
 }
 
 } //end of namespace budget
