@@ -33,6 +33,8 @@ int budget::handle_expenses(const std::vector<std::string>& args){
 
         if(subcommand == "show"){
             show_expenses();
+        } else if(subcommand == "all"){
+            all_expenses();
         } else if(subcommand == "add"){
             if(args.size() < 4){
                 std::cout << "Not enough args for expense add" << std::endl;
@@ -119,8 +121,6 @@ void budget::show_expenses(){
     std::vector<std::string> columns = {"ID", "Date", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
-    //TODO Filter by the current month
-
     money total;
 
     date today = boost::gregorian::day_clock::local_day();
@@ -134,6 +134,17 @@ void budget::show_expenses(){
     }
 
     contents.push_back({"", "", "Total", to_string(total)});
+
+    display_table(columns, contents);
+}
+
+void budget::all_expenses(){
+    std::vector<std::string> columns = {"ID", "Date", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& expense : expenses.data){
+        contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.name, to_string(expense.amount)});
+    }
 
     display_table(columns, contents);
 }
