@@ -33,6 +33,8 @@ void operator>>(const std::vector<std::string>& parts, expense& expense);
 void load_expenses();
 void save_expenses();
 void show_expenses();
+void show_expenses(boost::gregorian::greg_month month);
+void show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year);
 void all_expenses();
 
 int handle_expenses(const std::vector<std::string>& args);

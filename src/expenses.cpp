@@ -11,6 +11,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+//#include <boost/date_time/date_parsing.hpp>
 
 #include "expenses.hpp"
 #include "data.hpp"
@@ -32,7 +33,19 @@ int budget::handle_expenses(const std::vector<std::string>& args){
         auto& subcommand = args[1];
 
         if(subcommand == "show"){
-            show_expenses();
+            if(args.size() == 2){
+                show_expenses();
+            } else if(args.size() == 3){
+                show_expenses(boost::gregorian::greg_month(to_number<unsigned short>(args[2])));
+            } else if(args.size() == 4){
+                show_expenses(
+                    boost::gregorian::greg_month(to_number<unsigned short>(args[2])),
+                    boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
+            } else {
+                std::cout << "Too many arguments to expense show" << std::endl;
+
+                return 1;
+            }
         } else if(subcommand == "all"){
             all_expenses();
         } else if(subcommand == "add"){
@@ -118,15 +131,25 @@ void budget::save_expenses(){
 }
 
 void budget::show_expenses(){
+    date today = boost::gregorian::day_clock::local_day();
+
+    show_expenses(today.month(), today.year());
+}
+
+void budget::show_expenses(boost::gregorian::greg_month month){
+    date today = boost::gregorian::day_clock::local_day();
+
+    show_expenses(month, today.year());
+}
+
+void budget::show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::vector<std::string> columns = {"ID", "Date", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
     money total;
 
-    date today = boost::gregorian::day_clock::local_day();
-
     for(auto& expense : expenses.data){
-        if(expense.expense_date.year() == today.year() && expense.expense_date.month() == today.month()){
+        if(expense.expense_date.year() == year && expense.expense_date.month() == month){
             contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.name, to_string(expense.amount)});
 
             total += expense.amount;
