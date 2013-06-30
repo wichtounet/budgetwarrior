@@ -15,7 +15,6 @@
 #include "debts.hpp"
 #include "data.hpp"
 #include "guid.hpp"
-#include "money.hpp"
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"

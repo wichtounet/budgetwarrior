@@ -10,8 +10,10 @@
 
 #include "config.hpp"
 #include "args.hpp"
+
 #include "debts.hpp"
 #include "accounts.hpp"
+#include "expenses.hpp"
 
 using namespace budget;
 
@@ -40,6 +42,8 @@ int main(int argc, const char* argv[]) {
         return handle_debts(args);
     } else if(command == "account"){
         return handle_accounts(args);
+    } else if(command == "expense"){
+        return handle_expenses(args);
     } else {
         std::cout << "Unhandled command \"" << command << "\"" << std::endl;
 
