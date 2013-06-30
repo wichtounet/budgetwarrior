@@ -123,10 +123,14 @@ void budget::show_expenses(){
 
     money total;
 
-    for(auto& expense : expenses.data){
-        contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.name, to_string(expense.amount)});
+    date today = boost::gregorian::day_clock::local_day();
 
-        total += expense.amount;
+    for(auto& expense : expenses.data){
+        if(expense.expense_date.year() == today.year() && expense.expense_date.month() == today.month()){
+            contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.name, to_string(expense.amount)});
+
+            total += expense.amount;
+        }
     }
 
     contents.push_back({"", "", "Total", to_string(total)});
