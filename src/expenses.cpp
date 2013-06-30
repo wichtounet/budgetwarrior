@@ -42,7 +42,7 @@ int budget::handle_expenses(const std::vector<std::string>& args){
 
             expense expense;
             expense.guid = generate_guid();
-            expense.expense_time = boost::posix_time::second_clock::local_time();
+            expense.expense_date = boost::gregorian::day_clock::local_day();
 
             std::string amount_string = args[2];
             expense.amount = parse_money(amount_string);
@@ -99,7 +99,7 @@ void budget::show_expenses(){
     money total;
 
     for(auto& expense : expenses.data){
-        contents.push_back({to_string(expense.id), to_string(expense.expense_time.date()), expense.name, to_string(expense.amount)});
+        contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.name, to_string(expense.amount)});
 
         total += expense.amount;
     }
@@ -110,7 +110,7 @@ void budget::show_expenses(){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
-    return stream << expense.id  << ':' << expense.guid << ':' << expense.name << ':' << expense.amount << ':' << boost::posix_time::to_iso_string(expense.expense_time);
+    return stream << expense.id  << ':' << expense.guid << ':' << expense.name << ':' << expense.amount << ':' << to_string(expense.expense_date);
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, expense& expense){
@@ -118,5 +118,5 @@ void budget::operator>>(const std::vector<std::string>& parts, expense& expense)
     expense.guid = parts[1];
     expense.name = parts[2];
     expense.amount = parse_money(parts[3]);
-    expense.expense_time = boost::posix_time::from_iso_string(parts[4]);
+    expense.expense_date = boost::gregorian::from_string(parts[4]);
 }

@@ -11,18 +11,18 @@
 #include <vector>
 #include <string>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "money.hpp"
 
 namespace budget {
 
-typedef boost::posix_time::ptime time;
+typedef boost::gregorian::date date;
 
 struct expense {
     std::size_t id;
     std::string guid;
-    time expense_time;
+    date expense_date;
     std::string name;
     money amount;
 };
