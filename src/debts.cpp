@@ -25,7 +25,7 @@ using namespace budget;
 
 static data_handler<debt> debts;
 
-int budget::handle_debts(const std::vector<std::string>& args){
+void budget::handle_debts(const std::vector<std::string>& args){
     load_debts();
 
     if(args.size() == 1){
@@ -101,8 +101,6 @@ int budget::handle_debts(const std::vector<std::string>& args){
     }
 
     save_debts();
-
-    return 0;
 }
 
 void budget::load_debts(){

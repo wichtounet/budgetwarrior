@@ -26,7 +26,7 @@ using namespace budget;
 
 static data_handler<account> accounts;
 
-int budget::handle_accounts(const std::vector<std::string>& args){
+void budget::handle_accounts(const std::vector<std::string>& args){
     load_accounts();
 
     if(args.size() == 1){
@@ -69,8 +69,6 @@ int budget::handle_accounts(const std::vector<std::string>& args){
     }
 
     save_accounts();
-
-    return 0;
 }
 
 void budget::load_accounts(){

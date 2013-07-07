@@ -38,7 +38,7 @@ void save_debts();
 void list_debts();
 void all_debts();
 
-int handle_debts(const std::vector<std::string>& args);
+void handle_debts(const std::vector<std::string>& args);
 
 } //end of namespace budget
 

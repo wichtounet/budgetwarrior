@@ -30,7 +30,7 @@ void save_accounts();
 void show_accounts();
 bool account_exists(const std::string& account);
 
-int handle_accounts(const std::vector<std::string>& args);
+void handle_accounts(const std::vector<std::string>& args);
 
 } //end of namespace budget
 

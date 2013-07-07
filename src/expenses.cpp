@@ -32,7 +32,7 @@ void validate_account(const std::string& account){
     }
 }
 
-int budget::handle_expenses(const std::vector<std::string>& args){
+void budget::handle_expenses(const std::vector<std::string>& args){
     load_expenses();
     load_accounts();
 
@@ -109,8 +109,6 @@ int budget::handle_expenses(const std::vector<std::string>& args){
     }
 
     save_expenses();
-
-    return 0;
 }
 
 void budget::load_expenses(){

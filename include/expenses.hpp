@@ -38,7 +38,7 @@ void show_expenses(boost::gregorian::greg_month month);
 void show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year);
 void all_expenses();
 
-int handle_expenses(const std::vector<std::string>& args);
+void handle_expenses(const std::vector<std::string>& args);
 
 } //end of namespace budget
 
