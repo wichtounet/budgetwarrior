@@ -43,6 +43,8 @@ int main(int argc, const char* argv[]) {
                 handle_accounts(args);
             } else if(command == "expense"){
                 handle_expenses(args);
+            } else if(command == "overview"){
+                handle_overview(args);
             } else {
                 std::cout << "Unhandled command \"" << command << "\"" << std::endl;
 
