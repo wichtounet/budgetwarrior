@@ -12,6 +12,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "args.hpp"
+#include "budget_exception.hpp"
 #include "debts.hpp"
 #include "data.hpp"
 #include "guid.hpp"
@@ -36,11 +38,7 @@ int budget::handle_debts(const std::vector<std::string>& args){
         } else if(subcommand == "all"){
             all_debts();
         } else if(subcommand == "add"){
-            if(args.size() < 5){
-                std::cout << "Not enough args for debt add" << std::endl;
-
-                return 1;
-            }
+            enough_args(args, 5);
 
             debt debt;
             debt.state = 0;
@@ -50,23 +48,15 @@ int budget::handle_debts(const std::vector<std::string>& args){
             std::string direction = args[2];
 
             if(direction != "to" && direction != "from"){
-                std::cout << "Invalid direction, only \"to\" and \"from\" are valid" << std::endl;
-
-                return 1;
+                throw budget_exception("Invalid direction, only \"to\" and \"from\" are valid");
             }
 
             debt.direction = direction == "to" ? true : false;
 
             debt.name = args[3];
 
-            std::string amount_string = args[4];
-            debt.amount = parse_money(amount_string);
-
-            if(debt.amount.dollars < 0 || debt.amount.cents < 0){
-                std::cout << "Amount of the debt cannot be negative" << std::endl;
-
-                return 1;
-            }
+            debt.amount = parse_money(args[4]);
+            not_negative(debt.amount);
 
             if(args.size() > 5){
                 for(std::size_t i = 5; i < args.size(); ++i){
@@ -76,39 +66,37 @@ int budget::handle_debts(const std::vector<std::string>& args){
 
             add_data(debts, std::move(debt));
         } else if(subcommand == "paid"){
+            enough_args(args, 3);
+
             std::size_t id = to_number<std::size_t>(args[2]);
 
-            if(exists(debts, id)){
-                for(auto& debt : debts.data){
-                    if(debt.id == id){
-                        debt.state = 1;
+            if(!exists(debts, id)){
+                throw budget_exception("There are no debt with id " + args[2]);
+            }
 
-                        std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
+            for(auto& debt : debts.data){
+                if(debt.id == id){
+                    debt.state = 1;
 
-                        break;
-                    }
+                    std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
+
+                    break;
                 }
-            } else {
-                std::cout << "There are no debt with id " << id << std::endl;
-
-                return 1;
             }
         } else if(subcommand == "delete"){
+            enough_args(args, 3);
+
             std::size_t id = to_number<std::size_t>(args[2]);
 
-            if(exists(debts, id)){
-                remove(debts, id);
-
-                std::cout << "Debt " << id << " has been deleted" << std::endl;
-            } else {
-                std::cout << "There are no debt with id " << id << std::endl;
-
-                return 1;
+            if(!exists(debts, id)){
+                throw budget_exception("There are no debt with id " + args[2]);
             }
-        } else {
-            std::cout << "Invalid subcommand \"" << subcommand << "\"" << std::endl;
 
-            return 1;
+            remove(debts, id);
+
+            std::cout << "Debt " << id << " has been deleted" << std::endl;
+        } else {
+            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
 
