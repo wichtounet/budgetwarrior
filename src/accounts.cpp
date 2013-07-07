@@ -45,6 +45,12 @@ int budget::handle_accounts(const std::vector<std::string>& args){
             account.guid = generate_guid();
             account.name = args[2];
 
+            if(account_exists(account.name)){
+                std::cout << "An account with this name already exists" << std::endl;
+
+                return 1;
+            }
+
             std::string amount_string = args[3];
             account.amount = parse_money(amount_string);
 
