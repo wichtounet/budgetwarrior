@@ -13,6 +13,8 @@
 #include <boost/algorithm/string.hpp>
 
 #include "accounts.hpp"
+#include "budget_exception.hpp"
+#include "args.hpp"
 #include "data.hpp"
 #include "guid.hpp"
 #include "money.hpp"
@@ -35,48 +37,34 @@ int budget::handle_accounts(const std::vector<std::string>& args){
         if(subcommand == "show"){
             show_accounts();
         } else if(subcommand == "add"){
-            if(args.size() < 4){
-                std::cout << "Not enough args for account add" << std::endl;
-
-                return 1;
-            }
+            enough_args(args, 4);
 
             account account;
             account.guid = generate_guid();
             account.name = args[2];
 
             if(account_exists(account.name)){
-                std::cout << "An account with this name already exists" << std::endl;
-
-                return 1;
+                throw budget_exception("An account with this name already exists");
             }
 
-            std::string amount_string = args[3];
-            account.amount = parse_money(amount_string);
-
-            if(account.amount.dollars < 0 || account.amount.cents < 0){
-                std::cout << "Amount of the account cannot be negative" << std::endl;
-
-                return 1;
-            }
+            account.amount = parse_money(args[3]);
+            not_negative(account.amount);
 
             add_data(accounts, std::move(account));
         } else if(subcommand == "delete"){
+            enough_args(args, 3);
+
             std::size_t id = to_number<std::size_t>(args[2]);
 
-            if(exists(accounts, id)){
-                remove(accounts, id);
-
-                std::cout << "Account " << id << " has been deleted" << std::endl;
-            } else {
-                std::cout << "There are no account with id " << id << std::endl;
-
-                return 1;
+            if(!exists(accounts, id)){
+                throw budget_exception("There are no account with id " + args[2]);
             }
-        } else {
-            std::cout << "Invalid subcommand \"" << subcommand << "\"" << std::endl;
 
-            return 1;
+            remove(accounts, id);
+
+            std::cout << "Account " << id << " has been deleted" << std::endl;
+        } else {
+            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
 
