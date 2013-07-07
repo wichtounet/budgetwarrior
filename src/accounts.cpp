@@ -114,3 +114,13 @@ void budget::operator>>(const std::vector<std::string>& parts, account& account)
     account.name = parts[2];
     account.amount = parse_money(parts[3]);
 }
+
+bool budget::account_exists(const std::string& name){
+    for(auto& account : accounts.data){
+        if(account.name == name){
+            return true;
+        }
+    }
+
+    return false;
+}

@@ -14,6 +14,7 @@
 //#include <boost/date_time/date_parsing.hpp>
 
 #include "expenses.hpp"
+#include "accounts.hpp"
 #include "data.hpp"
 #include "guid.hpp"
 #include "config.hpp"
@@ -26,6 +27,7 @@ static data_handler<expense> expenses;
 
 int budget::handle_expenses(const std::vector<std::string>& args){
     load_expenses();
+    load_accounts();
 
     if(args.size() == 1){
         show_expenses();
@@ -49,7 +51,7 @@ int budget::handle_expenses(const std::vector<std::string>& args){
         } else if(subcommand == "all"){
             all_expenses();
         } else if(subcommand == "add"){
-            if(args.size() < 4){
+            if(args.size() < 5){
                 std::cout << "Not enough args for expense add" << std::endl;
 
                 return 1;
@@ -58,31 +60,13 @@ int budget::handle_expenses(const std::vector<std::string>& args){
             expense expense;
             expense.guid = generate_guid();
             expense.expense_date = boost::gregorian::day_clock::local_day();
+            expense.account = args[2];
 
-            std::string amount_string = args[2];
-            expense.amount = parse_money(amount_string);
-
-            if(expense.amount.dollars < 0 || expense.amount.cents < 0){
-                std::cout << "Amount of the expense cannot be negative" << std::endl;
+            if(!account_exists(expense.account)){
+                std::cout << "The account " << expense.account << " does not exist" << std::endl;
 
                 return 1;
             }
-
-            for(std::size_t i = 3; i < args.size(); ++i){
-                expense.name += args[i] + " ";
-            }
-
-            add_data(expenses, std::move(expense));
-        } else if(subcommand == "addd"){
-            if(args.size() < 5){
-                std::cout << "Not enough args for expense add date" << std::endl;
-
-                return 1;
-            }
-
-            expense expense;
-            expense.guid = generate_guid();
-            expense.expense_date = boost::gregorian::from_string(args[2]);
 
             std::string amount_string = args[3];
             expense.amount = parse_money(amount_string);
@@ -94,6 +78,38 @@ int budget::handle_expenses(const std::vector<std::string>& args){
             }
 
             for(std::size_t i = 4; i < args.size(); ++i){
+                expense.name += args[i] + " ";
+            }
+
+            add_data(expenses, std::move(expense));
+        } else if(subcommand == "addd"){
+            if(args.size() < 6){
+                std::cout << "Not enough args for expense add date" << std::endl;
+
+                return 1;
+            }
+
+            expense expense;
+            expense.guid = generate_guid();
+            expense.expense_date = boost::gregorian::from_string(args[2]);
+            expense.account = args[3];
+
+            if(!account_exists(expense.account)){
+                std::cout << "The account " << expense.account << " does not exist" << std::endl;
+
+                return 1;
+            }
+
+            std::string amount_string = args[4];
+            expense.amount = parse_money(amount_string);
+
+            if(expense.amount.dollars < 0 || expense.amount.cents < 0){
+                std::cout << "Amount of the expense cannot be negative" << std::endl;
+
+                return 1;
+            }
+
+            for(std::size_t i = 5; i < args.size(); ++i){
                 expense.name += args[i] + " ";
             }
 
@@ -143,7 +159,7 @@ void budget::show_expenses(boost::gregorian::greg_month month){
 }
 
 void budget::show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
-    std::vector<std::string> columns = {"ID", "Date", "Name", "Amount"};
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
     money total;
@@ -151,7 +167,7 @@ void budget::show_expenses(boost::gregorian::greg_month month, boost::gregorian:
 
     for(auto& expense : expenses.data){
         if(expense.expense_date.year() == year && expense.expense_date.month() == month){
-            contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.name, to_string(expense.amount)});
+            contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.account, expense.name, to_string(expense.amount)});
 
             total += expense.amount;
             ++count;
@@ -161,31 +177,32 @@ void budget::show_expenses(boost::gregorian::greg_month month, boost::gregorian:
     if(count == 0){
         std::cout << "No expenses for " << month << "-" << year << std::endl;
     } else {
-        contents.push_back({"", "", "Total", to_string(total)});
+        contents.push_back({"", "", "", "Total", to_string(total)});
 
         display_table(columns, contents);
     }
 }
 
 void budget::all_expenses(){
-    std::vector<std::string> columns = {"ID", "Date", "Name", "Amount"};
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
     for(auto& expense : expenses.data){
-        contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.name, to_string(expense.amount)});
+        contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.account, expense.name, to_string(expense.amount)});
     }
 
     display_table(columns, contents);
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
-    return stream << expense.id  << ':' << expense.guid << ':' << expense.name << ':' << expense.amount << ':' << to_string(expense.expense_date);
+    return stream << expense.id  << ':' << expense.guid << ':' << expense.account << ':' << expense.name << ':' << expense.amount << ':' << to_string(expense.expense_date);
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, expense& expense){
     expense.id = to_number<std::size_t>(parts[0]);
     expense.guid = parts[1];
-    expense.name = parts[2];
-    expense.amount = parse_money(parts[3]);
-    expense.expense_date = boost::gregorian::from_string(parts[4]);
+    expense.account = parts[2];
+    expense.name = parts[3];
+    expense.amount = parse_money(parts[4]);
+    expense.expense_date = boost::gregorian::from_string(parts[5]);
 }

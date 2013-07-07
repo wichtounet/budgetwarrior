@@ -28,6 +28,7 @@ void operator>>(const std::vector<std::string>& parts, account& account);
 void load_accounts();
 void save_accounts();
 void show_accounts();
+bool account_exists(const std::string& account);
 
 int handle_accounts(const std::vector<std::string>& args);
 
