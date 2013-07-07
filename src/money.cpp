@@ -7,6 +7,7 @@
 
 #include "money.hpp"
 #include "utils.hpp"
+#include "budget_exception.hpp"
 
 using namespace budget;
 
@@ -27,4 +28,10 @@ money budget::parse_money(const std::string& money_string){
 
 std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
     return stream << amount.dollars << "." << amount.cents;
+}
+
+void budget::not_negative(const money& amount){
+    if(amount.dollars < 0 || amount.cents < 0){
+        throw budget_exception("Amount cannot be negative");
+    }
 }

@@ -14,6 +14,7 @@
 #include "debts.hpp"
 #include "accounts.hpp"
 #include "expenses.hpp"
+#include "budget_exception.hpp"
 
 using namespace budget;
 
@@ -34,18 +35,24 @@ int main(int argc, const char* argv[]) {
 
     auto& command = args[0];
 
-    if(command == "help"){
-        std::cout << "Usage: budget command [options]" << std::endl;
+    try {
+        if(command == "help"){
+            std::cout << "Usage: budget command [options]" << std::endl;
 
-        //TODO Display complete help
-    } else if(command == "debt"){
-        return handle_debts(args);
-    } else if(command == "account"){
-        return handle_accounts(args);
-    } else if(command == "expense"){
-        return handle_expenses(args);
-    } else {
-        std::cout << "Unhandled command \"" << command << "\"" << std::endl;
+            //TODO Display complete help
+        } else if(command == "debt"){
+            return handle_debts(args);
+        } else if(command == "account"){
+            return handle_accounts(args);
+        } else if(command == "expense"){
+            return handle_expenses(args);
+        } else {
+            std::cout << "Unhandled command \"" << command << "\"" << std::endl;
+
+            return 1;
+        }
+    } catch (const budget_exception& exception){
+        std::cout << exception.message() << std::endl;
 
         return 1;
     }

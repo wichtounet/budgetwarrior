@@ -48,6 +48,7 @@ struct money {
 std::ostream& operator<<(std::ostream& stream, const money& amount);
 
 money parse_money(const std::string& money_string);
+void not_negative(const money& money);
 
 template<>
 inline std::string to_string(money amount){

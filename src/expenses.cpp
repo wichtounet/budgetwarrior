@@ -11,19 +11,26 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-//#include <boost/date_time/date_parsing.hpp>
 
 #include "expenses.hpp"
+#include "args.hpp"
 #include "accounts.hpp"
 #include "data.hpp"
 #include "guid.hpp"
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"
+#include "budget_exception.hpp"
 
 using namespace budget;
 
 static data_handler<expense> expenses;
+
+void validate_account(const std::string& account){
+    if(!account_exists(account)){
+        throw budget_exception("The account " + account + " does not exist");
+    }
+}
 
 int budget::handle_expenses(const std::vector<std::string>& args){
     load_expenses();
@@ -44,38 +51,22 @@ int budget::handle_expenses(const std::vector<std::string>& args){
                     boost::gregorian::greg_month(to_number<unsigned short>(args[2])),
                     boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
             } else {
-                std::cout << "Too many arguments to expense show" << std::endl;
-
-                return 1;
+                throw budget_exception("Too many arguments to expense show");
             }
         } else if(subcommand == "all"){
             all_expenses();
         } else if(subcommand == "add"){
-            if(args.size() < 5){
-                std::cout << "Not enough args for expense add" << std::endl;
-
-                return 1;
-            }
+            enough_args(args, 5);
 
             expense expense;
             expense.guid = generate_guid();
             expense.expense_date = boost::gregorian::day_clock::local_day();
+
             expense.account = args[2];
+            validate_account(expense.account);
 
-            if(!account_exists(expense.account)){
-                std::cout << "The account " << expense.account << " does not exist" << std::endl;
-
-                return 1;
-            }
-
-            std::string amount_string = args[3];
-            expense.amount = parse_money(amount_string);
-
-            if(expense.amount.dollars < 0 || expense.amount.cents < 0){
-                std::cout << "Amount of the expense cannot be negative" << std::endl;
-
-                return 1;
-            }
+            expense.amount = parse_money(args[3]);
+            not_negative(expense.amount);
 
             for(std::size_t i = 4; i < args.size(); ++i){
                 expense.name += args[i] + " ";
@@ -83,31 +74,17 @@ int budget::handle_expenses(const std::vector<std::string>& args){
 
             add_data(expenses, std::move(expense));
         } else if(subcommand == "addd"){
-            if(args.size() < 6){
-                std::cout << "Not enough args for expense add date" << std::endl;
-
-                return 1;
-            }
+            enough_args(args, 6);
 
             expense expense;
             expense.guid = generate_guid();
             expense.expense_date = boost::gregorian::from_string(args[2]);
+
             expense.account = args[3];
+            validate_account(expense.account);
 
-            if(!account_exists(expense.account)){
-                std::cout << "The account " << expense.account << " does not exist" << std::endl;
-
-                return 1;
-            }
-
-            std::string amount_string = args[4];
-            expense.amount = parse_money(amount_string);
-
-            if(expense.amount.dollars < 0 || expense.amount.cents < 0){
-                std::cout << "Amount of the expense cannot be negative" << std::endl;
-
-                return 1;
-            }
+            expense.amount = parse_money(args[4]);
+            not_negative(expense.amount);
 
             for(std::size_t i = 5; i < args.size(); ++i){
                 expense.name += args[i] + " ";
@@ -115,21 +92,19 @@ int budget::handle_expenses(const std::vector<std::string>& args){
 
             add_data(expenses, std::move(expense));
         } else if(subcommand == "delete"){
+            enough_args(args, 3);
+
             std::size_t id = to_number<std::size_t>(args[2]);
 
-            if(exists(expenses, id)){
-                remove(expenses, id);
-
-                std::cout << "Expense " << id << " has been deleted" << std::endl;
-            } else {
-                std::cout << "There are no expense with id " << id << std::endl;
-
-                return 1;
+            if(!exists(expenses, id)){
+                throw budget_exception("There are no expense with id ");
             }
-        } else {
-            std::cout << "Invalid subcommand \"" << subcommand << "\"" << std::endl;
 
-            return 1;
+            remove(expenses, id);
+
+            std::cout << "Expense " << id << " has been deleted" << std::endl;
+        } else {
+            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
 
