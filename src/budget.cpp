@@ -10,11 +10,12 @@
 
 #include "config.hpp"
 #include "args.hpp"
+#include "budget_exception.hpp"
 
 #include "debts.hpp"
 #include "accounts.hpp"
 #include "expenses.hpp"
-#include "budget_exception.hpp"
+#include "overview.hpp"
 
 using namespace budget;
 
@@ -25,36 +26,33 @@ int main(int argc, const char* argv[]) {
     }
 
     if(argc == 1){
-        //TODO In the future, display the default module
-        std::cout << "A command is necessary" << std::endl;
+        month_overview();
+    } else {
+        auto args = parse_args(argc, argv);
 
-        return 1;
-    }
+        auto& command = args[0];
 
-    auto args = parse_args(argc, argv);
+        try {
+            if(command == "help"){
+                std::cout << "Usage: budget command [options]" << std::endl;
 
-    auto& command = args[0];
+                //TODO Display complete help
+            } else if(command == "debt"){
+                handle_debts(args);
+            } else if(command == "account"){
+                handle_accounts(args);
+            } else if(command == "expense"){
+                handle_expenses(args);
+            } else {
+                std::cout << "Unhandled command \"" << command << "\"" << std::endl;
 
-    try {
-        if(command == "help"){
-            std::cout << "Usage: budget command [options]" << std::endl;
-
-            //TODO Display complete help
-        } else if(command == "debt"){
-            handle_debts(args);
-        } else if(command == "account"){
-            handle_accounts(args);
-        } else if(command == "expense"){
-            handle_expenses(args);
-        } else {
-            std::cout << "Unhandled command \"" << command << "\"" << std::endl;
+                return 1;
+            }
+        } catch (const budget_exception& exception){
+            std::cout << exception.message() << std::endl;
 
             return 1;
         }
-    } catch (const budget_exception& exception){
-        std::cout << exception.message() << std::endl;
-
-        return 1;
     }
 
     return 0;
