@@ -41,8 +41,8 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
         }
 
         for(auto& row : contents){
-            for(std::size_t i = 0; i < widths.size(); ++i){
-                widths[i] = std::max(widths[i], row[i].length() + (i < row.size() - 1 ? 1 : 0));
+            for(std::size_t i = 0; i < row.size(); ++i){
+                widths[i] = std::max(widths[i], row[i].length() + 1);
             }
         }
     }
@@ -59,6 +59,10 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
 
         width = std::max(width, column.length());
         header_widths.push_back(width + (i < columns.size() - 1 && column.length() >= width ? 1 : 0));
+
+ //           std::cout << "i=" << i << std::endl;
+  //          std::cout << "width=" << width << std::endl;
+   //         std::cout << "column.length()=" << column.length() << std::endl;
 
         --width;
 
@@ -87,8 +91,9 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
 
             if(groups == 1){
                 width = std::max(width, header_widths[j]);
-            } else if((j+1) % groups == 0 && header_widths[(j-(groups-1)) / groups] > acc_width){
-                width = std::max(width, header_widths[(j-(groups-1)) / groups] - acc_width);
+            } else if((j+1) % groups == 0 && header_widths[(j-(groups-1)) / groups] + 1 > acc_width){
+                width = std::max(width, header_widths[(j-(groups-1)) / groups] + 1 - acc_width);
+                acc_width = 0;
             }
 
             std::cout << row[j] << std::string(width - row[j].length(), ' ');
