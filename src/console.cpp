@@ -58,7 +58,7 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
         }
 
         width = std::max(width, column.length());
-        header_widths.push_back(width);
+        header_widths.push_back(width + (i < columns.size() - 1 && column.length() >= width ? 1 : 0));
 
         --width;
 
