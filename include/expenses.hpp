@@ -36,7 +36,9 @@ void save_expenses();
 void show_expenses();
 void show_expenses(boost::gregorian::greg_month month);
 void show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year);
-void all_expenses();
+void show_all_expenses();
+
+std::vector<expense>& all_expenses();
 
 void handle_expenses(const std::vector<std::string>& args);
 

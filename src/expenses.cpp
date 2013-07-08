@@ -54,7 +54,7 @@ void budget::handle_expenses(const std::vector<std::string>& args){
                 throw budget_exception("Too many arguments to expense show");
             }
         } else if(subcommand == "all"){
-            all_expenses();
+            show_all_expenses();
         } else if(subcommand == "add"){
             enough_args(args, 5);
 
@@ -156,7 +156,7 @@ void budget::show_expenses(boost::gregorian::greg_month month, boost::gregorian:
     }
 }
 
-void budget::all_expenses(){
+void budget::show_all_expenses(){
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
@@ -178,4 +178,8 @@ void budget::operator>>(const std::vector<std::string>& parts, expense& expense)
     expense.name = parts[3];
     expense.amount = parse_money(parts[4]);
     expense.expense_date = boost::gregorian::from_string(parts[5]);
+}
+
+std::vector<expense>& budget::all_expenses(){
+    return expenses.data;
 }

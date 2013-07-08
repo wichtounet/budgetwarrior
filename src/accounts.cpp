@@ -117,6 +117,6 @@ bool budget::account_exists(const std::string& name){
     return false;
 }
 
-std::vector<account> budget::all_accounts(){
+std::vector<account>& budget::all_accounts(){
     return accounts.data;
 }

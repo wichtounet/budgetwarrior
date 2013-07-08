@@ -5,6 +5,8 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
+#include <unordered_map>
+
 #include "overview.hpp"
 #include "console.hpp"
 #include "accounts.hpp"
@@ -36,11 +38,40 @@ void budget::month_overview(){
     std::cout << "Overview of the month" << std::endl << std::endl;
 
     std::vector<std::string> columns;
+    std::unordered_map<std::string, std::size_t> indexes;
     std::vector<std::vector<std::string>> contents;
+    std::vector<money> totals;
 
     for(auto& account : all_accounts()){
+        indexes[account.name] = columns.size();
         columns.push_back(account.name);
+        totals.push_back({});
     }
+
+    std::vector<std::size_t> current(columns.size(), 0);
+
+    for(auto& expense : all_expenses()){
+        std::size_t index = indexes[expense.account];
+        std::size_t& row = current[index];
+
+        if(contents.size() <= row){
+            contents.emplace_back(columns.size(), "");
+        }
+
+        contents[row][index] = expense.name + ":" + to_string(expense.amount);
+
+        totals[index] += expense.amount;
+
+        ++row;
+    }
+
+    contents.emplace_back(columns.size(), "");
+
+    std::vector<std::string> total_line;
+    for(auto& money : totals){
+        total_line.push_back(to_string(money));
+    }
+    contents.push_back(std::move(total_line));
 
     display_table(columns, contents);
     std::cout << std::endl;
