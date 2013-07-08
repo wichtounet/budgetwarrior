@@ -55,25 +55,29 @@ void budget::month_overview(){
         std::size_t& row = current[index];
 
         if(contents.size() <= row){
-            contents.emplace_back(columns.size(), "");
+            contents.emplace_back(columns.size() * 3, "");
         }
 
-        contents[row][index] = expense.name + ":" + to_string(expense.amount);
+        contents[row][index * 3] = to_string(expense.expense_date);
+        contents[row][index * 3 + 1] = expense.name;
+        contents[row][index * 3 + 2] = to_string(expense.amount);
 
         totals[index] += expense.amount;
 
         ++row;
     }
 
-    contents.emplace_back(columns.size(), "");
+    contents.emplace_back(columns.size() * 3, "");
 
     std::vector<std::string> total_line;
     for(auto& money : totals){
+        total_line.push_back("");
+        total_line.push_back("");
         total_line.push_back(to_string(money));
     }
     contents.push_back(std::move(total_line));
 
-    display_table(columns, contents);
+    display_table(columns, contents, 3);
     std::cout << std::endl;
 }
 
