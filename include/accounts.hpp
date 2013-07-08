@@ -32,6 +32,8 @@ bool account_exists(const std::string& account);
 
 void handle_accounts(const std::vector<std::string>& args);
 
+std::vector<account> all_accounts();
+
 } //end of namespace budget
 
 #endif

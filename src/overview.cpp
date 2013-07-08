@@ -6,6 +6,7 @@
 //=======================================================================
 
 #include "overview.hpp"
+#include "console.hpp"
 #include "accounts.hpp"
 #include "expenses.hpp"
 #include "budget_exception.hpp"
@@ -13,9 +14,6 @@
 using namespace budget;
 
 void budget::handle_overview(const std::vector<std::string>& args){
-    load_accounts();
-    load_expenses();
-
     if(args.size() == 1){
         month_overview();
     } else {
@@ -32,12 +30,26 @@ void budget::handle_overview(const std::vector<std::string>& args){
 }
 
 void budget::month_overview(){
-    std::cout << "Overview of the month" << std::endl;
+    load_accounts();
+    load_expenses();
 
-    //TODO
+    std::cout << "Overview of the month" << std::endl << std::endl;
+
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& account : all_accounts()){
+        columns.push_back(account.name);
+    }
+
+    display_table(columns, contents);
+    std::cout << std::endl;
 }
 
 void budget::year_overview(){
+    load_accounts();
+    load_expenses();
+
     std::cout << "Overview of the year" << std::endl;
 
     //TODO
