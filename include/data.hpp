@@ -22,7 +22,7 @@ template<typename T>
 void save_data(const data_handler<T>& data, const std::string& path){
     auto file_path = path_to_budget_file(path);
 
-    std::ofstream file(file_path);
+    std::wofstream file(file_path.c_str());
     file << data.next_id << std::endl;
 
     for(auto& entry: data.data){
@@ -37,17 +37,17 @@ void load_data(data_handler<T>& data, const std::string& path){
     if(!boost::filesystem::exists(file_path)){
         data.next_id = 1;
     } else {
-        std::ifstream file(file_path);
+        std::wifstream file(file_path.c_str());
 
         if(file.is_open()){
             if(file.good()){
                 file >> data.next_id;
                 file.get();
 
-                std::string line;
+                std::wstring line;
                 while(file.good() && getline(file, line)){
-                    std::vector<std::string> parts;
-                    boost::split(parts, line, boost::is_any_of(":"), boost::token_compress_on);
+                    std::vector<std::wstring> parts;
+                    boost::split(parts, line, boost::is_any_of(L":"), boost::token_compress_on);
 
                     T entry;
 

@@ -13,8 +13,8 @@
 
 namespace budget {
 
-std::string format_code(int attr, int fg, int bg);
-void display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups = 1);
+std::wstring format_code(int attr, int fg, int bg);
+void display_table(std::vector<std::wstring> columns, std::vector<std::vector<std::wstring>> contents, std::size_t groups = 1);
 
 } //end of namespace budget
 

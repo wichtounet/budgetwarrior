@@ -12,22 +12,18 @@
 
 namespace budget {
 
-class budget_exception: public std::exception {
+class budget_exception {
     protected:
-        std::string m_message;
+        std::wstring m_message;
 
     public:
-        budget_exception(std::string message);
-
-        ~budget_exception() throw();
+        budget_exception(std::wstring message);
 
         /*!
          * Return the error message.
          * \return The error message.
          */
-        const std::string& message() const;
-
-        virtual const char* what() const throw();
+        const std::wstring& message() const;
 };
 
 } //end of budget

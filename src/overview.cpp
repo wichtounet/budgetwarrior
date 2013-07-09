@@ -15,18 +15,18 @@
 
 using namespace budget;
 
-void budget::handle_overview(const std::vector<std::string>& args){
+void budget::handle_overview(const std::vector<std::wstring>& args){
     if(args.size() == 1){
         month_overview();
     } else {
         auto& subcommand = args[1];
 
-        if(subcommand == "month"){
+        if(subcommand == L"month"){
             month_overview();
-        } else if(subcommand == "year"){
+        } else if(subcommand == L"year"){
             year_overview();
         } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+            throw budget_exception(L"Invalid subcommand \"" + subcommand + L"\"");
         }
     }
 }
@@ -35,11 +35,11 @@ void budget::month_overview(){
     load_accounts();
     load_expenses();
 
-    std::cout << "Overview of the month" << std::endl << std::endl;
+    std::wcout << L"Overview of the month" << std::endl << std::endl;
 
-    std::vector<std::string> columns;
-    std::unordered_map<std::string, std::size_t> indexes;
-    std::vector<std::vector<std::string>> contents;
+    std::vector<std::wstring> columns;
+    std::unordered_map<std::wstring, std::size_t> indexes;
+    std::vector<std::vector<std::wstring>> contents;
     std::vector<money> totals;
 
     for(auto& account : all_accounts()){
@@ -55,7 +55,7 @@ void budget::month_overview(){
         std::size_t& row = current[index];
 
         if(contents.size() <= row){
-            contents.emplace_back(columns.size() * 3, "");
+            contents.emplace_back(columns.size() * 3, L"");
         }
 
         contents[row][index * 3] = to_string(expense.expense_date);
@@ -67,25 +67,25 @@ void budget::month_overview(){
         ++row;
     }
 
-    contents.emplace_back(columns.size() * 3, "");
+    contents.emplace_back(columns.size() * 3, L"");
 
-    std::vector<std::string> total_line;
+    std::vector<std::wstring> total_line;
     for(auto& money : totals){
-        total_line.push_back("");
-        total_line.push_back("");
+        total_line.push_back(L"");
+        total_line.push_back(L"");
         total_line.push_back(to_string(money));
     }
     contents.push_back(std::move(total_line));
 
     display_table(columns, contents, 3);
-    std::cout << std::endl;
+    std::wcout << std::endl;
 }
 
 void budget::year_overview(){
     load_accounts();
     load_expenses();
 
-    std::cout << "Overview of the year" << std::endl;
+    std::wcout << L"Overview of the year" << std::endl;
 
     //TODO
 }

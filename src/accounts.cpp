@@ -26,7 +26,7 @@ using namespace budget;
 
 static data_handler<account> accounts;
 
-void budget::handle_accounts(const std::vector<std::string>& args){
+void budget::handle_accounts(const std::vector<std::wstring>& args){
     load_accounts();
 
     if(args.size() == 1){
@@ -34,9 +34,9 @@ void budget::handle_accounts(const std::vector<std::string>& args){
     } else {
         auto& subcommand = args[1];
 
-        if(subcommand == "show"){
+        if(subcommand == L"show"){
             show_accounts();
-        } else if(subcommand == "add"){
+        } else if(subcommand == L"add"){
             enough_args(args, 4);
 
             account account;
@@ -44,27 +44,27 @@ void budget::handle_accounts(const std::vector<std::string>& args){
             account.name = args[2];
 
             if(account_exists(account.name)){
-                throw budget_exception("An account with this name already exists");
+                throw budget_exception(L"An account with this name already exists");
             }
 
             account.amount = parse_money(args[3]);
             not_negative(account.amount);
 
             add_data(accounts, std::move(account));
-        } else if(subcommand == "delete"){
+        } else if(subcommand == L"delete"){
             enough_args(args, 3);
 
             std::size_t id = to_number<std::size_t>(args[2]);
 
             if(!exists(accounts, id)){
-                throw budget_exception("There are no account with id " + args[2]);
+                throw budget_exception(L"There are no account with id " + args[2]);
             }
 
             remove(accounts, id);
 
-            std::cout << "Account " << id << " has been deleted" << std::endl;
+            std::wcout << L"Account " << id << L" has been deleted" << std::endl;
         } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+            throw budget_exception(L"Invalid subcommand \"" + subcommand + L"\"");
         }
     }
 
@@ -80,8 +80,8 @@ void budget::save_accounts(){
 }
 
 void budget::show_accounts(){
-    std::vector<std::string> columns = {"ID", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
+    std::vector<std::wstring> columns = {L"ID", L"Name", L"Amount"};
+    std::vector<std::vector<std::wstring>> contents;
 
     money total;
 
@@ -91,23 +91,23 @@ void budget::show_accounts(){
         total += account.amount;
     }
 
-    contents.push_back({"", "Total", to_string(total)});
+    contents.push_back({L"", L"Total", to_string(total)});
 
     display_table(columns, contents);
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const account& account){
+std::wostream& budget::operator<<(std::wostream& stream, const account& account){
     return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, account& account){
+void budget::operator>>(const std::vector<std::wstring>& parts, account& account){
     account.id = to_number<std::size_t>(parts[0]);
     account.guid = parts[1];
     account.name = parts[2];
     account.amount = parse_money(parts[3]);
 }
 
-bool budget::account_exists(const std::string& name){
+bool budget::account_exists(const std::wstring& name){
     for(auto& account : accounts.data){
         if(account.name == name){
             return true;

@@ -21,15 +21,15 @@ typedef boost::gregorian::date date;
 
 struct expense {
     std::size_t id;
-    std::string guid;
+    std::wstring guid;
     date expense_date;
-    std::string name;
-    std::string account;
+    std::wstring name;
+    std::wstring account;
     money amount;
 };
 
-std::ostream& operator<<(std::ostream& stream, const expense& expense);
-void operator>>(const std::vector<std::string>& parts, expense& expense);
+std::wostream& operator<<(std::wostream& stream, const expense& expense);
+void operator>>(const std::vector<std::wstring>& parts, expense& expense);
 
 void load_expenses();
 void save_expenses();
@@ -40,7 +40,7 @@ void show_all_expenses();
 
 std::vector<expense>& all_expenses();
 
-void handle_expenses(const std::vector<std::string>& args);
+void handle_expenses(const std::vector<std::wstring>& args);
 
 } //end of namespace budget
 

@@ -16,7 +16,7 @@ namespace budget {
 void month_overview();
 void year_overview();
 
-void handle_overview(const std::vector<std::string>& args);
+void handle_overview(const std::vector<std::wstring>& args);
 
 } //end of namespace budget
 

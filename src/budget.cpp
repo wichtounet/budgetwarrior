@@ -33,25 +33,25 @@ int main(int argc, const char* argv[]) {
         auto& command = args[0];
 
         try {
-            if(command == "help"){
-                std::cout << "Usage: budget command [options]" << std::endl;
+            if(command == L"help"){
+                std::wcout << L"Usage: budget command [options]" << std::endl;
 
                 //TODO Display complete help
-            } else if(command == "debt"){
+            } else if(command == L"debt"){
                 handle_debts(args);
-            } else if(command == "account"){
+            } else if(command == L"account"){
                 handle_accounts(args);
-            } else if(command == "expense"){
+            } else if(command == L"expense"){
                 handle_expenses(args);
-            } else if(command == "overview"){
+            } else if(command == L"overview"){
                 handle_overview(args);
             } else {
-                std::cout << "Unhandled command \"" << command << "\"" << std::endl;
+                std::wcout << L"Unhandled command \"" << command << L"\"" << std::endl;
 
                 return 1;
             }
         } catch (const budget_exception& exception){
-            std::cout << exception.message() << std::endl;
+            std::wcout << exception.message() << std::endl;
 
             return 1;
         }

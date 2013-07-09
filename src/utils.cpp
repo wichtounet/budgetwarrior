@@ -5,20 +5,18 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
-#include <uuid/uuid.h>
+#include "utils.hpp"
 
-#include "guid.hpp"
+using namespace budget;
 
-std::wstring budget::generate_guid(){
-    uuid_t uuid;
-    char uuid_string[37];
-
-    uuid_generate(uuid);
-    uuid_unparse_upper(uuid, uuid_string);
-
-    std::string tmp(uuid_string);
+std::wstring budget::to_wstring(const std::string& source){
     std::wstring result;
-    result.assign(tmp.begin(), tmp.end());
+    result.assign(source.begin(), source.end());
+    return result;
+}
 
+std::string budget::to_nstring(const std::wstring& source){
+    std::string result;
+    result.assign(source.begin(), source.end());
     return result;
 }

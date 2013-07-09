@@ -22,23 +22,23 @@ typedef boost::posix_time::ptime time;
 struct debt {
     std::size_t id;
     int state;
-    std::string guid;
+    std::wstring guid;
     time creation_time;
     bool direction;
-    std::string name;
+    std::wstring name;
     money amount;
-    std::string title = "";
+    std::wstring title;
 };
 
-std::ostream& operator<<(std::ostream& stream, const debt& debt);
-void operator>>(const std::vector<std::string>& parts, debt& debt);
+std::wostream& operator<<(std::wostream& stream, const debt& debt);
+void operator>>(const std::vector<std::wstring>& parts, debt& debt);
 
 void load_debts();
 void save_debts();
 void list_debts();
 void all_debts();
 
-void handle_debts(const std::vector<std::string>& args);
+void handle_debts(const std::vector<std::wstring>& args);
 
 } //end of namespace budget
 
