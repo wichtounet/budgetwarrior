@@ -60,13 +60,12 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
         width = std::max(width, column.length());
         header_widths.push_back(width + (i < columns.size() - 1 && column.length() >= width ? 1 : 0));
 
- //           std::cout << "i=" << i << std::endl;
-  //          std::cout << "width=" << width << std::endl;
-   //         std::cout << "column.length()=" << column.length() << std::endl;
-
+        //The last space is not underlined
         --width;
 
         std::cout << format_code(4, 0, 7) << column << (width > column.length() ? std::string(width - column.length(), ' ') : "") << format_code(0, 0, 7);
+
+        //The very last column has no trailing space
 
         if(i < columns.size() - 1){
             std::cout << " ";
@@ -84,19 +83,37 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
             std::cout << format_code(0, 0, 7);
         }
 
-        std::size_t acc_width = 0;
-        for(std::size_t j = 0; j < row.size(); ++j){
-            auto width = widths[j];
-            acc_width += width;
 
-            if(groups == 1){
-                width = std::max(width, header_widths[j]);
-            } else if((j+1) % groups == 0 && header_widths[(j-(groups-1)) / groups] + 1 > acc_width){
-                width = std::max(width, header_widths[(j-(groups-1)) / groups] + 1 - acc_width);
-                acc_width = 0;
+        for(std::size_t j = 0; j < row.size(); j += groups){
+            std::size_t acc_width = 0;
+
+            //First columns of the group
+            for(std::size_t k = 0; k < groups - 1; ++k){
+                auto column = j + k;
+
+                acc_width += widths[column];
+                std::cout << row[column] << std::string(widths[column] - row[column].length(), ' ');
             }
 
-            std::cout << row[j] << std::string(width - row[j].length(), ' ');
+            //The last column of the group
+
+            auto last_column = j + (groups - 1);
+            auto width = widths[last_column];
+            acc_width += width;
+
+            //Pad with spaces to fit the header column width
+
+            if(header_widths[j / groups] > acc_width){
+                width += header_widths[j / groups] - acc_width;
+            }
+
+            //The very last column has no trailing space
+
+            if(last_column == row.size() - 1){
+                --width;
+            }
+
+            std::cout << row[last_column] << std::string(width - row[last_column].length(), ' ');
         }
 
         std::cout << format_code(0, 0, 7) << std::endl;
