@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <iostream>
 
 #include "args.hpp"
 #include "budget_exception.hpp"
@@ -16,10 +17,13 @@ std::vector<std::wstring> budget::parse_args(int argc, const char* argv[]){
     std::vector<std::wstring> args;
 
     for(int i = 0; i < argc - 1; ++i){
-        wchar_t* buf = new wchar_t[strlen(argv[i+1])];
-        size_t num_chars = mbstowcs(buf, argv[i+1], strlen(argv[i+1]));
-        args.push_back(std::wstring(buf, num_chars));
-        delete buf;
+        auto raw = argv[i+1];
+
+        wchar_t* buf = new wchar_t[1025];
+        auto size = mbstowcs(buf, raw, 1024);
+
+        args.push_back(std::wstring(buf, size));
+        delete[] buf;
     }
 
     return std::move(args);
