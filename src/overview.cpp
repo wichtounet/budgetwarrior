@@ -122,6 +122,34 @@ void budget::month_overview(){
     //Empty line before remainings
     contents.emplace_back(columns.size() * 3, "");
 
+    std::vector<std::wstring> balance_line;
+
+    balance_line.push_back(L"");
+    balance_line.push_back(L"Balance");
+    balance_line.push_back(L"TODO");
+
+    for(std::size_t i = 1; i < accounts.size(); ++i){
+        balance_line.push_back(L"");
+        balance_line.push_back(L"");
+        balance_line.push_back(L"TODO");
+    }
+
+    contents.push_back(std::move(balance_line));
+
+    std::vector<std::wstring> local_balance_line;
+
+    local_balance_line.push_back(L"");
+    local_balance_line.push_back(L"Local Balance");
+    local_balance_line.push_back(L"TODO");
+
+    for(std::size_t i = 1; i < accounts.size(); ++i){
+        local_balance_line.push_back(L"");
+        local_balance_line.push_back(L"");
+        local_balance_line.push_back(L"TODO");
+    }
+
+    contents.push_back(std::move(local_balance_line));
+
     display_table(columns, contents, 3);
 
     std::cout << std::endl;
