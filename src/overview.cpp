@@ -35,7 +35,9 @@ void budget::month_overview(){
     load_accounts();
     load_expenses();
 
-    std::cout << "Overview of the month" << std::endl << std::endl;
+    auto today = boost::gregorian::day_clock::local_day();
+
+    std::cout << "Overview of " << today.month() << " " << today.year() << std::endl << std::endl;
 
     std::vector<std::string> columns;
     std::unordered_map<std::string, std::size_t> indexes;
