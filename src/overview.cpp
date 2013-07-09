@@ -58,7 +58,7 @@ void budget::month_overview(){
             contents.emplace_back(columns.size() * 3, "");
         }
 
-        contents[row][index * 3] = to_string(expense.expense_date);
+        contents[row][index * 3] = to_string(expense.expense_date.day());
         contents[row][index * 3 + 1] = expense.name;
         contents[row][index * 3 + 2] = to_string(expense.amount);
 
