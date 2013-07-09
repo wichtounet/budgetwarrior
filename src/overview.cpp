@@ -35,6 +35,8 @@ void budget::month_overview(){
     load_accounts();
     load_expenses();
 
+    auto& accounts = all_accounts();
+
     auto today = boost::gregorian::day_clock::local_day();
 
     std::cout << "Overview of " << today.month() << " " << today.year() << std::endl << std::endl;
@@ -44,7 +46,7 @@ void budget::month_overview(){
     std::vector<std::vector<std::string>> contents;
     std::vector<money> totals;
 
-    for(auto& account : all_accounts()){
+    for(auto& account : accounts){
         indexes[account.name] = columns.size();
         columns.push_back(account.name);
         totals.push_back({});
@@ -69,18 +71,68 @@ void budget::month_overview(){
         ++row;
     }
 
-    contents.emplace_back(columns.size() * 3, "");
+    //Empty line before totals
+    contents.emplace_back(columns.size() * 3, L"");
 
-    std::vector<std::string> total_line;
-    for(auto& money : totals){
+    std::vector<std::wstring> total_line;
+
+    total_line.push_back("");
+    total_line.push_back("Total");
+    total_line.push_back(to_string(totals.front()));
+
+    for(std::size_t i = 1; i < totals.size(); ++i){
         total_line.push_back("");
         total_line.push_back("");
-        total_line.push_back(to_string(money));
+        total_line.push_back(to_string(totals[i]));
     }
+
     contents.push_back(std::move(total_line));
 
+    //Empty line before budget
+    contents.emplace_back(columns.size() * 3, L"");
+
+    std::vector<std::wstring> budget_line;
+
+    budget_line.push_back("");
+    budget_line.push_back("Budget");
+    budget_line.push_back(to_string(accounts.front().amount));
+
+    for(std::size_t i = 1; i < accounts.size(); ++i){
+        budget_line.push_back("");
+        budget_line.push_back("");
+        budget_line.push_back(to_string(accounts[i].amount));
+    }
+
+    contents.push_back(std::move(budget_line));
+
+    std::vector<std::wstring> total_budget_line;
+
+    total_budget_line.push_back("");
+    total_budget_line.push_back("Budget total");
+    total_budget_line.push_back(to_string(accounts.front().amount));
+
+    for(std::size_t i = 1; i < accounts.size(); ++i){
+        total_budget_line.push_back("");
+        total_budget_line.push_back("");
+        total_budget_line.push_back("TODO");
+    }
+
+    contents.push_back(std::move(total_budget_line));
+
+    //Empty line before remainings
+    contents.emplace_back(columns.size() * 3, "");
+
     display_table(columns, contents, 3);
+
     std::cout << std::endl;
+
+    money total_expenses;
+    for(auto& total : totals){
+        total_expenses += total;
+    }
+
+    std::wcout << std::wstring(accounts.size() * 10, ' ') << L"Total expenses: " << total_expenses << std::endl;
+    std::wcout << std::wstring(accounts.size() * 10 + 7, ' ') <<        L"Balance: " << L"TODO" << std::endl;
 }
 
 void budget::year_overview(){
