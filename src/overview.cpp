@@ -109,7 +109,7 @@ void budget::month_overview(){
 
     total_budget_line.push_back(L"");
     total_budget_line.push_back(L"Budget total");
-    total_budget_line.push_back(to_string(accounts.front().amount));
+    total_budget_line.push_back(L"TODO");
 
     for(std::size_t i = 1; i < accounts.size(); ++i){
         total_budget_line.push_back(L"");
@@ -119,8 +119,36 @@ void budget::month_overview(){
 
     contents.push_back(std::move(total_budget_line));
 
-    //Empty line before remainings
+    //Empty line before balances
     contents.emplace_back(columns.size() * 3, L"");
+
+    std::vector<std::wstring> balance_line;
+
+    balance_line.push_back(L"");
+    balance_line.push_back(L"Balance");
+    balance_line.push_back(L"TODO");
+
+    for(std::size_t i = 1; i < accounts.size(); ++i){
+        balance_line.push_back(L"");
+        balance_line.push_back(L"");
+        balance_line.push_back(L"TODO");
+    }
+
+    contents.push_back(std::move(balance_line));
+
+    std::vector<std::wstring> local_balance_line;
+
+    local_balance_line.push_back(L"");
+    local_balance_line.push_back(L"Local Balance");
+    local_balance_line.push_back(L"TODO");
+
+    for(std::size_t i = 1; i < accounts.size(); ++i){
+        local_balance_line.push_back(L"");
+        local_balance_line.push_back(L"");
+        local_balance_line.push_back(L"TODO");
+    }
+
+    contents.push_back(std::move(local_balance_line));
 
     display_table(columns, contents, 3);
     std::wcout << std::endl;
