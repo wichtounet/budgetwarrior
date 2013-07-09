@@ -22,9 +22,25 @@ void budget::handle_overview(const std::vector<std::wstring>& args){
         auto& subcommand = args[1];
 
         if(subcommand == L"month"){
-            month_overview();
+            if(args.size() == 2){
+                month_overview();
+            } else if(args.size() == 3){
+                month_overview(boost::gregorian::greg_month(to_number<unsigned short>(args[2])));
+            } else if(args.size() == 4){
+                month_overview(
+                    boost::gregorian::greg_month(to_number<unsigned short>(args[2])),
+                    boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
+            } else {
+                throw budget_exception(L"Too many arguments to overview month");
+            }
         } else if(subcommand == L"year"){
-            year_overview();
+            if(args.size() == 2){
+                year_overview();
+            } else if(args.size() == 3){
+                year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[2])));
+            } else {
+                throw budget_exception(L"Too many arguments to overview month");
+            }
         } else {
             throw budget_exception(L"Invalid subcommand \"" + subcommand + L"\"");
         }
@@ -32,14 +48,24 @@ void budget::handle_overview(const std::vector<std::wstring>& args){
 }
 
 void budget::month_overview(){
+    date today = boost::gregorian::day_clock::local_day();
+
+    month_overview(today.month(), today.year());
+}
+
+void budget::month_overview(boost::gregorian::greg_month month){
+    date today = boost::gregorian::day_clock::local_day();
+
+    month_overview(month, today.year());
+}
+
+void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
 
     auto& accounts = all_accounts();
 
-    auto today = boost::gregorian::day_clock::local_day();
-
-    std::wcout << L"Overview of " << today.month() << " " << today.year() << std::endl << std::endl;
+    std::wcout << L"Overview of " << month << " " << year << std::endl << std::endl;
 
     std::vector<std::wstring> columns;
     std::unordered_map<std::wstring, std::size_t> indexes;
@@ -55,20 +81,22 @@ void budget::month_overview(){
     std::vector<std::size_t> current(columns.size(), 0);
 
     for(auto& expense : all_expenses()){
-        std::size_t index = indexes[expense.account];
-        std::size_t& row = current[index];
+        if(expense.expense_date.year() == year && expense.expense_date.month() == month){
+            std::size_t index = indexes[expense.account];
+            std::size_t& row = current[index];
 
-        if(contents.size() <= row){
-            contents.emplace_back(columns.size() * 3, L"");
+            if(contents.size() <= row){
+                contents.emplace_back(columns.size() * 3, L"");
+            }
+
+            contents[row][index * 3] = to_string(expense.expense_date.day());
+            contents[row][index * 3 + 1] = expense.name;
+            contents[row][index * 3 + 2] = to_string(expense.amount);
+
+            totals[index] += expense.amount;
+
+            ++row;
         }
-
-        contents[row][index * 3] = to_string(expense.expense_date.day());
-        contents[row][index * 3 + 1] = expense.name;
-        contents[row][index * 3 + 2] = to_string(expense.amount);
-
-        totals[index] += expense.amount;
-
-        ++row;
     }
 
     //Empty line before totals
@@ -163,10 +191,16 @@ void budget::month_overview(){
 }
 
 void budget::year_overview(){
+    date today = boost::gregorian::day_clock::local_day();
+
+    year_overview(today.year());
+}
+
+void budget::year_overview(boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
 
-    std::wcout << L"Overview of the year" << std::endl;
+    std::wcout << L"Overview of " << year << std::endl;
 
     //TODO
 }

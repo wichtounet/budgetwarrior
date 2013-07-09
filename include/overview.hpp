@@ -11,10 +11,16 @@
 #include <vector>
 #include <string>
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 namespace budget {
 
 void month_overview();
+void month_overview(boost::gregorian::greg_month month);
+void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year);
+
 void year_overview();
+void year_overview(boost::gregorian::greg_year year);
 
 void handle_overview(const std::vector<std::wstring>& args);
 
