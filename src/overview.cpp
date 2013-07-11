@@ -21,7 +21,7 @@ void budget::handle_overview(const std::vector<std::string>& args){
     } else {
         auto& subcommand = args[1];
 
-        if(subcommand == L"month"){
+        if(subcommand == "month"){
             if(args.size() == 2){
                 month_overview();
             } else if(args.size() == 3){
@@ -31,15 +31,15 @@ void budget::handle_overview(const std::vector<std::string>& args){
                     boost::gregorian::greg_month(to_number<unsigned short>(args[2])),
                     boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
             } else {
-                throw budget_exception(L"Too many arguments to overview month");
+                throw budget_exception("Too many arguments to overview month");
             }
-        } else if(subcommand == L"year"){
+        } else if(subcommand == "year"){
             if(args.size() == 2){
                 year_overview();
             } else if(args.size() == 3){
                 year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[2])));
             } else {
-                throw budget_exception(L"Too many arguments to overview month");
+                throw budget_exception("Too many arguments to overview month");
             }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
@@ -65,7 +65,7 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
 
     auto& accounts = all_accounts();
 
-    std::wcout << L"Overview of " << month << " " << year << std::endl << std::endl;
+    std::cout << "Overview of " << month << " " << year << std::endl << std::endl;
 
     std::vector<std::string> columns;
     std::unordered_map<std::string, std::size_t> indexes;
@@ -86,7 +86,7 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
             std::size_t& row = current[index];
 
             if(contents.size() <= row){
-                contents.emplace_back(columns.size() * 3, L"");
+                contents.emplace_back(columns.size() * 3, "");
             }
 
             contents[row][index * 3] = to_string(expense.expense_date.day());
@@ -100,9 +100,9 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
     }
 
     //Empty line before totals
-    contents.emplace_back(columns.size() * 3, L"");
+    contents.emplace_back(columns.size() * 3, "");
 
-    std::vector<std::wstring> total_line;
+    std::vector<std::string> total_line;
 
     total_line.push_back("");
     total_line.push_back("Total");
@@ -117,9 +117,9 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
     contents.push_back(std::move(total_line));
 
     //Empty line before budget
-    contents.emplace_back(columns.size() * 3, L"");
+    contents.emplace_back(columns.size() * 3, "");
 
-    std::vector<std::wstring> budget_line;
+    std::vector<std::string> budget_line;
 
     budget_line.push_back("");
     budget_line.push_back("Budget");
@@ -133,7 +133,7 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
 
     contents.push_back(std::move(budget_line));
 
-    std::vector<std::wstring> total_budget_line;
+    std::vector<std::string> total_budget_line;
 
     total_budget_line.push_back("");
     total_budget_line.push_back("Budget total");
@@ -150,30 +150,30 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
     //Empty line before remainings
     contents.emplace_back(columns.size() * 3, "");
 
-    std::vector<std::wstring> balance_line;
+    std::vector<std::string> balance_line;
 
-    balance_line.push_back(L"");
-    balance_line.push_back(L"Balance");
-    balance_line.push_back(L"TODO");
+    balance_line.push_back("");
+    balance_line.push_back("Balance");
+    balance_line.push_back("TODO");
 
     for(std::size_t i = 1; i < accounts.size(); ++i){
-        balance_line.push_back(L"");
-        balance_line.push_back(L"");
-        balance_line.push_back(L"TODO");
+        balance_line.push_back("");
+        balance_line.push_back("");
+        balance_line.push_back("TODO");
     }
 
     contents.push_back(std::move(balance_line));
 
-    std::vector<std::wstring> local_balance_line;
+    std::vector<std::string> local_balance_line;
 
-    local_balance_line.push_back(L"");
-    local_balance_line.push_back(L"Local Balance");
-    local_balance_line.push_back(L"TODO");
+    local_balance_line.push_back("");
+    local_balance_line.push_back("Local Balance");
+    local_balance_line.push_back("TODO");
 
     for(std::size_t i = 1; i < accounts.size(); ++i){
-        local_balance_line.push_back(L"");
-        local_balance_line.push_back(L"");
-        local_balance_line.push_back(L"TODO");
+        local_balance_line.push_back("");
+        local_balance_line.push_back("");
+        local_balance_line.push_back("TODO");
     }
 
     contents.push_back(std::move(local_balance_line));
@@ -187,8 +187,8 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
         total_expenses += total;
     }
 
-    std::wcout << std::wstring(accounts.size() * 10, ' ') << L"Total expenses: " << total_expenses << std::endl;
-    std::wcout << std::wstring(accounts.size() * 10 + 7, ' ') <<        L"Balance: " << L"TODO" << std::endl;
+    std::cout << std::string(accounts.size() * 10, ' ') << "Total expenses: " << total_expenses << std::endl;
+    std::cout << std::string(accounts.size() * 10 + 7, ' ') <<        "Balance: " << "TODO" << std::endl;
 }
 
 void budget::year_overview(){
@@ -201,7 +201,7 @@ void budget::year_overview(boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
 
-    std::wcout << "Overview of " << year << std::endl;
+    std::cout << "Overview of " << year << std::endl;
 
     //TODO
 }
