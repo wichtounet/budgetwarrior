@@ -10,6 +10,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "console.hpp"
+#include "assert.hpp"
 
 std::string budget::format_code(int attr, int fg, int bg){
     std::stringstream stream;
@@ -32,7 +33,7 @@ std::size_t rsize(const std::string& value){
 }
 
 void budget::display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups){
-    assert(groups > 0);
+    budget_assert(groups > 0, "There must be at least 1 group");
 
     for(auto& row : contents){
         for(auto& cell : row){
@@ -59,7 +60,7 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
         }
     }
 
-    assert(widths.size() == groups * columns.size());
+    budget_assert(widths.size() == groups * columns.size(), "Widths incorrectly computed");
 
     for(std::size_t i = 0; i < columns.size(); ++i){
         auto& column = columns[i];
