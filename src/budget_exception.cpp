@@ -7,8 +7,14 @@
 
 #include "budget_exception.hpp"
 
-budget::budget_exception::budget_exception(std::wstring message) : m_message(std::move(message)) {}
+budget::budget_exception::budget_exception(std::string message) : m_message(std::move(message)) {}
 
-const std::wstring& budget::budget_exception::message() const {
+budget::budget_exception::~budget_exception() throw() {}
+
+const char* budget::budget_exception::what() const throw() {
+    return m_message.c_str();
+}
+
+const std::string& budget::budget_exception::message() const {
     return m_message;
 }

@@ -45,14 +45,14 @@ struct money {
     }
 };
 
-std::wostream& operator<<(std::wostream& stream, const money& amount);
+std::ostream& operator<<(std::ostream& stream, const money& amount);
 
-money parse_money(const std::wstring& money_string);
+money parse_money(const std::string& money_string);
 void not_negative(const money& money);
 
 template<>
-inline std::wstring to_string(money amount){
-    std::wstringstream stream;
+inline std::string to_string(money amount){
+    std::stringstream stream;
     stream << amount;
     return stream.str();
 }

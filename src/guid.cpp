@@ -9,16 +9,12 @@
 
 #include "guid.hpp"
 
-std::wstring budget::generate_guid(){
+std::string budget::generate_guid(){
     uuid_t uuid;
     char uuid_string[37];
 
     uuid_generate(uuid);
     uuid_unparse_upper(uuid, uuid_string);
 
-    std::string tmp(uuid_string);
-    std::wstring result;
-    result.assign(tmp.begin(), tmp.end());
-
-    return result;
+    return std::string(uuid_string);
 }

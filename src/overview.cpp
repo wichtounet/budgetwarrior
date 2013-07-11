@@ -15,7 +15,7 @@
 
 using namespace budget;
 
-void budget::handle_overview(const std::vector<std::wstring>& args){
+void budget::handle_overview(const std::vector<std::string>& args){
     if(args.size() == 1){
         month_overview();
     } else {
@@ -39,9 +39,10 @@ void budget::handle_overview(const std::vector<std::wstring>& args){
             } else if(args.size() == 3){
                 year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[2])));
             } else {
+                throw budget_exception("Too many arguments to overview month");
             }
         } else {
-            throw budget_exception(L"Invalid subcommand \"" + subcommand + L"\"");
+            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
 }
@@ -66,9 +67,9 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
 
     std::cout << "Overview of " << month << " " << year << std::endl << std::endl;
 
-    std::vector<std::wstring> columns;
-    std::unordered_map<std::wstring, std::size_t> indexes;
-    std::vector<std::vector<std::wstring>> contents;
+    std::vector<std::string> columns;
+    std::unordered_map<std::string, std::size_t> indexes;
+    std::vector<std::vector<std::string>> contents;
     std::vector<money> totals;
 
     for(auto& account : accounts){
@@ -116,6 +117,8 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
     contents.push_back(std::move(total_line));
 
     //Empty line before budget
+    contents.emplace_back(columns.size() * 3, "");
+
     std::vector<std::string> budget_line;
 
     budget_line.push_back("");

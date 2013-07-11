@@ -22,7 +22,7 @@ void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_y
 void year_overview();
 void year_overview(boost::gregorian::greg_year year);
 
-void handle_overview(const std::vector<std::wstring>& args);
+void handle_overview(const std::vector<std::string>& args);
 
 } //end of namespace budget
 

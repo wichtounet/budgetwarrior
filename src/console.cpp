@@ -11,13 +11,13 @@
 
 #include "console.hpp"
 
-std::wstring budget::format_code(int attr, int fg, int bg){
-    std::wstringstream stream;
+std::string budget::format_code(int attr, int fg, int bg){
+    std::stringstream stream;
     stream << "" << '\033' << "[" << attr << ";" << (fg + 30) << (bg + 40) << "m";
     return stream.str();
 }
 
-void budget::display_table(std::vector<std::wstring> columns, std::vector<std::vector<std::wstring>> contents, std::size_t groups){
+void budget::display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups){
     assert(groups > 0);
 
     for(auto& row : contents){
@@ -63,24 +63,24 @@ void budget::display_table(std::vector<std::wstring> columns, std::vector<std::v
         //The last space is not underlined
         --width;
 
-        std::wcout << format_code(4, 0, 7) << column << (width > column.length() ? std::wstring(width - column.length(), ' ') : L"") << format_code(0, 0, 7);
+        std::cout << format_code(4, 0, 7) << column << (width > column.length() ? std::string(width - column.length(), ' ') : "") << format_code(0, 0, 7);
 
         //The very last column has no trailing space
 
         if(i < columns.size() - 1){
-            std::wcout << " ";
+            std::cout << " ";
         }
     }
 
-    std::wcout << std::endl;
+    std::cout << std::endl;
 
     for(std::size_t i = 0; i < contents.size(); ++i){
         auto& row = contents[i];
 
         if(i % 2 == 0){
-            std::wcout << format_code(7, 0, 7);
+            std::cout << format_code(7, 0, 7);
         } else {
-            std::wcout << format_code(0, 0, 7);
+            std::cout << format_code(0, 0, 7);
         }
 
 
@@ -92,7 +92,7 @@ void budget::display_table(std::vector<std::wstring> columns, std::vector<std::v
                 auto column = j + k;
 
                 acc_width += widths[column];
-                std::wcout << row[column] << std::wstring(widths[column] - row[column].length(), ' ');
+                std::cout << row[column] << std::string(widths[column] - row[column].length(), ' ');
             }
 
             //The last column of the group
@@ -113,9 +113,9 @@ void budget::display_table(std::vector<std::wstring> columns, std::vector<std::v
                 --width;
             }
 
-            std::wcout << row[last_column] << std::wstring(width - row[last_column].length(), ' ');
+            std::cout << row[last_column] << std::string(width - row[last_column].length(), ' ');
         }
 
-        std::wcout << format_code(0, 0, 7) << std::endl;
+        std::cout << format_code(0, 0, 7) << std::endl;
     }
 }

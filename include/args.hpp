@@ -13,8 +13,8 @@
 
 namespace budget {
 
-std::vector<std::wstring> parse_args(int argc, const char* argv[]);
-void enough_args(const std::vector<std::wstring>& args, std::size_t min);
+std::vector<std::string> parse_args(int argc, const char* argv[]);
+void enough_args(const std::vector<std::string>& args, std::size_t min);
 
 } //end of namespace budget
 
