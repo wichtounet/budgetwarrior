@@ -20,6 +20,10 @@
 using namespace budget;
 
 int main(int argc, const char* argv[]) {
+    std::locale global_locale("");
+    std::locale::global(global_locale);
+    std::wcout.imbue(global_locale);
+
     //Verify that the data folder exists
     if(!verify_folder()){
         return 0;

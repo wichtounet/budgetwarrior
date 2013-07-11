@@ -17,6 +17,20 @@ std::string budget::format_code(int attr, int fg, int bg){
     return stream.str();
 }
 
+/**
+ * Returns the real size of a string. By default, accented characteres are
+ * represented by several chars and make the length of the string being bigger
+ * than its displayable length. This functionr returns only a size of 1 for an
+ * accented chars.
+ * \param value The string we want the real length for.
+ * \return The real length of the string.
+ */
+std::size_t rsize(const std::string& value){
+    static wchar_t buf[1025];
+
+    return mbstowcs(buf, value.c_str(), 1024);
+}
+
 void budget::display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups){
     assert(groups > 0);
 
@@ -31,18 +45,16 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
 
     if(!contents.size()){
         for(auto& column : columns){
-            widths.push_back(column.length());
+            widths.push_back(rsize(column));
         }
     } else {
         auto& first = contents[0];
 
-        for(auto& value : first){
-            widths.push_back(0);
-        }
+        widths.assign(first.size(), 0);
 
         for(auto& row : contents){
             for(std::size_t i = 0; i < row.size(); ++i){
-                widths[i] = std::max(widths[i], row[i].length() + 1);
+                widths[i] = std::max(widths[i], rsize(row[i]) + 1);
             }
         }
     }
@@ -57,13 +69,13 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
             width += widths[j];
         }
 
-        width = std::max(width, column.length());
-        header_widths.push_back(width + (i < columns.size() - 1 && column.length() >= width ? 1 : 0));
+        width = std::max(width, rsize(column));
+        header_widths.push_back(width + (i < columns.size() - 1 && rsize(column) >= width ? 1 : 0));
 
         //The last space is not underlined
         --width;
 
-        std::cout << format_code(4, 0, 7) << column << (width > column.length() ? std::string(width - column.length(), ' ') : "") << format_code(0, 0, 7);
+        std::cout << format_code(4, 0, 7) << column << (width > rsize(column) ? std::string(width - rsize(column), ' ') : "") << format_code(0, 0, 7);
 
         //The very last column has no trailing space
 
@@ -92,7 +104,7 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
                 auto column = j + k;
 
                 acc_width += widths[column];
-                std::cout << row[column] << std::string(widths[column] - row[column].length(), ' ');
+                std::cout << row[column] << std::string(widths[column] - rsize(row[column]), ' ');
             }
 
             //The last column of the group
@@ -105,15 +117,11 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
 
             if(header_widths[j / groups] > acc_width){
                 width += header_widths[j / groups] - acc_width;
-            }
-
-            //The very last column has no trailing space
-
-            if(last_column == row.size() - 1){
+            } else if(last_column == row.size() - 1){
                 --width;
             }
 
-            std::cout << row[last_column] << std::string(width - row[last_column].length(), ' ');
+            std::cout << row[last_column] << std::string(width - rsize(row[last_column]), ' ');
         }
 
         std::cout << format_code(0, 0, 7) << std::endl;
