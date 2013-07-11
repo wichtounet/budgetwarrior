@@ -26,13 +26,13 @@ using namespace budget;
 
 static data_handler<expense> expenses;
 
-void validate_account(const std::string& account){
+void validate_account(const std::wstring& account){
     if(!account_exists(account)){
-        throw budget_exception("The account " + account + " does not exist");
+        throw budget_exception(L"The account " + account + L" does not exist");
     }
 }
 
-void budget::handle_expenses(const std::vector<std::string>& args){
+void budget::handle_expenses(const std::vector<std::wstring>& args){
     load_expenses();
     load_accounts();
 
@@ -41,7 +41,7 @@ void budget::handle_expenses(const std::vector<std::string>& args){
     } else {
         auto& subcommand = args[1];
 
-        if(subcommand == "show"){
+        if(subcommand == L"show"){
             if(args.size() == 2){
                 show_expenses();
             } else if(args.size() == 3){
@@ -51,11 +51,11 @@ void budget::handle_expenses(const std::vector<std::string>& args){
                     boost::gregorian::greg_month(to_number<unsigned short>(args[2])),
                     boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
             } else {
-                throw budget_exception("Too many arguments to expense show");
+                throw budget_exception(L"Too many arguments to expense show");
             }
-        } else if(subcommand == "all"){
+        } else if(subcommand == L"all"){
             show_all_expenses();
-        } else if(subcommand == "add"){
+        } else if(subcommand == L"add"){
             enough_args(args, 5);
 
             expense expense;
@@ -69,16 +69,16 @@ void budget::handle_expenses(const std::vector<std::string>& args){
             not_negative(expense.amount);
 
             for(std::size_t i = 4; i < args.size(); ++i){
-                expense.name += args[i] + " ";
+                expense.name += args[i] + L" ";
             }
 
             add_data(expenses, std::move(expense));
-        } else if(subcommand == "addd"){
+        } else if(subcommand == L"addd"){
             enough_args(args, 6);
 
             expense expense;
             expense.guid = generate_guid();
-            expense.expense_date = boost::gregorian::from_string(args[2]);
+            expense.expense_date = boost::gregorian::from_string(to_nstring(args[2]));
 
             expense.account = args[3];
             validate_account(expense.account);
@@ -87,24 +87,24 @@ void budget::handle_expenses(const std::vector<std::string>& args){
             not_negative(expense.amount);
 
             for(std::size_t i = 5; i < args.size(); ++i){
-                expense.name += args[i] + " ";
+                expense.name += args[i] + L" ";
             }
 
             add_data(expenses, std::move(expense));
-        } else if(subcommand == "delete"){
+        } else if(subcommand == L"delete"){
             enough_args(args, 3);
 
             std::size_t id = to_number<std::size_t>(args[2]);
 
             if(!exists(expenses, id)){
-                throw budget_exception("There are no expense with id ");
+                throw budget_exception(L"There are no expense with id ");
             }
 
             remove(expenses, id);
 
-            std::cout << "Expense " << id << " has been deleted" << std::endl;
+            std::wcout << L"Expense " << id << L" has been deleted" << std::endl;
         } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+            throw budget_exception(L"Invalid subcommand \"" + subcommand + L"\"");
         }
     }
 
@@ -132,8 +132,8 @@ void budget::show_expenses(boost::gregorian::greg_month month){
 }
 
 void budget::show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
+    std::vector<std::wstring> columns = {L"ID", L"Date", L"Account", L"Name", L"Amount"};
+    std::vector<std::vector<std::wstring>> contents;
 
     money total;
     std::size_t count = 0;
@@ -148,17 +148,17 @@ void budget::show_expenses(boost::gregorian::greg_month month, boost::gregorian:
     }
 
     if(count == 0){
-        std::cout << "No expenses for " << month << "-" << year << std::endl;
+        std::wcout << L"No expenses for " << month << L"-" << year << std::endl;
     } else {
-        contents.push_back({"", "", "", "Total", to_string(total)});
+        contents.push_back({L"", L"", L"", L"Total", to_string(total)});
 
         display_table(columns, contents);
     }
 }
 
 void budget::show_all_expenses(){
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
+    std::vector<std::wstring> columns = {L"ID", L"Date", L"Account", L"Name", L"Amount"};
+    std::vector<std::vector<std::wstring>> contents;
 
     for(auto& expense : expenses.data){
         contents.push_back({to_string(expense.id), to_string(expense.expense_date), expense.account, expense.name, to_string(expense.amount)});
@@ -167,17 +167,17 @@ void budget::show_all_expenses(){
     display_table(columns, contents);
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
+std::wostream& budget::operator<<(std::wostream& stream, const expense& expense){
     return stream << expense.id  << ':' << expense.guid << ':' << expense.account << ':' << expense.name << ':' << expense.amount << ':' << to_string(expense.expense_date);
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, expense& expense){
+void budget::operator>>(const std::vector<std::wstring>& parts, expense& expense){
     expense.id = to_number<std::size_t>(parts[0]);
     expense.guid = parts[1];
     expense.account = parts[2];
     expense.name = parts[3];
     expense.amount = parse_money(parts[4]);
-    expense.expense_date = boost::gregorian::from_string(parts[5]);
+    expense.expense_date = boost::gregorian::from_string(to_nstring(parts[5]));
 }
 
 std::vector<expense>& budget::all_expenses(){

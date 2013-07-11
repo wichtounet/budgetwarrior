@@ -16,14 +16,17 @@
 
 namespace budget {
 
+std::wstring to_wstring(const std::string& source);
+std::string to_nstring(const std::wstring& source);
+
 /*!
  * \brief Convert a string to a number of an arbitrary type.
  * \param text The string to convert.
  * \return The converted text in the good type.
  */
 template <typename T>
-inline T to_number (const std::string& text) {
-    std::stringstream ss(text);
+inline T to_number (const std::wstring& text) {
+    std::wstringstream ss(text);
     T result;
     ss >> result;
     return result;
@@ -35,19 +38,19 @@ inline T to_number (const std::string& text) {
  * \return The text converted to an int.
  */
 template<>
-inline int to_number (const std::string& text) {
-    //PERF: If necessary, use hand written loop
-    return strtol(text.c_str(), 0, 10);
+inline int to_number (const std::wstring& text) {
+    return boost::lexical_cast<int>(text);
 }
 
 template<typename T>
-inline std::string to_string(T value){
-    return std::to_string(value);
+inline std::wstring to_string(T value){
+    return to_wstring(std::to_string(value));
 }
 
 template<>
-inline std::string to_string(boost::gregorian::date date){
-    return boost::gregorian::to_iso_extended_string(date);
+inline std::wstring to_string(boost::gregorian::date date){
+    std::string string_date = boost::gregorian::to_iso_extended_string(date);
+    return to_wstring(string_date);
 }
 
 } //end of namespace budget

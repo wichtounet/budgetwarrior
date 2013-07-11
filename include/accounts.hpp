@@ -17,20 +17,20 @@ namespace budget {
 
 struct account {
     std::size_t id;
-    std::string guid;
-    std::string name;
+    std::wstring guid;
+    std::wstring name;
     money amount;
 };
 
-std::ostream& operator<<(std::ostream& stream, const account& account);
-void operator>>(const std::vector<std::string>& parts, account& account);
+std::wostream& operator<<(std::wostream& stream, const account& account);
+void operator>>(const std::vector<std::wstring>& parts, account& account);
 
 void load_accounts();
 void save_accounts();
 void show_accounts();
-bool account_exists(const std::string& account);
+bool account_exists(const std::wstring& account);
 
-void handle_accounts(const std::vector<std::string>& args);
+void handle_accounts(const std::vector<std::wstring>& args);
 
 std::vector<account>& all_accounts();
 

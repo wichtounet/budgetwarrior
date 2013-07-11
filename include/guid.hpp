@@ -12,7 +12,7 @@
 
 namespace budget {
 
-std::string generate_guid();
+std::wstring generate_guid();
 
 } //end of namespace budget
 

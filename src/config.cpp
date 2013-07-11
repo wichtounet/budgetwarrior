@@ -23,10 +23,10 @@ bool budget::verify_folder(){
     if(!boost::filesystem::exists(folder_path)){
         std::cout << "The folder " << folder_path << " does not exist. Would like to create it [yes/no] ? ";
 
-        std::string answer;
-        std::cin >> answer;
+        std::wstring answer;
+        std::wcin >> answer;
 
-        if(answer == "yes" || answer == "y"){
+        if(answer == L"yes" || answer == L"y"){
             if(boost::filesystem::create_directories(folder_path)){
                 std::cout << "The folder " << folder_path << " was created. " << std::endl;
 
@@ -48,8 +48,9 @@ std::string budget::home_folder(){
     struct passwd *pw = getpwuid(getuid());
 
     const char* homedir = pw->pw_dir;
+    std::string homepath(homedir);
 
-    return std::string(homedir);
+    return homepath;
 }
 
 std::string budget::path_to_home_file(const std::string& file){
