@@ -41,13 +41,18 @@ inline int to_number (const std::string& text) {
 }
 
 template<typename T>
-inline std::string to_string(T value){
+inline std::string to_string(const T& value){
     return std::to_string(value);
 }
 
 template<>
-inline std::string to_string(boost::gregorian::date date){
+inline std::string to_string(const boost::gregorian::date& date){
     return boost::gregorian::to_iso_extended_string(date);
+}
+
+template<>
+inline std::string to_string(const std::string& value){
+    return value;
 }
 
 } //end of namespace budget

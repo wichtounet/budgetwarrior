@@ -59,6 +59,33 @@ void budget::month_overview(boost::gregorian::greg_month month){
     month_overview(month, today.year());
 }
 
+template<typename T>
+T& default_operator(T& t){
+    return t;
+}
+
+template<typename T, typename J>
+void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::string& title, const std::vector<T>& values, J functor){
+    std::vector<std::string> total_line;
+
+    total_line.push_back("");
+    total_line.push_back(title);
+    total_line.push_back(to_string(functor(values.front())));
+
+    for(std::size_t i = 1; i < values.size(); ++i){
+        total_line.push_back("");
+        total_line.push_back("");
+        total_line.push_back(to_string(functor(values[i])));
+    }
+
+    contents.push_back(std::move(total_line));
+}
+
+template<typename T>
+void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::string& title, const std::vector<T>& values){
+    return add_recap_line(contents, title, values, [](const T& t){return t;});
+}
+
 void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
@@ -99,84 +126,19 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
         }
     }
 
-    //Empty line before totals
+    //Totals
     contents.emplace_back(columns.size() * 3, "");
+    add_recap_line(contents, "Total", totals);
 
-    std::vector<std::string> total_line;
-
-    total_line.push_back("");
-    total_line.push_back("Total");
-    total_line.push_back(to_string(totals.front()));
-
-    for(std::size_t i = 1; i < totals.size(); ++i){
-        total_line.push_back("");
-        total_line.push_back("");
-        total_line.push_back(to_string(totals[i]));
-    }
-
-    contents.push_back(std::move(total_line));
-
-    //Empty line before budget
+    //Budget
     contents.emplace_back(columns.size() * 3, "");
+    add_recap_line(contents, "Budget", accounts, [](const budget::account& a){return a.amount;});
+    add_recap_line(contents, "Total Budget", std::vector<std::string>(accounts.size(), "TODO"));
 
-    std::vector<std::string> budget_line;
-
-    budget_line.push_back("");
-    budget_line.push_back("Budget");
-    budget_line.push_back(to_string(accounts.front().amount));
-
-    for(std::size_t i = 1; i < accounts.size(); ++i){
-        budget_line.push_back("");
-        budget_line.push_back("");
-        budget_line.push_back(to_string(accounts[i].amount));
-    }
-
-    contents.push_back(std::move(budget_line));
-
-    std::vector<std::string> total_budget_line;
-
-    total_budget_line.push_back("");
-    total_budget_line.push_back("Budget total");
-    total_budget_line.push_back(to_string(accounts.front().amount));
-
-    for(std::size_t i = 1; i < accounts.size(); ++i){
-        total_budget_line.push_back("");
-        total_budget_line.push_back("");
-        total_budget_line.push_back("TODO");
-    }
-
-    contents.push_back(std::move(total_budget_line));
-
-    //Empty line before remainings
+    //Balances
     contents.emplace_back(columns.size() * 3, "");
-
-    std::vector<std::string> balance_line;
-
-    balance_line.push_back("");
-    balance_line.push_back("Balance");
-    balance_line.push_back("TODO");
-
-    for(std::size_t i = 1; i < accounts.size(); ++i){
-        balance_line.push_back("");
-        balance_line.push_back("");
-        balance_line.push_back("TODO");
-    }
-
-    contents.push_back(std::move(balance_line));
-
-    std::vector<std::string> local_balance_line;
-
-    local_balance_line.push_back("");
-    local_balance_line.push_back("Local Balance");
-    local_balance_line.push_back("TODO");
-
-    for(std::size_t i = 1; i < accounts.size(); ++i){
-        local_balance_line.push_back("");
-        local_balance_line.push_back("");
-        local_balance_line.push_back("TODO");
-    }
-
-    contents.push_back(std::move(local_balance_line));
+    add_recap_line(contents, "Balance", std::vector<std::string>(accounts.size(), "TODO"));
+    add_recap_line(contents, "Local Balance", std::vector<std::string>(accounts.size(), "TODO"));
 
     display_table(columns, contents, 3);
 

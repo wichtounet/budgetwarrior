@@ -51,7 +51,7 @@ money parse_money(const std::string& money_string);
 void not_negative(const money& money);
 
 template<>
-inline std::string to_string(money amount){
+inline std::string to_string(const money& amount){
     std::stringstream stream;
     stream << amount;
     return stream.str();
