@@ -86,6 +86,28 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
     return add_recap_line(contents, title, values, [](const T& t){return t;});
 }
 
+std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
+    std::vector<budget::money> total_budgets;
+
+    auto& accounts = all_accounts();
+
+    for(auto& account : accounts){
+        budget::money total;
+
+        total += account.amount * month;
+
+        for(auto& expense : all_expenses()){
+            if(expense.expense_date.year() == year && expense.expense_date.month() < month){
+                total -= expense.amount;
+            }
+        }
+
+        total_budgets.push_back(total);
+    }
+
+    return std::move(total_budgets);
+}
+
 void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
@@ -133,12 +155,22 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
     //Budget
     contents.emplace_back(columns.size() * 3, "");
     add_recap_line(contents, "Budget", accounts, [](const budget::account& a){return a.amount;});
-    add_recap_line(contents, "Total Budget", std::vector<std::string>(accounts.size(), "TODO"));
+    auto total_budgets = compute_total_budget(month, year);
+    add_recap_line(contents, "Total Budget", total_budgets);
 
     //Balances
     contents.emplace_back(columns.size() * 3, "");
-    add_recap_line(contents, "Balance", std::vector<std::string>(accounts.size(), "TODO"));
-    add_recap_line(contents, "Local Balance", std::vector<std::string>(accounts.size(), "TODO"));
+
+    std::vector<budget::money> balances;
+    std::vector<budget::money> local_balances;
+
+    for(std::size_t i = 0; i < accounts.size(); ++i){
+        balances.push_back(total_budgets[i] - totals[i]);
+        local_balances.push_back(accounts[i].amount - totals[i]);
+    }
+
+    add_recap_line(contents, "Balance", balances);
+    add_recap_line(contents, "Local Balance", local_balances);
 
     display_table(columns, contents, 3);
 

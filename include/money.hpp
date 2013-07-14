@@ -20,15 +20,8 @@ struct money {
     int cents = 0;
 
     money operator+(const money& rhs) const {
-        money new_money;
-        new_money.dollars = dollars + rhs.dollars;
-        new_money.cents = cents + rhs.cents;
-
-        if(new_money.cents > 100){
-            new_money.dollars += new_money.cents / 100;
-            new_money.cents %= 100;
-        }
-
+        money new_money = *this;
+        new_money += rhs;
         return new_money;
     }
 
@@ -39,6 +32,49 @@ struct money {
         if(cents > 100){
             dollars += cents / 100;
             cents %= 100;
+        }
+
+        return *this;
+    }
+
+    money operator-(const money& rhs) const {
+        money new_money = *this;
+        new_money -= rhs;
+        return new_money;
+    }
+
+    money& operator-=(const money& rhs){
+        dollars = dollars - rhs.dollars;
+        cents = cents - rhs.cents;
+
+        if(cents < 0){
+            dollars -= cents / 100;
+            cents %= 100;
+            cents *= -1;
+        }
+
+        return *this;
+    }
+
+    money operator*(int factor) const {
+        money new_money = *this;
+        new_money *= factor;
+        return new_money;
+    }
+
+    money& operator*=(int factor){
+        dollars = dollars * factor;
+        cents = cents * factor;
+
+        if(cents > 100){
+            dollars += cents / 100;
+            cents %= 100;
+        }
+
+        if(cents < 0){
+            dollars -= cents / 100;
+            cents %= 100;
+            cents *= -1;
         }
 
         return *this;
