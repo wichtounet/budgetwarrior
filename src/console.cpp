@@ -27,9 +27,35 @@ std::string budget::format_code(int attr, int fg, int bg){
  * \return The real length of the string.
  */
 std::size_t rsize(const std::string& value){
+    auto v = value;
+
+    if(v.substr(0, 5) == "::red"){
+        v = v.substr(5);
+    } else if(v.substr(0, 7) == "::green"){
+        v = v.substr(7);
+    }
+
     static wchar_t buf[1025];
 
-    return mbstowcs(buf, value.c_str(), 1024);
+    return mbstowcs(buf, v.c_str(), 1024);
+}
+
+std::string format(const std::string& v){
+    if(v.substr(0, 5) == "::red"){
+        auto value = v.substr(5);
+
+        std::cout << "\033[0;31m";
+
+        return value;
+    } else if(v.substr(0, 7) == "::green"){
+        auto value = v.substr(7);
+
+        std::cout << "\033[0;32m";
+
+        return value;
+    }
+
+    return v;
 }
 
 void budget::display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups){
@@ -90,12 +116,7 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
     for(std::size_t i = 0; i < contents.size(); ++i){
         auto& row = contents[i];
 
-        if(i % 2 == 0){
-            std::cout << format_code(7, 0, 7);
-        } else {
-            std::cout << format_code(0, 0, 7);
-        }
-
+        std::cout << format_code(0, 0, 7);
 
         for(std::size_t j = 0; j < row.size(); j += groups){
             std::size_t acc_width = 0;
@@ -104,8 +125,17 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
             for(std::size_t k = 0; k < groups - 1; ++k){
                 auto column = j + k;
 
+                std::string value = format(row[column]);
+
                 acc_width += widths[column];
-                std::cout << row[column] << std::string(widths[column] - rsize(row[column]), ' ');
+                std::cout << value;
+
+                //The content of the column can change the style, it is
+                //important to reapply it
+
+                std::cout << format_code(0, 0, 7);
+
+                std::cout << std::string(widths[column] - rsize(value), ' ');
             }
 
             //The last column of the group
@@ -122,9 +152,17 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
                 --width;
             }
 
-            std::cout << row[last_column] << std::string(width - rsize(row[last_column]), ' ');
+            auto value = format(row[last_column]);
+            std::cout << value;
+
+            //The content of the column can change the style, it is
+            //important to reapply it
+
+            std::cout << format_code(0, 0, 7);
+
+            std::cout << std::string(width - rsize(row[last_column]), ' ');
         }
 
-        std::cout << format_code(0, 0, 7) << std::endl;
+        std::cout << std::endl;
     }
 }

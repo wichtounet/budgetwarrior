@@ -108,6 +108,16 @@ std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month mon
     return std::move(total_budgets);
 }
 
+std::string format_money(const budget::money& m){
+    if(m.dollars > 0){
+        return "::green" + budget::to_string(m);
+    } else if(m.dollars < 0){
+        return "::red" + budget::to_string(m);
+    } else {
+        return budget::to_string(m);
+    }
+}
+
 void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
@@ -154,9 +164,9 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
 
     //Budget
     contents.emplace_back(columns.size() * 3, "");
-    add_recap_line(contents, "Budget", accounts, [](const budget::account& a){return a.amount;});
+    add_recap_line(contents, "Budget", accounts, [](const budget::account& a){return format_money(a.amount);});
     auto total_budgets = compute_total_budget(month, year);
-    add_recap_line(contents, "Total Budget", total_budgets);
+    add_recap_line(contents, "Total Budget", total_budgets, [](const budget::money& m){ return format_money(m);});
 
     //Balances
     contents.emplace_back(columns.size() * 3, "");
@@ -169,8 +179,8 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
         local_balances.push_back(accounts[i].amount - totals[i]);
     }
 
-    add_recap_line(contents, "Balance", balances);
-    add_recap_line(contents, "Local Balance", local_balances);
+    add_recap_line(contents, "Balance", balances, [](const budget::money& m){ return format_money(m);});
+    add_recap_line(contents, "Local Balance", local_balances, [](const budget::money& m){ return format_money(m);});
 
     display_table(columns, contents, 3);
 
