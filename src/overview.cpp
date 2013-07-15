@@ -186,13 +186,14 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
 
     std::cout << std::endl;
 
-    money total_expenses;
-    for(auto& total : totals){
-        total_expenses += total;
-    }
+    auto total_expenses = std::accumulate(totals.begin(), totals.end(), budget::money());
+    std::cout << std::string(accounts.size() * 10, ' ')         << "Total expenses: " << total_expenses << std::endl;
 
-    std::cout << std::string(accounts.size() * 10, ' ') << "Total expenses: " << total_expenses << std::endl;
-    std::cout << std::string(accounts.size() * 10 + 7, ' ') <<        "Balance: " << "TODO" << std::endl;
+    auto total_balance = std::accumulate(balances.begin(), balances.end(), budget::money());
+    std::cout << std::string(accounts.size() * 10 + 7, ' ')     <<        "Balance: " << format(format_money(total_balance)) << format_code(0,0,7) << std::endl;
+
+    auto total_local_balance = std::accumulate(local_balances.begin(), local_balances.end(), budget::money());
+    std::cout << std::string(accounts.size() * 10 + 1, ' ')     <<  "Local Balance: " << format(format_money(total_local_balance)) << format_code(0,0,7) << std::endl;
 }
 
 void budget::year_overview(){

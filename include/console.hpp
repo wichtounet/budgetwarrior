@@ -18,6 +18,7 @@
 namespace budget {
 
 std::string format_code(int attr, int fg, int bg);
+std::string format(const std::string& value);
 void display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups = 1);
 
 void edit_string(std::string& ref, const std::string& title);

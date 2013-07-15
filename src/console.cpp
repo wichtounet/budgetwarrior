@@ -40,7 +40,7 @@ std::size_t rsize(const std::string& value){
     return mbstowcs(buf, v.c_str(), 1024);
 }
 
-std::string format(const std::string& v){
+std::string budget::format(const std::string& v){
     if(v.substr(0, 5) == "::red"){
         auto value = v.substr(5);
 
