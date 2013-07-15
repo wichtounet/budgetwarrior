@@ -9,6 +9,7 @@
 #define DATA_H
 
 #include "config.hpp"
+#include "assert.hpp"
 
 namespace budget {
 
@@ -16,6 +17,11 @@ template<typename T>
 struct data_handler {
     std::size_t next_id;
     std::vector<T> data;
+
+    data_handler(){};
+
+    data_handler(const data_handler& rhs) = delete;
+    data_handler& operator=(const data_handler& rhs) = delete;
 };
 
 template<typename T>
@@ -75,6 +81,17 @@ template<typename T>
 void remove(data_handler<T>& data, std::size_t id){
     data.data.erase(std::remove_if(data.data.begin(), data.data.end(),
         [id](const T& entry){ return entry.id == id; }), data.data.end());
+}
+
+template<typename T>
+T& get(data_handler<T>& data, std::size_t id){
+    for(auto& value : data.data){
+        if(value.id == id){
+            return value;
+        }
+    }
+
+    budget_unreachable("The data must exists");
 }
 
 template<typename T>

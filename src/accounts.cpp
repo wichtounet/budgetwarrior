@@ -63,6 +63,35 @@ void budget::handle_accounts(const std::vector<std::string>& args){
             remove(accounts, id);
 
             std::cout << "Account " << id << " has been deleted" << std::endl;
+        } else if(subcommand == "edit"){
+            enough_args(args, 3);
+
+            std::size_t id = to_number<std::size_t>(args[2]);
+
+            if(!exists(accounts, id)){
+                throw budget_exception("There are no account with id " + args[2]);
+            }
+
+            auto& account = get(accounts, id);
+
+            std::string answer;
+
+            std::cout << "Name [" << account.name << "]:";
+            std::getline(std::cin, answer);
+
+            if(!answer.empty()){
+                account.name = answer;
+            }
+
+            std::cout << "Amount [" << account.amount << "]:";
+            std::getline(std::cin, answer);
+
+            if(!answer.empty()){
+                account.amount = parse_money(answer);
+                not_negative(account.amount);
+            }
+
+            std::cout << "Account " << id << " has been modified" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
