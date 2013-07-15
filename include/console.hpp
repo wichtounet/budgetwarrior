@@ -11,10 +11,15 @@
 #include <vector>
 #include <string>
 
+#include "money.hpp"
+
 namespace budget {
 
 std::string format_code(int attr, int fg, int bg);
 void display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups = 1);
+
+void edit_string(std::string& ref, const std::string& title);
+void edit_money(budget::money& ref, const std::string& title);
 
 } //end of namespace budget
 

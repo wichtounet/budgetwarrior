@@ -74,22 +74,8 @@ void budget::handle_accounts(const std::vector<std::string>& args){
 
             auto& account = get(accounts, id);
 
-            std::string answer;
-
-            std::cout << "Name [" << account.name << "]:";
-            std::getline(std::cin, answer);
-
-            if(!answer.empty()){
-                account.name = answer;
-            }
-
-            std::cout << "Amount [" << account.amount << "]:";
-            std::getline(std::cin, answer);
-
-            if(!answer.empty()){
-                account.amount = parse_money(answer);
-                not_negative(account.amount);
-            }
+            edit_string(account.name, "Name");
+            edit_money(account.amount, "Amount");
 
             std::cout << "Account " << id << " has been modified" << std::endl;
         } else {

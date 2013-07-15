@@ -166,3 +166,25 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
         std::cout << std::endl;
     }
 }
+
+void budget::edit_string(std::string& ref, const std::string& title){
+    std::string answer;
+
+    std::cout << title << " [" << ref << "]:";
+    std::getline(std::cin, answer);
+
+    if(!answer.empty()){
+        ref = answer;
+    }
+}
+
+void budget::edit_money(budget::money& ref, const std::string& title){
+    std::string answer;
+
+    std::cout << title << " [" << ref << "]:";
+    std::getline(std::cin, answer);
+
+    if(!answer.empty()){
+        ref = parse_money(answer);
+    }
+}
