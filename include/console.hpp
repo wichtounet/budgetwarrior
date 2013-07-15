@@ -11,6 +11,8 @@
 #include <vector>
 #include <string>
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 #include "money.hpp"
 
 namespace budget {
@@ -20,6 +22,7 @@ void display_table(std::vector<std::string> columns, std::vector<std::vector<std
 
 void edit_string(std::string& ref, const std::string& title);
 void edit_money(budget::money& ref, const std::string& title);
+void edit_date(boost::gregorian::date& ref, const std::string& title);
 
 } //end of namespace budget
 

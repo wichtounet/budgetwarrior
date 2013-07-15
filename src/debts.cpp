@@ -128,7 +128,7 @@ void budget::handle_debts(const std::vector<std::string>& args){
             edit_money(debt.amount, "Amount");
             edit_string(debt.title, "Title");
 
-            std::cout << "Account " << id << " has been modified" << std::endl;
+            std::cout << "Debt " << id << " has been modified" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

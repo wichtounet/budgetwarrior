@@ -103,6 +103,26 @@ void budget::handle_expenses(const std::vector<std::string>& args){
             remove(expenses, id);
 
             std::cout << "Expense " << id << " has been deleted" << std::endl;
+        } else if(subcommand == "edit"){
+            enough_args(args, 3);
+
+            std::size_t id = to_number<std::size_t>(args[2]);
+
+            if(!exists(expenses, id)){
+                throw budget_exception("There are no expense with id " + args[2]);
+            }
+
+            auto& expense = get(expenses, id);
+
+            edit_date(expense.expense_date, "Date");
+
+            edit_string(expense.account, "Account");
+            validate_account(expense.account);
+
+            edit_string(expense.name, "Name");
+            edit_money(expense.amount, "Amount");
+
+            std::cout << "Expense " << id << " has been modified" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
