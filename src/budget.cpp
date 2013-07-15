@@ -24,8 +24,7 @@ int main(int argc, const char* argv[]) {
     std::locale::global(global_locale);
     std::wcout.imbue(global_locale);
 
-    //Verify that the data folder exists
-    if(!verify_folder()){
+    if(!load_config()){
         return 0;
     }
 

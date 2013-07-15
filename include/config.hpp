@@ -11,9 +11,11 @@
 namespace budget {
 
 std::string home_folder();
+std::string budget_folder();
 std::string path_to_home_file(const std::string& file);
 std::string path_to_budget_file(const std::string& file);
 
+bool load_config();
 bool verify_folder();
 
 } //end of namespace budget

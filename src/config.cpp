@@ -6,10 +6,14 @@
 //=======================================================================
 
 #include <iostream>
+#include <fstream>
+#include <unordered_map>
 
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+
+#include <boost/algorithm/string.hpp>
 
 #include <boost/filesystem.hpp>
 
@@ -17,8 +21,46 @@
 
 using namespace budget;
 
+static std::unordered_map<std::string, std::string> configuration;
+
+bool budget::load_config(){
+    auto config_path = path_to_home_file(".budgetrc");
+
+    if(boost::filesystem::exists(config_path)){
+        std::ifstream file(config_path);
+
+        if(file.is_open()){
+            if(file.good()){
+                std::string line;
+                while(file.good() && getline(file, line)){
+                    std::vector<std::string> parts;
+                    boost::split(parts, line, boost::is_any_of("="), boost::token_compress_on);
+
+                    if(parts.size() != 2){
+                        std::cout << "The configuration file " << config_path << " is invalid only supports entries in form of key=value" << std::endl;
+
+                        return false;
+                    }
+
+                    configuration[parts[0]] = parts[1];
+                }
+            }
+        }
+    }
+
+    return verify_folder();
+}
+
+std::string budget::budget_folder(){
+    if(configuration.find("directory") != configuration.end()){
+        return configuration["directory"];
+    }
+
+    return path_to_home_file(".budget");
+}
+
 bool budget::verify_folder(){
-    auto folder_path = path_to_home_file(".budget");
+    auto folder_path = budget_folder();
 
     if(!boost::filesystem::exists(folder_path)){
         std::cout << "The folder " << folder_path << " does not exist. Would like to create it [yes/no] ? ";
@@ -57,5 +99,5 @@ std::string budget::path_to_home_file(const std::string& file){
 }
 
 std::string budget::path_to_budget_file(const std::string& file){
-    return path_to_home_file(".budget/" + file);
+    return budget_folder() + "/" + file;
 }
