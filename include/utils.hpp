@@ -36,8 +36,7 @@ inline T to_number (const std::string& text) {
  */
 template<>
 inline int to_number (const std::string& text) {
-    //PERF: If necessary, use hand written loop
-    return strtol(text.c_str(), 0, 10);
+    return boost::lexical_cast<int>(text);
 }
 
 template<typename T>
