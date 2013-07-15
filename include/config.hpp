@@ -18,6 +18,9 @@ std::string path_to_budget_file(const std::string& file);
 bool load_config();
 bool verify_folder();
 
+bool config_contains(const std::string& key);
+std::string config_value(const std::string& key);
+
 } //end of namespace budget
 
 #endif

@@ -52,8 +52,8 @@ bool budget::load_config(){
 }
 
 std::string budget::budget_folder(){
-    if(configuration.find("directory") != configuration.end()){
-        return configuration["directory"];
+    if(config_contains("directory")){
+        return config_value("directory");
     }
 
     return path_to_home_file(".budget");
@@ -100,4 +100,12 @@ std::string budget::path_to_home_file(const std::string& file){
 
 std::string budget::path_to_budget_file(const std::string& file){
     return budget_folder() + "/" + file;
+}
+
+bool budget::config_contains(const std::string& key){
+    return configuration.find(key) != configuration.end();
+}
+
+std::string budget::config_value(const std::string& key){
+    return configuration[key];
 }
