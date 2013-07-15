@@ -25,6 +25,23 @@ using namespace budget;
 
 static data_handler<debt> debts;
 
+void edit_direction(bool& ref, const std::string& title){
+    std::string answer;
+
+    std::cout << title << " [" << (ref ? "to" : "from") << "]:";
+    std::getline(std::cin, answer);
+
+    if(!answer.empty()){
+        auto direction = answer;
+
+        if(direction != "to" && direction != "from"){
+            throw budget_exception("Invalid direction, only \"to\" and \"from\" are valid");
+        }
+
+        ref = direction == "to" ? true : false;
+    }
+}
+
 void budget::handle_debts(const std::vector<std::string>& args){
     load_debts();
 
@@ -95,6 +112,23 @@ void budget::handle_debts(const std::vector<std::string>& args){
             remove(debts, id);
 
             std::cout << "Debt " << id << " has been deleted" << std::endl;
+        } else if(subcommand == "edit"){
+            enough_args(args, 3);
+
+            std::size_t id = to_number<std::size_t>(args[2]);
+
+            if(!exists(debts, id)){
+                throw budget_exception("There are no debt with id " + args[2]);
+            }
+
+            auto& debt = get(debts, id);
+
+            edit_direction(debt.direction, "Direction");
+            edit_string(debt.name, "Name");
+            edit_money(debt.amount, "Amount");
+            edit_string(debt.title, "Title");
+
+            std::cout << "Account " << id << " has been modified" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
