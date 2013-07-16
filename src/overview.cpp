@@ -202,11 +202,223 @@ void budget::year_overview(){
     year_overview(today.year());
 }
 
+void display_local_balance(boost::gregorian::greg_year year);
+void display_balance(boost::gregorian::greg_year year);
+void display_expenses(boost::gregorian::greg_year year);
+
 void budget::year_overview(boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
 
-    std::cout << "Overview of " << year << std::endl;
+    std::cout << "Overview of " << year << std::endl << std::endl;
 
-    //TODO
+    display_local_balance(year);
+    std::cout << std::endl;
+
+    display_balance(year);
+    std::cout << std::endl;
+
+    display_expenses(year);
+    std::cout << std::endl;
+}
+
+void display_local_balance(boost::gregorian::greg_year year){
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    columns.push_back("Local Balance");
+
+    for(unsigned short i = 1; i < 13; ++i){
+        boost::gregorian::greg_month m = i;
+
+        columns.emplace_back(m.as_long_string());
+    }
+
+    columns.push_back("Total");
+    columns.push_back("Mean");
+
+    auto& accounts = all_accounts();
+    auto& expenses = all_expenses();
+
+    std::vector<budget::money> totals(12, budget::money());
+
+    for(auto& account : accounts){
+        std::vector<std::string> row;
+
+        row.push_back(account.name);
+
+        budget::money total;
+
+        for(unsigned short i = 1; i < 13; ++i){
+            boost::gregorian::greg_month m = i;
+
+            budget::money month_total;
+
+            for(auto& expense : expenses){
+                if(expense.account == account.name && expense.expense_date.year() == year && expense.expense_date.month() == m){
+                   month_total += expense.amount;
+                }
+            }
+
+            month_total = account.amount - month_total;
+
+            row.push_back(format_money(month_total));
+
+            total += month_total;
+
+            totals[i - 1] += month_total;
+        }
+
+        row.push_back(format_money(total));
+        row.push_back(format_money(total / 12));
+
+        contents.emplace_back(std::move(row));
+    }
+
+    std::vector<std::string> last_row;
+    last_row.push_back("Total");
+
+    budget::money total_total;
+    for(auto& total : totals){
+        last_row.push_back(format_money(total));
+
+        total_total += total;
+    }
+
+    last_row.push_back(format_money(total_total));
+    last_row.push_back(format_money(total_total / 12));
+
+    contents.emplace_back(std::move(last_row));
+
+    display_table(columns, contents);
+}
+
+void display_balance(boost::gregorian::greg_year year){
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    columns.push_back("Balance");
+
+    for(unsigned short i = 1; i < 13; ++i){
+        boost::gregorian::greg_month m = i;
+
+        columns.emplace_back(m.as_long_string());
+    }
+
+    auto& accounts = all_accounts();
+    auto& expenses = all_expenses();
+
+    std::vector<budget::money> totals(12, budget::money());
+
+    for(auto& account : accounts){
+        std::vector<std::string> row;
+
+        row.push_back(account.name);
+
+        budget::money total;
+        std::vector<budget::money> previous(13, budget::money());
+
+        for(unsigned short i = 1; i < 13; ++i){
+            boost::gregorian::greg_month m = i;
+
+            budget::money month_total;
+
+            for(auto& expense : expenses){
+                if(expense.account == account.name && expense.expense_date.year() == year && expense.expense_date.month() == m){
+                   month_total += expense.amount;
+                }
+            }
+
+            month_total = previous[i - 1] + account.amount - month_total;
+            previous[i] = month_total;
+
+            totals[i - 1] += month_total;
+
+            row.push_back(format_money(month_total));
+        }
+
+        contents.emplace_back(std::move(row));
+    }
+
+    std::vector<std::string> last_row;
+    last_row.push_back("Total");
+
+    budget::money total_total;
+    for(auto& total : totals){
+        last_row.push_back(format_money(total));
+    }
+
+    contents.emplace_back(std::move(last_row));
+
+    display_table(columns, contents);
+}
+
+void display_expenses(boost::gregorian::greg_year year){
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    columns.push_back("Expenses");
+
+    for(unsigned short i = 1; i < 13; ++i){
+        boost::gregorian::greg_month m = i;
+
+        columns.emplace_back(m.as_long_string());
+    }
+
+    columns.push_back("Total");
+    columns.push_back("Mean");
+
+    auto& accounts = all_accounts();
+    auto& expenses = all_expenses();
+
+    std::vector<budget::money> totals(12, budget::money());
+
+    for(std::size_t i = 0; i < accounts.size(); ++i){
+        auto& account = accounts[i];
+
+        std::vector<std::string> row;
+
+        row.push_back(account.name);
+
+        budget::money total;
+
+        for(unsigned short j = 1; j < 13; ++j){
+            boost::gregorian::greg_month m = j;
+
+            budget::money month_total;
+
+            for(auto& expense : expenses){
+                if(expense.account == account.name && expense.expense_date.year() == year && expense.expense_date.month() == m){
+                   month_total += expense.amount;
+                }
+            }
+
+            row.push_back(to_string(month_total));
+
+            total += month_total;
+            totals[j-1] += month_total;
+        }
+
+        row.push_back(to_string(total));
+        row.push_back(to_string(total / 12));
+
+        contents.emplace_back(std::move(row));
+    }
+
+    std::vector<std::string> last_row;
+    last_row.push_back("Total");
+
+    budget::money total_total;
+    for(auto& total : totals){
+        last_row.push_back(to_string(total));
+
+        total_total += total;
+    }
+
+    last_row.push_back(to_string(total_total));
+    last_row.push_back(to_string(total_total / 12));
+
+    contents.emplace_back(std::move(last_row));
+
+    display_table(columns, contents);
 }

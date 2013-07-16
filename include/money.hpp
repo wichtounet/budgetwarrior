@@ -79,6 +79,21 @@ struct money {
 
         return *this;
     }
+
+    money operator/(int factor) const {
+        money new_money = *this;
+        new_money /= factor;
+        return new_money;
+    }
+
+    money& operator/=(int factor){
+        dollars = dollars / factor;
+        cents = cents / factor;
+
+        //TODO The cents of the dollars should be reported to cents
+
+        return *this;
+    }
 };
 
 std::ostream& operator<<(std::ostream& stream, const money& amount);
