@@ -12,6 +12,8 @@
 #include "accounts.hpp"
 #include "expenses.hpp"
 #include "budget_exception.hpp"
+#include "config.hpp"
+#include "assert.hpp"
 
 using namespace budget;
 
@@ -222,13 +224,27 @@ void budget::year_overview(boost::gregorian::greg_year year){
     std::cout << std::endl;
 }
 
+unsigned short start_month(boost::gregorian::greg_year year){
+    auto key = to_string(year) + "_start";
+    if(config_contains(key)){
+        auto value = to_number<unsigned short>(config_value(key));
+        budget_assert(value < 13 && value > 0, "The start month is incorrect (must be in [1,12])");
+        return value;
+    }
+
+    return 1;
+}
+
 void display_local_balance(boost::gregorian::greg_year year){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
     columns.push_back("Local Balance");
 
-    for(unsigned short i = 1; i < 13; ++i){
+    auto sm = start_month(year);
+    auto months = 12 - sm + 1;
+
+    for(unsigned short i = sm; i < 13; ++i){
         boost::gregorian::greg_month m = i;
 
         columns.emplace_back(m.as_long_string());
@@ -249,7 +265,7 @@ void display_local_balance(boost::gregorian::greg_year year){
 
         budget::money total;
 
-        for(unsigned short i = 1; i < 13; ++i){
+        for(unsigned short i = sm; i < 13; ++i){
             boost::gregorian::greg_month m = i;
 
             budget::money month_total;
@@ -270,7 +286,7 @@ void display_local_balance(boost::gregorian::greg_year year){
         }
 
         row.push_back(format_money(total));
-        row.push_back(format_money(total / 12));
+        row.push_back(format_money(total / months));
 
         contents.emplace_back(std::move(row));
     }
@@ -279,14 +295,16 @@ void display_local_balance(boost::gregorian::greg_year year){
     last_row.push_back("Total");
 
     budget::money total_total;
-    for(auto& total : totals){
+    for(unsigned short i = sm; i < 13; ++i){
+        auto total = totals[i - 1];
+
         last_row.push_back(format_money(total));
 
         total_total += total;
     }
 
     last_row.push_back(format_money(total_total));
-    last_row.push_back(format_money(total_total / 12));
+    last_row.push_back(format_money(total_total / months));
 
     contents.emplace_back(std::move(last_row));
 
@@ -299,7 +317,9 @@ void display_balance(boost::gregorian::greg_year year){
 
     columns.push_back("Balance");
 
-    for(unsigned short i = 1; i < 13; ++i){
+    auto sm = start_month(year);
+
+    for(unsigned short i = sm; i < 13; ++i){
         boost::gregorian::greg_month m = i;
 
         columns.emplace_back(m.as_long_string());
@@ -318,7 +338,7 @@ void display_balance(boost::gregorian::greg_year year){
         budget::money total;
         std::vector<budget::money> previous(13, budget::money());
 
-        for(unsigned short i = 1; i < 13; ++i){
+        for(unsigned short i = sm; i < 13; ++i){
             boost::gregorian::greg_month m = i;
 
             budget::money month_total;
@@ -344,7 +364,8 @@ void display_balance(boost::gregorian::greg_year year){
     last_row.push_back("Total");
 
     budget::money total_total;
-    for(auto& total : totals){
+    for(unsigned short i = sm; i < 13; ++i){
+        auto total = totals[i - 1];
         last_row.push_back(format_money(total));
     }
 
@@ -357,9 +378,12 @@ void display_expenses(boost::gregorian::greg_year year){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
+    auto sm = start_month(year);
+    auto months = 12 - sm + 1;
+
     columns.push_back("Expenses");
 
-    for(unsigned short i = 1; i < 13; ++i){
+    for(unsigned short i = sm; i < 13; ++i){
         boost::gregorian::greg_month m = i;
 
         columns.emplace_back(m.as_long_string());
@@ -371,7 +395,7 @@ void display_expenses(boost::gregorian::greg_year year){
     auto& accounts = all_accounts();
     auto& expenses = all_expenses();
 
-    std::vector<budget::money> totals(12, budget::money());
+    std::vector<budget::money> totals(13, budget::money());
 
     for(std::size_t i = 0; i < accounts.size(); ++i){
         auto& account = accounts[i];
@@ -382,7 +406,7 @@ void display_expenses(boost::gregorian::greg_year year){
 
         budget::money total;
 
-        for(unsigned short j = 1; j < 13; ++j){
+        for(unsigned short j = sm; j < 13; ++j){
             boost::gregorian::greg_month m = j;
 
             budget::money month_total;
@@ -400,7 +424,7 @@ void display_expenses(boost::gregorian::greg_year year){
         }
 
         row.push_back(to_string(total));
-        row.push_back(to_string(total / 12));
+        row.push_back(to_string(total / months));
 
         contents.emplace_back(std::move(row));
     }
@@ -409,14 +433,16 @@ void display_expenses(boost::gregorian::greg_year year){
     last_row.push_back("Total");
 
     budget::money total_total;
-    for(auto& total : totals){
+    for(unsigned short j = sm; j < 13; ++j){
+        auto total = totals[j-1];
+
         last_row.push_back(to_string(total));
 
         total_total += total;
     }
 
     last_row.push_back(to_string(total_total));
-    last_row.push_back(to_string(total_total / 12));
+    last_row.push_back(to_string(total_total / months));
 
     contents.emplace_back(std::move(last_row));
 
