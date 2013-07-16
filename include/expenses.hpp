@@ -24,7 +24,7 @@ struct expense {
     std::string guid;
     date expense_date;
     std::string name;
-    std::string account;
+    std::size_t account;
     money amount;
 };
 

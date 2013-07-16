@@ -129,12 +129,12 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
     std::cout << "Overview of " << month << " " << year << std::endl << std::endl;
 
     std::vector<std::string> columns;
-    std::unordered_map<std::string, std::size_t> indexes;
+    std::unordered_map<std::size_t, std::size_t> indexes;
     std::vector<std::vector<std::string>> contents;
     std::vector<money> totals;
 
     for(auto& account : accounts){
-        indexes[account.name] = columns.size();
+        indexes[account.id] = columns.size();
         columns.push_back(account.name);
         totals.push_back({});
     }
@@ -271,7 +271,7 @@ void display_local_balance(boost::gregorian::greg_year year){
             budget::money month_total;
 
             for(auto& expense : expenses){
-                if(expense.account == account.name && expense.expense_date.year() == year && expense.expense_date.month() == m){
+                if(expense.account == account.id && expense.expense_date.year() == year && expense.expense_date.month() == m){
                    month_total += expense.amount;
                 }
             }
@@ -344,7 +344,7 @@ void display_balance(boost::gregorian::greg_year year){
             budget::money month_total;
 
             for(auto& expense : expenses){
-                if(expense.account == account.name && expense.expense_date.year() == year && expense.expense_date.month() == m){
+                if(expense.account == account.id && expense.expense_date.year() == year && expense.expense_date.month() == m){
                    month_total += expense.amount;
                 }
             }
@@ -412,7 +412,7 @@ void display_expenses(boost::gregorian::greg_year year){
             budget::money month_total;
 
             for(auto& expense : expenses){
-                if(expense.account == account.name && expense.expense_date.year() == year && expense.expense_date.month() == m){
+                if(expense.account == account.id && expense.expense_date.year() == year && expense.expense_date.month() == m){
                    month_total += expense.amount;
                 }
             }

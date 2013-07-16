@@ -94,6 +94,20 @@ void budget::save_accounts(){
     save_data(accounts, "accounts.data");
 }
 
+budget::account& budget::get_account(std::size_t id){
+    return get(accounts, id);
+}
+
+budget::account& budget::get_account(std::string name){
+    for(auto& account : accounts.data){
+        if(account.name == name){
+            return account;
+        }
+    }
+
+    budget_unreachable("The account does not exist");
+}
+
 void budget::show_accounts(){
     std::vector<std::string> columns = {"ID", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
