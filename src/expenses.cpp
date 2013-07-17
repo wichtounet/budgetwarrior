@@ -42,8 +42,8 @@ void show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_ye
     std::size_t count = 0;
 
     for(auto& expense : expenses.data){
-        if(expense.expense_date.year() == year && expense.expense_date.month() == month){
-            contents.push_back({to_string(expense.id), to_string(expense.expense_date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+        if(expense.date.year() == year && expense.date.month() == month){
+            contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
 
             total += expense.amount;
             ++count;
@@ -60,13 +60,13 @@ void show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_ye
 }
 
 void show_expenses(boost::gregorian::greg_month month){
-    date today = boost::gregorian::day_clock::local_day();
+    auto today = boost::gregorian::day_clock::local_day();
 
     show_expenses(month, today.year());
 }
 
 void show_expenses(){
-    date today = boost::gregorian::day_clock::local_day();
+    auto today = boost::gregorian::day_clock::local_day();
 
     show_expenses(today.month(), today.year());
 }
@@ -76,7 +76,7 @@ void show_all_expenses(){
     std::vector<std::vector<std::string>> contents;
 
     for(auto& expense : expenses.data){
-        contents.push_back({to_string(expense.id), to_string(expense.expense_date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+        contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
     }
 
     display_table(columns, contents);
@@ -112,7 +112,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
             expense expense;
             expense.guid = generate_guid();
-            expense.expense_date = boost::gregorian::day_clock::local_day();
+            expense.date = boost::gregorian::day_clock::local_day();
 
             auto account_name = args[2];
             validate_account(account_name);
@@ -131,7 +131,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
             expense expense;
             expense.guid = generate_guid();
-            expense.expense_date = boost::gregorian::from_string(args[2]);
+            expense.date = boost::gregorian::from_string(args[2]);
 
             auto account_name = args[3];
             validate_account(account_name);
@@ -168,7 +168,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
             auto& expense = get(expenses, id);
 
-            edit_date(expense.expense_date, "Date");
+            edit_date(expense.date, "Date");
 
             auto account_name = get_account(expense.account).name;
             edit_string(account_name, "Account");
@@ -196,7 +196,7 @@ void budget::save_expenses(){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
-    return stream << expense.id  << ':' << expense.guid << ':' << expense.account << ':' << expense.name << ':' << expense.amount << ':' << to_string(expense.expense_date);
+    return stream << expense.id  << ':' << expense.guid << ':' << expense.account << ':' << expense.name << ':' << expense.amount << ':' << to_string(expense.date);
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, expense& expense){
@@ -205,7 +205,7 @@ void budget::operator>>(const std::vector<std::string>& parts, expense& expense)
     expense.account = to_number<std::size_t>(parts[2]);
     expense.name = parts[3];
     expense.amount = parse_money(parts[4]);
-    expense.expense_date = boost::gregorian::from_string(parts[5]);
+    expense.date = boost::gregorian::from_string(parts[5]);
 }
 
 std::vector<expense>& budget::all_expenses(){
