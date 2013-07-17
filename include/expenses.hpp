@@ -13,9 +13,20 @@
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 
+#include "module_traits.hpp"
 #include "money.hpp"
 
 namespace budget {
+
+struct expenses_module {
+     void handle(const std::vector<std::string>& args);
+};
+
+template<>
+struct module_traits<expenses_module> {
+    static constexpr const bool is_default = false;
+    static constexpr const char* command = "expense";
+};
 
 typedef boost::gregorian::date date;
 
@@ -33,14 +44,8 @@ void operator>>(const std::vector<std::string>& parts, expense& expense);
 
 void load_expenses();
 void save_expenses();
-void show_expenses();
-void show_expenses(boost::gregorian::greg_month month);
-void show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year);
-void show_all_expenses();
 
 std::vector<expense>& all_expenses();
-
-void handle_expenses(const std::vector<std::string>& args);
 
 } //end of namespace budget
 

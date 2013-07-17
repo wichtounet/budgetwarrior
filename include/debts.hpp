@@ -13,9 +13,20 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include "module_traits.hpp"
 #include "money.hpp"
 
 namespace budget {
+
+struct debt_module {
+     void handle(const std::vector<std::string>& args);
+};
+
+template<>
+struct module_traits<debt_module> {
+    static constexpr const bool is_default = false;
+    static constexpr const char* command = "debt";
+};
 
 typedef boost::posix_time::ptime time;
 
@@ -35,10 +46,6 @@ void operator>>(const std::vector<std::string>& parts, debt& debt);
 
 void load_debts();
 void save_debts();
-void list_debts();
-void all_debts();
-
-void handle_debts(const std::vector<std::string>& args);
 
 } //end of namespace budget
 

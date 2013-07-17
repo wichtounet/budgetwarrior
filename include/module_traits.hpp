@@ -5,26 +5,14 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
-#ifndef OVERVIEW_H
-#define OVERVIEW_H
-
-#include <vector>
-#include <string>
-
-#include <boost/date_time/gregorian/gregorian.hpp>
-
-#include "module_traits.hpp"
+#ifndef MODULE_TRAITS_H
+#define MODULE_TRAITS_H
 
 namespace budget {
 
-struct overview_module {
-     void handle(const std::vector<std::string>& args);
-};
+template<typename Module>
+struct module_traits {
 
-template<>
-struct module_traits<overview_module> {
-    static constexpr const bool is_default = true;
-    static constexpr const char* command = "overview";
 };
 
 } //end of namespace budget

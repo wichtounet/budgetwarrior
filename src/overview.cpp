@@ -17,49 +17,7 @@
 
 using namespace budget;
 
-void budget::handle_overview(const std::vector<std::string>& args){
-    if(args.size() == 1){
-        month_overview();
-    } else {
-        auto& subcommand = args[1];
-
-        if(subcommand == "month"){
-            if(args.size() == 2){
-                month_overview();
-            } else if(args.size() == 3){
-                month_overview(boost::gregorian::greg_month(to_number<unsigned short>(args[2])));
-            } else if(args.size() == 4){
-                month_overview(
-                    boost::gregorian::greg_month(to_number<unsigned short>(args[2])),
-                    boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
-            } else {
-                throw budget_exception("Too many arguments to overview month");
-            }
-        } else if(subcommand == "year"){
-            if(args.size() == 2){
-                year_overview();
-            } else if(args.size() == 3){
-                year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[2])));
-            } else {
-                throw budget_exception("Too many arguments to overview month");
-            }
-        } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
-        }
-    }
-}
-
-void budget::month_overview(){
-    date today = boost::gregorian::day_clock::local_day();
-
-    month_overview(today.month(), today.year());
-}
-
-void budget::month_overview(boost::gregorian::greg_month month){
-    date today = boost::gregorian::day_clock::local_day();
-
-    month_overview(month, today.year());
-}
+namespace {
 
 template<typename T>
 T& default_operator(T& t){
@@ -88,6 +46,16 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
     return add_recap_line(contents, title, values, [](const T& t){return t;});
 }
 
+std::string format_money(const budget::money& m){
+    if(m.dollars > 0){
+        return "::green" + budget::to_string(m);
+    } else if(m.dollars < 0){
+        return "::red" + budget::to_string(m);
+    } else {
+        return budget::to_string(m);
+    }
+}
+
 std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::vector<budget::money> total_budgets;
 
@@ -110,17 +78,7 @@ std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month mon
     return std::move(total_budgets);
 }
 
-std::string format_money(const budget::money& m){
-    if(m.dollars > 0){
-        return "::green" + budget::to_string(m);
-    } else if(m.dollars < 0){
-        return "::red" + budget::to_string(m);
-    } else {
-        return budget::to_string(m);
-    }
-}
-
-void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
+void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
 
@@ -198,17 +156,23 @@ void budget::month_overview(boost::gregorian::greg_month month, boost::gregorian
     std::cout << std::string(accounts.size() * 10 + 1, ' ')     <<  "Local Balance: " << format(format_money(total_local_balance)) << format_code(0,0,7) << std::endl;
 }
 
-void budget::year_overview(){
+void month_overview(boost::gregorian::greg_month month){
     date today = boost::gregorian::day_clock::local_day();
 
-    year_overview(today.year());
+    month_overview(month, today.year());
+}
+
+void month_overview(){
+    date today = boost::gregorian::day_clock::local_day();
+
+    month_overview(today.month(), today.year());
 }
 
 void display_local_balance(boost::gregorian::greg_year year);
 void display_balance(boost::gregorian::greg_year year);
 void display_expenses(boost::gregorian::greg_year year);
 
-void budget::year_overview(boost::gregorian::greg_year year){
+void year_overview(boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
 
@@ -447,4 +411,44 @@ void display_expenses(boost::gregorian::greg_year year){
     contents.emplace_back(std::move(last_row));
 
     display_table(columns, contents);
+}
+
+void year_overview(){
+    date today = boost::gregorian::day_clock::local_day();
+
+    year_overview(today.year());
+}
+
+} // end of anonymous namespace
+
+void budget::overview_module::handle(const std::vector<std::string>& args){
+    if(args.empty() || args.size() == 1){
+        month_overview();
+    } else {
+        auto& subcommand = args[1];
+
+        if(subcommand == "month"){
+            if(args.size() == 2){
+                month_overview();
+            } else if(args.size() == 3){
+                month_overview(boost::gregorian::greg_month(to_number<unsigned short>(args[2])));
+            } else if(args.size() == 4){
+                month_overview(
+                    boost::gregorian::greg_month(to_number<unsigned short>(args[2])),
+                    boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
+            } else {
+                throw budget_exception("Too many arguments to overview month");
+            }
+        } else if(subcommand == "year"){
+            if(args.size() == 2){
+                year_overview();
+            } else if(args.size() == 3){
+                year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[2])));
+            } else {
+                throw budget_exception("Too many arguments to overview month");
+            }
+        } else {
+            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+        }
+    }
 }

@@ -24,9 +24,30 @@
 
 using namespace budget;
 
+namespace {
+
 static data_handler<account> accounts;
 
-void budget::handle_accounts(const std::vector<std::string>& args){
+void show_accounts(){
+    std::vector<std::string> columns = {"ID", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    money total;
+
+    for(auto& account : accounts.data){
+        contents.push_back({to_string(account.id), account.name, to_string(account.amount)});
+
+        total += account.amount;
+    }
+
+    contents.push_back({"", "Total", to_string(total)});
+
+    display_table(columns, contents);
+}
+
+} //end of anonymous namespace
+
+void budget::accounts_module::handle(const std::vector<std::string>& args){
     load_accounts();
 
     if(args.size() == 1){
@@ -106,23 +127,6 @@ budget::account& budget::get_account(std::string name){
     }
 
     budget_unreachable("The account does not exist");
-}
-
-void budget::show_accounts(){
-    std::vector<std::string> columns = {"ID", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
-
-    money total;
-
-    for(auto& account : accounts.data){
-        contents.push_back({to_string(account.id), account.name, to_string(account.amount)});
-
-        total += account.amount;
-    }
-
-    contents.push_back({"", "Total", to_string(total)});
-
-    display_table(columns, contents);
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const account& account){

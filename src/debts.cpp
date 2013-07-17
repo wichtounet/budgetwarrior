@@ -23,7 +23,46 @@
 
 using namespace budget;
 
+namespace {
+
 static data_handler<debt> debts;
+
+void all_debts(){
+    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Paid", "Title"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& debt : debts.data){
+        contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), (debt.state == 0 ? "No" : "Yes"), debt.title});
+    }
+
+    display_table(columns, contents);
+}
+
+void list_debts(){
+    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title"};
+    std::vector<std::vector<std::string>> contents;
+
+    money owed;
+    money deserved;
+
+    for(auto& debt : debts.data){
+        if(debt.state == 0){
+            contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), debt.title});
+
+            if(debt.direction){
+                owed += debt.amount;
+            } else {
+                deserved += debt.amount;
+            }
+        }
+    }
+
+    display_table(columns, contents);
+    std::cout << std::endl;
+
+    std::cout << std::string(7, ' ') << "Money owed: " << owed << std::endl;
+    std::cout << std::string(3, ' ') << "Money deserved: " << deserved << std::endl;
+}
 
 void edit_direction(bool& ref, const std::string& title){
     std::string answer;
@@ -42,7 +81,9 @@ void edit_direction(bool& ref, const std::string& title){
     }
 }
 
-void budget::handle_debts(const std::vector<std::string>& args){
+} //end of anonymous namespace
+
+void budget::debt_module::handle(const std::vector<std::string>& args){
     load_debts();
 
     if(args.size() == 1){
@@ -143,43 +184,6 @@ void budget::load_debts(){
 
 void budget::save_debts(){
     save_data(debts, "debts.data");
-}
-
-void budget::all_debts(){
-    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Paid", "Title"};
-    std::vector<std::vector<std::string>> contents;
-
-    for(auto& debt : debts.data){
-        contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), (debt.state == 0 ? "No" : "Yes"), debt.title});
-    }
-
-    display_table(columns, contents);
-}
-
-void budget::list_debts(){
-    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title"};
-    std::vector<std::vector<std::string>> contents;
-
-    money owed;
-    money deserved;
-
-    for(auto& debt : debts.data){
-        if(debt.state == 0){
-            contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), debt.title});
-
-            if(debt.direction){
-                owed += debt.amount;
-            } else {
-                deserved += debt.amount;
-            }
-        }
-    }
-
-    display_table(columns, contents);
-    std::cout << std::endl;
-
-    std::cout << std::string(7, ' ') << "Money owed: " << owed << std::endl;
-    std::cout << std::string(3, ' ') << "Money deserved: " << deserved << std::endl;
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const debt& debt){

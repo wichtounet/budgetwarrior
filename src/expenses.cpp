@@ -24,6 +24,8 @@
 
 using namespace budget;
 
+namespace {
+
 static data_handler<expense> expenses;
 
 void validate_account(const std::string& account){
@@ -32,7 +34,57 @@ void validate_account(const std::string& account){
     }
 }
 
-void budget::handle_expenses(const std::vector<std::string>& args){
+void show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    money total;
+    std::size_t count = 0;
+
+    for(auto& expense : expenses.data){
+        if(expense.expense_date.year() == year && expense.expense_date.month() == month){
+            contents.push_back({to_string(expense.id), to_string(expense.expense_date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+
+            total += expense.amount;
+            ++count;
+        }
+    }
+
+    if(count == 0){
+        std::cout << "No expenses for " << month << "-" << year << std::endl;
+    } else {
+        contents.push_back({"", "", "", "Total", to_string(total)});
+
+        display_table(columns, contents);
+    }
+}
+
+void show_expenses(boost::gregorian::greg_month month){
+    date today = boost::gregorian::day_clock::local_day();
+
+    show_expenses(month, today.year());
+}
+
+void show_expenses(){
+    date today = boost::gregorian::day_clock::local_day();
+
+    show_expenses(today.month(), today.year());
+}
+
+void show_all_expenses(){
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& expense : expenses.data){
+        contents.push_back({to_string(expense.id), to_string(expense.expense_date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+    }
+
+    display_table(columns, contents);
+}
+
+} //end of anonymous namespace
+
+void budget::expenses_module::handle(const std::vector<std::string>& args){
     load_expenses();
     load_accounts();
 
@@ -141,54 +193,6 @@ void budget::load_expenses(){
 
 void budget::save_expenses(){
     save_data(expenses, "expenses.data");
-}
-
-void budget::show_expenses(){
-    date today = boost::gregorian::day_clock::local_day();
-
-    show_expenses(today.month(), today.year());
-}
-
-void budget::show_expenses(boost::gregorian::greg_month month){
-    date today = boost::gregorian::day_clock::local_day();
-
-    show_expenses(month, today.year());
-}
-
-void budget::show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
-
-    money total;
-    std::size_t count = 0;
-
-    for(auto& expense : expenses.data){
-        if(expense.expense_date.year() == year && expense.expense_date.month() == month){
-            contents.push_back({to_string(expense.id), to_string(expense.expense_date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
-
-            total += expense.amount;
-            ++count;
-        }
-    }
-
-    if(count == 0){
-        std::cout << "No expenses for " << month << "-" << year << std::endl;
-    } else {
-        contents.push_back({"", "", "", "Total", to_string(total)});
-
-        display_table(columns, contents);
-    }
-}
-
-void budget::show_all_expenses(){
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
-
-    for(auto& expense : expenses.data){
-        contents.push_back({to_string(expense.id), to_string(expense.expense_date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
-    }
-
-    display_table(columns, contents);
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
