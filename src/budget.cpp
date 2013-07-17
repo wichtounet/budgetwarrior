@@ -20,6 +20,7 @@
 #include "accounts.hpp"
 #include "expenses.hpp"
 #include "overview.hpp"
+#include "earnings.hpp"
 #include "help.hpp"
 
 using namespace budget;
@@ -31,6 +32,7 @@ typedef boost::mpl::vector<
             budget::expenses_module*,
             budget::overview_module*,
             budget::accounts_module*,
+            budget::earning_module*,
             budget::help_module*
     > modules;
 
