@@ -28,13 +28,11 @@ struct module_traits<debt_module> {
     static constexpr const char* command = "debt";
 };
 
-typedef boost::posix_time::ptime time;
-
 struct debt {
     std::size_t id;
     int state;
     std::string guid;
-    time creation_time;
+    boost::posix_time::ptime creation_time;
     bool direction;
     std::string name;
     money amount;

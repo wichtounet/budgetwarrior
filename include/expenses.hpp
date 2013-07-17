@@ -28,12 +28,10 @@ struct module_traits<expenses_module> {
     static constexpr const char* command = "expense";
 };
 
-typedef boost::gregorian::date date;
-
 struct expense {
     std::size_t id;
     std::string guid;
-    date expense_date;
+    boost::gregorian::date date;
     std::string name;
     std::size_t account;
     money amount;

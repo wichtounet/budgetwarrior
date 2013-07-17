@@ -68,7 +68,7 @@ std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month mon
         total += account.amount * month;
 
         for(auto& expense : all_expenses()){
-            if(expense.expense_date.year() == year && expense.expense_date.month() < month){
+            if(expense.date.year() == year && expense.date.month() < month){
                 total -= expense.amount;
             }
         }
@@ -102,7 +102,7 @@ void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_y
     std::vector<std::size_t> current(columns.size(), 0);
 
     for(auto& expense : all_expenses()){
-        if(expense.expense_date.year() == year && expense.expense_date.month() == month){
+        if(expense.date.year() == year && expense.date.month() == month){
             std::size_t index = indexes[expense.account];
             std::size_t& row = current[index];
 
@@ -110,7 +110,7 @@ void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_y
                 contents.emplace_back(columns.size() * 3, "");
             }
 
-            contents[row][index * 3] = to_string(expense.expense_date.day());
+            contents[row][index * 3] = to_string(expense.date.day());
             contents[row][index * 3 + 1] = expense.name;
             contents[row][index * 3 + 2] = to_string(expense.amount);
 
@@ -159,13 +159,13 @@ void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_y
 }
 
 void month_overview(boost::gregorian::greg_month month){
-    date today = boost::gregorian::day_clock::local_day();
+    auto today = boost::gregorian::day_clock::local_day();
 
     month_overview(month, today.year());
 }
 
 void month_overview(){
-    date today = boost::gregorian::day_clock::local_day();
+    auto today = boost::gregorian::day_clock::local_day();
 
     month_overview(today.month(), today.year());
 }
@@ -196,7 +196,7 @@ void year_overview(boost::gregorian::greg_year year){
 }
 
 void year_overview(){
-    date today = boost::gregorian::day_clock::local_day();
+    auto today = boost::gregorian::day_clock::local_day();
 
     year_overview(today.year());
 }
@@ -248,7 +248,7 @@ void display_local_balance(boost::gregorian::greg_year year){
             budget::money month_total;
 
             for(auto& expense : expenses){
-                if(expense.account == account.id && expense.expense_date.year() == year && expense.expense_date.month() == m){
+                if(expense.account == account.id && expense.date.year() == year && expense.date.month() == m){
                    month_total += expense.amount;
                 }
             }
@@ -321,7 +321,7 @@ void display_balance(boost::gregorian::greg_year year){
             budget::money month_total;
 
             for(auto& expense : expenses){
-                if(expense.account == account.id && expense.expense_date.year() == year && expense.expense_date.month() == m){
+                if(expense.account == account.id && expense.date.year() == year && expense.date.month() == m){
                    month_total += expense.amount;
                 }
             }
