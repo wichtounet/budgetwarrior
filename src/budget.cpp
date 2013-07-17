@@ -72,7 +72,6 @@ struct module_runner {
 int main(int argc, const char* argv[]) {
     std::locale global_locale("");
     std::locale::global(global_locale);
-    std::wcout.imbue(global_locale);
 
     if(!load_config()){
         return 0;
