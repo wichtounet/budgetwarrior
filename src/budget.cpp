@@ -32,7 +32,7 @@ typedef boost::mpl::vector<
             budget::expenses_module*,
             budget::overview_module*,
             budget::accounts_module*,
-            budget::earning_module*,
+            budget::earnings_module*,
             budget::help_module*
     > modules;
 

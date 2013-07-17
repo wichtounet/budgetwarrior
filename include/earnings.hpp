@@ -18,12 +18,12 @@
 
 namespace budget {
 
-struct earning_module {
+struct earnings_module {
      void handle(const std::vector<std::string>& args);
 };
 
 template<>
-struct module_traits<earning_module> {
+struct module_traits<earnings_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "earning";
 };
@@ -42,6 +42,8 @@ void operator>>(const std::vector<std::string>& parts, earning& earning);
 
 void load_earnings();
 void save_earnings();
+
+std::vector<earning>& all_earnings();
 
 } //end of namespace budget
 
