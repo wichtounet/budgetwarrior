@@ -212,21 +212,48 @@ unsigned short start_month(boost::gregorian::greg_year year){
     return 1;
 }
 
-void display_local_balance(boost::gregorian::greg_year year){
-    std::vector<std::string> columns;
-    std::vector<std::vector<std::string>> contents;
-
-    columns.push_back("Local Balance");
-
-    auto sm = start_month(year);
-    auto months = 12 - sm + 1;
-
+void add_month_columns(std::vector<std::string>& columns, boost::gregorian::greg_month sm){
     for(unsigned short i = sm; i < 13; ++i){
         boost::gregorian::greg_month m = i;
 
         columns.emplace_back(m.as_long_string());
     }
+}
 
+template<bool Total, bool Mean>
+inline void generate_total_line(std::vector<std::vector<std::string>>& contents, std::vector<budget::money>& totals, boost::gregorian::greg_month sm){
+    std::vector<std::string> last_row;
+    last_row.push_back("Total");
+
+    budget::money total_total;
+    for(unsigned short i = sm; i < 13; ++i){
+        auto total = totals[i - 1];
+
+        last_row.push_back(format_money(total));
+
+        total_total += total;
+    }
+
+    if(Total){
+        last_row.push_back(format_money(total_total));
+    }
+
+    if(Mean){
+        last_row.push_back(format_money(total_total / (12 - sm + 1)));
+    }
+
+    contents.emplace_back(std::move(last_row));
+}
+
+void display_local_balance(boost::gregorian::greg_year year){
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    auto sm = start_month(year);
+    auto months = 12 - sm + 1;
+
+    columns.push_back("Local Balance");
+    add_month_columns(columns, sm);
     columns.push_back("Total");
     columns.push_back("Mean");
 
@@ -268,22 +295,7 @@ void display_local_balance(boost::gregorian::greg_year year){
         contents.emplace_back(std::move(row));
     }
 
-    std::vector<std::string> last_row;
-    last_row.push_back("Total");
-
-    budget::money total_total;
-    for(unsigned short i = sm; i < 13; ++i){
-        auto total = totals[i - 1];
-
-        last_row.push_back(format_money(total));
-
-        total_total += total;
-    }
-
-    last_row.push_back(format_money(total_total));
-    last_row.push_back(format_money(total_total / months));
-
-    contents.emplace_back(std::move(last_row));
+    generate_total_line<true, true>(contents, totals, sm);
 
     display_table(columns, contents);
 }
@@ -292,15 +304,10 @@ void display_balance(boost::gregorian::greg_year year){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    columns.push_back("Balance");
-
     auto sm = start_month(year);
 
-    for(unsigned short i = sm; i < 13; ++i){
-        boost::gregorian::greg_month m = i;
-
-        columns.emplace_back(m.as_long_string());
-    }
+    columns.push_back("Balance");
+    add_month_columns(columns, sm);
 
     auto& accounts = all_accounts();
     auto& expenses = all_expenses();
@@ -337,16 +344,7 @@ void display_balance(boost::gregorian::greg_year year){
         contents.emplace_back(std::move(row));
     }
 
-    std::vector<std::string> last_row;
-    last_row.push_back("Total");
-
-    budget::money total_total;
-    for(unsigned short i = sm; i < 13; ++i){
-        auto total = totals[i - 1];
-        last_row.push_back(format_money(total));
-    }
-
-    contents.emplace_back(std::move(last_row));
+    generate_total_line<false, false>(contents, totals, sm);
 
     display_table(columns, contents);
 }
@@ -360,13 +358,7 @@ void display_values(boost::gregorian::greg_year year, const std::string& title, 
     auto months = 12 - sm + 1;
 
     columns.push_back(title);
-
-    for(unsigned short i = sm; i < 13; ++i){
-        boost::gregorian::greg_month m = i;
-
-        columns.emplace_back(m.as_long_string());
-    }
-
+    add_month_columns(columns, sm);
     columns.push_back("Total");
     columns.push_back("Mean");
 
@@ -406,22 +398,7 @@ void display_values(boost::gregorian::greg_year year, const std::string& title, 
         contents.emplace_back(std::move(row));
     }
 
-    std::vector<std::string> last_row;
-    last_row.push_back("Total");
-
-    budget::money total_total;
-    for(unsigned short j = sm; j < 13; ++j){
-        auto total = totals[j-1];
-
-        last_row.push_back(to_string(total));
-
-        total_total += total;
-    }
-
-    last_row.push_back(to_string(total_total));
-    last_row.push_back(to_string(total_total / months));
-
-    contents.emplace_back(std::move(last_row));
+    generate_total_line<true, true>(contents, totals, sm);
 
     display_table(columns, contents);
 }
