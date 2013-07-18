@@ -21,6 +21,8 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"
+#include "earnings.hpp"
+#include "expenses.hpp"
 
 using namespace budget;
 
@@ -79,6 +81,22 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
             if(!exists(accounts, id)){
                 throw budget_exception("There are no account with id " + args[2]);
+            }
+
+            load_expenses();
+
+            for(auto& expense : all_expenses()){
+                if(expense.account == id){
+                    throw budget_exception("There are still some expenses linked to this account, cannot delete it");
+                }
+            }
+
+            load_earnings();
+
+            for(auto& earning : all_earnings()){
+                if(earning.account == id){
+                    throw budget_exception("There are still some earnings linked to this account, cannot delete it");
+                }
             }
 
             remove(accounts, id);
