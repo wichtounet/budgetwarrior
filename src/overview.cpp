@@ -94,9 +94,7 @@ std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month mon
     auto sm = start_month(year);
 
     for(auto& account : accounts){
-        budget::money total;
-
-        total += account.amount * (month - sm + 1);
+        auto total = account.amount * (month - sm + 1);
 
         total -= accumulate_amount_if(all_expenses(), [year,month,account,sm](budget::expense& e){return e.account == account.id && e.date.year()  == year && e.date.month() >= sm && e.date.month() < month;});
         total += accumulate_amount_if(all_earnings(), [year,month,account,sm](budget::earning& e){return e.account == account.id && e.date.year()  == year && e.date.month() >= sm && e.date.month() < month;});
@@ -105,6 +103,34 @@ std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month mon
     }
 
     return std::move(total_budgets);
+}
+
+template<typename T>
+void add_values_column(boost::gregorian::greg_month month, boost::gregorian::greg_year year, const std::string& title, std::vector<std::vector<std::string>>& contents, std::unordered_map<std::size_t, std::size_t>& indexes, std::size_t columns, std::vector<T>& values, std::vector<budget::money>& total){
+    std::vector<std::size_t> current(columns, contents.size());
+
+    for(auto& expense : values){
+        if(expense.date.year() == year && expense.date.month() == month){
+            std::size_t index = indexes[expense.account];
+            std::size_t& row = current[index];
+
+            if(contents.size() <= row){
+                contents.emplace_back(columns * 3, "");
+            }
+
+            contents[row][index * 3] = to_string(expense.date.day());
+            contents[row][index * 3 + 1] = expense.name;
+            contents[row][index * 3 + 2] = to_string(expense.amount);
+
+            total[index] += expense.amount;
+
+            ++row;
+        }
+    }
+
+    //Totals of expenses
+    contents.emplace_back(columns * 3, "");
+    add_recap_line(contents, title, total);
 }
 
 void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
@@ -128,59 +154,11 @@ void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_y
     }
 
     //Expenses
-
-    std::vector<std::size_t> current(columns.size(), 0);
-
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.date.month() == month){
-            std::size_t index = indexes[expense.account];
-            std::size_t& row = current[index];
-
-            if(contents.size() <= row){
-                contents.emplace_back(columns.size() * 3, "");
-            }
-
-            contents[row][index * 3] = to_string(expense.date.day());
-            contents[row][index * 3 + 1] = expense.name;
-            contents[row][index * 3 + 2] = to_string(expense.amount);
-
-            total_expenses[index] += expense.amount;
-
-            ++row;
-        }
-    }
-
-    //Totals of expenses
-    contents.emplace_back(columns.size() * 3, "");
-    add_recap_line(contents, "Expenses", total_expenses);
+    add_values_column(month, year, "Expenses", contents, indexes, columns.size(), all_expenses(), total_expenses);
 
     //Earnings
     contents.emplace_back(columns.size() * 3, "");
-
-    current.assign(columns.size(), contents.size());
-
-    for(auto& earning : all_earnings()){
-        if(earning.date.year() == year && earning.date.month() == month){
-            std::size_t index = indexes[earning.account];
-            std::size_t& row = current[index];
-
-            if(contents.size() <= row){
-                contents.emplace_back(columns.size() * 3, "");
-            }
-
-            contents[row][index * 3] = to_string(earning.date.day());
-            contents[row][index * 3 + 1] = earning.name;
-            contents[row][index * 3 + 2] = to_string(earning.amount);
-
-            total_earnings[index] += earning.amount;
-
-            ++row;
-        }
-    }
-
-    //Totals of earnings
-    contents.emplace_back(columns.size() * 3, "");
-    add_recap_line(contents, "Earnings", total_earnings);
+    add_values_column(month, year, "Earnings", contents, indexes, columns.size(), all_earnings(), total_earnings);
 
     //Budget
     contents.emplace_back(columns.size() * 3, "");
