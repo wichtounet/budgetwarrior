@@ -20,6 +20,17 @@ using namespace budget;
 
 namespace {
 
+unsigned short start_month(boost::gregorian::greg_year year){
+    auto key = to_string(year) + "_start";
+    if(config_contains(key)){
+        auto value = to_number<unsigned short>(config_value(key));
+        budget_assert(value < 13 && value > 0, "The start month is incorrect (must be in [1,12])");
+        return value;
+    }
+
+    return 1;
+}
+
 template<typename T>
 T& default_operator(T& t){
     return t;
@@ -80,15 +91,15 @@ std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month mon
 
     auto& accounts = all_accounts();
 
+    auto sm = start_month(year);
+
     for(auto& account : accounts){
         budget::money total;
 
-        //TODO Take sm into account
+        total += account.amount * (month - sm + 1);
 
-        total += account.amount * month;
-
-        total -= accumulate_amount_if(all_expenses(), [year,month,account](budget::expense& e){return e.account == account.id && e.date.year()  == year && e.date.month() < month;});
-        total += accumulate_amount_if(all_earnings(), [year,month,account](budget::earning& e){return e.account == account.id && e.date.year()  == year && e.date.month() < month;});
+        total -= accumulate_amount_if(all_expenses(), [year,month,account,sm](budget::expense& e){return e.account == account.id && e.date.year()  == year && e.date.month() >= sm && e.date.month() < month;});
+        total += accumulate_amount_if(all_earnings(), [year,month,account,sm](budget::earning& e){return e.account == account.id && e.date.year()  == year && e.date.month() >= sm && e.date.month() < month;});
 
         total_budgets.push_back(total);
     }
@@ -249,17 +260,6 @@ void year_overview(){
     auto today = boost::gregorian::day_clock::local_day();
 
     year_overview(today.year());
-}
-
-unsigned short start_month(boost::gregorian::greg_year year){
-    auto key = to_string(year) + "_start";
-    if(config_contains(key)){
-        auto value = to_number<unsigned short>(config_value(key));
-        budget_assert(value < 13 && value > 0, "The start month is incorrect (must be in [1,12])");
-        return value;
-    }
-
-    return 1;
 }
 
 void add_month_columns(std::vector<std::string>& columns, boost::gregorian::greg_month sm){
