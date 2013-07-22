@@ -31,13 +31,13 @@ namespace {
 static data_handler<account> accounts;
 
 void show_accounts(){
-    std::vector<std::string> columns = {"ID", "Name", "Amount"};
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Until"};
     std::vector<std::vector<std::string>> contents;
 
     money total;
 
     for(auto& account : accounts.data){
-        contents.push_back({to_string(account.id), account.name, to_string(account.amount)});
+        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.until)});
 
         total += account.amount;
     }
@@ -65,6 +65,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             account account;
             account.guid = generate_guid();
             account.name = args[2];
+            account.until = boost::gregorian::date(2099,12,31);
 
             if(account_exists(account.name)){
                 throw budget_exception("An account with this name already exists");
@@ -148,7 +149,7 @@ budget::account& budget::get_account(std::string name){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const account& account){
-    return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount;
+    return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount << ':' << to_string(account.until);
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, account& account){
@@ -156,6 +157,7 @@ void budget::operator>>(const std::vector<std::string>& parts, account& account)
     account.guid = parts[1];
     account.name = parts[2];
     account.amount = parse_money(parts[3]);
+    account.until = boost::gregorian::from_string(parts[4]);
 }
 
 bool budget::account_exists(const std::string& name){

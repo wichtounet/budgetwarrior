@@ -31,6 +31,7 @@ struct account {
     std::string guid;
     std::string name;
     money amount;
+    boost::gregorian::date until;
 };
 
 std::ostream& operator<<(std::ostream& stream, const account& account);
