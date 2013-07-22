@@ -118,6 +118,39 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             edit_money(account.amount, "Amount");
 
             std::cout << "Account " << id << " has been modified" << std::endl;
+        } else if(subcommand == "archive"){
+            std::cout << "This command will create new accounts that will be used starting from the beginning of the current month. Are you sure you want to proceed ? [yes/no] ? ";
+
+            std::string answer;
+            std::cin >> answer;
+
+            if(answer == "yes" || answer == "y"){
+                std::vector<budget::account> copies;
+
+                auto tmp = boost::gregorian::day_clock::local_day() - boost::gregorian::months(1);
+                boost::gregorian::date until_date(tmp.year(), tmp.month(), tmp.end_of_month().day());
+
+                for(auto& account : all_accounts()){
+                    if(account.until == boost::gregorian::date(2099,12,31)){
+                        budget::account copy;
+                        copy.guid = generate_guid();
+                        copy.name = account.name;
+                        copy.amount = account.amount;
+                        copy.until = boost::gregorian::date(2099,12,31);
+
+                        account.until = until_date;
+
+                        copies.push_back(std::move(copy));
+                    }
+                }
+
+                for(auto& copy : copies){
+                    add_data(accounts, std::move(copy));
+                }
+            } else {
+                //No need to save anything
+                return;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
