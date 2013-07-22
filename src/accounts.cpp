@@ -37,9 +37,11 @@ void show_accounts(){
     money total;
 
     for(auto& account : accounts.data){
-        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.until)});
+        if(account.until == boost::gregorian::date(2099,12,31)){
+            contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.until)});
 
-        total += account.amount;
+            total += account.amount;
+        }
     }
 
     contents.push_back({"", "Total", to_string(total)});
