@@ -10,6 +10,8 @@
 
 namespace budget {
 
+const int DATA_VERSION = 1;
+
 std::string home_folder();
 std::string budget_folder();
 std::string path_to_home_file(const std::string& file);

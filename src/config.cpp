@@ -59,6 +59,13 @@ std::string budget::budget_folder(){
     return path_to_home_file(".budget");
 }
 
+void create_version_file(){
+    auto file_path = path_to_budget_file("version");
+
+    std::ofstream file(file_path);
+    file << budget::DATA_VERSION  << std::endl;
+}
+
 bool budget::verify_folder(){
     auto folder_path = budget_folder();
 
@@ -71,6 +78,8 @@ bool budget::verify_folder(){
         if(answer == "yes" || answer == "y"){
             if(boost::filesystem::create_directories(folder_path)){
                 std::cout << "The folder " << folder_path << " was created. " << std::endl;
+
+                create_version_file();
 
                 return true;
             } else {
