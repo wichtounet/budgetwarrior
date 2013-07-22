@@ -13,10 +13,12 @@ void budget::help_module::handle(const std::vector<std::string>& args){
     std::cout << "Usage: budget                                                     Display the overview of the current month" << std::endl << std::endl;
 
     std::cout << "       budget account                                             Show all the accounts" << std::endl;
-    std::cout << "       budget account show                                        Show all the accounts" << std::endl;
+    std::cout << "       budget account show                                        Show the current accounts" << std::endl;
+    std::cout << "       budget account all                                         Show all the accounts" << std::endl;
     std::cout << "       budget account add [name] [amount]                         Add a new account" << std::endl;
     std::cout << "       budget account delete [id]                                 Delete the given account" << std::endl;
     std::cout << "       budget account edit [id]                                   Edit the given account" << std::endl << std::endl;
+    std::cout << "       budget account archive                                     Archive the current accounts to start new accounts" << std::endl << std::endl;
 
     std::cout << "       budget expense                                             Display the expenses of the current month" << std::endl;
     std::cout << "       budget expense show (month) (year)                         Display the expenses of the specified month of the specified year" << std::endl;
