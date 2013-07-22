@@ -221,3 +221,13 @@ bool budget::account_exists(const std::string& name){
 std::vector<account>& budget::all_accounts(){
     return accounts.data;
 }
+
+std::vector<account>  all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month){
+    std::vector<account> accounts;
+
+    for(auto& account : all_accounts()){
+        //TODO
+    }
+
+    return std::move(accounts);
+}
