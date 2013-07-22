@@ -46,7 +46,7 @@ budget::account& get_account(std::size_t id);
 budget::account& get_account(std::string name);
 
 std::vector<account>& all_accounts();
-std::vector<account>& all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month);
+std::vector<account>  all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month);
 
 } //end of namespace budget
 
