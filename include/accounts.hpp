@@ -31,6 +31,7 @@ struct account {
     std::string guid;
     std::string name;
     money amount;
+    boost::gregorian::date since;
     boost::gregorian::date until;
 };
 

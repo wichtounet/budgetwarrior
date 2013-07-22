@@ -50,14 +50,28 @@ void show_accounts(){
 }
 
 void show_all_accounts(){
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "Until"};
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until"};
     std::vector<std::vector<std::string>> contents;
 
     for(auto& account : accounts.data){
-        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.until)});
+        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until)});
     }
 
     display_table(columns, contents);
+}
+
+boost::gregorian::date find_new_since(){
+    boost::gregorian::date date(1400,1,1);
+
+    for(auto& account : all_accounts()){
+        if(account.until != boost::gregorian::date(2099,12,31)){
+            if(account.until - boost::gregorian::date_duration(1) > date){
+                date = account.until - boost::gregorian::date_duration(1);
+            }
+        }
+    }
+
+    return date;
 }
 
 } //end of anonymous namespace
@@ -80,6 +94,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             account account;
             account.guid = generate_guid();
             account.name = args[2];
+            account.since = find_new_since();
             account.until = boost::gregorian::date(2099,12,31);
 
             if(account_exists(account.name)){
@@ -152,6 +167,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                         copy.name = account.name;
                         copy.amount = account.amount;
                         copy.until = boost::gregorian::date(2099,12,31);
+                        copy.since = until_date + boost::gregorian::date_duration(1);
 
                         account.until = until_date;
 
@@ -197,7 +213,7 @@ budget::account& budget::get_account(std::string name){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const account& account){
-    return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount << ':' << to_string(account.until);
+    return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount << ':' << to_string(account.since) << ':' << to_string(account.until);
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, account& account){
@@ -205,7 +221,8 @@ void budget::operator>>(const std::vector<std::string>& parts, account& account)
     account.guid = parts[1];
     account.name = parts[2];
     account.amount = parse_money(parts[3]);
-    account.until = boost::gregorian::from_string(parts[4]);
+    account.since = boost::gregorian::from_string(parts[4]);
+    account.until = boost::gregorian::from_string(parts[5]);
 }
 
 bool budget::account_exists(const std::string& name){
