@@ -31,20 +31,31 @@ namespace {
 static data_handler<account> accounts;
 
 void show_accounts(){
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "Until"};
+    std::vector<std::string> columns = {"ID", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
     money total;
 
     for(auto& account : accounts.data){
         if(account.until == boost::gregorian::date(2099,12,31)){
-            contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.until)});
+            contents.push_back({to_string(account.id), account.name, to_string(account.amount)});
 
             total += account.amount;
         }
     }
 
     contents.push_back({"", "Total", to_string(total)});
+
+    display_table(columns, contents);
+}
+
+void show_all_accounts(){
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Until"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& account : accounts.data){
+        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.until)});
+    }
 
     display_table(columns, contents);
 }
@@ -61,6 +72,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
         if(subcommand == "show"){
             show_accounts();
+        } else if(subcommand == "all"){
+            show_all_accounts();
         } else if(subcommand == "add"){
             enough_args(args, 4);
 
