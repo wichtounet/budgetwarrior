@@ -89,7 +89,7 @@ inline budget::money accumulate_amount_if(std::vector<T>& container, Functor f){
 std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::vector<budget::money> total_budgets;
 
-    auto& accounts = all_accounts();
+    auto accounts = all_accounts(year, month);
 
     auto sm = start_month(year);
 
@@ -138,7 +138,7 @@ void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_y
     load_expenses();
     load_earnings();
 
-    auto& accounts = all_accounts();
+    auto accounts = all_accounts(year, month);
 
     std::cout << "Overview of " << month << " " << year << std::endl << std::endl;
 
