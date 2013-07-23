@@ -239,11 +239,15 @@ std::vector<account>& budget::all_accounts(){
     return accounts.data;
 }
 
-std::vector<account>  all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month){
+std::vector<account> budget::all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month){
     std::vector<account> accounts;
 
+    boost::gregorian::date date(year, month, 5);
+
     for(auto& account : all_accounts()){
-        //TODO
+        if(account.since < date && account.until > date){
+            accounts.push_back(account);
+        }
     }
 
     return std::move(accounts);
