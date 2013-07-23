@@ -214,10 +214,51 @@ void display_balance(boost::gregorian::greg_year year);
 void display_expenses(boost::gregorian::greg_year year);
 void display_earnings(boost::gregorian::greg_year year);
 
+bool invalid_accounts(boost::gregorian::greg_year year){
+    auto sm = start_month(year);
+
+    std::vector<budget::account> previous = all_accounts(year, sm);;
+
+    for(unsigned short i = sm + 1; i < 13; ++i){
+        boost::gregorian::greg_month month = i;
+
+        auto current_accounts = all_accounts(year, month);
+
+        if(current_accounts.size() != previous.size()){
+            return true;
+        }
+
+        for(auto& c : current_accounts){
+            bool found = false;
+
+            for(auto& p : previous){
+                if(p.name == c.name){
+                    found = true;
+                    break;
+                }
+            }
+
+            if(!found){
+                return true;
+            }
+        }
+
+        //Check compatibility
+
+        previous = std::move(current_accounts);
+    }
+
+    return false;
+}
+
 void year_overview(boost::gregorian::greg_year year){
     load_accounts();
     load_expenses();
     load_earnings();
+
+    if(invalid_accounts(year)){
+        throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
+    }
 
     std::cout << "Overview of " << year << std::endl << std::endl;
 
