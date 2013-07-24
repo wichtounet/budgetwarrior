@@ -15,15 +15,16 @@
 
 namespace budget {
 
-struct money {
-    int dollars;
-    int cents;
+const int SCALE = 100;
 
-    money() : dollars(0), cents(0) {
+struct money {
+    long value;
+
+    money() : value(0) {
         //Nothing to init
     }
 
-    money(int dollars, int cents) : dollars(dollars), cents(cents) {
+    money(int dollars, int cents) : value(dollars * SCALE + cents) {
         //Nothing to init
     }
 
@@ -34,13 +35,7 @@ struct money {
     }
 
     money& operator+=(const money& rhs){
-        dollars += rhs.dollars;
-        cents += rhs.cents;
-
-        if(cents > 100){
-            dollars += cents / 100;
-            cents %= 100;
-        }
+        value += rhs.value;
 
         return *this;
     }
@@ -52,18 +47,7 @@ struct money {
     }
 
     money& operator-=(const money& rhs){
-        dollars = dollars - rhs.dollars;
-        cents = cents - rhs.cents;
-
-        if(cents < 0){
-            if(dollars > 0){
-                dollars -= (-cents / 100) + 1;
-                cents = 100 - (-cents % 100);
-            } else {
-                dollars -= -cents / 100;
-                cents = -cents % 100;
-            }
-        }
+        value -= rhs.value;
 
         return *this;
     }
@@ -75,19 +59,7 @@ struct money {
     }
 
     money& operator*=(int factor){
-        dollars = dollars * factor;
-        cents = cents * factor;
-
-        if(cents > 100){
-            dollars += cents / 100;
-            cents %= 100;
-        }
-
-        if(cents < 0){
-            dollars -= cents / 100;
-            cents %= 100;
-            cents *= -1;
-        }
+        value *= factor;
 
         return *this;
     }
@@ -99,12 +71,17 @@ struct money {
     }
 
     money& operator/=(int factor){
-        dollars = dollars / factor;
-        cents = cents / factor;
-
-        //TODO The cents of the dollars should be reported to cents
+        value /= factor;
 
         return *this;
+    }
+
+    int cents() const {
+        return std::abs(value % SCALE);
+    }
+
+    int dollars() const {
+        return value / SCALE;
     }
 };
 

@@ -12,32 +12,33 @@
 using namespace budget;
 
 money budget::parse_money(const std::string& money_string){
-    money amount;
-
     std::size_t dot_pos = money_string.find(".");
 
+    int dollars = 0;
+    int cents = 0;
+
     if(dot_pos == std::string::npos){
-        amount.dollars = to_number<int>(money_string);
+        dollars = to_number<int>(money_string);
     } else {
-        amount.dollars = to_number<int>(money_string.substr(0, dot_pos));
+        dollars = to_number<int>(money_string.substr(0, dot_pos));
 
         auto cents_str = money_string.substr(dot_pos+1, money_string.size() - dot_pos);
-        amount.cents = to_number<int>(cents_str);
+        cents = to_number<int>(cents_str);
     }
 
-    return amount;
+    return {dollars, cents};
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
-    if(amount.cents < 10){
-        return stream << amount.dollars << ".0" << amount.cents;
+    if(amount.cents() < 10){
+        return stream << amount.dollars() << ".0" << amount.cents();
     } else {
-        return stream << amount.dollars << "." << amount.cents;
+        return stream << amount.dollars() << "." << amount.cents();
     }
 }
 
 void budget::not_negative(const money& amount){
-    if(amount.dollars < 0 || amount.cents < 0){
+    if(amount.dollars() < 0 || amount.cents() < 0){
         throw budget_exception("Amount cannot be negative");
     }
 }
