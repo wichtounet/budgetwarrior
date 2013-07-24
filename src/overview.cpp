@@ -174,7 +174,6 @@ void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_y
 
     for(std::size_t i = 0; i < accounts.size(); ++i){
         balances.push_back(total_budgets[i] - total_expenses[i] + total_earnings[i]);
-
         local_balances.push_back(accounts[i].amount - total_expenses[i] + total_earnings[i]);
     }
 
