@@ -16,8 +16,16 @@
 namespace budget {
 
 struct money {
-    int dollars = 0;
-    int cents = 0;
+    int dollars;
+    int cents;
+
+    money() : dollars(0), cents(0) {
+        //Nothing to init
+    }
+
+    money(int dollars, int cents) : dollars(dollars), cents(cents) {
+        //Nothing to init
+    }
 
     money operator+(const money& rhs) const {
         money new_money = *this;
@@ -48,9 +56,8 @@ struct money {
         cents = cents - rhs.cents;
 
         if(cents < 0){
-            dollars -= cents / 100;
-            cents %= 100;
-            cents *= -1;
+            dollars -= (-cents / 100) + 1;
+            cents = 100 - (-cents % 100);
         }
 
         return *this;
