@@ -30,49 +30,45 @@ struct money {
 
     money operator+(const money& rhs) const {
         money new_money = *this;
-        new_money += rhs;
+        new_money.value += rhs.value;
         return new_money;
     }
 
     money& operator+=(const money& rhs){
         value += rhs.value;
-
         return *this;
     }
 
     money operator-(const money& rhs) const {
         money new_money = *this;
-        new_money -= rhs;
+        new_money.value -= rhs.value;
         return new_money;
     }
 
     money& operator-=(const money& rhs){
         value -= rhs.value;
-
         return *this;
     }
 
     money operator*(int factor) const {
         money new_money = *this;
-        new_money *= factor;
+        new_money.value *= factor;
         return new_money;
     }
 
     money& operator*=(int factor){
         value *= factor;
-
         return *this;
     }
 
     money operator/(int factor) const {
         money new_money = *this;
-        new_money /= factor;
+        new_money.value /= factor;
         return new_money;
     }
 
     money& operator/=(int factor){
         value /= factor;
-
         return *this;
     }
 
