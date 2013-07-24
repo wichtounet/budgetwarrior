@@ -56,8 +56,13 @@ struct money {
         cents = cents - rhs.cents;
 
         if(cents < 0){
-            dollars -= (-cents / 100) + 1;
-            cents = 100 - (-cents % 100);
+            if(dollars > 0){
+                dollars -= (-cents / 100) + 1;
+                cents = 100 - (-cents % 100);
+            } else {
+                dollars -= -cents / 100;
+                cents = -cents % 100;
+            }
         }
 
         return *this;

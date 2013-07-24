@@ -20,14 +20,20 @@ money budget::parse_money(const std::string& money_string){
         amount.dollars = to_number<int>(money_string);
     } else {
         amount.dollars = to_number<int>(money_string.substr(0, dot_pos));
-        amount.cents = to_number<int>(money_string.substr(dot_pos+1, money_string.size() - dot_pos));
+
+        auto cents_str = money_string.substr(dot_pos+1, money_string.size() - dot_pos);
+        amount.cents = to_number<int>(cents_str);
     }
 
     return amount;
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
-    return stream << amount.dollars << "." << amount.cents;
+    if(amount.cents < 10){
+        return stream << amount.dollars << ".0" << amount.cents;
+    } else {
+        return stream << amount.dollars << "." << amount.cents;
+    }
 }
 
 void budget::not_negative(const money& amount){
