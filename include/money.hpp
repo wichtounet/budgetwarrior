@@ -15,84 +15,69 @@
 
 namespace budget {
 
+const int SCALE = 100;
+
 struct money {
-    int dollars = 0;
-    int cents = 0;
+    long value;
+
+    money() : value(0) {
+        //Nothing to init
+    }
+
+    money(int dollars, int cents) : value(dollars * SCALE + cents) {
+        //Nothing to init
+    }
 
     money operator+(const money& rhs) const {
         money new_money = *this;
-        new_money += rhs;
+        new_money.value += rhs.value;
         return new_money;
     }
 
     money& operator+=(const money& rhs){
-        dollars += rhs.dollars;
-        cents += rhs.cents;
-
-        if(cents > 100){
-            dollars += cents / 100;
-            cents %= 100;
-        }
-
+        value += rhs.value;
         return *this;
     }
 
     money operator-(const money& rhs) const {
         money new_money = *this;
-        new_money -= rhs;
+        new_money.value -= rhs.value;
         return new_money;
     }
 
     money& operator-=(const money& rhs){
-        dollars = dollars - rhs.dollars;
-        cents = cents - rhs.cents;
-
-        if(cents < 0){
-            dollars -= cents / 100;
-            cents %= 100;
-            cents *= -1;
-        }
-
+        value -= rhs.value;
         return *this;
     }
 
     money operator*(int factor) const {
         money new_money = *this;
-        new_money *= factor;
+        new_money.value *= factor;
         return new_money;
     }
 
     money& operator*=(int factor){
-        dollars = dollars * factor;
-        cents = cents * factor;
-
-        if(cents > 100){
-            dollars += cents / 100;
-            cents %= 100;
-        }
-
-        if(cents < 0){
-            dollars -= cents / 100;
-            cents %= 100;
-            cents *= -1;
-        }
-
+        value *= factor;
         return *this;
     }
 
     money operator/(int factor) const {
         money new_money = *this;
-        new_money /= factor;
+        new_money.value /= factor;
         return new_money;
     }
 
     money& operator/=(int factor){
-        dollars = dollars / factor;
-        cents = cents / factor;
-
-        //TODO The cents of the dollars should be reported to cents
-
+        value /= factor;
         return *this;
+    }
+
+    int cents() const {
+        return std::abs(value % SCALE);
+    }
+
+    int dollars() const {
+        return value / SCALE;
     }
 };
 

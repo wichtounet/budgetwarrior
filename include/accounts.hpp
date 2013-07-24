@@ -31,6 +31,8 @@ struct account {
     std::string guid;
     std::string name;
     money amount;
+    boost::gregorian::date since;
+    boost::gregorian::date until;
 };
 
 std::ostream& operator<<(std::ostream& stream, const account& account);
@@ -45,6 +47,7 @@ budget::account& get_account(std::size_t id);
 budget::account& get_account(std::string name);
 
 std::vector<account>& all_accounts();
+std::vector<account>  all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month);
 
 } //end of namespace budget
 

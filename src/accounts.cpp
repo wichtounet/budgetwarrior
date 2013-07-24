@@ -37,14 +37,41 @@ void show_accounts(){
     money total;
 
     for(auto& account : accounts.data){
-        contents.push_back({to_string(account.id), account.name, to_string(account.amount)});
+        if(account.until == boost::gregorian::date(2099,12,31)){
+            contents.push_back({to_string(account.id), account.name, to_string(account.amount)});
 
-        total += account.amount;
+            total += account.amount;
+        }
     }
 
     contents.push_back({"", "Total", to_string(total)});
 
     display_table(columns, contents);
+}
+
+void show_all_accounts(){
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& account : accounts.data){
+        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until)});
+    }
+
+    display_table(columns, contents);
+}
+
+boost::gregorian::date find_new_since(){
+    boost::gregorian::date date(1400,1,1);
+
+    for(auto& account : all_accounts()){
+        if(account.until != boost::gregorian::date(2099,12,31)){
+            if(account.until - boost::gregorian::date_duration(1) > date){
+                date = account.until - boost::gregorian::date_duration(1);
+            }
+        }
+    }
+
+    return date;
 }
 
 } //end of anonymous namespace
@@ -59,12 +86,16 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
         if(subcommand == "show"){
             show_accounts();
+        } else if(subcommand == "all"){
+            show_all_accounts();
         } else if(subcommand == "add"){
             enough_args(args, 4);
 
             account account;
             account.guid = generate_guid();
             account.name = args[2];
+            account.since = find_new_since();
+            account.until = boost::gregorian::date(2099,12,31);
 
             if(account_exists(account.name)){
                 throw budget_exception("An account with this name already exists");
@@ -117,6 +148,40 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             edit_money(account.amount, "Amount");
 
             std::cout << "Account " << id << " has been modified" << std::endl;
+        } else if(subcommand == "archive"){
+            std::cout << "This command will create new accounts that will be used starting from the beginning of the current month. Are you sure you want to proceed ? [yes/no] ? ";
+
+            std::string answer;
+            std::cin >> answer;
+
+            if(answer == "yes" || answer == "y"){
+                std::vector<budget::account> copies;
+
+                auto tmp = boost::gregorian::day_clock::local_day() - boost::gregorian::months(1);
+                boost::gregorian::date until_date(tmp.year(), tmp.month(), tmp.end_of_month().day());
+
+                for(auto& account : all_accounts()){
+                    if(account.until == boost::gregorian::date(2099,12,31)){
+                        budget::account copy;
+                        copy.guid = generate_guid();
+                        copy.name = account.name;
+                        copy.amount = account.amount;
+                        copy.until = boost::gregorian::date(2099,12,31);
+                        copy.since = until_date + boost::gregorian::date_duration(1);
+
+                        account.until = until_date;
+
+                        copies.push_back(std::move(copy));
+                    }
+                }
+
+                for(auto& copy : copies){
+                    add_data(accounts, std::move(copy));
+                }
+            } else {
+                //No need to save anything
+                return;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -148,7 +213,7 @@ budget::account& budget::get_account(std::string name){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const account& account){
-    return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount;
+    return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount << ':' << to_string(account.since) << ':' << to_string(account.until);
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, account& account){
@@ -156,6 +221,8 @@ void budget::operator>>(const std::vector<std::string>& parts, account& account)
     account.guid = parts[1];
     account.name = parts[2];
     account.amount = parse_money(parts[3]);
+    account.since = boost::gregorian::from_string(parts[4]);
+    account.until = boost::gregorian::from_string(parts[5]);
 }
 
 bool budget::account_exists(const std::string& name){
@@ -170,4 +237,18 @@ bool budget::account_exists(const std::string& name){
 
 std::vector<account>& budget::all_accounts(){
     return accounts.data;
+}
+
+std::vector<account> budget::all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month){
+    std::vector<account> accounts;
+
+    boost::gregorian::date date(year, month, 5);
+
+    for(auto& account : all_accounts()){
+        if(account.since < date && account.until > date){
+            accounts.push_back(account);
+        }
+    }
+
+    return std::move(accounts);
 }
