@@ -49,9 +49,9 @@ Read `ChangeLog`
 
 The project is open for any kind of contribution : ideas, new features, hotfixes, tests, ...
 
-If you want to contribute to this project, you can contact me by [email](baptiste.wicht@gmail.com) or via my [website](http://baptiste-wicht.com/).
+If you want to contribute to this project, you can contact me by [email](baptiste.wicht@gmail.com) or via my [website](http://baptiste-wicht.com/). You can also directly fork the project and make a pull request.
 
-If you want to support the development of this project, you [donate via Pledgie](http://pledgie.com/campaigns/21113). Thank you !
+If you want to support the development of this project, you can [donate via Pledgie](http://pledgie.com/campaigns/21113). Thank you !
 
 ## More informations ##
 
