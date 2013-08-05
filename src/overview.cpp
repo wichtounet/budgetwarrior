@@ -63,7 +63,7 @@ std::string format_money(const budget::money& m){
         return "::green" + budget::to_string(m);
     } else if(m.negative()){
         return "::red" + budget::to_string(m);
-    } else if(m.zero()){{
+    } else if(m.zero()){
         return budget::to_string(m);
     } else {
         return budget::to_string(m);
