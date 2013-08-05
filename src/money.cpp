@@ -31,9 +31,17 @@ money budget::parse_money(const std::string& money_string){
 
 std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
     if(amount.cents() < 10){
-        return stream << amount.dollars() << ".0" << amount.cents();
+        if(amount.negative()){
+            return stream << '-' << (-1 * amount.dollars()) << ".0" << amount.cents();
+        } else {
+            return stream << amount.dollars() << ".0" << amount.cents();
+        }
     } else {
-        return stream << amount.dollars() << "." << amount.cents();
+        if(amount.negative()){
+            return stream << '-' << (-1 * amount.dollars()) << "." << amount.cents();
+        } else {
+            return stream << amount.dollars() << "." << amount.cents();
+        }
     }
 }
 
