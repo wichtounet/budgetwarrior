@@ -79,6 +79,18 @@ struct money {
     int dollars() const {
         return value / SCALE;
     }
+
+    bool positive() const {
+        return value > 0;
+    }
+
+    bool negative() const {
+        return value < 0;
+    }
+
+    bool zero() const {
+        return value == 0;
+    }
 };
 
 std::ostream& operator<<(std::ostream& stream, const money& amount);

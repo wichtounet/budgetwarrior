@@ -59,10 +59,12 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
 }
 
 std::string format_money(const budget::money& m){
-    if(m.dollars() > 0){
+    if(m.positive()){
         return "::green" + budget::to_string(m);
-    } else if(m.dollars() < 0){
+    } else if(m.negative()){
         return "::red" + budget::to_string(m);
+    } else if(m.zero()){{
+        return budget::to_string(m);
     } else {
         return budget::to_string(m);
     }
