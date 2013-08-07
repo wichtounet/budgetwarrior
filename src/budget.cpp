@@ -46,15 +46,8 @@ struct need_unloading {
     static const bool value = budget::module_traits<Module>::needs_unloading;
 };
 
-template <bool B, typename T = void>
-struct disable_if {
-    typedef T type;
-};
-
-template <typename T>
-struct disable_if<true,T> {
-    //SFINAE
-};
+template<bool B, typename T = void>
+using disable_if = std::enable_if<!B, T>;
 
 struct module_runner {
     std::vector<std::string> args;
