@@ -136,10 +136,6 @@ void add_values_column(boost::gregorian::greg_month month, boost::gregorian::gre
 }
 
 void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
-    load_accounts();
-    load_expenses();
-    load_earnings();
-
     auto accounts = all_accounts(year, month);
 
     std::cout << "Overview of " << month << " " << year << std::endl << std::endl;
@@ -252,10 +248,6 @@ bool invalid_accounts(boost::gregorian::greg_year year){
 }
 
 void year_overview(boost::gregorian::greg_year year){
-    load_accounts();
-    load_expenses();
-    load_earnings();
-
     if(invalid_accounts(year)){
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
     }
@@ -489,6 +481,12 @@ void display_earnings(boost::gregorian::greg_year year){
 }
 
 } // end of anonymous namespace
+
+void budget::overview_module::load(){
+    load_accounts();
+    load_expenses();
+    load_earnings();
+}
 
 void budget::overview_module::handle(const std::vector<std::string>& args){
     if(args.empty() || args.size() == 1){

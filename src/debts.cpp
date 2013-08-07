@@ -83,9 +83,11 @@ void edit_direction(bool& ref, const std::string& title){
 
 } //end of anonymous namespace
 
-void budget::debt_module::handle(const std::vector<std::string>& args){
+void budget::debt_module::load(){
     load_debts();
+}
 
+void budget::debt_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         list_debts();
     } else {

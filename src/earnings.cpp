@@ -84,10 +84,12 @@ void show_all_earnings(){
 
 } //end of anonymous namespace
 
-void budget::earnings_module::handle(const std::vector<std::string>& args){
+void budget::earnings_module::load(){
     load_earnings();
     load_accounts();
+}
 
+void budget::earnings_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_earnings();
     } else {

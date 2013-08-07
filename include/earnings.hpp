@@ -19,13 +19,15 @@
 namespace budget {
 
 struct earnings_module {
-     void handle(const std::vector<std::string>& args);
+    void load();
+    void handle(const std::vector<std::string>& args);
 };
 
 template<>
 struct module_traits<earnings_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "earning";
+    static constexpr const bool needs_loading = true;
 };
 
 struct earning {

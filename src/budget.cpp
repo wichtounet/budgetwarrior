@@ -36,6 +36,21 @@ typedef boost::mpl::vector<
             budget::help_module*
     > modules;
 
+template<typename Module>
+struct need_loading {
+    static const bool value = budget::module_traits<Module>::needs_loading;
+};
+
+template <bool B, typename T = void>
+struct disable_if {
+    typedef T type;
+};
+
+template <typename T>
+struct disable_if<true,T> {
+    //SFINAE
+};
+
 struct module_runner {
     std::vector<std::string> args;
     bool handled = false;
@@ -45,8 +60,20 @@ struct module_runner {
     }
 
     template<typename Module>
+    inline typename std::enable_if<need_loading<Module>::value, void>::type load(Module& module){
+       module.load();
+    }
+
+    template<typename Module>
+    inline typename disable_if<need_loading<Module>::value, void>::type load(Module&){
+        //NOP
+    }
+
+    template<typename Module>
     inline void handle_module(){
         Module module;
+
+        load(module);
 
         module.handle(args);
 

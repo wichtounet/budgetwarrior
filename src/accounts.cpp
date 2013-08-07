@@ -76,9 +76,11 @@ boost::gregorian::date find_new_since(){
 
 } //end of anonymous namespace
 
-void budget::accounts_module::handle(const std::vector<std::string>& args){
+void budget::accounts_module::load(){
     load_accounts();
+}
 
+void budget::accounts_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_accounts();
     } else {

@@ -17,13 +17,15 @@
 namespace budget {
 
 struct accounts_module {
-     void handle(const std::vector<std::string>& args);
+    void load();
+    void handle(const std::vector<std::string>& args);
 };
 
 template<>
 struct module_traits<accounts_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "account";
+    static constexpr const bool needs_loading = true;
 };
 
 struct account {

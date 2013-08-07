@@ -18,13 +18,15 @@
 namespace budget {
 
 struct overview_module {
-     void handle(const std::vector<std::string>& args);
+    void load();
+    void handle(const std::vector<std::string>& args);
 };
 
 template<>
 struct module_traits<overview_module> {
     static constexpr const bool is_default = true;
     static constexpr const char* command = "overview";
+    static constexpr const bool needs_loading = true;
 };
 
 } //end of namespace budget

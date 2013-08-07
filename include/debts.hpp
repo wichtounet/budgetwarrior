@@ -19,6 +19,7 @@
 namespace budget {
 
 struct debt_module {
+     void load();
      void handle(const std::vector<std::string>& args);
 };
 
@@ -26,6 +27,7 @@ template<>
 struct module_traits<debt_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "debt";
+    static constexpr const bool needs_loading = true;
 };
 
 struct debt {

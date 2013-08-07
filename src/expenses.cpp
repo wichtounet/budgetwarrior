@@ -84,10 +84,12 @@ void show_all_expenses(){
 
 } //end of anonymous namespace
 
-void budget::expenses_module::handle(const std::vector<std::string>& args){
+void budget::expenses_module::load(){
     load_expenses();
     load_accounts();
+}
 
+void budget::expenses_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_expenses();
     } else {
