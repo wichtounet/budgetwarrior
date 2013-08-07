@@ -78,6 +78,12 @@ boost::gregorian::date find_new_since(){
 
 void budget::accounts_module::load(){
     load_accounts();
+    load_expenses();
+    load_earnings();
+}
+
+void budget::accounts_module::unload(){
+    save_accounts();
 }
 
 void budget::accounts_module::handle(const std::vector<std::string>& args){
@@ -116,15 +122,11 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("There are no account with id " + args[2]);
             }
 
-            load_expenses();
-
             for(auto& expense : all_expenses()){
                 if(expense.account == id){
                     throw budget_exception("There are still some expenses linked to this account, cannot delete it");
                 }
             }
-
-            load_earnings();
 
             for(auto& earning : all_earnings()){
                 if(earning.account == id){
@@ -188,8 +190,6 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
-
-    save_accounts();
 }
 
 void budget::load_accounts(){

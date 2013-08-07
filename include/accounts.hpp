@@ -18,6 +18,7 @@ namespace budget {
 
 struct accounts_module {
     void load();
+    void unload();
     void handle(const std::vector<std::string>& args);
 };
 
@@ -26,6 +27,7 @@ struct module_traits<accounts_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "account";
     static constexpr const bool needs_loading = true;
+    static constexpr const bool needs_unloading = true;
 };
 
 struct account {

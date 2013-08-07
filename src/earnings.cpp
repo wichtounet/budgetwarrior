@@ -89,6 +89,10 @@ void budget::earnings_module::load(){
     load_accounts();
 }
 
+void budget::earnings_module::unload(){
+    save_earnings();
+}
+
 void budget::earnings_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_earnings();
@@ -185,8 +189,6 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
-
-    save_earnings();
 }
 
 void budget::load_earnings(){

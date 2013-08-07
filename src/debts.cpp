@@ -87,6 +87,10 @@ void budget::debt_module::load(){
     load_debts();
 }
 
+void budget::debt_module::unload(){
+    save_debts();
+}
+
 void budget::debt_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         list_debts();
@@ -176,8 +180,6 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
-
-    save_debts();
 }
 
 void budget::load_debts(){

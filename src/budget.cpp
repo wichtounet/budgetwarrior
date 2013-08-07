@@ -41,6 +41,11 @@ struct need_loading {
     static const bool value = budget::module_traits<Module>::needs_loading;
 };
 
+template<typename Module>
+struct need_unloading {
+    static const bool value = budget::module_traits<Module>::needs_unloading;
+};
+
 template <bool B, typename T = void>
 struct disable_if {
     typedef T type;
@@ -70,12 +75,24 @@ struct module_runner {
     }
 
     template<typename Module>
+    inline typename std::enable_if<need_unloading<Module>::value, void>::type unload(Module& module){
+       module.unload();
+    }
+
+    template<typename Module>
+    inline typename disable_if<need_unloading<Module>::value, void>::type unload(Module&){
+        //NOP
+    }
+
+    template<typename Module>
     inline void handle_module(){
         Module module;
 
         load(module);
 
         module.handle(args);
+
+        unload(module);
 
         handled = true;
     }

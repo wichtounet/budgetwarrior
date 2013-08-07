@@ -89,6 +89,10 @@ void budget::expenses_module::load(){
     load_accounts();
 }
 
+void budget::expenses_module::unload(){
+    save_expenses();
+}
+
 void budget::expenses_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_expenses();
@@ -185,8 +189,6 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
-
-    save_expenses();
 }
 
 void budget::load_expenses(){
