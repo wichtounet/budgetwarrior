@@ -158,6 +158,8 @@ int main(int argc, const char* argv[]) {
 
     auto args = parse_args(argc, argv);
 
+    int code = 0;
+
     try {
         //Preload each module that needs it
         module_loader loader;
@@ -170,13 +172,15 @@ int main(int argc, const char* argv[]) {
         if(!runner.handled){
             std::cout << "Unhandled command \"" << runner.args[0] << "\"" << std::endl;
 
-            return 1;
+            code = 1;
         }
     } catch (const budget_exception& exception){
         std::cout << exception.message() << std::endl;
 
-        return 1;
+        code = 2;
     }
 
-    return 0;
+    save_config();
+
+    return code;
 }

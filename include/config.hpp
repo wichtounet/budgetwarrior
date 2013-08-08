@@ -10,7 +10,7 @@
 
 namespace budget {
 
-const int DATA_VERSION = 1;
+const std::size_t DATA_VERSION = 1;
 
 std::string home_folder();
 std::string budget_folder();
@@ -18,7 +18,7 @@ std::string path_to_home_file(const std::string& file);
 std::string path_to_budget_file(const std::string& file);
 
 bool load_config();
-bool verify_folder();
+void save_config();
 
 bool config_contains(const std::string& key);
 std::string config_value(const std::string& key);

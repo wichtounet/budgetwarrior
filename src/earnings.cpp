@@ -28,12 +28,6 @@ namespace {
 
 static data_handler<earning> earnings;
 
-void validate_account(const std::string& account){
-    if(!account_exists(account)){
-        throw budget_exception("The account " + account + " does not exist");
-    }
-}
-
 void show_earnings(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
