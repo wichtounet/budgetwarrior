@@ -26,8 +26,6 @@ template<>
 struct module_traits<recurring_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "recurring";
-    static constexpr const bool needs_loading = true;
-    static constexpr const bool needs_unloading = true;
 };
 
 struct recurring {

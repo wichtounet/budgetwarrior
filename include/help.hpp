@@ -23,8 +23,6 @@ template<>
 struct module_traits<help_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "help";
-    static constexpr const bool needs_loading = false;
-    static constexpr const bool needs_unloading = false;
 };
 
 } //end of namespace budget

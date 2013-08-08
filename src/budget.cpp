@@ -36,14 +36,28 @@ typedef boost::mpl::vector<
             budget::help_module*
     > modules;
 
+#define HAS_MEM_FUNC(func, name)                                        \
+    template<typename T, typename Sign>                                 \
+    struct name {                                                       \
+        typedef char yes[1];                                            \
+        typedef char no [2];                                            \
+        template <typename U, U> struct type_check;                     \
+        template <typename _1> static yes &chk(type_check<Sign, &_1::func> *); \
+        template <typename   > static no  &chk(...);                    \
+        static bool const value = sizeof(chk<T>(0)) == sizeof(yes);     \
+    }
+
+HAS_MEM_FUNC(load, has_load);
+HAS_MEM_FUNC(unload, has_unload);
+
 template<typename Module>
 struct need_loading {
-    static const bool value = budget::module_traits<Module>::needs_loading;
+    static const bool value = has_load<Module, void(Module::*)()>::value;
 };
 
 template<typename Module>
 struct need_unloading {
-    static const bool value = budget::module_traits<Module>::needs_unloading;
+    static const bool value = has_unload<Module, void(Module::*)()>::value;
 };
 
 template<bool B, typename T = void>

@@ -26,8 +26,6 @@ template<>
 struct module_traits<overview_module> {
     static constexpr const bool is_default = true;
     static constexpr const char* command = "overview";
-    static constexpr const bool needs_loading = true;
-    static constexpr const bool needs_unloading = false;
 };
 
 } //end of namespace budget

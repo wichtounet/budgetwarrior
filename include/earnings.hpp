@@ -28,8 +28,6 @@ template<>
 struct module_traits<earnings_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "earning";
-    static constexpr const bool needs_loading = true;
-    static constexpr const bool needs_unloading = true;
 };
 
 struct earning {

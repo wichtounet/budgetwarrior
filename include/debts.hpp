@@ -19,17 +19,15 @@
 namespace budget {
 
 struct debt_module {
-     void load();
+    void load();
     void unload();
-     void handle(const std::vector<std::string>& args);
+    void handle(const std::vector<std::string>& args);
 };
 
 template<>
 struct module_traits<debt_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "debt";
-    static constexpr const bool needs_loading = true;
-    static constexpr const bool needs_unloading = true;
 };
 
 struct debt {
