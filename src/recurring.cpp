@@ -29,13 +29,13 @@ namespace {
 static data_handler<recurring> recurrings;
 
 void show_recurrings(){
-    std::vector<std::string> columns = {"ID", "Account", "Name", "Amount"};
+    std::vector<std::string> columns = {"ID", "Account", "Name", "Amount", "Recurs"};
     std::vector<std::vector<std::string>> contents;
 
     money total;
 
     for(auto& recurring : recurrings.data){
-        contents.push_back({to_string(recurring.id), get_account(recurring.account).name, recurring.name, to_string(recurring.amount)});
+        contents.push_back({to_string(recurring.id), get_account(recurring.account).name, recurring.name, to_string(recurring.amount), recurring.recurs});
 
         total += recurring.amount;
     }
@@ -43,8 +43,8 @@ void show_recurrings(){
     if(recurrings.data.empty()){
         std::cout << "No recurring expenses" << std::endl;
     } else {
-        contents.push_back({"", "", "", ""});
-        contents.push_back({"", "", "Total", to_string(total)});
+        contents.push_back({"", "", "", "", ""});
+        contents.push_back({"", "", "", "Total", to_string(total)});
 
         display_table(columns, contents);
     }
@@ -79,6 +79,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             recurring recurring;
             recurring.guid = generate_guid();
+            recurring.recurs = "monthly";
 
             auto account_name = args[2];
             validate_account(account_name);
@@ -139,7 +140,7 @@ void budget::save_recurrings(){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const recurring& recurring){
-    return stream << recurring.id  << ':' << recurring.guid << ':' << recurring.account << ':' << recurring.name << ':' << recurring.amount;
+    return stream << recurring.id  << ':' << recurring.guid << ':' << recurring.account << ':' << recurring.name << ':' << recurring.amount << ":" << recurring.recurs;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, recurring& recurring){
@@ -148,6 +149,7 @@ void budget::operator>>(const std::vector<std::string>& parts, recurring& recurr
     recurring.account = to_number<std::size_t>(parts[2]);
     recurring.name = parts[3];
     recurring.amount = parse_money(parts[4]);
+    recurring.recurs = parts[5];
 }
 
 std::vector<recurring>& budget::all_recurrings(){

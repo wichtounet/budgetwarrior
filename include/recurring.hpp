@@ -35,6 +35,7 @@ struct recurring {
     std::string name;
     std::size_t account;
     money amount;
+    std::string recurs;
 };
 
 std::ostream& operator<<(std::ostream& stream, const recurring& recurring);
