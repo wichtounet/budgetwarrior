@@ -29,7 +29,25 @@ namespace {
 static data_handler<recurring> recurrings;
 
 void show_recurrings(){
-    //TODO
+    std::vector<std::string> columns = {"ID", "Account", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    money total;
+
+    for(auto& recurring : recurrings.data){
+        contents.push_back({to_string(recurring.id), get_account(recurring.account).name, recurring.name, to_string(recurring.amount)});
+
+        total += recurring.amount;
+    }
+
+    if(recurrings.data.empty()){
+        std::cout << "No recurring expenses" << std::endl;
+    } else {
+        contents.push_back({"", "", "", ""});
+        contents.push_back({"", "", "Total", to_string(total)});
+
+        display_table(columns, contents);
+    }
 }
 
 } //end of anonymous namespace
