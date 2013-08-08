@@ -40,10 +40,10 @@ struct recurring {
 std::ostream& operator<<(std::ostream& stream, const recurring& recurring);
 void operator>>(const std::vector<std::string>& parts, recurring& recurring);
 
-void load_recurring();
-void save_recurring();
+void load_recurrings();
+void save_recurrings();
 
-std::vector<recurring>& all_recurring();
+std::vector<recurring>& all_recurrings();
 
 } //end of namespace budget
 

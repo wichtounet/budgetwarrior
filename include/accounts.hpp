@@ -44,6 +44,7 @@ void load_accounts();
 void save_accounts();
 
 bool account_exists(const std::string& account);
+void validate_account(const std::string& account);
 
 budget::account& get_account(std::size_t id);
 budget::account& get_account(std::string name);
