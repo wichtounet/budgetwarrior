@@ -49,6 +49,7 @@ typedef boost::mpl::vector<
 
 HAS_MEM_FUNC(load, has_load);
 HAS_MEM_FUNC(unload, has_unload);
+HAS_MEM_FUNC(preload, has_preload);
 
 template<typename Module>
 struct need_loading {
@@ -58,6 +59,11 @@ struct need_loading {
 template<typename Module>
 struct need_unloading {
     static const bool value = has_unload<Module, void(Module::*)()>::value;
+};
+
+template<typename Module>
+struct need_preloading {
+    static const bool value = has_preload<Module, void(Module::*)()>::value;
 };
 
 template<bool B, typename T = void>
@@ -120,6 +126,24 @@ struct module_runner {
     }
 };
 
+struct module_loader {
+    template<typename Module>
+    inline typename std::enable_if<need_preloading<Module>::value, void>::type preload(){
+        Module module;
+        module.preload();
+    }
+
+    template<typename Module>
+    inline typename disable_if<need_preloading<Module>::value, void>::type preload(){
+        //NOP
+    }
+
+    template<typename Module>
+    inline void operator()(Module*){
+        preload<Module>();
+    }
+};
+
 } //end of anonymous namespace
 
 int main(int argc, const char* argv[]) {
@@ -133,6 +157,11 @@ int main(int argc, const char* argv[]) {
     auto args = parse_args(argc, argv);
 
     try {
+        //Preload each module that needs it
+        module_loader loader;
+        boost::mpl::for_each<modules>(boost::ref(loader));
+
+        //Run the correct module
         module_runner runner(std::move(args));
         boost::mpl::for_each<modules>(boost::ref(runner));
 

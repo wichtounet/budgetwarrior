@@ -19,6 +19,7 @@ namespace budget {
 struct recurring_module {
     void load();
     void unload();
+    void preload();
     void handle(const std::vector<std::string>& args);
 };
 
