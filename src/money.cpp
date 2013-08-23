@@ -17,13 +17,17 @@ money budget::parse_money(const std::string& money_string){
     int dollars = 0;
     int cents = 0;
 
-    if(dot_pos == std::string::npos){
-        dollars = to_number<int>(money_string);
-    } else {
-        dollars = to_number<int>(money_string.substr(0, dot_pos));
+    try {
+        if(dot_pos == std::string::npos){
+            dollars = to_number<int>(money_string);
+        } else {
+            dollars = to_number<int>(money_string.substr(0, dot_pos));
 
-        auto cents_str = money_string.substr(dot_pos+1, money_string.size() - dot_pos);
-        cents = to_number<int>(cents_str);
+            auto cents_str = money_string.substr(dot_pos+1, money_string.size() - dot_pos);
+            cents = to_number<int>(cents_str);
+        }
+    } catch (boost::bad_lexical_cast& e){
+        throw budget::budget_exception("\"" + money_string + "\" is not a valid amount of money");
     }
 
     return {dollars, cents};
