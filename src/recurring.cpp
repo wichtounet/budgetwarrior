@@ -64,15 +64,11 @@ void budget::recurring_module::preload(){
         auto last_checked_str = internal_config_value("recurring:last_checked");
         auto last_checked = boost::gregorian::from_string(last_checked_str);
 
-        std::cout << last_checked << std::endl;
-
         if(last_checked.month() < now.month()){
             load_expenses();
 
             for(boost::gregorian::greg_month m = last_checked.month() + 1; m <= now.month(); m = m + 1){
                 boost::gregorian::date recurring_date(now.year(), m, 1);
-
-                std::cout << recurring_date << std::endl;
 
                 for(auto& recurring : recurrings.data){
                     budget::expense recurring_expense;
