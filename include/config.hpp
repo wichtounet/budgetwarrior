@@ -23,6 +23,9 @@ void save_config();
 bool config_contains(const std::string& key);
 std::string config_value(const std::string& key);
 
+bool internal_config_contains(const std::string& key);
+std::string internal_config_value(const std::string& key);
+
 } //end of namespace budget
 
 #endif
