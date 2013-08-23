@@ -29,7 +29,7 @@ You juste have to use CMake to build it:
 
 ## Usage ##
 
-The executable is named 'budget' and allows performs all the commands.
+The executable is named 'budget' and allows to perform all the commands.
 
 Use
 
