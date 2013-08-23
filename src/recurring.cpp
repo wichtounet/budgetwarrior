@@ -21,6 +21,7 @@
 #include "utils.hpp"
 #include "console.hpp"
 #include "budget_exception.hpp"
+#include "expenses.hpp"
 
 using namespace budget;
 
@@ -55,6 +56,41 @@ void show_recurrings(){
 void budget::recurring_module::preload(){
     load_recurrings();
 
+    auto now = boost::gregorian::day_clock::local_day();
+
+    //If it does not contains this value, it is the first start, so there is no
+    //need to check anything
+    if(internal_config_contains("recurring:last_checked")){
+        auto last_checked_str = internal_config_value("recurring:last_checked");
+        auto last_checked = boost::gregorian::from_string(last_checked_str);
+
+        std::cout << last_checked << std::endl;
+
+        if(last_checked.month() < now.month()){
+            load_expenses();
+
+            for(boost::gregorian::greg_month m = last_checked.month() + 1; m <= now.month(); m = m + 1){
+                boost::gregorian::date recurring_date(now.year(), m, 1);
+
+                std::cout << recurring_date << std::endl;
+
+                for(auto& recurring : recurrings.data){
+                    budget::expense recurring_expense;
+                    recurring_expense.guid = generate_guid();
+                    recurring_expense.date = recurring_date;
+                    recurring_expense.account = recurring.account;
+                    recurring_expense.amount = recurring.amount;
+                    recurring_expense.name = recurring.name;
+
+                    add_expense(std::move(recurring_expense));
+                }
+            }
+
+            save_expenses();
+        }
+    }
+
+    internal_config_value("recurring:last_checked") = budget::to_string(now);
 }
 
 void budget::recurring_module::load(){

@@ -193,6 +193,10 @@ void budget::save_expenses(){
     save_data(expenses, "expenses.data");
 }
 
+void budget::add_expense(budget::expense&& expense){
+    add_data(expenses, std::forward<budget::expense>(expense));
+}
+
 std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
     return stream << expense.id  << ':' << expense.guid << ':' << expense.account << ':' << expense.name << ':' << expense.amount << ':' << to_string(expense.date);
 }

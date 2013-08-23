@@ -47,6 +47,10 @@ void load_data(data_handler<T>& data, const std::string& path){
 
         if(file.is_open()){
             if(file.good()){
+                //Make sure to clear the data first, as load_data can be called
+                //several times
+                data.data.clear();
+
                 file >> data.next_id;
                 file.get();
 

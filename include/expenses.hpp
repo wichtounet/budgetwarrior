@@ -46,6 +46,7 @@ void load_expenses();
 void save_expenses();
 
 std::vector<expense>& all_expenses();
+void add_expense(expense&& expense);
 
 } //end of namespace budget
 
