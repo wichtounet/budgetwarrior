@@ -8,16 +8,19 @@ state of your budget.
 
 budgetwarrior has several features:
 
-* Manage a set of accounts with a limit
+* Manage a set of account with a limit
 * Keeps track of your expenses and earnings in each of your accounts
 * Give you the state of your budget by month and by year
 * Keeps track of your debts
+* Manage recurring expenses that are automatically created monthly
 
 ## Building ##
 
 A modern compiler is necessary: GCC >= 4.7 or CLang >= 3.1.
 
-The tool is known to work on Linux but has never been tested on Windows. You need Boost 1.47.0 or superior installed on your computer to build this project.
+The tool is known to work on Linux but has never been tested on Windows.
+You need Boost 1.47.0 or superior and libuuid installed on your computer
+to build this project.
 
 You juste have to use CMake to build it:
 
@@ -29,7 +32,7 @@ You juste have to use CMake to build it:
 
 ## Usage ##
 
-The executable is named 'budget' and allows performs all the commands.
+The executable is named 'budget' and allows to perform all the commands.
 
 Use
 
