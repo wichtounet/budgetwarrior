@@ -5,47 +5,46 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
-#ifndef DEBTS_H
-#define DEBTS_H
+#ifndef RECURRING_H
+#define RECURRING_H
 
 #include <vector>
 #include <string>
-
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "module_traits.hpp"
 #include "money.hpp"
 
 namespace budget {
 
-struct debt_module {
+struct recurring_module {
     void load();
     void unload();
+    void preload();
     void handle(const std::vector<std::string>& args);
 };
 
 template<>
-struct module_traits<debt_module> {
+struct module_traits<recurring_module> {
     static constexpr const bool is_default = false;
-    static constexpr const char* command = "debt";
+    static constexpr const char* command = "recurring";
 };
 
-struct debt {
+struct recurring {
     std::size_t id;
-    int state;
     std::string guid;
-    boost::posix_time::ptime creation_time;
-    bool direction;
     std::string name;
+    std::size_t account;
     money amount;
-    std::string title = "";
+    std::string recurs;
 };
 
-std::ostream& operator<<(std::ostream& stream, const debt& debt);
-void operator>>(const std::vector<std::string>& parts, debt& debt);
+std::ostream& operator<<(std::ostream& stream, const recurring& recurring);
+void operator>>(const std::vector<std::string>& parts, recurring& recurring);
 
-void load_debts();
-void save_debts();
+void load_recurrings();
+void save_recurrings();
+
+std::vector<recurring>& all_recurrings();
 
 } //end of namespace budget
 

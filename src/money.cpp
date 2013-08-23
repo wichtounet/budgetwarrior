@@ -12,26 +12,45 @@
 using namespace budget;
 
 money budget::parse_money(const std::string& money_string){
-    money amount;
-
     std::size_t dot_pos = money_string.find(".");
 
-    if(dot_pos == std::string::npos){
-        amount.dollars = to_number<int>(money_string);
-    } else {
-        amount.dollars = to_number<int>(money_string.substr(0, dot_pos));
-        amount.cents = to_number<int>(money_string.substr(dot_pos+1, money_string.size() - dot_pos));
+    int dollars = 0;
+    int cents = 0;
+
+    try {
+        if(dot_pos == std::string::npos){
+            dollars = to_number<int>(money_string);
+        } else {
+            dollars = to_number<int>(money_string.substr(0, dot_pos));
+
+            auto cents_str = money_string.substr(dot_pos+1, money_string.size() - dot_pos);
+            cents = to_number<int>(cents_str);
+        }
+    } catch (boost::bad_lexical_cast& e){
+        throw budget::budget_exception("\"" + money_string + "\" is not a valid amount of money");
     }
 
-    return amount;
+    return {dollars, cents};
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
-    return stream << amount.dollars << "." << amount.cents;
+    if(amount.cents() < 10){
+        if(amount.negative()){
+            return stream << '-' << (-1 * amount.dollars()) << ".0" << amount.cents();
+        } else {
+            return stream << amount.dollars() << ".0" << amount.cents();
+        }
+    } else {
+        if(amount.negative()){
+            return stream << '-' << (-1 * amount.dollars()) << "." << amount.cents();
+        } else {
+            return stream << amount.dollars() << "." << amount.cents();
+        }
+    }
 }
 
 void budget::not_negative(const money& amount){
-    if(amount.dollars < 0 || amount.cents < 0){
+    if(amount.dollars() < 0 || amount.cents() < 0){
         throw budget_exception("Amount cannot be negative");
     }
 }

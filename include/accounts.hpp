@@ -17,7 +17,9 @@
 namespace budget {
 
 struct accounts_module {
-     void handle(const std::vector<std::string>& args);
+    void load();
+    void unload();
+    void handle(const std::vector<std::string>& args);
 };
 
 template<>
@@ -31,6 +33,8 @@ struct account {
     std::string guid;
     std::string name;
     money amount;
+    boost::gregorian::date since;
+    boost::gregorian::date until;
 };
 
 std::ostream& operator<<(std::ostream& stream, const account& account);
@@ -40,11 +44,13 @@ void load_accounts();
 void save_accounts();
 
 bool account_exists(const std::string& account);
+void validate_account(const std::string& account);
 
 budget::account& get_account(std::size_t id);
 budget::account& get_account(std::string name);
 
 std::vector<account>& all_accounts();
+std::vector<account>  all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month);
 
 } //end of namespace budget
 

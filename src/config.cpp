@@ -18,16 +18,15 @@
 #include <boost/filesystem.hpp>
 
 #include "config.hpp"
+#include "utils.hpp"
 
 using namespace budget;
 
-static std::unordered_map<std::string, std::string> configuration;
+namespace {
 
-bool budget::load_config(){
-    auto config_path = path_to_home_file(".budgetrc");
-
-    if(boost::filesystem::exists(config_path)){
-        std::ifstream file(config_path);
+bool load_configuration(const std::string& path, std::unordered_map<std::string, std::string>& configuration){
+    if(boost::filesystem::exists(path)){
+        std::ifstream file(path);
 
         if(file.is_open()){
             if(file.good()){
@@ -37,7 +36,7 @@ bool budget::load_config(){
                     boost::split(parts, line, boost::is_any_of("="), boost::token_compress_on);
 
                     if(parts.size() != 2){
-                        std::cout << "The configuration file " << config_path << " is invalid only supports entries in form of key=value" << std::endl;
+                        std::cout << "The configuration file " << path << " is invalid only supports entries in form of key=value" << std::endl;
 
                         return false;
                     }
@@ -48,18 +47,18 @@ bool budget::load_config(){
         }
     }
 
-    return verify_folder();
+    return true;
 }
 
-std::string budget::budget_folder(){
-    if(config_contains("directory")){
-        return config_value("directory");
+void save_configuration(const std::string& path, std::unordered_map<std::string, std::string> configuration){
+    std::ofstream file(path);
+
+    for(auto& entry : configuration){
+        file << entry.first << "=" << entry.second << std::endl;
     }
-
-    return path_to_home_file(".budget");
 }
 
-bool budget::verify_folder(){
+bool verify_folder(){
     auto folder_path = budget_folder();
 
     if(!boost::filesystem::exists(folder_path)){
@@ -86,6 +85,36 @@ bool budget::verify_folder(){
     return true;
 }
 
+} //end of anonymous namespace
+
+static std::unordered_map<std::string, std::string> configuration;
+static std::unordered_map<std::string, std::string> internal;
+
+bool budget::load_config(){
+    if(!load_configuration(path_to_home_file(".budgetrc"), configuration)){
+        return false;
+    }
+
+    if(!verify_folder()){
+        return false;
+    }
+
+    if(!load_configuration(path_to_budget_file("config"), internal)){
+        return false;
+    }
+
+    //At the first start, the version is not set
+    if(internal.find("data_version") == internal.end()){
+        internal["data_version"] = budget::to_string(budget::DATA_VERSION);
+    }
+
+    return true;
+}
+
+void budget::save_config(){
+    save_configuration(path_to_budget_file("config"), internal);
+}
+
 std::string budget::home_folder(){
     struct passwd *pw = getpwuid(getuid());
 
@@ -98,6 +127,14 @@ std::string budget::path_to_home_file(const std::string& file){
     return home_folder() + "/" + file;
 }
 
+std::string budget::budget_folder(){
+    if(config_contains("directory")){
+        return config_value("directory");
+    }
+
+    return path_to_home_file(".budget");
+}
+
 std::string budget::path_to_budget_file(const std::string& file){
     return budget_folder() + "/" + file;
 }
@@ -108,4 +145,12 @@ bool budget::config_contains(const std::string& key){
 
 std::string budget::config_value(const std::string& key){
     return configuration[key];
+}
+
+bool budget::internal_config_contains(const std::string& key){
+    return internal.find(key) != internal.end();
+}
+
+std::string& budget::internal_config_value(const std::string& key){
+    return internal[key];
 }

@@ -5,47 +5,47 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
-#ifndef DEBTS_H
-#define DEBTS_H
+#ifndef EARNINGS_H
+#define EARNINGS_H
 
 #include <vector>
 #include <string>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "module_traits.hpp"
 #include "money.hpp"
 
 namespace budget {
 
-struct debt_module {
+struct earnings_module {
     void load();
     void unload();
     void handle(const std::vector<std::string>& args);
 };
 
 template<>
-struct module_traits<debt_module> {
+struct module_traits<earnings_module> {
     static constexpr const bool is_default = false;
-    static constexpr const char* command = "debt";
+    static constexpr const char* command = "earning";
 };
 
-struct debt {
+struct earning {
     std::size_t id;
-    int state;
     std::string guid;
-    boost::posix_time::ptime creation_time;
-    bool direction;
+    boost::gregorian::date date;
     std::string name;
+    std::size_t account;
     money amount;
-    std::string title = "";
 };
 
-std::ostream& operator<<(std::ostream& stream, const debt& debt);
-void operator>>(const std::vector<std::string>& parts, debt& debt);
+std::ostream& operator<<(std::ostream& stream, const earning& earning);
+void operator>>(const std::vector<std::string>& parts, earning& earning);
 
-void load_debts();
-void save_debts();
+void load_earnings();
+void save_earnings();
+
+std::vector<earning>& all_earnings();
 
 } //end of namespace budget
 
