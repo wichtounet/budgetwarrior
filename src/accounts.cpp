@@ -257,6 +257,6 @@ std::vector<account> budget::all_accounts(boost::gregorian::greg_year year, boos
 
 void budget::validate_account(const std::string& account){
     if(!account_exists(account)){
-        throw budget_exception("The account " + account + " does not exist");
+        throw budget_exception("The account \"" + account + "\" does not exist");
     }
 }
