@@ -76,6 +76,12 @@ void show_all_earnings(){
     display_table(columns, contents);
 }
 
+void validate_name(const std::string& name){
+    if(name.empty()){
+        throw budget_exception("The name of the earning cannot be empty");
+    }
+}
+
 } //end of anonymous namespace
 
 void budget::earnings_module::load(){
@@ -125,6 +131,8 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
                 earning.name += args[i] + " ";
             }
 
+            validate_name(earning.name);
+
             add_data(earnings, std::move(earning));
         } else if(subcommand == "addd"){
             enough_args(args, 6);
@@ -143,6 +151,8 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             for(std::size_t i = 5; i < args.size(); ++i){
                 earning.name += args[i] + " ";
             }
+
+            validate_name(earning.name);
 
             add_data(earnings, std::move(earning));
         } else if(subcommand == "delete"){
@@ -176,7 +186,10 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             earning.account = get_account(account_name).id;
 
             edit_string(earning.name, "Name");
+            validate_name(earning.name);
+
             edit_money(earning.amount, "Amount");
+            not_negative(earning.amount);
 
             std::cout << "earning " << id << " has been modified" << std::endl;
         } else {
