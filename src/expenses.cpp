@@ -108,21 +108,39 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "all"){
             show_all_expenses();
         } else if(subcommand == "add"){
-            enough_args(args, 5);
-
             expense expense;
             expense.guid = generate_guid();
             expense.date = boost::gregorian::day_clock::local_day();
 
-            auto account_name = args[2];
-            validate_account(account_name);
-            expense.account = get_account(account_name).id;
+            if(args.size() == 2){
+                edit_date(expense.date, "Date");
 
-            expense.amount = parse_money(args[3]);
-            not_negative(expense.amount);
+                std::string account_name;
+                edit_string(account_name, "Account");
+                validate_account(account_name);
+                expense.account = get_account(account_name).id;
 
-            for(std::size_t i = 4; i < args.size(); ++i){
-                expense.name += args[i] + " ";
+                edit_string(expense.name, "Name");
+                not_empty(expense.name, "The name of the expense cannot be empty");
+
+                edit_money(expense.amount, "Amount");
+                not_negative(expense.amount);
+
+            } else {
+                enough_args(args, 5);
+
+                auto account_name = args[2];
+                validate_account(account_name);
+                expense.account = get_account(account_name).id;
+
+                expense.amount = parse_money(args[3]);
+                not_negative(expense.amount);
+
+                for(std::size_t i = 4; i < args.size(); ++i){
+                    expense.name += args[i] + " ";
+                }
+
+                not_empty(expense.name, "The name of the expense cannot be empty");
             }
 
             add_data(expenses, std::move(expense));
@@ -143,6 +161,8 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             for(std::size_t i = 5; i < args.size(); ++i){
                 expense.name += args[i] + " ";
             }
+
+            not_empty(expense.name, "The name of the expense cannot be empty");
 
             add_data(expenses, std::move(expense));
         } else if(subcommand == "delete"){
@@ -176,7 +196,10 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             expense.account = get_account(account_name).id;
 
             edit_string(expense.name, "Name");
+            not_empty(expense.name, "The name of the expense cannot be empty");
+
             edit_money(expense.amount, "Amount");
+            not_negative(expense.amount);
 
             std::cout << "Expense " << id << " has been modified" << std::endl;
         } else {

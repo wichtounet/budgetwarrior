@@ -107,21 +107,36 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
         if(subcommand == "show"){
             show_recurrings();
         } else if(subcommand == "add"){
-            enough_args(args, 5);
-
             recurring recurring;
             recurring.guid = generate_guid();
             recurring.recurs = "monthly";
 
-            auto account_name = args[2];
-            validate_account(account_name);
-            recurring.account = get_account(account_name).id;
+            if(args.size() == 2){
+                std::string account_name;
+                edit_string(account_name, "Account");
+                validate_account(account_name);
+                recurring.account = get_account(account_name).id;
 
-            recurring.amount = parse_money(args[3]);
-            not_negative(recurring.amount);
+                edit_string(recurring.name, "Name");
+                not_empty(recurring.name, "The name of the recurring expense cannot be empty");
 
-            for(std::size_t i = 4; i < args.size(); ++i){
-                recurring.name += args[i] + " ";
+                edit_money(recurring.amount, "Amount");
+                not_negative(recurring.amount);
+            } else {
+                enough_args(args, 5);
+
+                auto account_name = args[2];
+                validate_account(account_name);
+                recurring.account = get_account(account_name).id;
+
+                recurring.amount = parse_money(args[3]);
+                not_negative(recurring.amount);
+
+                for(std::size_t i = 4; i < args.size(); ++i){
+                    recurring.name += args[i] + " ";
+                }
+
+                not_empty(recurring.name, "The name of the recurring expense cannot be empty");
             }
 
             add_data(recurrings, std::move(recurring));
@@ -154,7 +169,10 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             recurring.account = get_account(account_name).id;
 
             edit_string(recurring.name, "Name");
+            not_empty(recurring.name, "The name of the recurring expense cannot be empty");
+
             edit_money(recurring.amount, "Amount");
+            not_negative(recurring.amount);
 
             std::cout << "Recurring expense " << id << " has been modified" << std::endl;
         } else {
