@@ -74,14 +74,8 @@ boost::gregorian::date find_new_since(){
     return date;
 }
 
-void validate_name(const std::string& name){
-    if(name.empty()){
-        throw budget_exception("Account name cannot be empty");
-    }
-}
-
 void validate_new_account_name(const std::string& name){
-    validate_name(name);
+    not_empty(name, "Account name cannot be empty");
 
     if(account_exists(name)){
         throw budget_exception("An account with this name already exists");
@@ -169,7 +163,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             auto& account = get(accounts, id);
 
             edit_string(account.name, "Name");
-            validate_name(account.name);
+            not_empty(account.name, "Account name cannot be empty");
 
             for(auto& a : accounts.data){
                 if(a.name == account.name && a.id != id){

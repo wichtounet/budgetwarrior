@@ -76,12 +76,6 @@ void show_all_expenses(){
     display_table(columns, contents);
 }
 
-void validate_name(const std::string& name){
-    if(name.empty()){
-        throw budget_exception("The name of the expense cannot be empty");
-    }
-}
-
 } //end of anonymous namespace
 
 void budget::expenses_module::load(){
@@ -127,7 +121,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 expense.account = get_account(account_name).id;
 
                 edit_string(expense.name, "Name");
-                validate_name(expense.name);
+                not_empty(expense.name, "The name of the expense cannot be empty");
 
                 edit_money(expense.amount, "Amount");
                 not_negative(expense.amount);
@@ -146,7 +140,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                     expense.name += args[i] + " ";
                 }
 
-                validate_name(expense.name);
+                not_empty(expense.name, "The name of the expense cannot be empty");
             }
 
             add_data(expenses, std::move(expense));
@@ -168,7 +162,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 expense.name += args[i] + " ";
             }
 
-            validate_name(expense.name);
+            not_empty(expense.name, "The name of the expense cannot be empty");
 
             add_data(expenses, std::move(expense));
         } else if(subcommand == "delete"){
@@ -202,7 +196,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             expense.account = get_account(account_name).id;
 
             edit_string(expense.name, "Name");
-            validate_name(expense.name);
+            not_empty(expense.name, "The name of the expense cannot be empty");
 
             edit_money(expense.amount, "Amount");
             not_negative(expense.amount);

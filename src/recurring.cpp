@@ -51,12 +51,6 @@ void show_recurrings(){
     }
 }
 
-void validate_name(const std::string& name){
-    if(name.empty()){
-        throw budget_exception("The name of a recurring expense cannot be empty");
-    }
-}
-
 } //end of anonymous namespace
 
 void budget::recurring_module::preload(){
@@ -124,7 +118,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
                 recurring.account = get_account(account_name).id;
 
                 edit_string(recurring.name, "Name");
-                validate_name(recurring.name);
+                not_empty(recurring.name, "The name of the recurring expense cannot be empty");
 
                 edit_money(recurring.amount, "Amount");
                 not_negative(recurring.amount);
@@ -142,7 +136,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
                     recurring.name += args[i] + " ";
                 }
 
-                validate_name(recurring.name);
+                not_empty(recurring.name, "The name of the recurring expense cannot be empty");
             }
 
             add_data(recurrings, std::move(recurring));
@@ -175,7 +169,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             recurring.account = get_account(account_name).id;
 
             edit_string(recurring.name, "Name");
-            validate_name(recurring.name);
+            not_empty(recurring.name, "The name of the recurring expense cannot be empty");
 
             edit_money(recurring.amount, "Amount");
             not_negative(recurring.amount);
