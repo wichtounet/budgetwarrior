@@ -114,26 +114,47 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "all"){
             show_all_earnings();
         } else if(subcommand == "add"){
-            enough_args(args, 5);
+            if(args.size() == 2){
+                earning earning;
+                earning.guid = generate_guid();
+                earning.date = boost::gregorian::day_clock::local_day();
 
-            earning earning;
-            earning.guid = generate_guid();
-            earning.date = boost::gregorian::day_clock::local_day();
+                edit_date(earning.date, "Date");
 
-            auto account_name = args[2];
-            validate_account(account_name);
-            earning.account = get_account(account_name).id;
+                std::string account_name;
+                edit_string(account_name, "Account");
+                validate_account(account_name);
+                earning.account = get_account(account_name).id;
 
-            earning.amount = parse_money(args[3]);
-            not_negative(earning.amount);
+                edit_string(earning.name, "Name");
+                validate_name(earning.name);
 
-            for(std::size_t i = 4; i < args.size(); ++i){
-                earning.name += args[i] + " ";
+                edit_money(earning.amount, "Amount");
+                not_negative(earning.amount);
+
+                add_data(earnings, std::move(earning));
+            } else {
+                enough_args(args, 5);
+
+                earning earning;
+                earning.guid = generate_guid();
+                earning.date = boost::gregorian::day_clock::local_day();
+
+                auto account_name = args[2];
+                validate_account(account_name);
+                earning.account = get_account(account_name).id;
+
+                earning.amount = parse_money(args[3]);
+                not_negative(earning.amount);
+
+                for(std::size_t i = 4; i < args.size(); ++i){
+                    earning.name += args[i] + " ";
+                }
+
+                validate_name(earning.name);
+
+                add_data(earnings, std::move(earning));
             }
-
-            validate_name(earning.name);
-
-            add_data(earnings, std::move(earning));
         } else if(subcommand == "addd"){
             enough_args(args, 6);
 
