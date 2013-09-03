@@ -114,11 +114,11 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "all"){
             show_all_expenses();
         } else if(subcommand == "add"){
-            if(args.size() == 2){
-                expense expense;
-                expense.guid = generate_guid();
-                expense.date = boost::gregorian::day_clock::local_day();
+            expense expense;
+            expense.guid = generate_guid();
+            expense.date = boost::gregorian::day_clock::local_day();
 
+            if(args.size() == 2){
                 edit_date(expense.date, "Date");
 
                 std::string account_name;
@@ -132,13 +132,8 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 edit_money(expense.amount, "Amount");
                 not_negative(expense.amount);
 
-                add_data(expenses, std::move(expense));
             } else {
                 enough_args(args, 5);
-
-                expense expense;
-                expense.guid = generate_guid();
-                expense.date = boost::gregorian::day_clock::local_day();
 
                 auto account_name = args[2];
                 validate_account(account_name);
@@ -152,9 +147,9 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 }
 
                 validate_name(expense.name);
-
-                add_data(expenses, std::move(expense));
             }
+
+            add_data(expenses, std::move(expense));
         } else if(subcommand == "addd"){
             enough_args(args, 6);
 

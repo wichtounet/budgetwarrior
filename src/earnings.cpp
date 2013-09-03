@@ -114,11 +114,11 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "all"){
             show_all_earnings();
         } else if(subcommand == "add"){
-            if(args.size() == 2){
-                earning earning;
-                earning.guid = generate_guid();
-                earning.date = boost::gregorian::day_clock::local_day();
+            earning earning;
+            earning.guid = generate_guid();
+            earning.date = boost::gregorian::day_clock::local_day();
 
+            if(args.size() == 2){
                 edit_date(earning.date, "Date");
 
                 std::string account_name;
@@ -131,14 +131,8 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
 
                 edit_money(earning.amount, "Amount");
                 not_negative(earning.amount);
-
-                add_data(earnings, std::move(earning));
             } else {
                 enough_args(args, 5);
-
-                earning earning;
-                earning.guid = generate_guid();
-                earning.date = boost::gregorian::day_clock::local_day();
 
                 auto account_name = args[2];
                 validate_account(account_name);
@@ -152,9 +146,9 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
                 }
 
                 validate_name(earning.name);
-
-                add_data(earnings, std::move(earning));
             }
+
+            add_data(earnings, std::move(earning));
         } else if(subcommand == "addd"){
             enough_args(args, 6);
 
