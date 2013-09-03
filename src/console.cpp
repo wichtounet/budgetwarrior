@@ -170,7 +170,7 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
 void budget::edit_string(std::string& ref, const std::string& title){
     std::string answer;
 
-    std::cout << title << " [" << ref << "]:";
+    std::cout << title << " [" << ref << "]: ";
     std::getline(std::cin, answer);
 
     if(!answer.empty()){
@@ -181,7 +181,7 @@ void budget::edit_string(std::string& ref, const std::string& title){
 void budget::edit_money(budget::money& ref, const std::string& title){
     std::string answer;
 
-    std::cout << title << " [" << ref << "]:";
+    std::cout << title << " [" << ref << "]: ";
     std::getline(std::cin, answer);
 
     if(!answer.empty()){
@@ -192,7 +192,7 @@ void budget::edit_money(budget::money& ref, const std::string& title){
 void budget::edit_date(boost::gregorian::date& ref, const std::string& title){
     std::string answer;
 
-    std::cout << title << " [" << ref << "]:";
+    std::cout << title << " [" << ref << "]: ";
     std::getline(std::cin, answer);
 
     if(!answer.empty()){
