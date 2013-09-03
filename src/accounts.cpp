@@ -74,6 +74,20 @@ boost::gregorian::date find_new_since(){
     return date;
 }
 
+void validate_name(const std::string& name){
+    if(name.empty()){
+        throw budget_exception("Account name cannot be empty");
+    }
+}
+
+void validate_new_account_name(const std::string& name){
+    validate_name(name);
+
+    if(account_exists(name)){
+        throw budget_exception("An account with this name already exists");
+    }
+}
+
 } //end of anonymous namespace
 
 void budget::accounts_module::load(){
@@ -97,20 +111,26 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "all"){
             show_all_accounts();
         } else if(subcommand == "add"){
-            enough_args(args, 4);
-
             account account;
             account.guid = generate_guid();
-            account.name = args[2];
             account.since = find_new_since();
             account.until = boost::gregorian::date(2099,12,31);
 
-            if(account_exists(account.name)){
-                throw budget_exception("An account with this name already exists");
-            }
+            if(args.size() == 2){
+                edit_string(account.name, "Name");
+                validate_new_account_name(account.name);
 
-            account.amount = parse_money(args[3]);
-            not_negative(account.amount);
+                edit_money(account.amount, "Amount");
+                not_negative(account.amount);
+            } else {
+                enough_args(args, 4);
+
+                account.name = args[2];
+                validate_new_account_name(account.name);
+
+                account.amount = parse_money(args[3]);
+                not_negative(account.amount);
+            }
 
             add_data(accounts, std::move(account));
         } else if(subcommand == "delete"){
@@ -149,7 +169,16 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             auto& account = get(accounts, id);
 
             edit_string(account.name, "Name");
+            validate_name(account.name);
+
+            for(auto& a : accounts.data){
+                if(a.name == account.name && a.id != id){
+                    throw budget_exception("Another account with this name already exists");
+                }
+            }
+
             edit_money(account.amount, "Amount");
+            not_negative(account.amount);
 
             std::cout << "Account " << id << " has been modified" << std::endl;
         } else if(subcommand == "archive"){
