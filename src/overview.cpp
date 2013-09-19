@@ -20,17 +20,6 @@ using namespace budget;
 
 namespace {
 
-unsigned short start_month(boost::gregorian::greg_year year){
-    auto key = to_string(year) + "_start";
-    if(config_contains(key)){
-        auto value = to_number<unsigned short>(config_value(key));
-        budget_assert(value < 13 && value > 0, "The start month is incorrect (must be in [1,12])");
-        return value;
-    }
-
-    return 1;
-}
-
 template<typename T>
 T& default_operator(T& t){
     return t;

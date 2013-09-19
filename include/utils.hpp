@@ -56,6 +56,8 @@ inline std::string to_string(const std::string& value){
 
 void not_empty(const std::string& value, const std::string& message);
 
+unsigned short start_month(boost::gregorian::greg_year year);
+
 } //end of namespace budget
 
 #endif
