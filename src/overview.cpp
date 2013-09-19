@@ -59,24 +59,6 @@ std::string format_money(const budget::money& m){
     }
 }
 
-template<typename InputIt, typename Functor>
-inline budget::money accumulate_amount_if(InputIt first, InputIt last, Functor f){
-    budget::money init;
-
-    for (; first != last; ++first) {
-        if(f(*first)){
-            init = init + first->amount;
-        }
-    }
-
-    return init;
-}
-
-template<typename T, typename Functor>
-inline budget::money accumulate_amount_if(std::vector<T>& container, Functor f){
-    return accumulate_amount_if(container.begin(), container.end(), f);
-}
-
 std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::vector<budget::money> total_budgets;
 
