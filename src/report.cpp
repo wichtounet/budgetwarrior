@@ -15,7 +15,9 @@ using namespace budget;
 
 namespace {
 
-void render(std::vector<std::vector<std::string>>& graph){
+typedef std::vector<std::vector<std::string>> graph_type;
+
+void render(graph_type& graph){
     std::reverse(graph.begin(), graph.end());
 
     for(auto& line : graph){
@@ -23,6 +25,12 @@ void render(std::vector<std::vector<std::string>>& graph){
             std::cout << col;
         }
         std::cout << std::endl;
+    }
+}
+
+void write(graph_type& graph, int row, int col, const std::string& value){
+    for(int i = 0; i < value.size(); ++i){
+        graph[row][col + i] = value[i];
     }
 }
 
@@ -88,12 +96,7 @@ void monthly_report(boost::gregorian::greg_year year){
     int min = 0;
     if(min_expenses.negative() || min_earnings.negative() || min_balance.negative()){
         min = std::min(min_expenses, std::min(min_earnings, min_balance)).dollars();
-
-        std::cout << "real_min" << min << std::endl;
-
         min = -1 * ((std::abs(min) / scale) + 1) * scale;
-
-        std::cout << "real_min" << min << std::endl;
     }
 
     unsigned int max = std::max(max_earnings, std::max(max_expenses, max_balance)).dollars();
@@ -107,13 +110,9 @@ void monthly_report(boost::gregorian::greg_year year){
     auto graph_height = 9 + step_height * levels;
     auto graph_width = 6 + (12 - sm) * 8 + (12 - sm - 1) * 2;
 
-    std::cout << graph_height << std::endl;
-    std::cout << graph_width << std::endl;
+    graph_type graph(graph_height, std::vector<std::string>(graph_width, " "));
 
-    std::vector<std::vector<std::string>> graph(graph_height, std::vector<std::string>(graph_width, " "));
-
-    std::cout << graph.size() << std::endl;
-    std::cout << graph.at(0).size() << std::endl;
+    write(graph, graph_height - 2, 8, "Monthly report of " + to_string(year));
 
     unsigned int min_index = 3;
     unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
@@ -122,6 +121,10 @@ void monthly_report(boost::gregorian::greg_year year){
         boost::gregorian::greg_month month = i;
 
         auto col_start = 7 + 10 * (i - sm - 1);
+
+        //Display month legend
+        auto month_str = month.as_short_string();
+        write(graph, 1, col_start + 2, month_str);
 
         for(int j = 0; j < expenses[month] / precision; ++j){
            graph[zero_index + j][col_start] = "\033[1;41m \033[0m";
@@ -137,8 +140,6 @@ void monthly_report(boost::gregorian::greg_year year){
 
         col_start += 3;
 
-        std::cout << "balance" << std::endl;
-
         if(balances[month] >= 0){
             for(int j = 0; j < balances[month] / precision; ++j){
                 graph[zero_index + j][col_start] = "\033[1;44m \033[0m";
@@ -150,8 +151,6 @@ void monthly_report(boost::gregorian::greg_year year){
                 graph[zero_index - 1 - j][col_start + 1] = "\033[1;44m \033[0m";
             }
         }
-
-        std::cout << "balance end" << std::endl;
     }
 
     render(graph);
