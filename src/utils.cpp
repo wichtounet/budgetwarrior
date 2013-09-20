@@ -10,6 +10,10 @@
 #include "assert.hpp"
 #include "config.hpp"
 
+#include <cstdio>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
 void budget::not_empty(const std::string& value, const std::string& message){
     if(value.empty()){
         throw budget_exception(message);
@@ -25,4 +29,16 @@ unsigned short budget::start_month(boost::gregorian::greg_year year){
     }
 
     return 1;
+}
+
+unsigned short budget::terminal_width(){
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    return w.ws_col;
+}
+
+unsigned short budget::terminal_height(){
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    return w.ws_row;
 }
