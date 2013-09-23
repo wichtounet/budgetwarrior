@@ -9,7 +9,7 @@
 
 #include "help.hpp"
 
-void budget::help_module::handle(const std::vector<std::string>& args){
+void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "Usage: budget                                                     Display the overview of the current month" << std::endl << std::endl;
 
     std::cout << "       budget account                                             Show all the accounts" << std::endl;

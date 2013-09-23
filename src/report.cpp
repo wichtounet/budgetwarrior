@@ -29,7 +29,7 @@ void render(graph_type& graph){
 }
 
 void write(graph_type& graph, int row, int col, const std::string& value){
-    for(int i = 0; i < value.size(); ++i){
+    for(std::size_t i = 0; i < value.size(); ++i){
         graph[row][col + i] = value[i];
     }
 }
@@ -126,14 +126,14 @@ void monthly_report(boost::gregorian::greg_year year){
         auto month_str = month.as_short_string();
         write(graph, 1, col_start + 2, month_str);
 
-        for(int j = 0; j < expenses[month] / precision; ++j){
+        for(std::size_t j = 0; j < expenses[month] / precision; ++j){
            graph[zero_index + j][col_start] = "\033[1;41m \033[0m";
            graph[zero_index + j][col_start + 1] = "\033[1;41m \033[0m";
         }
 
         col_start += 3;
 
-        for(int j = 0; j < earnings[month] / precision; ++j){
+        for(std::size_t j = 0; j < earnings[month] / precision; ++j){
            graph[zero_index + j][col_start] = "\033[1;42m \033[0m";
            graph[zero_index + j][col_start + 1] = "\033[1;42m \033[0m";
         }
@@ -141,12 +141,12 @@ void monthly_report(boost::gregorian::greg_year year){
         col_start += 3;
 
         if(balances[month] >= 0){
-            for(int j = 0; j < balances[month] / precision; ++j){
+            for(std::size_t j = 0; j < balances[month] / precision; ++j){
                 graph[zero_index + j][col_start] = "\033[1;44m \033[0m";
                 graph[zero_index + j][col_start + 1] = "\033[1;44m \033[0m";
             }
         } else {
-            for(int j = 0; j < std::abs(balances[month]) / precision; ++j){
+            for(std::size_t j = 0; j < std::abs(balances[month]) / precision; ++j){
                 graph[zero_index - 1 - j][col_start] = "\033[1;44m \033[0m";
                 graph[zero_index - 1 - j][col_start + 1] = "\033[1;44m \033[0m";
             }
