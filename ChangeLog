@@ -1,6 +1,7 @@
 budgetwarrior 0.2 - in development
  * Add more convenient system to create expenses, earnings, accounts, recurring, expenses and debts
  * Sort expenses and earnings by their data, not their creation date
+ * Only write configuration files if they changed
 
 budgetwarrior 0.1 - 26.08.2013
  * First version of the tool

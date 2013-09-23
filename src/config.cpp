@@ -22,9 +22,11 @@
 
 using namespace budget;
 
+typedef std::unordered_map<std::string, std::string> config_type;
+
 namespace {
 
-bool load_configuration(const std::string& path, std::unordered_map<std::string, std::string>& configuration){
+bool load_configuration(const std::string& path, config_type& configuration){
     if(boost::filesystem::exists(path)){
         std::ifstream file(path);
 
@@ -50,7 +52,7 @@ bool load_configuration(const std::string& path, std::unordered_map<std::string,
     return true;
 }
 
-void save_configuration(const std::string& path, std::unordered_map<std::string, std::string> configuration){
+void save_configuration(const std::string& path, const config_type& configuration){
     std::ofstream file(path);
 
     for(auto& entry : configuration){
@@ -87,8 +89,9 @@ bool verify_folder(){
 
 } //end of anonymous namespace
 
-static std::unordered_map<std::string, std::string> configuration;
-static std::unordered_map<std::string, std::string> internal;
+static config_type configuration;
+static config_type internal;
+static config_type internal_bak;
 
 bool budget::load_config(){
     if(!load_configuration(path_to_home_file(".budgetrc"), configuration)){
@@ -103,6 +106,8 @@ bool budget::load_config(){
         return false;
     }
 
+    internal_bak = internal;
+
     //At the first start, the version is not set
     if(internal.find("data_version") == internal.end()){
         internal["data_version"] = budget::to_string(budget::DATA_VERSION);
@@ -112,7 +117,9 @@ bool budget::load_config(){
 }
 
 void budget::save_config(){
-    save_configuration(path_to_budget_file("config"), internal);
+    if(internal != internal_bak){
+        save_configuration(path_to_budget_file("config"), internal);
+    }
 }
 
 std::string budget::home_folder(){
