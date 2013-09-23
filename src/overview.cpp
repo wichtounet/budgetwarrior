@@ -82,7 +82,10 @@ template<typename T>
 void add_values_column(boost::gregorian::greg_month month, boost::gregorian::greg_year year, const std::string& title, std::vector<std::vector<std::string>>& contents, std::unordered_map<std::size_t, std::size_t>& indexes, std::size_t columns, std::vector<T>& values, std::vector<budget::money>& total){
     std::vector<std::size_t> current(columns, contents.size());
 
-    for(auto& expense : values){
+    std::vector<T> sorted_values = values;
+    std::sort(sorted_values.begin(), sorted_values.end(), [](const T& a, const T& b){ return a.date < b.date; });
+
+    for(auto& expense : sorted_values){
         if(expense.date.year() == year && expense.date.month() == month){
             std::size_t index = indexes[expense.account];
             std::size_t& row = current[index];
