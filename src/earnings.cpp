@@ -201,6 +201,8 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             not_negative(earning.amount);
 
             std::cout << "earning " << id << " has been modified" << std::endl;
+
+            earnings.changed = true;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

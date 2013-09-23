@@ -158,6 +158,8 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
                 if(debt.id == id){
                     debt.state = 1;
 
+                    debts.changed = true;
+
                     std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
 
                     break;
@@ -198,6 +200,8 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
             not_empty(debt.title, "The title of the debt cannot be empty");
 
             std::cout << "Debt " << id << " has been modified" << std::endl;
+
+            debts.changed = true;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

@@ -175,6 +175,8 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             not_negative(recurring.amount);
 
             std::cout << "Recurring expense " << id << " has been modified" << std::endl;
+
+            recurrings.changed = true;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

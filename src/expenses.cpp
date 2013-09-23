@@ -125,7 +125,6 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
                 edit_money(expense.amount, "Amount");
                 not_negative(expense.amount);
-
             } else {
                 enough_args(args, 5);
 
@@ -202,6 +201,8 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             not_negative(expense.amount);
 
             std::cout << "Expense " << id << " has been modified" << std::endl;
+
+            expenses.changed = true;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

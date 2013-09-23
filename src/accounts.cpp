@@ -175,6 +175,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             not_negative(account.amount);
 
             std::cout << "Account " << id << " has been modified" << std::endl;
+
+            accounts.changed = true;
         } else if(subcommand == "archive"){
             std::cout << "This command will create new accounts that will be used starting from the beginning of the current month. Are you sure you want to proceed ? [yes/no] ? ";
 
@@ -205,9 +207,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 for(auto& copy : copies){
                     add_data(accounts, std::move(copy));
                 }
-            } else {
-                //No need to save anything
-                return;
+
+                accounts.changed = true;
             }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
