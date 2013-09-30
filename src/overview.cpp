@@ -250,18 +250,41 @@ void add_month_columns(std::vector<std::string>& columns, boost::gregorian::greg
     }
 }
 
-template<bool Total, bool Mean>
-inline void generate_total_line(std::vector<std::vector<std::string>>& contents, std::vector<budget::money>& totals, boost::gregorian::greg_month sm){
+int get_current_months(boost::gregorian::greg_year year){
+    auto sm = start_month(year);
+    auto current_months = 12 - sm + 1;
+
+    auto today = boost::gregorian::day_clock::local_day();
+
+    if(today.year() == year){
+        current_months = today.month() - sm + 1;
+    }
+
+    return current_months;
+}
+
+template<bool Total, bool Mean, bool CMean = false>
+inline void generate_total_line(std::vector<std::vector<std::string>>& contents, std::vector<budget::money>& totals, boost::gregorian::greg_year year, boost::gregorian::greg_month sm){
+    static_assert (!(Mean && CMean), "Only Mean or CMean can be set");
+
     std::vector<std::string> last_row;
     last_row.push_back("Total");
 
+    auto current_months = get_current_months(year);
+
     budget::money total_total;
+    budget::money current_total;
     for(unsigned short i = sm; i < 13; ++i){
+        boost::gregorian::greg_month m = i;
         auto total = totals[i - 1];
 
         last_row.push_back(format_money(total));
 
         total_total += total;
+
+        if(m < sm + current_months){
+            current_total += total;
+        }
     }
 
     if(Total){
@@ -272,6 +295,11 @@ inline void generate_total_line(std::vector<std::vector<std::string>>& contents,
         last_row.push_back(format_money(total_total / (12 - sm + 1)));
     }
 
+    if(CMean){
+        last_row.push_back(format_money(current_total));
+        last_row.push_back(format_money(current_total / current_months));
+    }
+
     contents.emplace_back(std::move(last_row));
 }
 
@@ -280,17 +308,21 @@ void display_local_balance(boost::gregorian::greg_year year){
     std::vector<std::vector<std::string>> contents;
 
     auto sm = start_month(year);
-    auto months = 12 - sm + 1;
+    auto current_months = get_current_months(year);
+
+    std::cout << current_months << std::endl;
 
     columns.push_back("Local Balance");
     add_month_columns(columns, sm);
     columns.push_back("Total");
-    columns.push_back("Mean");
+    columns.push_back("C. Total");
+    columns.push_back("C. Mean");
 
     std::vector<budget::money> totals(12, budget::money());
 
     std::unordered_map<std::string, std::size_t> row_mapping;
-    std::unordered_map<std::string, budget::money> account_totals;;
+    std::unordered_map<std::string, budget::money> account_totals;
+    std::unordered_map<std::string, budget::money> account_current_totals;
 
     //Prepare the rows
 
@@ -316,6 +348,10 @@ void display_local_balance(boost::gregorian::greg_year year){
             account_totals[account.name] += month_total;
 
             totals[i - 1] += month_total;
+
+            if(m < sm + current_months){
+                account_current_totals[account.name] += month_total;
+            }
         }
     }
 
@@ -323,12 +359,13 @@ void display_local_balance(boost::gregorian::greg_year year){
 
     for(auto& account : all_accounts(year, sm)){
         contents[row_mapping[account.name]].push_back(format_money(account_totals[account.name]));
-        contents[row_mapping[account.name]].push_back(format_money(account_totals[account.name] / months));
+        contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name]));
+        contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name] / current_months));
     }
 
     //Generate the total final line
 
-    generate_total_line<true, true>(contents, totals, sm);
+    generate_total_line<true, false, true>(contents, totals, year, sm);
 
     display_table(columns, contents);
 }
@@ -376,7 +413,7 @@ void display_balance(boost::gregorian::greg_year year){
 
     //Generate the final total line
 
-    generate_total_line<false, false>(contents, totals, sm);
+    generate_total_line<false, false>(contents, totals, year, sm);
 
     display_table(columns, contents);
 }
@@ -436,7 +473,7 @@ void display_values(boost::gregorian::greg_year year, const std::string& title, 
 
     //Generate the final total line
 
-    generate_total_line<true, true>(contents, totals, sm);
+    generate_total_line<true, true>(contents, totals, year, sm);
 
     display_table(columns, contents);
 }
