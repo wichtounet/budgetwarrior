@@ -20,11 +20,6 @@ using namespace budget;
 
 namespace {
 
-template<typename T>
-T& default_operator(T& t){
-    return t;
-}
-
 template<typename T, typename J>
 void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::string& title, const std::vector<T>& values, J functor){
     std::vector<std::string> total_line;
