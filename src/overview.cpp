@@ -421,14 +421,18 @@ void display_values(boost::gregorian::greg_year year, const std::string& title, 
 
     auto sm = start_month(year);
     auto months = 12 - sm + 1;
+    auto current_months = get_current_months(year);
 
     columns.push_back(title);
     add_month_columns(columns, sm);
     columns.push_back("Total");
     columns.push_back("Mean");
+    columns.push_back("C. Total");
+    columns.push_back("C. Mean");
 
     std::unordered_map<std::string, std::size_t> row_mapping;
     std::unordered_map<std::string, budget::money> account_totals;;
+    std::unordered_map<std::string, budget::money> account_current_totals;;
     std::vector<budget::money> totals(13, budget::money());
 
     //Prepare the rows
@@ -457,6 +461,10 @@ void display_values(boost::gregorian::greg_year year, const std::string& title, 
 
             account_totals[account.name] += month_total;
             totals[j-1] += month_total;
+
+            if(m < sm + current_months){
+                account_current_totals[account.name] += month_total;
+            }
         }
     }
 
@@ -465,11 +473,13 @@ void display_values(boost::gregorian::greg_year year, const std::string& title, 
     for(auto& account : all_accounts(year, sm)){
         contents[row_mapping[account.name]].push_back(to_string(account_totals[account.name]));
         contents[row_mapping[account.name]].push_back(to_string(account_totals[account.name] / months));
+        contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name]));
+        contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name] / current_months));
     }
 
     //Generate the final total line
 
-    generate_total_line<true, false>(contents, totals, year, sm);
+    generate_total_line<true, true>(contents, totals, year, sm);
 
     display_table(columns, contents);
 }
