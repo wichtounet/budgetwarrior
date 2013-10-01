@@ -92,6 +92,7 @@ void monthly_report(boost::gregorian::greg_year year){
 
     //TODO compute the scale based on the data
     unsigned int scale = 1000;
+    unsigned int scale_width = 5;
 
     int min = 0;
     if(min_expenses.negative() || min_earnings.negative() || min_balance.negative()){
@@ -131,12 +132,14 @@ void monthly_report(boost::gregorian::greg_year year){
     unsigned int min_index = 3;
     unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
 
+    auto first_bar = scale_width + 2;
+
     //TODO Choose bar width based on the terminal width
 
     for(unsigned short i = sm + 1; i < today.month() + 1; ++i){
         boost::gregorian::greg_month month = i;
 
-        auto col_start = 7 + 10 * (i - sm - 1);
+        auto col_start = first_bar + 10 * (i - sm - 1);
 
         //Display month legend
         auto month_str = month.as_short_string();
@@ -171,7 +174,7 @@ void monthly_report(boost::gregorian::greg_year year){
 
     //Display legend
 
-    int start_legend = 7 + 10 * (today.month() - sm) + 4;
+    int start_legend = first_bar + 10 * (today.month() - sm) + 4;
 
     graph[4][start_legend - 2] = "|";
     graph[3][start_legend - 2] = "|";
