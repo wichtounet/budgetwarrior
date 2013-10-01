@@ -47,4 +47,7 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget overview                                            Display the overvew of the current month" << std::endl;
     std::cout << "       budget overview month (month) (year)                       Display the overvew of the specified month of the current year" << std::endl;
     std::cout << "       budget overview year (year)                                Display the overvew of the specified year" << std::endl << std::endl;
+
+    std::cout << "       budget report                                              Display monthly report in form of bar plot" << std::endl;
+    std::cout << "       budget report monthly                                      Display monthly report in form of bar plot" << std::endl << std::endl;
 }
