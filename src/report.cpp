@@ -131,6 +131,8 @@ void monthly_report(boost::gregorian::greg_year year){
     unsigned int min_index = 3;
     unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
 
+    //TODO Choose bar width based on the terminal width
+
     for(unsigned short i = sm + 1; i < today.month() + 1; ++i){
         boost::gregorian::greg_month month = i;
 
@@ -166,6 +168,26 @@ void monthly_report(boost::gregorian::greg_year year){
             }
         }
     }
+
+    //Display legend
+
+    int start_legend = 7 + 10 * (today.month() - sm) + 4;
+
+    graph[4][start_legend - 2] = "|";
+    graph[3][start_legend - 2] = "|";
+    graph[2][start_legend - 2] = "|";
+
+    graph[4][start_legend] = "\033[1;41m \033[0m";
+    graph[3][start_legend] = "\033[1;42m \033[0m";
+    graph[2][start_legend] = "\033[1;44m \033[0m";
+
+    write(graph, 6, start_legend - 2, " ____________ ");
+    write(graph, 5, start_legend - 2, "|            |");
+    write(graph, 4, start_legend + 2, "Expenses |");
+    write(graph, 3, start_legend + 2, "Earnings |");
+    write(graph, 2, start_legend + 2, "Balance  |");
+    write(graph, 1, start_legend - 2, "|____________|");
+    //Render the graph
 
     render(graph);
 }
