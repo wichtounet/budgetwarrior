@@ -112,7 +112,21 @@ void monthly_report(boost::gregorian::greg_year year){
 
     graph_type graph(graph_height, std::vector<std::string>(graph_width, " "));
 
+    //Display graph title
+
     write(graph, graph_height - 2, 8, "Monthly report of " + to_string(year));
+
+    //Display scale
+
+    int first_step = min == 0 ? 0 : -1 * ((-min % scale) + 1) * scale;
+
+    for(int i = 0; i <= levels; ++i){
+        int level = first_step + i * scale;
+
+        write(graph, 4 + step_height * i, 1, to_string(level));
+    }
+
+    //Display bar
 
     unsigned int min_index = 3;
     unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
