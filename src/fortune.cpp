@@ -38,6 +38,32 @@ void list_fortunes(){
     display_table(columns, contents);
 }
 
+void status_fortunes(){
+    std::vector<std::string> columns = {"ID", "Date", "Amount", "Diff."};
+    std::vector<std::vector<std::string>> contents;
+
+    std::vector<budget::fortune> sorted_values = fortunes.data;
+
+    std::sort(sorted_values.begin(), sorted_values.end(),
+        [](const budget::fortune& a, const budget::fortune& b){ return a.check_date < b.check_date; });
+
+    bool first = true;
+    budget::money previous;
+
+    for(auto& fortune : sorted_values){
+        if(first){
+            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), ""});
+            first = false;
+        } else {
+            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), to_string(fortune.amount - previous)});
+        }
+
+        previous = fortune.amount;
+    }
+
+    display_table(columns, contents);
+}
+
 } //end of anonymous namespace
 
 void budget::fortune_module::load(){
@@ -50,12 +76,14 @@ void budget::fortune_module::unload(){
 
 void budget::fortune_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
-        list_fortunes();
+        status_fortunes();
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "list"){
             list_fortunes();
+        } else if(subcommand == "status"){
+            status_fortunes();
         } else if(subcommand == "check"){
             fortune fortune;
             fortune.guid = generate_guid();
