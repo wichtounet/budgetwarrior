@@ -36,6 +36,13 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget earning delete [id]                                 Remove completely the earning with the given id" << std::endl;
     std::cout << "       budget earning edit [id]                                   Modify the earning with the given id" << std::endl << std::endl;
 
+    std::cout << "       budget fortune                                             Display the status of the fortune checks" << std::endl;
+    std::cout << "       budget fortune status                                      Display the status of the fortune checks" << std::endl;
+    std::cout << "       budget fortune list                                        Display the list of all the fortune checks" << std::endl;
+    std::cout << "       budget fortune check                                       Create a new fortune check" << std::endl;
+    std::cout << "       budget fortune edit [id]                                   Edit a fortune check" << std::endl;
+    std::cout << "       budget fortune delete [id]                                 Delete a fortune check" << std::endl;
+
     std::cout << "       budget debt                                                Display the unpaid debts" << std::endl;
     std::cout << "       budget debt list                                           Display the unpaid debts" << std::endl;
     std::cout << "       budget debt all                                            Display the unpaid debts" << std::endl;
