@@ -24,6 +24,7 @@
 #include "help.hpp"
 #include "recurring.hpp"
 #include "report.hpp"
+#include "fortune.hpp"
 
 using namespace budget;
 
@@ -36,6 +37,7 @@ typedef boost::mpl::vector<
             budget::accounts_module*,
             budget::earnings_module*,
             budget::recurring_module*,
+            budget::fortune_module*,
             budget::report_module*,
             budget::help_module*
     > modules;
