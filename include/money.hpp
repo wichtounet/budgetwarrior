@@ -76,6 +76,10 @@ struct money {
         return value < rhs.value;
     }
 
+    bool operator>(const budget::money& rhs) const {
+        return value > rhs.value;
+    }
+
     int cents() const {
         return std::abs(value % SCALE);
     }

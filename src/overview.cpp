@@ -20,6 +20,41 @@ using namespace budget;
 
 namespace {
 
+bool invalid_accounts(boost::gregorian::greg_year year){
+    auto sm = start_month(year);
+
+    std::vector<budget::account> previous = all_accounts(year, sm);;
+
+    for(unsigned short i = sm + 1; i < 13; ++i){
+        boost::gregorian::greg_month month = i;
+
+        auto current_accounts = all_accounts(year, month);
+
+        if(current_accounts.size() != previous.size()){
+            return true;
+        }
+
+        for(auto& c : current_accounts){
+            bool found = false;
+
+            for(auto& p : previous){
+                if(p.name == c.name){
+                    found = true;
+                    break;
+                }
+            }
+
+            if(!found){
+                return true;
+            }
+        }
+
+        previous = std::move(current_accounts);
+    }
+
+    return false;
+}
+
 template<typename T, typename J>
 void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::string& title, const std::vector<T>& values, J functor){
     std::vector<std::string> total_line;
@@ -176,45 +211,83 @@ void month_overview(){
     month_overview(today.month(), today.year());
 }
 
+void aggregate_year_overview(boost::gregorian::greg_year year){
+    if(invalid_accounts(year)){
+        throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
+    }
+
+    std::cout << "Aggregate overview of " << year << std::endl << std::endl;
+
+
+    std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
+
+    //Accumulate all the expenses
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == year){
+            auto& account = get_account(expense.account);
+
+            auto name = expense.name;
+
+            if(name[name.size() - 1] == ' '){
+                name.erase(name.size() - 1, name.size());
+            }
+
+            acc_expenses[account.name][name] += expense.amount;
+        }
+    }
+
+
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    std::cout << "here" << std::endl;
+
+    std::vector<std::size_t> current(0, columns.size());
+
+    for(auto& entry: acc_expenses){
+        auto column = columns.size();
+        columns.push_back(entry.first);
+        std::size_t row = 0;
+
+        auto& expenses = entry.second;
+
+        typedef std::pair<std::string, budget::money> s_expense;
+        std::vector<s_expense> sorted_expenses;
+
+        for(auto& expense : expenses){
+            sorted_expenses.push_back(std::make_pair(expense.first, expense.second));
+        }
+
+        std::sort(sorted_expenses.begin(), sorted_expenses.end(),
+            [](const s_expense& a, const s_expense& b){ return a.second > b.second; });
+
+        for(auto& expense : sorted_expenses){
+            if(contents.size() <= row){
+                contents.emplace_back(acc_expenses.size() * 2, "");
+            }
+
+            contents[row][column * 2] = expense.first;
+            contents[row][column * 2 + 1] = to_string(expense.second);
+
+            ++row;
+        }
+    }
+
+    display_table(columns, contents, 2);
+
+    std::cout << std::endl;
+}
+
+void aggregate_year_overview(){
+    auto today = boost::gregorian::day_clock::local_day();
+
+    aggregate_year_overview(today.year());
+}
+
 void display_local_balance(boost::gregorian::greg_year year);
 void display_balance(boost::gregorian::greg_year year);
 void display_expenses(boost::gregorian::greg_year year);
 void display_earnings(boost::gregorian::greg_year year);
-
-bool invalid_accounts(boost::gregorian::greg_year year){
-    auto sm = start_month(year);
-
-    std::vector<budget::account> previous = all_accounts(year, sm);;
-
-    for(unsigned short i = sm + 1; i < 13; ++i){
-        boost::gregorian::greg_month month = i;
-
-        auto current_accounts = all_accounts(year, month);
-
-        if(current_accounts.size() != previous.size()){
-            return true;
-        }
-
-        for(auto& c : current_accounts){
-            bool found = false;
-
-            for(auto& p : previous){
-                if(p.name == c.name){
-                    found = true;
-                    break;
-                }
-            }
-
-            if(!found){
-                return true;
-            }
-        }
-
-        previous = std::move(current_accounts);
-    }
-
-    return false;
-}
 
 void year_overview(boost::gregorian::greg_year year){
     if(invalid_accounts(year)){
@@ -525,6 +598,19 @@ void budget::overview_module::handle(const std::vector<std::string>& args){
                 year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[2])));
             } else {
                 throw budget_exception("Too many arguments to overview month");
+            }
+        } else if(subcommand == "aggregate"){
+            if(args.size() == 2){
+                aggregate_year_overview();
+            } else if(args.size() == 3 || args.size() == 4){
+                if(args[2] == "year"){
+                    //TODO parse year, if any
+                    aggregate_year_overview();
+                } else {
+                    throw budget_exception("Invalid subcommand");
+                }
+            } else {
+                throw budget_exception("Too many arguments to overview aggregate year");
             }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
