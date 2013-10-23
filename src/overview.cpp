@@ -607,8 +607,11 @@ void budget::overview_module::handle(const std::vector<std::string>& args){
                 aggregate_year_overview();
             } else if(args.size() == 3 || args.size() == 4){
                 if(args[2] == "year"){
-                    //TODO parse year, if any
-                    aggregate_year_overview();
+                    if(args.size() == 3){
+                        aggregate_year_overview();
+                    } else if(args.size() == 4){
+                        aggregate_year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
+                    }
                 } else {
                     throw budget_exception("Invalid subcommand");
                 }
