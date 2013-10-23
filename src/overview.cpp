@@ -232,6 +232,11 @@ void aggregate_year_overview(boost::gregorian::greg_year year){
                 name.erase(name.size() - 1, name.size());
             }
 
+            auto loc = name.find('/');
+            if(loc != std::string::npos){
+                name = name.substr(0, loc);
+            }
+
             acc_expenses[account.name][name] += expense.amount;
         }
     }
@@ -239,8 +244,6 @@ void aggregate_year_overview(boost::gregorian::greg_year year){
 
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
-
-    std::cout << "here" << std::endl;
 
     std::vector<std::size_t> current(0, columns.size());
 
