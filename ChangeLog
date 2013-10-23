@@ -6,6 +6,7 @@ budgetwarrior 0.2 - in development
  * In year overview, compute the mean up to the current month
  * Add monthly report in the form of a bar plot
  * Add possibility to check the status of the total fortune
+ * Add feature to aggregate all the expenses with the same for a year
 
 budgetwarrior 0.1 - 26.08.2013
  * First version of the tool
