@@ -9,7 +9,7 @@
 
 #include "help.hpp"
 
-void budget::help_module::handle(const std::vector<std::string>& args){
+void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "Usage: budget                                                     Display the overview of the current month" << std::endl << std::endl;
 
     std::cout << "       budget account                                             Show all the accounts" << std::endl;
@@ -36,6 +36,13 @@ void budget::help_module::handle(const std::vector<std::string>& args){
     std::cout << "       budget earning delete [id]                                 Remove completely the earning with the given id" << std::endl;
     std::cout << "       budget earning edit [id]                                   Modify the earning with the given id" << std::endl << std::endl;
 
+    std::cout << "       budget fortune                                             Display the status of the fortune checks" << std::endl;
+    std::cout << "       budget fortune status                                      Display the status of the fortune checks" << std::endl;
+    std::cout << "       budget fortune list                                        Display the list of all the fortune checks" << std::endl;
+    std::cout << "       budget fortune check                                       Create a new fortune check" << std::endl;
+    std::cout << "       budget fortune edit [id]                                   Edit a fortune check" << std::endl;
+    std::cout << "       budget fortune delete [id]                                 Delete a fortune check" << std::endl << std::endl;
+
     std::cout << "       budget debt                                                Display the unpaid debts" << std::endl;
     std::cout << "       budget debt list                                           Display the unpaid debts" << std::endl;
     std::cout << "       budget debt all                                            Display the unpaid debts" << std::endl;
@@ -47,4 +54,9 @@ void budget::help_module::handle(const std::vector<std::string>& args){
     std::cout << "       budget overview                                            Display the overvew of the current month" << std::endl;
     std::cout << "       budget overview month (month) (year)                       Display the overvew of the specified month of the current year" << std::endl;
     std::cout << "       budget overview year (year)                                Display the overvew of the specified year" << std::endl << std::endl;
+    std::cout << "       budget overview aggregate                                  Display the aggregated expenses for the current year" << std::endl << std::endl;
+    std::cout << "       budget overview aggregate year (year)                      Display the aggregated expenses for the given year" << std::endl << std::endl;
+
+    std::cout << "       budget report                                              Display monthly report in form of bar plot" << std::endl;
+    std::cout << "       budget report monthly                                      Display monthly report in form of bar plot" << std::endl << std::endl;
 }

@@ -1,4 +1,4 @@
-budgetwarrior 0.1
+budgetwarrior 0.2
 =================
 
 Simple command line utility to helps keeping track of your expenses and the

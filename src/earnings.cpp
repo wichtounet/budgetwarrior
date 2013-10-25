@@ -108,21 +108,38 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "all"){
             show_all_earnings();
         } else if(subcommand == "add"){
-            enough_args(args, 5);
-
             earning earning;
             earning.guid = generate_guid();
             earning.date = boost::gregorian::day_clock::local_day();
 
-            auto account_name = args[2];
-            validate_account(account_name);
-            earning.account = get_account(account_name).id;
+            if(args.size() == 2){
+                edit_date(earning.date, "Date");
 
-            earning.amount = parse_money(args[3]);
-            not_negative(earning.amount);
+                std::string account_name;
+                edit_string(account_name, "Account");
+                validate_account(account_name);
+                earning.account = get_account(account_name).id;
 
-            for(std::size_t i = 4; i < args.size(); ++i){
-                earning.name += args[i] + " ";
+                edit_string(earning.name, "Name");
+                not_empty(earning.name, "The name of the earning cannot be empty");
+
+                edit_money(earning.amount, "Amount");
+                not_negative(earning.amount);
+            } else {
+                enough_args(args, 5);
+
+                auto account_name = args[2];
+                validate_account(account_name);
+                earning.account = get_account(account_name).id;
+
+                earning.amount = parse_money(args[3]);
+                not_negative(earning.amount);
+
+                for(std::size_t i = 4; i < args.size(); ++i){
+                    earning.name += args[i] + " ";
+                }
+
+                not_empty(earning.name, "The name of the earning cannot be empty");
             }
 
             add_data(earnings, std::move(earning));
@@ -143,6 +160,8 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             for(std::size_t i = 5; i < args.size(); ++i){
                 earning.name += args[i] + " ";
             }
+
+            not_empty(earning.name, "The name of the earning cannot be empty");
 
             add_data(earnings, std::move(earning));
         } else if(subcommand == "delete"){
@@ -176,9 +195,14 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             earning.account = get_account(account_name).id;
 
             edit_string(earning.name, "Name");
+            not_empty(earning.name, "The name of the earning cannot be empty");
+
             edit_money(earning.amount, "Amount");
+            not_negative(earning.amount);
 
             std::cout << "earning " << id << " has been modified" << std::endl;
+
+            earnings.changed = true;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

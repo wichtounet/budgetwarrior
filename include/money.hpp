@@ -72,6 +72,14 @@ struct money {
         return *this;
     }
 
+    bool operator<(const budget::money& rhs) const {
+        return value < rhs.value;
+    }
+
+    bool operator>(const budget::money& rhs) const {
+        return value > rhs.value;
+    }
+
     int cents() const {
         return std::abs(value % SCALE);
     }
@@ -103,6 +111,24 @@ inline std::string to_string(const money& amount){
     std::stringstream stream;
     stream << amount;
     return stream.str();
+}
+
+template<typename InputIt, typename Functor>
+inline budget::money accumulate_amount_if(InputIt first, InputIt last, Functor f){
+    budget::money init;
+
+    for (; first != last; ++first) {
+        if(f(*first)){
+            init = init + first->amount;
+        }
+    }
+
+    return init;
+}
+
+template<typename T, typename Functor>
+inline budget::money accumulate_amount_if(std::vector<T>& container, Functor f){
+    return accumulate_amount_if(container.begin(), container.end(), f);
 }
 
 } //end of namespace budget

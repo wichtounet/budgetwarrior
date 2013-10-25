@@ -23,6 +23,8 @@
 #include "earnings.hpp"
 #include "help.hpp"
 #include "recurring.hpp"
+#include "report.hpp"
+#include "fortune.hpp"
 
 using namespace budget;
 
@@ -35,6 +37,8 @@ typedef boost::mpl::vector<
             budget::accounts_module*,
             budget::earnings_module*,
             budget::recurring_module*,
+            budget::fortune_module*,
+            budget::report_module*,
             budget::help_module*
     > modules;
 
@@ -146,6 +150,29 @@ struct module_loader {
     }
 };
 
+std::string exec_command(const std::string& command) {
+    std::stringstream output;
+
+    char buffer[1024];
+
+    FILE* stream = popen(command.c_str(), "r");
+
+    while (fgets(buffer, 1024, stream) != NULL) {
+        output << buffer;
+    }
+
+    pclose(stream);
+
+    return output.str();
+}
+
+bool has_enough_colors(){
+    auto colors = exec_command("tput colors");
+    colors = colors.substr(0, colors.length() - 1);
+
+    return to_number<int>(colors) > 4;
+}
+
 } //end of anonymous namespace
 
 int main(int argc, const char* argv[]) {
@@ -154,6 +181,10 @@ int main(int argc, const char* argv[]) {
 
     if(!load_config()){
         return 0;
+    }
+
+    if(!has_enough_colors()){
+        std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
     }
 
     auto args = parse_args(argc, argv);
