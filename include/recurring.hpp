@@ -33,9 +33,10 @@ struct recurring {
     std::size_t id;
     std::string guid;
     std::string name;
-    std::size_t account;
+    std::size_t old_account;
     money amount;
     std::string recurs;
+    std::string account;
 };
 
 std::ostream& operator<<(std::ostream& stream, const recurring& recurring);
@@ -43,6 +44,8 @@ void operator>>(const std::vector<std::string>& parts, recurring& recurring);
 
 void load_recurrings();
 void save_recurrings();
+
+void migrate_recurring_1_to_2();
 
 std::vector<recurring>& all_recurrings();
 

@@ -40,8 +40,8 @@ void save_data(const data_handler<T>& data, const std::string& path){
     }
 }
 
-template<typename T>
-void load_data(data_handler<T>& data, const std::string& path){
+template<typename T, typename Functor>
+void load_data(data_handler<T>& data, const std::string& path, Functor f){
     auto file_path = path_to_budget_file(path);
 
     if(!boost::filesystem::exists(file_path)){
@@ -65,13 +65,18 @@ void load_data(data_handler<T>& data, const std::string& path){
 
                     T entry;
 
-                    parts >> entry;
+                    f(parts, entry);
 
                     data.data.push_back(std::move(entry));
                 }
             }
         }
     }
+}
+
+template<typename T>
+void load_data(data_handler<T>& data, const std::string& path){
+    load_data(data, path, [](std::vector<std::string>& parts, T& entry){ parts >> entry; });
 }
 
 template<typename T>

@@ -187,6 +187,20 @@ int main(int argc, const char* argv[]) {
         std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
     }
 
+    auto old_data_version = to_number<std::size_t>(internal_config_value("data_version"));
+
+    if(old_data_version != DATA_VERSION){
+        std::cout << "Migrate data base..." << std::endl;
+
+        if(old_data_version == 1 && DATA_VERSION == 2){
+            migrate_recurring_1_to_2();
+        }
+
+        internal_config_value("data_version") = to_string(DATA_VERSION);
+
+        std::cout << "done" << std::endl;
+    }
+
     auto args = parse_args(argc, argv);
 
     int code = 0;
