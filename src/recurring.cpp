@@ -111,11 +111,16 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             recurring.guid = generate_guid();
             recurring.recurs = "monthly";
 
+            //TODO handling of archived accounts is only temporary and not
+            //workign properly
+
+            auto date = boost::gregorian::day_clock::local_day();
+
             if(args.size() == 2){
                 std::string account_name;
                 edit_string(account_name, "Account");
                 validate_account(account_name);
-                recurring.account = get_account(account_name).id;
+                recurring.account = get_account(account_name, date.year(), date.month()).id;
 
                 edit_string(recurring.name, "Name");
                 not_empty(recurring.name, "The name of the recurring expense cannot be empty");
@@ -127,7 +132,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
                 auto account_name = args[2];
                 validate_account(account_name);
-                recurring.account = get_account(account_name).id;
+                recurring.account = get_account(account_name, date.year(), date.month()).id;
 
                 recurring.amount = parse_money(args[3]);
                 not_negative(recurring.amount);
@@ -166,7 +171,9 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             auto account_name = get_account(recurring .account).name;
             edit_string(account_name, "Account");
             validate_account(account_name);
-            recurring.account = get_account(account_name).id;
+
+            auto date = boost::gregorian::day_clock::local_day();
+            recurring.account = get_account(account_name, date.year(), date.month()).id;
 
             edit_string(recurring.name, "Name");
             not_empty(recurring.name, "The name of the recurring expense cannot be empty");

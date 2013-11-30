@@ -118,7 +118,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
                 std::string account_name;
                 edit_string(account_name, "Account");
                 validate_account(account_name);
-                earning.account = get_account(account_name).id;
+                earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
                 edit_string(earning.name, "Name");
                 not_empty(earning.name, "The name of the earning cannot be empty");
@@ -130,7 +130,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
 
                 auto account_name = args[2];
                 validate_account(account_name);
-                earning.account = get_account(account_name).id;
+                earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
                 earning.amount = parse_money(args[3]);
                 not_negative(earning.amount);
@@ -152,7 +152,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
 
             auto account_name = args[3];
             validate_account(account_name);
-            earning.account = get_account(account_name).id;
+            earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
             earning.amount = parse_money(args[4]);
             not_negative(earning.amount);
@@ -192,7 +192,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             auto account_name = get_account(earning.account).name;
             edit_string(account_name, "Account");
             validate_account(account_name);
-            earning.account = get_account(account_name).id;
+            earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
             edit_string(earning.name, "Name");
             not_empty(earning.name, "The name of the earning cannot be empty");

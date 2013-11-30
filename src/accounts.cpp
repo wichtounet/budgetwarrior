@@ -257,9 +257,11 @@ budget::account& budget::get_account(std::size_t id){
     return get(accounts, id);
 }
 
-budget::account& budget::get_account(std::string name){
+budget::account& budget::get_account(std::string name, boost::gregorian::greg_year year, boost::gregorian::greg_month month){
+    boost::gregorian::date date(year, month, 5);
+
     for(auto& account : accounts.data){
-        if(account.name == name){
+        if(account.since < date && account.until > date && account.name == name){
             return account;
         }
     }

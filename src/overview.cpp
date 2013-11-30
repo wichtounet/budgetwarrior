@@ -6,6 +6,7 @@
 //=======================================================================
 
 #include <unordered_map>
+#include <unordered_set>
 
 #include "overview.hpp"
 #include "console.hpp"
@@ -90,26 +91,39 @@ std::string format_money(const budget::money& m){
 }
 
 std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
-    std::vector<budget::money> total_budgets;
-
-    auto accounts = all_accounts(year, month);
+    std::unordered_map<std::string, budget::money> tmp;
 
     auto sm = start_month(year);
 
-    for(auto& account : accounts){
-        auto total = account.amount * (month - sm + 1);
+    for(unsigned short i = sm; i < month; ++i){
+        boost::gregorian::greg_month m = i;
 
-        total -= accumulate_amount_if(all_expenses(), [year,month,account,sm](budget::expense& e){return e.account == account.id && e.date.year()  == year && e.date.month() >= sm && e.date.month() < month;});
-        total += accumulate_amount_if(all_earnings(), [year,month,account,sm](budget::earning& e){return e.account == account.id && e.date.year()  == year && e.date.month() >= sm && e.date.month() < month;});
+        for(auto& account : all_accounts(year, m)){
+            tmp[account.name] += account.amount;
 
-        total_budgets.push_back(total);
+            tmp[account.name] -= accumulate_amount_if(all_expenses(), [year,m,account](budget::expense& e){
+                return e.account == account.id && e.date.year() == year && e.date.month() == m;
+                });
+
+            tmp[account.name] += accumulate_amount_if(all_earnings(), [year,m,account](budget::earning& e){
+                return e.account == account.id && e.date.year() == year && e.date.month() == m;
+                });
+        }
+    }
+
+    std::vector<budget::money> total_budgets;
+
+    for(auto& account : all_accounts(year, month)){
+        tmp[account.name] += account.amount;
+
+        total_budgets.push_back(tmp[account.name]);
     }
 
     return std::move(total_budgets);
 }
 
 template<typename T>
-void add_values_column(boost::gregorian::greg_month month, boost::gregorian::greg_year year, const std::string& title, std::vector<std::vector<std::string>>& contents, std::unordered_map<std::size_t, std::size_t>& indexes, std::size_t columns, std::vector<T>& values, std::vector<budget::money>& total){
+void add_values_column(boost::gregorian::greg_month month, boost::gregorian::greg_year year, const std::string& title, std::vector<std::vector<std::string>>& contents, std::unordered_map<std::string, std::size_t>& indexes, std::size_t columns, std::vector<T>& values, std::vector<budget::money>& total){
     std::vector<std::size_t> current(columns, contents.size());
 
     std::vector<T> sorted_values = values;
@@ -117,7 +131,7 @@ void add_values_column(boost::gregorian::greg_month month, boost::gregorian::gre
 
     for(auto& expense : sorted_values){
         if(expense.date.year() == year && expense.date.month() == month){
-            std::size_t index = indexes[expense.account];
+            std::size_t index = indexes[get_account(expense.account).name];
             std::size_t& row = current[index];
 
             if(contents.size() <= row){
@@ -145,13 +159,13 @@ void month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_y
     std::cout << "Overview of " << month << " " << year << std::endl << std::endl;
 
     std::vector<std::string> columns;
-    std::unordered_map<std::size_t, std::size_t> indexes;
+    std::unordered_map<std::string, std::size_t> indexes;
     std::vector<std::vector<std::string>> contents;
     std::vector<money> total_expenses(accounts.size(), budget::money());
     std::vector<money> total_earnings(accounts.size(), budget::money());
 
     for(auto& account : accounts){
-        indexes[account.id] = columns.size();
+        indexes[account.name] = columns.size();
         columns.push_back(account.name);
     }
 
