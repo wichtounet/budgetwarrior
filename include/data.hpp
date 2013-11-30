@@ -105,12 +105,14 @@ T& get(data_handler<T>& data, std::size_t id){
 }
 
 template<typename T>
-void add_data(data_handler<T>& data, T&& entry){
+std::size_t add_data(data_handler<T>& data, T&& entry){
     entry.id = data.next_id++;
 
     data.data.push_back(std::forward<T>(entry));
 
     data.changed = true;
+
+    return entry.id;
 }
 
 } //end of namespace budget

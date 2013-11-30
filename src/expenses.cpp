@@ -237,3 +237,7 @@ void budget::operator>>(const std::vector<std::string>& parts, expense& expense)
 std::vector<expense>& budget::all_expenses(){
     return expenses.data;
 }
+
+void budget::set_expenses_changed(){
+    expenses.changed = true;
+}
