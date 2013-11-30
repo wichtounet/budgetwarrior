@@ -168,11 +168,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             edit_string(account.name, "Name");
             not_empty(account.name, "Account name cannot be empty");
 
-            for(auto& a : accounts.data){
-                if(a.name == account.name && a.id != id){
-                    throw budget_exception("Another account with this name already exists");
-                }
-            }
+            //TODO Verify that there are no OTHER account with this name
+            //in the current set of accounts (taking archiving into account)
 
             edit_money(account.amount, "Amount");
             not_negative(account.amount);
