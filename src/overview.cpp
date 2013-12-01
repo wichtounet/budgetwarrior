@@ -241,7 +241,6 @@ void aggregate_year_overview(boost::gregorian::greg_year year){
 
     std::cout << "Aggregate overview of " << year << std::endl << std::endl;
 
-
     std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
 
     //Accumulate all the expenses
@@ -263,7 +262,6 @@ void aggregate_year_overview(boost::gregorian::greg_year year){
             acc_expenses[account.name][name] += expense.amount;
         }
     }
-
 
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
@@ -486,6 +484,15 @@ void display_balance(boost::gregorian::greg_year year){
 
         contents.push_back({account.name});
         account_previous[account.name] = std::vector<budget::money>(13, budget::money());
+    }
+
+    auto today = boost::gregorian::day_clock::local_day();
+    if(year > today.year()){
+        auto pretotal = compute_total_budget(sm, year);
+        std::size_t i = 0;
+        for(auto& account : all_accounts(year, sm)){
+            account_previous[account.name][sm - 1] += pretotal[i++] - account.amount;
+        }
     }
 
     //Fill the table
