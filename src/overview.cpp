@@ -93,21 +93,30 @@ std::string format_money(const budget::money& m){
 std::vector<budget::money> compute_total_budget(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::unordered_map<std::string, budget::money> tmp;
 
-    auto sm = start_month(year);
+    for(boost::gregorian::greg_year y = start_year(); y <= year; y = y + 1){
+        boost::gregorian::greg_month m = start_month(y);
+        while(true){
+            if(y == year && m >= month){
+                break;
+            }
 
-    for(unsigned short i = sm; i < month; ++i){
-        boost::gregorian::greg_month m = i;
+            for(auto& account : all_accounts(y, m)){
+                tmp[account.name] += account.amount;
 
-        for(auto& account : all_accounts(year, m)){
-            tmp[account.name] += account.amount;
+                tmp[account.name] -= accumulate_amount_if(all_expenses(), [y,m,account](budget::expense& e){
+                    return e.account == account.id && e.date.year() == y && e.date.month() == m;
+                    });
 
-            tmp[account.name] -= accumulate_amount_if(all_expenses(), [year,m,account](budget::expense& e){
-                return e.account == account.id && e.date.year() == year && e.date.month() == m;
-                });
+                tmp[account.name] += accumulate_amount_if(all_earnings(), [y,m,account](budget::earning& e){
+                    return e.account == account.id && e.date.year() == y && e.date.month() == m;
+                    });
+            }
 
-            tmp[account.name] += accumulate_amount_if(all_earnings(), [year,m,account](budget::earning& e){
-                return e.account == account.id && e.date.year() == year && e.date.month() == m;
-                });
+            if(y != year && m == 12){
+                break;
+            }
+
+            m = m + 1;
         }
     }
 
