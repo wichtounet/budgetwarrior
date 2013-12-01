@@ -55,6 +55,7 @@ void show_recurrings(){
 
 void budget::recurring_module::preload(){
     load_recurrings();
+    load_accounts();
 
     auto now = boost::gregorian::day_clock::local_day();
 
@@ -64,11 +65,13 @@ void budget::recurring_module::preload(){
         auto last_checked_str = internal_config_value("recurring:last_checked");
         auto last_checked = boost::gregorian::from_string(last_checked_str);
 
-        if(last_checked.month() < now.month()){
+        if(last_checked.month() < now.month() || last_checked.year() < now.year()){
             load_expenses();
 
-            for(boost::gregorian::greg_month m = last_checked.month() + 1; m <= now.month(); m = m + 1){
-                boost::gregorian::date recurring_date(now.year(), m, 1);
+            while(last_checked.year() < now.year() || last_checked.month() < now.month()){
+                last_checked += boost::gregorian::months(1);
+
+                boost::gregorian::date recurring_date(last_checked.year(), last_checked.month(), 1);
 
                 for(auto& recurring : recurrings.data){
                     budget::expense recurring_expense;
@@ -90,8 +93,7 @@ void budget::recurring_module::preload(){
 }
 
 void budget::recurring_module::load(){
-    load_accounts();
-    //No need to load recurrings, that have been done in the preload phase
+    //No need to load anything, that have been done in the preload phase
 }
 
 void budget::recurring_module::unload(){
