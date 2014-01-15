@@ -47,6 +47,8 @@ void save_earnings();
 
 std::vector<earning>& all_earnings();
 
+void set_earnings_changed();
+
 } //end of namespace budget
 
 #endif

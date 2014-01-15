@@ -118,7 +118,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 std::string account_name;
                 edit_string(account_name, "Account");
                 validate_account(account_name);
-                expense.account = get_account(account_name).id;
+                expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
                 edit_string(expense.name, "Name");
                 not_empty(expense.name, "The name of the expense cannot be empty");
@@ -130,7 +130,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
                 auto account_name = args[2];
                 validate_account(account_name);
-                expense.account = get_account(account_name).id;
+                expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
                 expense.amount = parse_money(args[3]);
                 not_negative(expense.amount);
@@ -152,7 +152,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
             auto account_name = args[3];
             validate_account(account_name);
-            expense.account = get_account(account_name).id;
+            expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
             expense.amount = parse_money(args[4]);
             not_negative(expense.amount);
@@ -192,7 +192,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             auto account_name = get_account(expense.account).name;
             edit_string(account_name, "Account");
             validate_account(account_name);
-            expense.account = get_account(account_name).id;
+            expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
             edit_string(expense.name, "Name");
             not_empty(expense.name, "The name of the expense cannot be empty");
@@ -236,4 +236,8 @@ void budget::operator>>(const std::vector<std::string>& parts, expense& expense)
 
 std::vector<expense>& budget::all_expenses(){
     return expenses.data;
+}
+
+void budget::set_expenses_changed(){
+    expenses.changed = true;
 }

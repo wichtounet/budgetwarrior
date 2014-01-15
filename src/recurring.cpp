@@ -36,7 +36,7 @@ void show_recurrings(){
     money total;
 
     for(auto& recurring : recurrings.data){
-        contents.push_back({to_string(recurring.id), get_account(recurring.account).name, recurring.name, to_string(recurring.amount), recurring.recurs});
+        contents.push_back({to_string(recurring.id), recurring.account, recurring.name, to_string(recurring.amount), recurring.recurs});
 
         total += recurring.amount;
     }
@@ -55,6 +55,7 @@ void show_recurrings(){
 
 void budget::recurring_module::preload(){
     load_recurrings();
+    load_accounts();
 
     auto now = boost::gregorian::day_clock::local_day();
 
@@ -64,17 +65,19 @@ void budget::recurring_module::preload(){
         auto last_checked_str = internal_config_value("recurring:last_checked");
         auto last_checked = boost::gregorian::from_string(last_checked_str);
 
-        if(last_checked.month() < now.month()){
+        if(last_checked.month() < now.month() || last_checked.year() < now.year()){
             load_expenses();
 
-            for(boost::gregorian::greg_month m = last_checked.month() + 1; m <= now.month(); m = m + 1){
-                boost::gregorian::date recurring_date(now.year(), m, 1);
+            while(last_checked.year() < now.year() || last_checked.month() < now.month()){
+                last_checked += boost::gregorian::months(1);
+
+                boost::gregorian::date recurring_date(last_checked.year(), last_checked.month(), 1);
 
                 for(auto& recurring : recurrings.data){
                     budget::expense recurring_expense;
                     recurring_expense.guid = generate_guid();
                     recurring_expense.date = recurring_date;
-                    recurring_expense.account = recurring.account;
+                    recurring_expense.account = get_account(recurring.account, recurring_date.year(), recurring_date.month()).id;
                     recurring_expense.amount = recurring.amount;
                     recurring_expense.name = recurring.name;
 
@@ -90,8 +93,7 @@ void budget::recurring_module::preload(){
 }
 
 void budget::recurring_module::load(){
-    load_accounts();
-    //No need to load recurrings, that have been done in the preload phase
+    //No need to load anything, that have been done in the preload phase
 }
 
 void budget::recurring_module::unload(){
@@ -111,11 +113,16 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             recurring.guid = generate_guid();
             recurring.recurs = "monthly";
 
+            //TODO handling of archived accounts is only temporary and not
+            //workign properly
+
+            auto date = boost::gregorian::day_clock::local_day();
+
             if(args.size() == 2){
                 std::string account_name;
                 edit_string(account_name, "Account");
                 validate_account(account_name);
-                recurring.account = get_account(account_name).id;
+                recurring.account = get_account(account_name, date.year(), date.month()).id;
 
                 edit_string(recurring.name, "Name");
                 not_empty(recurring.name, "The name of the recurring expense cannot be empty");
@@ -127,7 +134,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
                 auto account_name = args[2];
                 validate_account(account_name);
-                recurring.account = get_account(account_name).id;
+                recurring.account = get_account(account_name, date.year(), date.month()).id;
 
                 recurring.amount = parse_money(args[3]);
                 not_negative(recurring.amount);
@@ -163,10 +170,8 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             auto& recurring = get(recurrings, id);
 
-            auto account_name = get_account(recurring .account).name;
-            edit_string(account_name, "Account");
-            validate_account(account_name);
-            recurring.account = get_account(account_name).id;
+            edit_string(recurring.account, "Account");
+            validate_account(recurring.account);
 
             edit_string(recurring.name, "Name");
             not_empty(recurring.name, "The name of the recurring expense cannot be empty");
@@ -195,10 +200,31 @@ std::ostream& budget::operator<<(std::ostream& stream, const recurring& recurrin
     return stream << recurring.id  << ':' << recurring.guid << ':' << recurring.account << ':' << recurring.name << ':' << recurring.amount << ":" << recurring.recurs;
 }
 
+void budget::migrate_recurring_1_to_2(){
+    load_accounts();
+
+    load_data(recurrings, "recurrings.data", [](const std::vector<std::string>& parts, recurring& recurring){
+        recurring.id = to_number<std::size_t>(parts[0]);
+        recurring.guid = parts[1];
+        recurring.old_account = to_number<std::size_t>(parts[2]);
+        recurring.name = parts[3];
+        recurring.amount = parse_money(parts[4]);
+        recurring.recurs = parts[5];
+        });
+
+    for(auto& recurring : all_recurrings()){
+        recurring.account = get_account(recurring.old_account).name;
+    }
+
+    recurrings.changed = true;
+
+    save_data(recurrings, "recurrings.data");
+}
+
 void budget::operator>>(const std::vector<std::string>& parts, recurring& recurring){
     recurring.id = to_number<std::size_t>(parts[0]);
     recurring.guid = parts[1];
-    recurring.account = to_number<std::size_t>(parts[2]);
+    recurring.account = parts[2];
     recurring.name = parts[3];
     recurring.amount = parse_money(parts[4]);
     recurring.recurs = parts[5];

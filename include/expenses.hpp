@@ -48,6 +48,8 @@ void save_expenses();
 std::vector<expense>& all_expenses();
 void add_expense(expense&& expense);
 
+void set_expenses_changed();
+
 } //end of namespace budget
 
 #endif

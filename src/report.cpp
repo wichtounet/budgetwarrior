@@ -53,13 +53,11 @@ void monthly_report(boost::gregorian::greg_year year){
     for(unsigned short i = sm + 1; i < today.month() + 1; ++i){
         boost::gregorian::greg_month month = i;
 
-        auto accounts = all_accounts(year, month);
-
         budget::money total_expenses;
         budget::money total_earnings;
         budget::money total_balance;
 
-        for(auto& account : accounts){
+        for(auto& account : all_accounts(year, month)){
             auto expenses = accumulate_amount_if(all_expenses(),
                 [year,month,account](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == month;});
             auto earnings = accumulate_amount_if(all_earnings(),
@@ -109,7 +107,7 @@ void monthly_report(boost::gregorian::greg_year year){
     unsigned int precision = scale / step_height;
 
     auto graph_height = 9 + step_height * levels;
-    auto graph_width = 6 + (12 - sm) * 8 + (12 - sm - 1) * 2;
+    auto graph_width = 6 + (13 - sm) * 8 + (13 - sm - 1) * 2;
 
     graph_type graph(graph_height, std::vector<std::string>(graph_width, " "));
 
@@ -190,6 +188,7 @@ void monthly_report(boost::gregorian::greg_year year){
     write(graph, 3, start_legend + 2, "Earnings |");
     write(graph, 2, start_legend + 2, "Balance  |");
     write(graph, 1, start_legend - 2, "|____________|");
+
     //Render the graph
 
     render(graph);

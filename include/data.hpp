@@ -40,8 +40,8 @@ void save_data(const data_handler<T>& data, const std::string& path){
     }
 }
 
-template<typename T>
-void load_data(data_handler<T>& data, const std::string& path){
+template<typename T, typename Functor>
+void load_data(data_handler<T>& data, const std::string& path, Functor f){
     auto file_path = path_to_budget_file(path);
 
     if(!boost::filesystem::exists(file_path)){
@@ -65,13 +65,18 @@ void load_data(data_handler<T>& data, const std::string& path){
 
                     T entry;
 
-                    parts >> entry;
+                    f(parts, entry);
 
                     data.data.push_back(std::move(entry));
                 }
             }
         }
     }
+}
+
+template<typename T>
+void load_data(data_handler<T>& data, const std::string& path){
+    load_data(data, path, [](std::vector<std::string>& parts, T& entry){ parts >> entry; });
 }
 
 template<typename T>
@@ -105,12 +110,14 @@ T& get(data_handler<T>& data, std::size_t id){
 }
 
 template<typename T>
-void add_data(data_handler<T>& data, T&& entry){
+std::size_t add_data(data_handler<T>& data, T&& entry){
     entry.id = data.next_id++;
 
     data.data.push_back(std::forward<T>(entry));
 
     data.changed = true;
+
+    return entry.id;
 }
 
 } //end of namespace budget

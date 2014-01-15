@@ -9,6 +9,8 @@
 #include "budget_exception.hpp"
 #include "assert.hpp"
 #include "config.hpp"
+#include "expenses.hpp"
+#include "earnings.hpp"
 
 #include <cstdio>
 #include <sys/ioctl.h>
@@ -29,6 +31,21 @@ unsigned short budget::start_month(boost::gregorian::greg_year year){
     }
 
     return 1;
+}
+
+unsigned short budget::start_year(){
+    auto today = boost::gregorian::day_clock::local_day();
+    boost::gregorian::greg_year y = today.year();
+
+    for(auto& expense : all_expenses()){
+        y = std::min(expense.date.year(), y);
+    }
+
+    for(auto& earning : all_earnings()){
+        y = std::min(earning.date.year(), y);
+    }
+
+    return y;
 }
 
 unsigned short budget::terminal_width(){

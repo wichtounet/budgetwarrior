@@ -46,11 +46,11 @@ void save_accounts();
 bool account_exists(const std::string& account);
 void validate_account(const std::string& account);
 
-budget::account& get_account(std::size_t id);
-budget::account& get_account(std::string name);
+std::vector<budget::account>& all_accounts();
+std::vector<budget::account>  all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month);
 
-std::vector<account>& all_accounts();
-std::vector<account>  all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month);
+budget::account& get_account(std::size_t id);
+budget::account& get_account(std::string name, boost::gregorian::greg_year year, boost::gregorian::greg_month month);
 
 } //end of namespace budget
 

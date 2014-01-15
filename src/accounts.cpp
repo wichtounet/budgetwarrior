@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -92,6 +93,8 @@ void budget::accounts_module::load(){
 
 void budget::accounts_module::unload(){
     save_accounts();
+    save_expenses();
+    save_earnings();
 }
 
 void budget::accounts_module::handle(const std::vector<std::string>& args){
@@ -165,11 +168,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             edit_string(account.name, "Name");
             not_empty(account.name, "Account name cannot be empty");
 
-            for(auto& a : accounts.data){
-                if(a.name == account.name && a.id != id){
-                    throw budget_exception("Another account with this name already exists");
-                }
-            }
+            //TODO Verify that there are no OTHER account with this name
+            //in the current set of accounts (taking archiving into account)
 
             edit_money(account.amount, "Amount");
             not_negative(account.amount);
@@ -184,7 +184,10 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             std::cin >> answer;
 
             if(answer == "yes" || answer == "y"){
+                std::vector<std::size_t> sources;
                 std::vector<budget::account> copies;
+
+                auto today = boost::gregorian::day_clock::local_day();
 
                 auto tmp = boost::gregorian::day_clock::local_day() - boost::gregorian::months(1);
                 boost::gregorian::date until_date(tmp.year(), tmp.month(), tmp.end_of_month().day());
@@ -201,11 +204,37 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                         account.until = until_date;
 
                         copies.push_back(std::move(copy));
+
+                        sources.push_back(account.id);
                     }
                 }
 
-                for(auto& copy : copies){
-                    add_data(accounts, std::move(copy));
+                std::unordered_map<std::size_t, std::size_t> mapping;
+
+                for(std::size_t i = 0; i < copies.size(); ++i){
+                    auto& copy = copies[i];
+
+                    auto id = add_data(accounts, std::move(copy));
+
+                    mapping[sources[i]] = id;
+                }
+
+                for(auto& expense : all_expenses()){
+                    if(expense.date.month() == today.month() && expense.date.year() == today.year()){
+                        if(mapping.find(expense.account) != mapping.end()){
+                            expense.account = mapping[expense.account];
+                            set_expenses_changed();
+                        }
+                    }
+                }
+
+                for(auto& earning : all_earnings()){
+                    if(earning.date.month() == today.month() && earning.date.year() == today.year()){
+                        if(mapping.find(earning.account) != mapping.end()){
+                            earning.account = mapping[earning.account];
+                            set_earnings_changed();
+                        }
+                    }
                 }
 
                 accounts.changed = true;
@@ -228,9 +257,11 @@ budget::account& budget::get_account(std::size_t id){
     return get(accounts, id);
 }
 
-budget::account& budget::get_account(std::string name){
+budget::account& budget::get_account(std::string name, boost::gregorian::greg_year year, boost::gregorian::greg_month month){
+    boost::gregorian::date date(year, month, 5);
+
     for(auto& account : accounts.data){
-        if(account.name == name){
+        if(account.since < date && account.until > date && account.name == name){
             return account;
         }
     }
