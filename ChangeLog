@@ -1,3 +1,9 @@
+budgetwarrior 0.2.1 - 15.01.2014
+ * Fix recurrings system
+ * Fix archived accounts
+ * The first month of the year now takes the last month of the previous year
+   to compute its balance
+
 budgetwarrior 0.2 - 25.10.2013
  * Add more convenient system to create expenses, earnings, accounts, recurring, expenses and debts
  * Sort expenses and earnings by their data, not their creation date
