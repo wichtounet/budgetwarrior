@@ -1,5 +1,8 @@
 budgetwarrior 0.3
  * Change license to MIT
+ * Remove support for old command types
+ * Add objectives module to fix yearly/monthly objectives on balances,
+   earnings and expenses
 
 budgetwarrior 0.2.1 - 15.01.2014
  * Fix recurrings system
@@ -8,7 +11,8 @@ budgetwarrior 0.2.1 - 15.01.2014
    to compute its balance
 
 budgetwarrior 0.2 - 25.10.2013
- * Add more convenient system to create expenses, earnings, accounts, recurring, expenses and debts
+ * Add more convenient system to create expenses, earnings, accounts, recurring,
+   expenses and debts
  * Sort expenses and earnings by their data, not their creation date
  * Only write data files if they changed
  * Only write configuration files if they changed
