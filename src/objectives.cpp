@@ -64,11 +64,63 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "status"){
             status_objectives();
         } else if(subcommand == "add"){
-            //TODO
+            objective objective;
+            objective.guid = generate_guid();
+            objective.date = boost::gregorian::day_clock::local_day();
+
+            edit_string(objective.name, "Name");
+            not_empty(objective.name, "The name of the objective cannot be empty");
+
+            edit_string(objective.type, "Type");
+            not_empty(objective.type, "The type of the objective cannot be empty");
+
+            edit_string(objective.source, "Source");
+            not_empty(objective.source, "The source of the objective cannot be empty");
+
+            edit_string(objective.op, "Operator");
+            not_empty(objective.op, "The operator of the objective cannot be empty");
+
+            edit_money(objective.amount, "Amount");
+
+            add_data(objectives, std::move(objective));
         } else if(subcommand == "delete"){
-            //TODO
+            enough_args(args, 3);
+
+            std::size_t id = to_number<std::size_t>(args[2]);
+
+            if(!exists(objectives, id)){
+                throw budget_exception("There are no objective with id ");
+            }
+
+            remove(objectives, id);
+
+            std::cout << "Objective " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
-            //TODO
+            enough_args(args, 3);
+
+            std::size_t id = to_number<std::size_t>(args[2]);
+
+            if(!exists(objectives, id)){
+                throw budget_exception("There are no objective with id " + args[2]);
+            }
+
+            auto& objective = get(objectives, id);
+
+            edit_string(objective.name, "Name");
+            not_empty(objective.name, "The name of the objective cannot be empty");
+
+            edit_string(objective.type, "Type");
+            not_empty(objective.type, "The type of the objective cannot be empty");
+
+            edit_string(objective.source, "Source");
+            not_empty(objective.source, "The source of the objective cannot be empty");
+
+            edit_string(objective.op, "Operator");
+            not_empty(objective.op, "The operator of the objective cannot be empty");
+
+            edit_money(objective.amount, "Amount");
+
+            set_objectives_changed();
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
