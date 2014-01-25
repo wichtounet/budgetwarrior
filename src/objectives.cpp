@@ -76,8 +76,19 @@ void print_success(budget::money balance, budget::money earnings, budget::money 
     }
 
     success = std::max(0, success);
+
+    if(success < 25){
+        std::cout << "\033[0;31m";
+    } else if(success < 75){
+        std::cout << "\033[0;33m";
+    } else if(success < 100){
+        std::cout << "\033[0;32m";
+    } else if(success >= 100){
+        std::cout << "\033[1;32m";
+    }
+
     print_minimum(success, 5);
-    std::cout << "%  ";
+    std::cout << "%\033[0m  ";
 
     success = std::min(success, 109);
     auto good = success == 0 ? 0 : (success / 10) + 1;
