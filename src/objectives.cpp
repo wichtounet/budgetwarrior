@@ -121,37 +121,36 @@ void status_objectives(){
                 }
             }
 
+            budget::money expenses;
+            for(auto& expense : all_expenses()){
+                if(expense.date.year() == current_year && expense.date.month() >= sm && expense.date.month() <= current_month){
+                    expenses += expense.amount;
+                }
+            }
+
+            budget::money earnings;
+            for(auto& earning : all_earnings()){
+                if(earning.date.year() == current_year && earning.date.month() >= sm && earning.date.month() <= current_month){
+                    earnings += earning.amount;
+                }
+            }
+
+            auto balance = earnings - expenses;
+            for(unsigned short i = sm; i <= current_month; ++i){
+                boost::gregorian::greg_month month = i;
+
+                auto current_accounts = all_accounts(current_year, month);
+
+                for(auto& c : current_accounts){
+                    balance += c.amount;
+                }
+            }
+
             for(auto& objective : objectives.data){
                 if(objective.type == "yearly"){
                     std::cout << "  ";
                     print_minimum(objective.name, width);
                     std::cout << "  ";
-
-                    budget::money earnings;
-                    budget::money expenses;
-
-                    for(auto& expense : all_expenses()){
-                        if(expense.date.year() == current_year && expense.date.month() >= sm && expense.date.month() <= current_month){
-                            expenses += expense.amount;
-                        }
-                    }
-
-                    for(auto& earning : all_earnings()){
-                        if(earning.date.year() == current_year && earning.date.month() >= sm && earning.date.month() <= current_month){
-                            earnings += earning.amount;
-                        }
-                    }
-
-                    auto balance = earnings - expenses;
-                    for(unsigned short i = sm; i <= current_month; ++i){
-                        boost::gregorian::greg_month month = i;
-
-                        auto current_accounts = all_accounts(current_year, month);
-
-                        for(auto& c : current_accounts){
-                            balance += c.amount;
-                        }
-                    }
 
                     print_success(balance, earnings, expenses, objective);
 
