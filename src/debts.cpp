@@ -128,17 +128,12 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("There are no debt with id " + args[2]);
             }
 
-            for(auto& debt : debts.data){
-                if(debt.id == id){
-                    debt.state = 1;
+            auto& debt = get(debts, id);
+            debt.state = 1;
 
-                    debts.changed = true;
+            debts.changed = true;
 
-                    std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
-
-                    break;
-                }
-            }
+            std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
