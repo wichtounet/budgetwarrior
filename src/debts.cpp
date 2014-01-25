@@ -81,6 +81,19 @@ void edit_direction(bool& ref, const std::string& title){
     }
 }
 
+void edit(budget::debt& debt){
+    edit_direction(debt.direction, "Direction");
+
+    edit_string(debt.name, "Name");
+    not_empty(debt.name, "The name of the debt cannot be empty");
+
+    edit_money(debt.amount, "Amount");
+    not_negative(debt.amount);
+
+    edit_string(debt.title, "Title");
+    not_empty(debt.title, "The title of the debt cannot be empty");
+}
+
 } //end of anonymous namespace
 
 void budget::debt_module::load(){
@@ -107,16 +120,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
             debt.guid = generate_guid();
             debt.creation_time = boost::posix_time::second_clock::local_time();
 
-            edit_direction(debt.direction, "Direction");
-
-            edit_string(debt.name, "Name");
-            not_empty(debt.name, "The name of the debt cannot be empty");
-
-            edit_money(debt.amount, "Amount");
-            not_negative(debt.amount);
-
-            edit_string(debt.title, "Title");
-            not_empty(debt.title, "The title of the debt cannot be empty");
+            edit(debt);
 
             add_data(debts, std::move(debt));
         } else if(subcommand == "paid"){
@@ -155,18 +159,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("There are no debt with id " + args[2]);
             }
 
-            auto& debt = get(debts, id);
-
-            edit_direction(debt.direction, "Direction");
-
-            edit_string(debt.name, "Name");
-            not_empty(debt.name, "The name of the debt cannot be empty");
-
-            edit_money(debt.amount, "Amount");
-            not_negative(debt.amount);
-
-            edit_string(debt.title, "Title");
-            not_empty(debt.title, "The title of the debt cannot be empty");
+            edit(get(debts, id));
 
             std::cout << "Debt " << id << " has been modified" << std::endl;
 
