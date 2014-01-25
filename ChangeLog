@@ -1,3 +1,6 @@
+budgetwarrior 0.3
+ * Change license to MIT
+
 budgetwarrior 0.2.1 - 15.01.2014
  * Fix recurrings system
  * Fix archived accounts
