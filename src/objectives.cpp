@@ -46,6 +46,51 @@ void list_objectives(){
     }
 }
 
+template<typename T>
+void print_minimum(const T& str, std::size_t min_width){
+    auto old_width = std::cout.width();
+    std::cout.width(min_width);
+    std::cout << str;
+    std::cout.width(old_width);
+}
+
+void print_success(budget::money balance, budget::money earnings, budget::money expenses, const budget::objective& objective){
+    auto amount = objective.amount;
+
+    budget::money basis;
+    if(objective.source == "expenses"){
+        basis = expenses;
+    } else if (objective.source == "earnings") {
+        basis = earnings;
+    } else {
+        basis = balance;
+    }
+
+    int success = 0;
+    if(objective.op == "min"){
+        auto percent = basis.dollars() / static_cast<double>(amount.dollars());
+        success = percent * 100;
+    } else if(objective.op == "max"){
+        auto percent = amount.dollars() / static_cast<double>(basis.dollars());
+        success = percent * 100;
+    }
+
+    success = std::max(0, success);
+    print_minimum(success, 5);
+    std::cout << "%  ";
+
+    success = std::min(success, 109);
+    auto good = success == 0 ? 0 : (success / 10) + 1;
+
+    for(std::size_t i = 0; i < good; ++i){
+        std::cout << "\033[1;42m   \033[0m";
+    }
+
+    for(std::size_t i = good; i < 11; ++i){
+        std::cout << "\033[1;41m   \033[0m";
+    }
+}
+
 void status_objectives(){
     if(objectives.data.size() == 0){
         std::cout << "No objectives" << std::endl;
@@ -53,15 +98,12 @@ void status_objectives(){
         auto today = boost::gregorian::day_clock::local_day();
         auto current_month = today.month();
         auto current_year = today.year();
+        auto sm = start_month(current_year);
 
         size_t monthly = 0;
         size_t yearly = 0;
 
-        size_t width = 1;
-
         for(auto& objective : objectives.data){
-            width = std::max(rsize(objective.name), width);
-
             if(objective.type == "yearly"){
                 ++yearly;
             } else if(objective.type == "monthly"){
@@ -82,18 +124,11 @@ void status_objectives(){
             for(auto& objective : objectives.data){
                 if(objective.type == "yearly"){
                     std::cout << "  ";
-                    auto old_width = std::cout.width();
-                    std::cout.width(width);
-                    std::cout << objective.name;
-                    std::cout.width(old_width);
+                    print_minimum(objective.name, width);
                     std::cout << "  ";
 
-                    auto amount = objective.amount;
-                    budget::money budget;
                     budget::money earnings;
                     budget::money expenses;
-
-                    auto sm = start_month(current_year);
 
                     for(auto& expense : all_expenses()){
                         if(expense.date.year() == current_year && expense.date.month() >= sm && expense.date.month() <= current_month){
@@ -107,57 +142,78 @@ void status_objectives(){
                         }
                     }
 
+                    auto balance = earnings - expenses;
                     for(unsigned short i = sm; i <= current_month; ++i){
                         boost::gregorian::greg_month month = i;
 
                         auto current_accounts = all_accounts(current_year, month);
 
                         for(auto& c : current_accounts){
-                            budget += c.amount;
+                            balance += c.amount;
                         }
                     }
 
-                    auto balance = budget + earnings - expenses;
-
-                    budget::money basis;
-                    if(objective.source == "expenses"){
-                        basis = expenses;
-                    } else if (objective.source == "earnings") {
-                        basis = earnings;
-                    } else {
-                        basis = balance;
-                    }
-
-                    int success = 0;
-                    if(objective.op == "min"){
-                        auto percent = basis.dollars() / static_cast<double>(amount.dollars());
-                        success = percent * 100;
-                    } else if(objective.op == "max"){
-                        auto percent = amount.dollars() / static_cast<double>(basis.dollars());
-                        success = percent * 100;
-                    }
-
-                    success = std::max(0, success);
-
-                    std::cout << success << "%  ";
-
-                    for(std::size_t i = 0; i < success; i += 10){
-                        std::cout << "\033[1;42m   \033[0m";
-                    }
-
-                    std::cout << budget::format_code(0, 0, 4);
-
-                    for(std::size_t i = success; i < 100; i += 10){
-                        std::cout << "\033[1;41m   \033[0m";
-                    }
+                    print_success(balance, earnings, expenses, objective);
 
                     std::cout << std::endl;
                 }
             }
+
+            if(monthly){
+                std::cout << std::endl;
+            }
         }
 
         if(monthly){
-            //TODO
+            std::cout << "Month objectives" << std::endl;
+
+            size_t width = 0;
+            for(unsigned short i = sm; i <= current_month; ++i){
+                boost::gregorian::greg_month month = i;
+
+                std::stringstream stream;
+                stream << month;
+
+                width = std::max(width, stream.str().size());
+            }
+
+            for(auto& objective : objectives.data){
+                if(objective.type == "monthly"){
+                    std::cout << std::endl << objective.name << std::endl;
+
+                    size_t width = 0;
+                    for(unsigned short i = sm; i <= current_month; ++i){
+                        boost::gregorian::greg_month month = i;
+
+                        std::cout << "  ";
+                        print_minimum(month, width);
+                        std::cout << "  ";
+
+                        budget::money expenses;
+                        for(auto& expense : all_expenses()){
+                            if(expense.date.year() == current_year && expense.date.month() == month){
+                                expenses += expense.amount;
+                            }
+                        }
+
+                        budget::money earnings;
+                        for(auto& earning : all_earnings()){
+                            if(earning.date.year() == current_year && earning.date.month() == month){
+                                earnings += earning.amount;
+                            }
+                        }
+
+                        auto balance = earnings - expenses;
+                        for(auto& c : all_accounts(current_year, month)){
+                            balance += c.amount;
+                        }
+
+                        print_success(balance, earnings, expenses, objective);
+
+                        std::cout << std::endl;
+                    }
+                }
+            }
         }
     }
 }
