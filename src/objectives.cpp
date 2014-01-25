@@ -32,7 +32,18 @@ namespace {
 static data_handler<objective> objectives;
 
 void list_objectives(){
-    //TODO
+    std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& objective : objectives.data){
+        contents.push_back({to_string(objective.id), objective.name, objective.type, objective.source, objective.op, to_string(objective.amount)});
+    }
+
+    if(objectives.data.size() == 0){
+        std::cout << "No objectives" << std::endl;
+    } else {
+        display_table(columns, contents);
+    }
 }
 
 void status_objectives(){
