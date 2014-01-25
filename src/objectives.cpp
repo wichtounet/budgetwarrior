@@ -32,22 +32,134 @@ namespace {
 static data_handler<objective> objectives;
 
 void list_objectives(){
-    std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount"};
-    std::vector<std::vector<std::string>> contents;
-
-    for(auto& objective : objectives.data){
-        contents.push_back({to_string(objective.id), objective.name, objective.type, objective.source, objective.op, to_string(objective.amount)});
-    }
-
     if(objectives.data.size() == 0){
         std::cout << "No objectives" << std::endl;
     } else {
+        std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount"};
+        std::vector<std::vector<std::string>> contents;
+
+        for(auto& objective : objectives.data){
+            contents.push_back({to_string(objective.id), objective.name, objective.type, objective.source, objective.op, to_string(objective.amount)});
+        }
+
         display_table(columns, contents);
     }
 }
 
 void status_objectives(){
-    //TODO
+    if(objectives.data.size() == 0){
+        std::cout << "No objectives" << std::endl;
+    } else {
+        auto today = boost::gregorian::day_clock::local_day();
+        auto current_month = today.month();
+        auto current_year = today.year();
+
+        size_t monthly = 0;
+        size_t yearly = 0;
+
+        size_t width = 1;
+
+        for(auto& objective : objectives.data){
+            width = std::max(rsize(objective.name), width);
+
+            if(objective.type == "yearly"){
+                ++yearly;
+            } else if(objective.type == "monthly"){
+                ++monthly;
+            }
+        }
+
+        if(yearly){
+            std::cout << "Year objectives" << std::endl << std::endl;
+
+            size_t width = 0;
+            for(auto& objective : objectives.data){
+                if(objective.type == "yearly"){
+                    width = std::max(rsize(objective.name), width);
+                }
+            }
+
+            for(auto& objective : objectives.data){
+                if(objective.type == "yearly"){
+                    std::cout << "  ";
+                    auto old_width = std::cout.width();
+                    std::cout.width(width);
+                    std::cout << objective.name;
+                    std::cout.width(old_width);
+                    std::cout << "  ";
+
+                    auto amount = objective.amount;
+                    budget::money budget;
+                    budget::money earnings;
+                    budget::money expenses;
+
+                    auto sm = start_month(current_year);
+
+                    for(auto& expense : all_expenses()){
+                        if(expense.date.year() == current_year && expense.date.month() >= sm && expense.date.month() <= current_month){
+                            expenses += expense.amount;
+                        }
+                    }
+
+                    for(auto& earning : all_earnings()){
+                        if(earning.date.year() == current_year && earning.date.month() >= sm && earning.date.month() <= current_month){
+                            earnings += earning.amount;
+                        }
+                    }
+
+                    for(unsigned short i = sm; i <= current_month; ++i){
+                        boost::gregorian::greg_month month = i;
+
+                        auto current_accounts = all_accounts(current_year, month);
+
+                        for(auto& c : current_accounts){
+                            budget += c.amount;
+                        }
+                    }
+
+                    auto balance = budget + earnings - expenses;
+
+                    budget::money basis;
+                    if(objective.source == "expenses"){
+                        basis = expenses;
+                    } else if (objective.source == "earnings") {
+                        basis = earnings;
+                    } else {
+                        basis = balance;
+                    }
+
+                    int success = 0;
+                    if(objective.op == "min"){
+                        auto percent = basis.dollars() / static_cast<double>(amount.dollars());
+                        success = percent * 100;
+                    } else if(objective.op == "max"){
+                        auto percent = amount.dollars() / static_cast<double>(basis.dollars());
+                        success = percent * 100;
+                    }
+
+                    success = std::max(0, success);
+
+                    std::cout << success << "%  ";
+
+                    for(std::size_t i = 0; i < success; i += 10){
+                        std::cout << "\033[1;42m   \033[0m";
+                    }
+
+                    std::cout << budget::format_code(0, 0, 4);
+
+                    for(std::size_t i = success; i < 100; i += 10){
+                        std::cout << "\033[1;41m   \033[0m";
+                    }
+
+                    std::cout << std::endl;
+                }
+            }
+        }
+
+        if(monthly){
+            //TODO
+        }
+    }
 }
 
 } //end of anonymous namespace

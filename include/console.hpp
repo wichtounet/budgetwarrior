@@ -17,6 +17,16 @@
 
 namespace budget {
 
+/**
+ * Returns the real size of a string. By default, accented characteres are
+ * represented by several chars and make the length of the string being bigger
+ * than its displayable length. This functionr returns only a size of 1 for an
+ * accented chars.
+ * \param value The string we want the real length for.
+ * \return The real length of the string.
+ */
+std::size_t rsize(const std::string& value);
+
 std::string format_code(int attr, int fg, int bg);
 std::string format(const std::string& value);
 void display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups = 1);

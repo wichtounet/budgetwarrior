@@ -18,15 +18,7 @@ std::string budget::format_code(int attr, int fg, int bg){
     return stream.str();
 }
 
-/**
- * Returns the real size of a string. By default, accented characteres are
- * represented by several chars and make the length of the string being bigger
- * than its displayable length. This functionr returns only a size of 1 for an
- * accented chars.
- * \param value The string we want the real length for.
- * \return The real length of the string.
- */
-std::size_t rsize(const std::string& value){
+std::size_t budget::rsize(const std::string& value){
     auto v = value;
 
     if(v.substr(0, 5) == "::red"){
