@@ -228,6 +228,25 @@ void status_objectives(){
     }
 }
 
+void edit(budget::objective& objective){
+    edit_string(objective.name, "Name");
+    not_empty(objective.name, "The name of the objective cannot be empty");
+
+    edit_string(objective.type, "Type");
+    not_empty(objective.type, "The type of the objective cannot be empty");
+    one_of(objective.type, "Possible values for type are [monthly,yearly]", {"monthly","yearly"});
+
+    edit_string(objective.source, "Source");
+    not_empty(objective.source, "The source of the objective cannot be empty");
+    one_of(objective.type, "Possible values for source are [balance,earnings,expenses]", {"balance", "earnings", "expenses"});
+
+    edit_string(objective.op, "Operator");
+    not_empty(objective.op, "The operator of the objective cannot be empty");
+    one_of(objective.type, "Possible values for operator are [min,max]", {"min", "max"});
+
+    edit_money(objective.amount, "Amount");
+}
+
 } //end of anonymous namespace
 
 void budget::objectives_module::load(){
@@ -257,19 +276,7 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
             objective.guid = generate_guid();
             objective.date = boost::gregorian::day_clock::local_day();
 
-            edit_string(objective.name, "Name");
-            not_empty(objective.name, "The name of the objective cannot be empty");
-
-            edit_string(objective.type, "Type");
-            not_empty(objective.type, "The type of the objective cannot be empty");
-
-            edit_string(objective.source, "Source");
-            not_empty(objective.source, "The source of the objective cannot be empty");
-
-            edit_string(objective.op, "Operator");
-            not_empty(objective.op, "The operator of the objective cannot be empty");
-
-            edit_money(objective.amount, "Amount");
+            edit(objective);
 
             add_data(objectives, std::move(objective));
         } else if(subcommand == "delete"){
@@ -295,19 +302,7 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
 
             auto& objective = get(objectives, id);
 
-            edit_string(objective.name, "Name");
-            not_empty(objective.name, "The name of the objective cannot be empty");
-
-            edit_string(objective.type, "Type");
-            not_empty(objective.type, "The type of the objective cannot be empty");
-
-            edit_string(objective.source, "Source");
-            not_empty(objective.source, "The source of the objective cannot be empty");
-
-            edit_string(objective.op, "Operator");
-            not_empty(objective.op, "The operator of the objective cannot be empty");
-
-            edit_money(objective.amount, "Amount");
+            edit(objective);
 
             set_objectives_changed();
         } else {
