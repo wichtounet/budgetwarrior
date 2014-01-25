@@ -112,56 +112,18 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             expense.guid = generate_guid();
             expense.date = boost::gregorian::day_clock::local_day();
 
-            if(args.size() == 2){
-                edit_date(expense.date, "Date");
+            edit_date(expense.date, "Date");
 
-                std::string account_name;
-                edit_string(account_name, "Account");
-                validate_account(account_name);
-                expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
-
-                edit_string(expense.name, "Name");
-                not_empty(expense.name, "The name of the expense cannot be empty");
-
-                edit_money(expense.amount, "Amount");
-                not_negative(expense.amount);
-            } else {
-                enough_args(args, 5);
-
-                auto account_name = args[2];
-                validate_account(account_name);
-                expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
-
-                expense.amount = parse_money(args[3]);
-                not_negative(expense.amount);
-
-                for(std::size_t i = 4; i < args.size(); ++i){
-                    expense.name += args[i] + " ";
-                }
-
-                not_empty(expense.name, "The name of the expense cannot be empty");
-            }
-
-            add_data(expenses, std::move(expense));
-        } else if(subcommand == "addd"){
-            enough_args(args, 6);
-
-            expense expense;
-            expense.guid = generate_guid();
-            expense.date = boost::gregorian::from_string(args[2]);
-
-            auto account_name = args[3];
+            std::string account_name;
+            edit_string(account_name, "Account");
             validate_account(account_name);
             expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
-            expense.amount = parse_money(args[4]);
-            not_negative(expense.amount);
-
-            for(std::size_t i = 5; i < args.size(); ++i){
-                expense.name += args[i] + " ";
-            }
-
+            edit_string(expense.name, "Name");
             not_empty(expense.name, "The name of the expense cannot be empty");
+
+            edit_money(expense.amount, "Amount");
+            not_negative(expense.amount);
 
             add_data(expenses, std::move(expense));
         } else if(subcommand == "delete"){

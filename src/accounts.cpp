@@ -113,21 +113,11 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             account.since = find_new_since();
             account.until = boost::gregorian::date(2099,12,31);
 
-            if(args.size() == 2){
-                edit_string(account.name, "Name");
-                validate_new_account_name(account.name);
+            edit_string(account.name, "Name");
+            validate_new_account_name(account.name);
 
-                edit_money(account.amount, "Amount");
-                not_negative(account.amount);
-            } else {
-                enough_args(args, 4);
-
-                account.name = args[2];
-                validate_new_account_name(account.name);
-
-                account.amount = parse_money(args[3]);
-                not_negative(account.amount);
-            }
+            edit_money(account.amount, "Amount");
+            not_negative(account.amount);
 
             add_data(accounts, std::move(account));
         } else if(subcommand == "delete"){
