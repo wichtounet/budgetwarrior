@@ -33,6 +33,18 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget earning delete (id)                                 Remove completely the earning with the given id" << std::endl;
     std::cout << "       budget earning edit (id)                                   Modify the earning with the given id" << std::endl << std::endl;
 
+    std::cout << "       budget overview [month]                                    Display the overvew of the current month" << std::endl;
+    std::cout << "       budget overview month (month) (year)                       Display the overvew of the specified month of the current year" << std::endl;
+    std::cout << "       budget overview year (year)                                Display the overvew of the specified year" << std::endl;
+    std::cout << "       budget overview aggregate                                  Display the aggregated expenses for the current year" << std::endl;
+    std::cout << "       budget overview aggregate year (year)                      Display the aggregated expenses for the given year" << std::endl << std::endl;
+
+    std::cout << "       budget objective [status]                                  Show the status of the objectives for the current year" << std::endl;
+    std::cout << "       budget objective list                                      List all the defined objectives" << std::endl;
+    std::cout << "       budget objective add                                       Add a new objective" << std::endl;
+    std::cout << "       budget objective edit (id)                                 Edit an objective" << std::endl;
+    std::cout << "       budget objective delete (id)                               Delete an objective" << std::endl;
+
     std::cout << "       budget fortune [status]                                    Display the status of the fortune checks" << std::endl;
     std::cout << "       budget fortune list                                        Display the list of all the fortune checks" << std::endl;
     std::cout << "       budget fortune check                                       Create a new fortune check" << std::endl;
@@ -44,12 +56,6 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget debt paid (id)                                      Mark the given debt as paid" << std::endl;
     std::cout << "       budget debt delete (id)                                    Delete the given debt" << std::endl;
     std::cout << "       budget debt edit (id)                                      Edit the given debt" << std::endl << std::endl;
-
-    std::cout << "       budget overview [month]                                    Display the overvew of the current month" << std::endl;
-    std::cout << "       budget overview month (month) (year)                       Display the overvew of the specified month of the current year" << std::endl;
-    std::cout << "       budget overview year (year)                                Display the overvew of the specified year" << std::endl;
-    std::cout << "       budget overview aggregate                                  Display the aggregated expenses for the current year" << std::endl;
-    std::cout << "       budget overview aggregate year (year)                      Display the aggregated expenses for the given year" << std::endl << std::endl;
 
     std::cout << "       budget report [monthly]                                    Display monthly report in form of bar plot" << std::endl;
 }
