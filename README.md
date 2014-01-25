@@ -66,4 +66,4 @@ Please consider using [Github issues tracker](http://github.com/wichtounet/budge
 
 ## License ##
 
-This project is distributed under the Boost Software License 1.0. Read `LICENSE` for details.
+This project is distributed under the MIT License. Read `LICENSE` for details.
