@@ -42,6 +42,8 @@ void operator>>(const std::vector<std::string>& parts, fortune& fortune);
 
 std::vector<fortune>& all_fortunes();
 
+budget::money current_fortune();
+
 void load_fortunes();
 void save_fortunes();
 

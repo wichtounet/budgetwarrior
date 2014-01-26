@@ -66,6 +66,25 @@ void status_fortunes(){
 
 } //end of anonymous namespace
 
+budget::money budget::current_fortune(){
+    auto& all = all_fortunes();
+
+    if(all.empty()){
+        return {};
+    }
+
+    budget::money fortune_amount = all.front().amount;
+    boost::gregorian::date fortune_date = all.front().check_date;;
+    for(auto& fortune : all_fortunes()){
+        if(fortune.check_date > fortune_date){
+            fortune_amount = fortune.amount;
+            fortune_date = fortune.check_date;
+        }
+    }
+
+    return fortune_amount;
+}
+
 void budget::fortune_module::load(){
     load_fortunes();
 }

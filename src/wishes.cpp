@@ -64,19 +64,7 @@ void status_wishes(){
     auto month_status = budget::compute_month_status(current_year, current_month);
     auto year_status = budget::compute_year_status(current_year, current_month);
 
-    budget::money fortune_amount;
-    boost::gregorian::date fortune_date;
-    for(auto& fortune : all_fortunes()){
-        if(fortune_amount.zero()){
-            fortune_amount = fortune.amount;
-            fortune_date = fortune.check_date;
-        } else {
-            if(fortune.check_date > fortune_date){
-                fortune_amount = fortune.amount;
-                fortune_date = fortune.check_date;
-            }
-        }
-    }
+    auto fortune_amount = budget::current_fortune();
 
     for(auto& wish : wishes.data){
         auto amount = wish.amount;
