@@ -24,6 +24,7 @@
 #include "utils.hpp"
 #include "console.hpp"
 #include "budget_exception.hpp"
+#include "compute.hpp"
 
 using namespace budget;
 
@@ -104,30 +105,7 @@ void status_objectives(){
                 }
             }
 
-            budget::money expenses;
-            for(auto& expense : all_expenses()){
-                if(expense.date.year() == current_year && expense.date.month() >= sm && expense.date.month() <= current_month){
-                    expenses += expense.amount;
-                }
-            }
-
-            budget::money earnings;
-            for(auto& earning : all_earnings()){
-                if(earning.date.year() == current_year && earning.date.month() >= sm && earning.date.month() <= current_month){
-                    earnings += earning.amount;
-                }
-            }
-
-            auto balance = earnings - expenses;
-            for(unsigned short i = sm; i <= current_month; ++i){
-                boost::gregorian::greg_month month = i;
-
-                auto current_accounts = all_accounts(current_year, month);
-
-                for(auto& c : current_accounts){
-                    balance += c.amount;
-                }
-            }
+            auto year_status = budget::compute_year_status();
 
             for(auto& objective : objectives.data){
                 if(objective.type == "yearly"){
@@ -135,7 +113,7 @@ void status_objectives(){
                     print_minimum(objective.name, width);
                     std::cout << "  ";
 
-                    print_success(balance, earnings, expenses, objective);
+                    print_success(year_status.balance, year_status.earnings, year_status.expenses, objective);
 
                     std::cout << std::endl;
                 }
@@ -171,26 +149,9 @@ void status_objectives(){
                         print_minimum(month, width);
                         std::cout << "  ";
 
-                        budget::money expenses;
-                        for(auto& expense : all_expenses()){
-                            if(expense.date.year() == current_year && expense.date.month() == month){
-                                expenses += expense.amount;
-                            }
-                        }
+                        auto status = budget::compute_month_status(current_year, month);
 
-                        budget::money earnings;
-                        for(auto& earning : all_earnings()){
-                            if(earning.date.year() == current_year && earning.date.month() == month){
-                                earnings += earning.amount;
-                            }
-                        }
-
-                        auto balance = earnings - expenses;
-                        for(auto& c : all_accounts(current_year, month)){
-                            balance += c.amount;
-                        }
-
-                        print_success(balance, earnings, expenses, objective);
+                        print_success(status.balance, status.earnings, status.expenses, objective);
 
                         std::cout << std::endl;
                     }
