@@ -47,8 +47,8 @@ void list_objectives(){
     }
 }
 
-void print_success(budget::money balance, budget::money earnings, budget::money expenses, const budget::objective& objective){
-    auto success = compute_success(balance, earnings, expenses, objective);
+void print_success(const budget::status& status, const budget::objective& objective){
+    auto success = compute_success(status, objective);
 
     if(success < 25){
         std::cout << "\033[0;31m";
@@ -113,7 +113,7 @@ void status_objectives(){
                     print_minimum(objective.name, width);
                     std::cout << "  ";
 
-                    print_success(year_status.balance, year_status.earnings, year_status.expenses, objective);
+                    print_success(year_status, objective);
 
                     std::cout << std::endl;
                 }
@@ -151,7 +151,7 @@ void status_objectives(){
 
                         auto status = budget::compute_month_status(current_year, month);
 
-                        print_success(status.balance, status.earnings, status.expenses, objective);
+                        print_success(status, objective);
 
                         std::cout << std::endl;
                     }
@@ -182,16 +182,16 @@ void edit(budget::objective& objective){
 
 } //end of anonymous namespace
 
-int budget::compute_success(budget::money balance, budget::money earnings, budget::money expenses, const budget::objective& objective){
+int budget::compute_success(const budget::status& status, const budget::objective& objective){
     auto amount = objective.amount;
 
     budget::money basis;
     if(objective.source == "expenses"){
-        basis = expenses;
+        basis = status.expenses;
     } else if (objective.source == "earnings") {
-        basis = earnings;
+        basis = status.earnings;
     } else {
-        basis = balance;
+        basis = status.balance;
     }
 
     int success = 0;

@@ -15,6 +15,7 @@
 
 #include "module_traits.hpp"
 #include "money.hpp"
+#include "compute.hpp"
 
 namespace budget {
 
@@ -52,7 +53,7 @@ void add_objective(objective&& objective);
 
 void set_objectives_changed();
 
-int compute_success(money balance, money earnings, money expenses, const objective& objective);
+int compute_success(const budget::status& status, const objective& objective);
 
 } //end of namespace budget
 

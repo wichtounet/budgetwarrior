@@ -19,6 +19,24 @@ struct status {
     budget::money earnings;
     budget::money budget;
     budget::money balance;
+
+    status add_expense(budget::money expense){
+        auto new_status = *this;
+
+        new_status.expenses += expense;
+        new_status.balance -= expense;
+
+        return std::move(new_status);
+    }
+
+    status add_earning(budget::money earning){
+        auto new_status = *this;
+
+        new_status.earnings += earnings;
+        new_status.balance += earnings;
+
+        return std::move(new_status);
+    }
 };
 
 status compute_year_status();

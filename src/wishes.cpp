@@ -79,8 +79,8 @@ void status_wishes(){
 
         for(auto& objective : all_objectives()){
             if(objective.type == "monthly"){
-                auto success_before = budget::compute_success(month_status.balance, month_status.earnings, month_status.expenses, objective);
-                auto success_after = budget::compute_success(month_status.balance - amount, month_status.earnings, month_status.expenses + amount, objective);
+                auto success_before = budget::compute_success(month_status, objective);
+                auto success_after = budget::compute_success(month_status.add_expense(amount), objective);
 
                 if(success_before >= 100 && success_after < 100){
                     ++monthly_breaks;
@@ -90,8 +90,8 @@ void status_wishes(){
                     perfect_objective = false;
                 }
             } else if(objective.type == "yearly"){
-                auto success_before = budget::compute_success(year_status.balance, year_status.earnings, year_status.expenses, objective);
-                auto success_after = budget::compute_success(year_status.balance - amount, year_status.earnings, year_status.expenses + amount, objective);
+                auto success_before = budget::compute_success(year_status, objective);
+                auto success_after = budget::compute_success(year_status.add_expense(amount), objective);
 
                 if(success_before >= 100 && success_after < 100){
                     ++yearly_breaks;
