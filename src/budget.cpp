@@ -26,6 +26,7 @@
 #include "report.hpp"
 #include "fortune.hpp"
 #include "objectives.hpp"
+#include "wishes.hpp"
 
 using namespace budget;
 
@@ -41,6 +42,7 @@ typedef boost::mpl::vector<
             budget::fortune_module*,
             budget::report_module*,
             budget::objectives_module*,
+            budget::wishes_module*,
             budget::help_module*
     > modules;
 
