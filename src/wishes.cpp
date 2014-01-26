@@ -51,18 +51,14 @@ void list_wishes(){
 void status_wishes(){
     std::cout << "Wishes" << std::endl << std::endl;
 
-    auto today = boost::gregorian::day_clock::local_day();
-    auto current_month = today.month();
-    auto current_year = today.year();
-    auto sm = start_month(current_year);
-
     size_t width = 0;
     for(auto& wish : wishes.data){
         width = std::max(rsize(wish.name), width);
     }
 
-    auto month_status = budget::compute_month_status(current_year, current_month);
-    auto year_status = budget::compute_year_status(current_year, current_month);
+    auto today = boost::gregorian::day_clock::local_day();
+    auto month_status = budget::compute_month_status(today.year(), today.month());
+    auto year_status = budget::compute_year_status(today.year(), today.month());
 
     auto fortune_amount = budget::current_fortune();
 
@@ -75,7 +71,9 @@ void status_wishes(){
 
         size_t monthly_breaks = 0;
         size_t yearly_breaks = 0;
-        bool perfect_objective = true;
+
+        bool month_objective = true;
+        bool year_objective = true;
 
         for(auto& objective : all_objectives()){
             if(objective.type == "monthly"){
@@ -87,7 +85,7 @@ void status_wishes(){
                 }
 
                 if(success_after < 100){
-                    perfect_objective = false;
+                    month_objective = false;
                 }
             } else if(objective.type == "yearly"){
                 auto success_before = budget::compute_success(year_status, objective);
@@ -98,7 +96,7 @@ void status_wishes(){
                 }
 
                 if(success_after < 100){
-                    perfect_objective = false;
+                    year_objective = false;
                 }
             }
         }
@@ -108,8 +106,10 @@ void status_wishes(){
         } else {
             if(month_status.balance > wish.amount){
                 if(!all_objectives().empty()){
-                    if(perfect_objective){
+                    if(month_objective && year_objective){
                         std::cout << "Perfect (On month balance, all objectives fullfilled)";
+                    } else if(month_objective){
+                        std::cout << "Good (On month balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
                         std::cout << "OK (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
@@ -120,8 +120,10 @@ void status_wishes(){
                 }
             } else if(year_status.balance > wish.amount){
                 if(!all_objectives().empty()){
-                    if(perfect_objective){
+                    if(month_objective && year_objective){
                         std::cout << "Perfect (On year balance, all objectives fullfilled)";
+                    } else if(month_objective){
+                        std::cout << "Good (On year balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
                         std::cout << "OK (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
