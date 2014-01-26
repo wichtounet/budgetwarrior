@@ -21,9 +21,6 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 
     set(CMAKE_CXX_FLAGS_RELEASE         "-g -DLOGGING_DISABLE -DNDEBUG -O3 -fomit-frame-pointer -march=native")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE  "")
-
-    set(CMAKE_CXX_FLAGS_COVERAGE        "${CMAKE_CXX_FLAGS} --coverage")
-    set(CMAKE_EXE_LINKER_FLAGS_COVERAGE "--coverage")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS           "-std=c++11 -Qunused-arguments")
     set(CMAKE_CXX_FLAGS_DEBUG     "-g -pedantic -Wuninitialized -Wsometimes-uninitialized -Wall -Wextra -Wno-long-long -Winit-self -Wdocumentation")
@@ -54,7 +51,7 @@ add_custom_target(gitstats gitstats ${CMAKE_CURRENT_SOURCE_DIR} stats
     COMMENT "Gathering git stats" VERBATIM
 )
 
-# The compiler and the tests should go to the bin directory
+# The executable should go to the bin directory
 set(EXECUTABLE_OUTPUT_PATH bin)
 
 # All the headers are in the include directory
@@ -68,14 +65,9 @@ file(
 	src/*.cpp
 )
 
-file(GLOB to_remove src/budget.cpp)
-list(REMOVE_ITEM source_files ${to_remove})
-
-add_library(Budget OBJECT ${source_files})
-
 # Create the budget executable
 
-add_executable(budget $<TARGET_OBJECTS:Budget> src/budget.cpp)
+add_executable(budget ${source_files})
 target_link_libraries(budget uuid)
 target_link_libraries(budget boost_system)
 target_link_libraries(budget boost_filesystem)

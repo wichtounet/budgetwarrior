@@ -64,7 +64,7 @@ void print_success(const budget::status& status, const budget::objective& object
     std::cout << "%\033[0m  ";
 
     success = std::min(success, 109);
-    auto good = success == 0 ? 0 : (success / 10) + 1;
+    size_t good = success == 0 ? 0 : (success / 10) + 1;
 
     for(std::size_t i = 0; i < good; ++i){
         std::cout << "\033[1;42m   \033[0m";

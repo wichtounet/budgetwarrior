@@ -32,8 +32,8 @@ struct status {
     status add_earning(budget::money earning){
         auto new_status = *this;
 
-        new_status.earnings += earnings;
-        new_status.balance += earnings;
+        new_status.earnings += earning;
+        new_status.balance += earning;
 
         return std::move(new_status);
     }
