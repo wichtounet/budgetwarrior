@@ -25,6 +25,7 @@
 #include "utils.hpp"
 #include "console.hpp"
 #include "budget_exception.hpp"
+#include "compute.hpp"
 
 using namespace budget;
 
@@ -60,6 +61,9 @@ void status_wishes(){
         width = std::max(rsize(wish.name), width);
     }
 
+    auto month_status = budget::compute_month_status(current_year, current_month);
+    auto year_status = budget::compute_year_status(current_year, current_month);
+
     budget::money fortune_amount;
     boost::gregorian::date fortune_date;
     for(auto& fortune : all_fortunes()){
@@ -72,49 +76,6 @@ void status_wishes(){
                 fortune_date = fortune.check_date;
             }
         }
-    }
-
-    budget::money year_expenses;
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == current_year && expense.date.month() >= sm && expense.date.month() <= current_month){
-            year_expenses += expense.amount;
-        }
-    }
-
-    budget::money year_earnings;
-    for(auto& earning : all_earnings()){
-        if(earning.date.year() == current_year && earning.date.month() >= sm && earning.date.month() <= current_month){
-            year_earnings += earning.amount;
-        }
-    }
-
-    auto year_balance = year_earnings - year_expenses;
-    for(unsigned short i = sm; i <= current_month; ++i){
-        boost::gregorian::greg_month month = i;
-
-        auto current_accounts = all_accounts(current_year, month);
-        for(auto& c : current_accounts){
-            year_balance += c.amount;
-        }
-    }
-
-    budget::money month_expenses;
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == current_year && expense.date.month() == current_month){
-            month_expenses += expense.amount;
-        }
-    }
-
-    budget::money month_earnings;
-    for(auto& earning : all_earnings()){
-        if(earning.date.year() == current_year && earning.date.month() == current_month){
-            month_earnings += earning.amount;
-        }
-    }
-
-    auto month_balance = month_earnings - month_expenses;
-    for(auto& c : all_accounts(current_year, current_month)){
-        month_balance += c.amount;
     }
 
     for(auto& wish : wishes.data){
@@ -130,8 +91,8 @@ void status_wishes(){
 
         for(auto& objective : all_objectives()){
             if(objective.type == "monthly"){
-                auto success_before = budget::compute_success(month_balance, month_earnings, month_expenses, objective);
-                auto success_after = budget::compute_success(month_balance - amount, month_earnings, month_expenses + amount, objective);
+                auto success_before = budget::compute_success(month_status.balance, month_status.earnings, month_status.expenses, objective);
+                auto success_after = budget::compute_success(month_status.balance - amount, month_status.earnings, month_status.expenses + amount, objective);
 
                 if(success_before >= 100 && success_after < 100){
                     ++monthly_breaks;
@@ -141,8 +102,8 @@ void status_wishes(){
                     perfect_objective = false;
                 }
             } else if(objective.type == "yearly"){
-                auto success_before = budget::compute_success(year_balance, year_earnings, year_expenses, objective);
-                auto success_after = budget::compute_success(year_balance - amount, year_earnings, year_expenses + amount, objective);
+                auto success_before = budget::compute_success(year_status.balance, year_status.earnings, year_status.expenses, objective);
+                auto success_after = budget::compute_success(year_status.balance - amount, year_status.earnings, year_status.expenses + amount, objective);
 
                 if(success_before >= 100 && success_after < 100){
                     ++yearly_breaks;
@@ -157,7 +118,7 @@ void status_wishes(){
         if(fortune_amount < wish.amount){
             std::cout << "Impossible (not enough fortune)";
         } else {
-            if(month_balance > wish.amount){
+            if(month_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(perfect_objective){
                         std::cout << "Perfect (On month balance, all objectives fullfilled)";
@@ -169,7 +130,7 @@ void status_wishes(){
                 } else {
                     std::cout << "OK (on month balance)";
                 }
-            } else if(year_balance > wish.amount){
+            } else if(year_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(perfect_objective){
                         std::cout << "Perfect (On year balance, all objectives fullfilled)";
