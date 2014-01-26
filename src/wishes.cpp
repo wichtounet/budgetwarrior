@@ -48,7 +48,146 @@ void list_wishes(){
 }
 
 void status_wishes(){
-    //TODO
+    std::cout << "Wishes" << std::endl << std::endl;
+
+    auto today = boost::gregorian::day_clock::local_day();
+    auto current_month = today.month();
+    auto current_year = today.year();
+    auto sm = start_month(current_year);
+
+    size_t width = 0;
+    for(auto& wish : wishes.data){
+        width = std::max(rsize(wish.name), width);
+    }
+
+    budget::money fortune_amount;
+    boost::gregorian::date fortune_date;
+    for(auto& fortune : all_fortunes()){
+        if(fortune_amount.zero()){
+            fortune_amount = fortune.amount;
+            fortune_date = fortune.check_date;
+        } else {
+            if(fortune.check_date > fortune_date){
+                fortune_amount = fortune.amount;
+                fortune_date = fortune.check_date;
+            }
+        }
+    }
+
+    budget::money year_expenses;
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == current_year && expense.date.month() >= sm && expense.date.month() <= current_month){
+            year_expenses += expense.amount;
+        }
+    }
+
+    budget::money year_earnings;
+    for(auto& earning : all_earnings()){
+        if(earning.date.year() == current_year && earning.date.month() >= sm && earning.date.month() <= current_month){
+            year_earnings += earning.amount;
+        }
+    }
+
+    auto year_balance = year_earnings - year_expenses;
+    for(unsigned short i = sm; i <= current_month; ++i){
+        boost::gregorian::greg_month month = i;
+
+        auto current_accounts = all_accounts(current_year, month);
+        for(auto& c : current_accounts){
+            year_balance += c.amount;
+        }
+    }
+
+    budget::money month_expenses;
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == current_year && expense.date.month() == current_month){
+            month_expenses += expense.amount;
+        }
+    }
+
+    budget::money month_earnings;
+    for(auto& earning : all_earnings()){
+        if(earning.date.year() == current_year && earning.date.month() == current_month){
+            month_earnings += earning.amount;
+        }
+    }
+
+    auto month_balance = month_earnings - month_expenses;
+    for(auto& c : all_accounts(current_year, current_month)){
+        month_balance += c.amount;
+    }
+
+    for(auto& wish : wishes.data){
+        auto amount = wish.amount;
+
+        std::cout << "  ";
+        print_minimum(wish.name, width);
+        std::cout << "  ";
+
+        size_t monthly_breaks = 0;
+        size_t yearly_breaks = 0;
+        bool perfect_objective = true;
+
+        for(auto& objective : all_objectives()){
+            if(objective.type == "monthly"){
+                auto success_before = budget::compute_success(month_balance, month_earnings, month_expenses, objective);
+                auto success_after = budget::compute_success(month_balance - amount, month_earnings, month_expenses + amount, objective);
+
+                if(success_before >= 100 && success_after < 100){
+                    ++monthly_breaks;
+                }
+
+                if(success_after < 100){
+                    perfect_objective = false;
+                }
+            } else if(objective.type == "yearly"){
+                auto success_before = budget::compute_success(year_balance, year_earnings, year_expenses, objective);
+                auto success_after = budget::compute_success(year_balance - amount, year_earnings, year_expenses + amount, objective);
+
+                if(success_before >= 100 && success_after < 100){
+                    ++yearly_breaks;
+                }
+
+                if(success_after < 100){
+                    perfect_objective = false;
+                }
+            }
+        }
+
+        if(fortune_amount < wish.amount){
+            std::cout << "Impossible (not enough fortune)";
+        } else {
+            if(month_balance > wish.amount){
+                if(!all_objectives().empty()){
+                    if(perfect_objective){
+                        std::cout << "Perfect (On month balance, all objectives fullfilled)";
+                    } else if(yearly_breaks > 0 || monthly_breaks > 0){
+                        std::cout << "OK (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                    } else if(yearly_breaks == 0 && monthly_breaks == 0){
+                        std::cout << "Warning (On month balance, objectives not fullfilled)";
+                    }
+                } else {
+                    std::cout << "OK (on month balance)";
+                }
+            } else if(year_balance > wish.amount){
+                if(!all_objectives().empty()){
+                    if(perfect_objective){
+                        std::cout << "Perfect (On year balance, all objectives fullfilled)";
+                    } else if(yearly_breaks > 0 || monthly_breaks > 0){
+                        std::cout << "OK (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                    } else if(yearly_breaks == 0 && monthly_breaks == 0){
+                        std::cout << "Warning (On year balance, objectives not fullfilled)";
+                    }
+                } else {
+                    std::cout << "OK (on year balance)";
+                }
+            } else {
+                std::cout << "Warning (on fortune only)";
+            }
+        }
+
+        std::cout << std::endl;
+    }
 }
 
 void edit(budget::wish& wish){

@@ -134,6 +134,10 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
     }
 }
 
+std::vector<fortune>& budget::all_fortunes(){
+    return fortunes.data;
+}
+
 void budget::load_fortunes(){
     load_data(fortunes, "fortunes.data");
 }

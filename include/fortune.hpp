@@ -40,6 +40,8 @@ struct fortune {
 std::ostream& operator<<(std::ostream& stream, const fortune& fortune);
 void operator>>(const std::vector<std::string>& parts, fortune& fortune);
 
+std::vector<fortune>& all_fortunes();
+
 void load_fortunes();
 void save_fortunes();
 

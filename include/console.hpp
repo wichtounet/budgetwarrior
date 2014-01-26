@@ -17,6 +17,14 @@
 
 namespace budget {
 
+template<typename T>
+void print_minimum(const T& str, std::size_t min_width){
+    auto old_width = std::cout.width();
+    std::cout.width(min_width);
+    std::cout << str;
+    std::cout.width(old_width);
+}
+
 /**
  * Returns the real size of a string. By default, accented characteres are
  * represented by several chars and make the length of the string being bigger

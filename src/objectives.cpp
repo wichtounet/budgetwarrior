@@ -46,36 +46,8 @@ void list_objectives(){
     }
 }
 
-template<typename T>
-void print_minimum(const T& str, std::size_t min_width){
-    auto old_width = std::cout.width();
-    std::cout.width(min_width);
-    std::cout << str;
-    std::cout.width(old_width);
-}
-
 void print_success(budget::money balance, budget::money earnings, budget::money expenses, const budget::objective& objective){
-    auto amount = objective.amount;
-
-    budget::money basis;
-    if(objective.source == "expenses"){
-        basis = expenses;
-    } else if (objective.source == "earnings") {
-        basis = earnings;
-    } else {
-        basis = balance;
-    }
-
-    int success = 0;
-    if(objective.op == "min"){
-        auto percent = basis.dollars() / static_cast<double>(amount.dollars());
-        success = percent * 100;
-    } else if(objective.op == "max"){
-        auto percent = amount.dollars() / static_cast<double>(basis.dollars());
-        success = percent * 100;
-    }
-
-    success = std::max(0, success);
+    auto success = compute_success(balance, earnings, expenses, objective);
 
     if(success < 25){
         std::cout << "\033[0;31m";
@@ -248,6 +220,32 @@ void edit(budget::objective& objective){
 }
 
 } //end of anonymous namespace
+
+int budget::compute_success(budget::money balance, budget::money earnings, budget::money expenses, const budget::objective& objective){
+    auto amount = objective.amount;
+
+    budget::money basis;
+    if(objective.source == "expenses"){
+        basis = expenses;
+    } else if (objective.source == "earnings") {
+        basis = earnings;
+    } else {
+        basis = balance;
+    }
+
+    int success = 0;
+    if(objective.op == "min"){
+        auto percent = basis.dollars() / static_cast<double>(amount.dollars());
+        success = percent * 100;
+    } else if(objective.op == "max"){
+        auto percent = amount.dollars() / static_cast<double>(basis.dollars());
+        success = percent * 100;
+    }
+
+    success = std::max(0, success);
+
+    return success;
+}
 
 void budget::objectives_module::load(){
     load_expenses();
