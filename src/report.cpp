@@ -86,7 +86,7 @@ void monthly_report(boost::gregorian::greg_year year){
     }
 
     auto height = terminal_height() - 9;
-    auto width = terminal_width() - 6;
+    //auto width = terminal_width() - 6;
 
     //TODO compute the scale based on the data
     unsigned int scale = 1000;
@@ -119,7 +119,7 @@ void monthly_report(boost::gregorian::greg_year year){
 
     int first_step = min == 0 ? 0 : -1 * ((-min % scale) + 1) * scale;
 
-    for(int i = 0; i <= levels; ++i){
+    for(size_t i = 0; i <= levels; ++i){
         int level = first_step + i * scale;
 
         write(graph, 4 + step_height * i, 1, to_string(level));
