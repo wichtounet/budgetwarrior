@@ -5,7 +5,7 @@ project("budgetwarrior")
 #Set the version number
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 2)
-set(VERSION_PATCH 1)
+set(VERSION_PATCH 2)
 
 #Boost is necessary
 FIND_PACKAGE(Boost REQUIRED)
