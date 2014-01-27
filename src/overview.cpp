@@ -607,6 +607,10 @@ void budget::overview_module::load(){
 }
 
 void budget::overview_module::handle(const std::vector<std::string>& args){
+    if(all_accounts().empty()){
+        throw budget_exception("No accounts defined, you should start by defining some of them");
+    }
+
     if(args.empty() || args.size() == 1){
         month_overview();
     } else {
