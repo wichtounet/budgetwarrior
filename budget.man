@@ -6,7 +6,7 @@ budget \- Manage personal accounting
 .SH SYNOPSIS
 budget [module] [options]
 .SH DESCRIPTION
-budgetwarrior is a simple command-line tool to manage personal accounting.
+budgetwarrior is a simple command-line tool for personal accounting management. It is especially made for people that have regular monthly incomes.
 .SH OPTIONS
 All the options in square brackets are optional.
 
@@ -34,6 +34,7 @@ Edit the given account.
 account archive
 Create a new sets of accounts that will be used starting from the first day of the current month. This allows you to edit the new set of accounts without changing the results of the previous months. This should be used when change in salary occurs.
 .SH EXPENSES
+
 .TP
 expense [show]
 Show the expenses of the current month.
@@ -42,17 +43,18 @@ expense show (month) (year)
 Show the expenses of the specified month of the specified year.
 .TP
 expense all
-List all the expenses
+List all the expenses.
 .TP
 expense add
-Create a new expense
+Create a new expense.
 .TP
 expense delete (id)
-Delete the given expense
+Delete the given expense.
 .TP
 expense edit (id)
-Delete the given expense
+Delete the given expense.
 .SH EARNINGS
+
 .TP
 earning [show]
 Show the earnings of the current month.
@@ -61,16 +63,112 @@ earning show (month) (year)
 Show the earnings of the specified month of the specified year.
 .TP
 earning all
-List all the earnings
+List all the earnings.
 .TP
 earning add
-Create a new earning
+Create a new earning.
 .TP
 earning delete (id)
-Delete the given earning
+Delete the given earning.
 .TP
 earning edit (id)
-Delete the given earning
+Delete the given earning.
+.SH OVERVIEWS
+The different overviews gives information about the current status of your budget, monthly or yearly.
+.TP
+overview [month]
+Display the overview of the current month.
+.TP
+overview month (month) (year)
+Display the overview of the specified month.
+.TP
+overview year
+Display the overview of the current year.
+.TP
+overview aggregate year
+Group expenses of the current year together by their name or by their categories if specified.
+.TP
+overview aggregate year (year)
+Group expenses of the specified year together by their name or by their categories if specified.
+.SH RECURRING EXPENSES
+It is possible to create monthly recurring expenses that are automatically created at the beginning of the month.
+.TP
+recurring [show]
+Show the recurring expenses.
+.TP
+recurring add
+Create a new recurring expense.
+.TP
+recurring delete (id)
+Delete the given recurring expense.
+.TP
+recurring edit (id)
+Delete the given recurring expense.
+.SH FORTUNES
+This module simply lets you save your current savings at a time point. This information is then used in other modules for better accuracy. it also automatically computes the evolution of your fortune. A good habit would be to indicate the state your savings at the end of each month.
+.TP
+fortune [status]
+Display the status of the fortune.
+.TP
+fortune list
+Display all the fortune information that has been saved.
+.TP
+fortune check
+Set the current fortune.
+.TP
+fortune edit (id)
+Edit the given fortune information.
+.TP
+fortune delete (id)
+Delete the given fortune information.
+.SH OBJECTIVES
+You can indicate your objectives to the application and it will track them for you. For instance, you can indicate that you like to save 1000$ each month or that you will like to save 10000$ each year. You can also defines objectives on earnings and expenses.
+.TP
+objective [status]
+Show the status of your objectives up to the current month.
+.TP
+objective list
+Display the list of the objectives.
+.TP
+objective add
+Create a new objective.
+.TP
+objective delete (id)
+Delete the objective with the given id.
+.TP
+objective edit (id)
+Edit the objective with the given id.
+.SH WISHES
+You can save a list of wishes in the application and it will indicate when it is a good time to buy them. For instance, it is not a good time to buy it if you're breaking all the monthly objectives with it or if you didn't saved enough for it in the current month or year.
+.TP
+wish [status]
+Show the status of the wishes. This command indicates which wish you could purchase now and why you shouldn't purchase the other.
+.TP
+wish list
+Show all the wishes that have been saved.
+.TP
+wish delete (id)
+Delete the wish with the specified id.
+.TP
+wish edit (id)
+Edit the wish with the specified id.
+.SH DEBTS
+With this module, you can track your debts, either you're owing someone or someone is owing you..
+.TP
+debt [list]
+Shows all the unpaid debts.
+.TP
+debt all
+Shows all the debts.
+.TP
+debt paid (id)
+Mark the given debt as paid.
+.TP
+debt delete (id)
+Delete the given debt.
+.TP
+debt edit (id)
+Edit the given debt.
 
 .SH AUTHOR
 Baptiste Wicht (baptiste.wicht@gmail.com)
