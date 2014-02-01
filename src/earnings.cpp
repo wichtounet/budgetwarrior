@@ -115,15 +115,12 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             edit_date(earning.date, "Date");
 
             std::string account_name;
-            edit_string(account_name, "Account");
+            edit_string(account_name, "Account", not_empty_checker());
             validate_account(account_name);
             earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
-            edit_string(earning.name, "Name");
-            not_empty(earning.name, "The name of the earning cannot be empty");
-
-            edit_money(earning.amount, "Amount");
-            not_negative(earning.amount);
+            edit_string(earning.name, "Name", not_empty_checker());
+            edit_money(earning.amount, "Amount", not_negative_checker());
 
             add_data(earnings, std::move(earning));
         } else if(subcommand == "delete"){
@@ -156,11 +153,8 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             validate_account(account_name);
             earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
-            edit_string(earning.name, "Name");
-            not_empty(earning.name, "The name of the earning cannot be empty");
-
-            edit_money(earning.amount, "Amount");
-            not_negative(earning.amount);
+            edit_string(earning.name, "Name", not_empty_checker());
+            edit_money(earning.amount, "Amount", not_negative_checker());
 
             std::cout << "earning " << id << " has been modified" << std::endl;
 

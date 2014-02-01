@@ -48,9 +48,3 @@ std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
         }
     }
 }
-
-void budget::not_negative(const money& amount){
-    if(amount.dollars() < 0 || amount.cents() < 0){
-        throw budget_exception("Amount cannot be negative");
-    }
-}

@@ -119,11 +119,8 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             validate_account(account_name);
             expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
-            edit_string(expense.name, "Name");
-            not_empty(expense.name, "The name of the expense cannot be empty");
-
-            edit_money(expense.amount, "Amount");
-            not_negative(expense.amount);
+            edit_string(expense.name, "Name", not_empty_checker());
+            edit_money(expense.amount, "Amount", not_negative_checker());
 
             add_data(expenses, std::move(expense));
         } else if(subcommand == "delete"){
@@ -156,11 +153,8 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             validate_account(account_name);
             expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
-            edit_string(expense.name, "Name");
-            not_empty(expense.name, "The name of the expense cannot be empty");
-
-            edit_money(expense.amount, "Amount");
-            not_negative(expense.amount);
+            edit_string(expense.name, "Name", not_empty_checker());
+            edit_money(expense.amount, "Amount", not_negative_checker());
 
             std::cout << "Expense " << id << " has been modified" << std::endl;
 

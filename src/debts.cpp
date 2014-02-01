@@ -83,15 +83,9 @@ void edit_direction(bool& ref, const std::string& title){
 
 void edit(budget::debt& debt){
     edit_direction(debt.direction, "Direction");
-
-    edit_string(debt.name, "Name");
-    not_empty(debt.name, "The name of the debt cannot be empty");
-
-    edit_money(debt.amount, "Amount");
-    not_negative(debt.amount);
-
-    edit_string(debt.title, "Title");
-    not_empty(debt.title, "The title of the debt cannot be empty");
+    edit_string(debt.name, "Name", not_empty_checker());
+    edit_money(debt.amount, "Amount", not_negative_checker());
+    edit_string(debt.title, "Title", not_empty_checker());
 }
 
 } //end of anonymous namespace

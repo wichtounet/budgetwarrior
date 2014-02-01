@@ -142,10 +142,8 @@ void status_wishes(){
 }
 
 void edit(budget::wish& wish){
-    edit_string(wish.name, "Name");
-    not_empty(wish.name, "The name of the wish cannot be empty");
-
-    edit_money(wish.amount, "Amount");
+    edit_string(wish.name, "Name", not_empty_checker());
+    edit_money(wish.amount, "Amount", not_negative_checker(), not_zero_checker());
 }
 
 } //end of anonymous namespace

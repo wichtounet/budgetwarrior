@@ -162,21 +162,10 @@ void status_objectives(){
 }
 
 void edit(budget::objective& objective){
-    edit_string(objective.name, "Name");
-    not_empty(objective.name, "The name of the objective cannot be empty");
-
-    edit_string(objective.type, "Type");
-    not_empty(objective.type, "The type of the objective cannot be empty");
-    one_of(objective.type, "Possible values for type are [monthly,yearly]", {"monthly","yearly"});
-
-    edit_string(objective.source, "Source");
-    not_empty(objective.source, "The source of the objective cannot be empty");
-    one_of(objective.type, "Possible values for source are [balance,earnings,expenses]", {"balance", "earnings", "expenses"});
-
-    edit_string(objective.op, "Operator");
-    not_empty(objective.op, "The operator of the objective cannot be empty");
-    one_of(objective.type, "Possible values for operator are [min,max]", {"min", "max"});
-
+    edit_string(objective.name, "Name", not_empty_checker());
+    edit_string(objective.type, "Type", not_empty_checker(), one_of_checker({"monthly","yearly"}));
+    edit_string(objective.source, "Source", not_empty_checker(), one_of_checker({"balance", "earnings", "expenses"}));
+    edit_string(objective.op, "Operator", not_empty_checker(), one_of_checker({"min", "max"}));
     edit_money(objective.amount, "Amount");
 }
 
