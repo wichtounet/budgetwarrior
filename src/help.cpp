@@ -39,17 +39,22 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget overview aggregate                                  Display the aggregated expenses for the current year" << std::endl;
     std::cout << "       budget overview aggregate year (year)                      Display the aggregated expenses for the given year" << std::endl << std::endl;
 
-    std::cout << "       budget objective [status]                                  Show the status of the objectives for the current year" << std::endl;
-    std::cout << "       budget objective list                                      List all the defined objectives" << std::endl;
-    std::cout << "       budget objective add                                       Add a new objective" << std::endl;
-    std::cout << "       budget objective edit (id)                                 Edit an objective" << std::endl;
-    std::cout << "       budget objective delete (id)                               Delete an objective" << std::endl;
+    std::cout << "       budget recurring [show]                                    Display the recurring expenses" << std::endl;
+    std::cout << "       budget recurring add                                       Add a new recurring expense" << std::endl;
+    std::cout << "       budget recurring delete (id)                               Remove completely the recurring expense with the given id" << std::endl;
+    std::cout << "       budget recurring edit (id)                                 Modify the recurring expense with the given id" << std::endl << std::endl;
 
     std::cout << "       budget fortune [status]                                    Display the status of the fortune checks" << std::endl;
     std::cout << "       budget fortune list                                        Display the list of all the fortune checks" << std::endl;
     std::cout << "       budget fortune check                                       Create a new fortune check" << std::endl;
     std::cout << "       budget fortune edit (id)                                   Edit a fortune check" << std::endl;
     std::cout << "       budget fortune delete (id)                                 Delete a fortune check" << std::endl << std::endl;
+
+    std::cout << "       budget objective [status]                                  Show the status of the objectives for the current year" << std::endl;
+    std::cout << "       budget objective list                                      List all the defined objectives" << std::endl;
+    std::cout << "       budget objective add                                       Add a new objective" << std::endl;
+    std::cout << "       budget objective edit (id)                                 Edit an objective" << std::endl;
+    std::cout << "       budget objective delete (id)                               Delete an objective" << std::endl;
 
     std::cout << "       budget wish [status]                                       Show the status of the wishes" << std::endl;
     std::cout << "       budget wish list                                           List all the wishes" << std::endl;
