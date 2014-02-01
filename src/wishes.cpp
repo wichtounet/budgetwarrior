@@ -178,14 +178,15 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 
             edit(wish);
 
-            add_data(wishes, std::move(wish));
+            auto id = add_data(wishes, std::move(wish));
+            std::cout << "Wish " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             std::size_t id = to_number<std::size_t>(args[2]);
 
             if(!exists(wishes, id)){
-                throw budget_exception("There are no wish with id ");
+                throw budget_exception("There are no wish with id " + args[2]);
             }
 
             remove(wishes, id);
@@ -205,6 +206,8 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
             edit(wish);
 
             set_wishes_changed();
+
+            std::cout << "wish " << id << " has been modified" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

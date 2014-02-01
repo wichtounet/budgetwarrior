@@ -116,7 +116,8 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("Too many arguments to fortune check");
             }
 
-            add_data(fortunes, std::move(fortune));
+            auto id = add_data(fortunes, std::move(fortune));
+            std::cout << "Fortune check " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
@@ -128,7 +129,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
 
             remove(fortunes, id);
 
-            std::cout << "Fortune " << id << " has been deleted" << std::endl;
+            std::cout << "Fortune check " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
@@ -144,7 +145,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
 
             edit_money(fortune.amount, "Amount");
 
-            std::cout << "Fortune " << id << " has been modified" << std::endl;
+            std::cout << "Fortune check " << id << " has been modified" << std::endl;
 
             fortunes.changed = true;
         } else {

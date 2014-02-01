@@ -121,7 +121,8 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             edit_string(expense.name, "Name", not_empty_checker());
             edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
 
-            add_data(expenses, std::move(expense));
+            auto id = add_data(expenses, std::move(expense));
+            std::cout << "Expense " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 

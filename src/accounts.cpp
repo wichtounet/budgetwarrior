@@ -112,7 +112,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("An account with this name already exists");
             }
 
-            add_data(accounts, std::move(account));
+            auto id = add_data(accounts, std::move(account));
+            std::cout << "Account " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 

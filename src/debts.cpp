@@ -116,7 +116,8 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
 
             edit(debt);
 
-            add_data(debts, std::move(debt));
+            auto id = add_data(debts, std::move(debt));
+            std::cout << "Debt " << id << " has been created" << std::endl;
         } else if(subcommand == "paid"){
             enough_args(args, 3);
 

@@ -121,7 +121,8 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             edit_string(earning.name, "Name", not_empty_checker());
             edit_money(earning.amount, "Amount", not_negative_checker());
 
-            add_data(earnings, std::move(earning));
+            auto id = add_data(earnings, std::move(earning));
+            std::cout << "earning " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 

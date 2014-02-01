@@ -226,14 +226,15 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
 
             edit(objective);
 
-            add_data(objectives, std::move(objective));
+            auto id = add_data(objectives, std::move(objective));
+            std::cout << "Objective " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             std::size_t id = to_number<std::size_t>(args[2]);
 
             if(!exists(objectives, id)){
-                throw budget_exception("There are no objective with id ");
+                throw budget_exception("There are no objective with id " + args[2]);
             }
 
             remove(objectives, id);
@@ -253,6 +254,8 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
             edit(objective);
 
             set_objectives_changed();
+
+            std::cout << "Objective " << id << " has been modified" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

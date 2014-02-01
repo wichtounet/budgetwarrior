@@ -125,14 +125,15 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
 
-            add_data(recurrings, std::move(recurring));
+            auto id = add_data(recurrings, std::move(recurring));
+            std::cout << "Recurring expense " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             std::size_t id = to_number<std::size_t>(args[2]);
 
             if(!exists(recurrings, id)){
-                throw budget_exception("There are no recurring expense with id ");
+                throw budget_exception("There are no recurring expense with id " + args[2]);
             }
 
             remove(recurrings, id);
@@ -144,7 +145,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             std::size_t id = to_number<std::size_t>(args[2]);
 
             if(!exists(recurrings, id)){
-                throw budget_exception("There are no recurring expense with id ");
+                throw budget_exception("There are no recurring expense with id " + args[2]);
             }
 
             auto& recurring = get(recurrings, id);
@@ -153,9 +154,9 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
 
-            std::cout << "Recurring expense " << id << " has been modified" << std::endl;
-
             recurrings.changed = true;
+
+            std::cout << "Recurring expense " << id << " has been modified" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
