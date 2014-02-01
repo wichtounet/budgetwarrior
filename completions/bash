@@ -1,0 +1,8 @@
+# Bash completion for budgetwarrior
+
+_budget(){
+    local cur=${COMP:WORDS[COMP_CWORD]}"
+    COMPREPLY=( $(compgen -W "account expense earning overview objective fortune debt wish report help" -- $cur) )
+}
+
+complete -F _budget budget

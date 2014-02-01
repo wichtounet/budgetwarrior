@@ -1,0 +1,4 @@
+#compdef budget
+# ZSH Completion for budgetwarrior
+
+_arguments "1: :(account expense earning overview objective fortune debt wish report help)"
