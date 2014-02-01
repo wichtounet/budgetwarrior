@@ -14,6 +14,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "money.hpp"
+#include "accounts.hpp"
 
 namespace budget {
 
@@ -132,6 +133,16 @@ struct not_zero_checker {
 
     std::string message(){
         return "The amount cannot be negative";
+    }
+};
+
+struct account_checker {
+    bool operator()(const std::string& value){
+        return account_exists(value);
+    }
+
+    std::string message(){
+        return "The account does not exist";
     }
 };
 

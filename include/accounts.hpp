@@ -44,7 +44,6 @@ void load_accounts();
 void save_accounts();
 
 bool account_exists(const std::string& account);
-void validate_account(const std::string& account);
 
 std::vector<budget::account>& all_accounts();
 std::vector<budget::account>  all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month);

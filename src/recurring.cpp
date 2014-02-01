@@ -119,8 +119,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             auto date = boost::gregorian::day_clock::local_day();
 
             std::string account_name;
-            edit_string(recurring.account, "Account", not_empty_checker());
-            validate_account(account_name);
+            edit_string(account_name, "Account", not_empty_checker(), account_checker());
             recurring.account = get_account(account_name, date.year(), date.month()).id;
 
             edit_string(recurring.name, "Name", not_empty_checker());
@@ -150,9 +149,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             auto& recurring = get(recurrings, id);
 
-            edit_string(recurring.account, "Account", not_empty_checker());
-            validate_account(recurring.account);
-
+            edit_string(recurring.account, "Account", not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
 
