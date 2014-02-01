@@ -1,4 +1,4 @@
-budgetwarrior 0.2.2
+budgetwarrior 0.3.0
 ===================
 
 Simple command line utility to helps keeping track of your expenses and the
@@ -14,7 +14,13 @@ budgetwarrior has several features:
 * Keeps track of your debts
 * Manage recurring expenses that are automatically created monthly
 
-## Building ##
+## Installation ##
+
+A Gentoo ebuild is available on this overlay: https://github.com/wichtounet/wichtounet-overlay
+
+Arch Linux packages are also available: https://github.com/StreakyCobra/aur
+
+## Building from sources ##
 
 A modern compiler is necessary: GCC >= 4.7 or CLang >= 3.1.
 
@@ -30,6 +36,8 @@ You juste have to use CMake to build it:
     $ make
     $ sudo make install
 
+Man pages and ZSH/Bash completions are also available.
+
 ## Usage ##
 
 The executable is named 'budget' and allows to perform all the commands.
@@ -37,6 +45,12 @@ The executable is named 'budget' and allows to perform all the commands.
 Use
 
     $ budget help
+
+Or
+
+    $ man budget
+
+if you have installed the man pages.
 
 to see all the available commands.
 
@@ -55,10 +69,6 @@ The project is open for any kind of contribution : ideas, new features, hotfixes
 If you want to contribute to this project, you can contact me by [email](baptiste.wicht@gmail.com) or via my [website](http://baptiste-wicht.com/). You can also directly fork the project and make a pull request.
 
 If you want to support the development of this project, you can [donate via Pledgie](http://pledgie.com/campaigns/21113). Thank you !
-
-## More informations ##
-
-You can find more information about this project, on the [website](http://baptiste-wicht.com/).
 
 ## Troubleshooting ##
 
