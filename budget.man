@@ -1,0 +1,76 @@
+.\" Manpage for budgetwarrior
+.\" Contact baptiste.wicht@gmail.com to correct errors or typos.
+.TH man 8 "01 Feb 2014" "1.0" "budgetwarrior man page"
+.SH NAME
+budget \- Manage personal accounting
+.SH SYNOPSIS
+budget [module] [options]
+.SH DESCRIPTION
+budgetwarrior is a simple command-line tool to manage personal accounting.
+.SH OPTIONS
+All the options in square brackets are optional.
+
+All the options in parenthesis are parameters.
+.SH DEFAULT
+Calling budget without any options display the overview of the current month.
+.SH ACCOUNTS
+The accounts define how much money is allocated for each part of your budget. The total of the accounts should match your monthly income.
+.TP
+account [show]
+Show the current accounts.
+.TP
+account all
+Show all the created accounts.
+.TP
+account add
+Create a new account.
+.TP
+account delete (id)
+Delete the given account.
+.TP
+account edit (id)
+Edit the given account.
+.TP
+account archive
+Create a new sets of accounts that will be used starting from the first day of the current month. This allows you to edit the new set of accounts without changing the results of the previous months. This should be used when change in salary occurs.
+.SH EXPENSES
+.TP
+expense [show]
+Show the expenses of the current month.
+.TP
+expense show (month) (year)
+Show the expenses of the specified month of the specified year.
+.TP
+expense all
+List all the expenses
+.TP
+expense add
+Create a new expense
+.TP
+expense delete (id)
+Delete the given expense
+.TP
+expense edit (id)
+Delete the given expense
+.SH EARNINGS
+.TP
+earning [show]
+Show the earnings of the current month.
+.TP
+earning show (month) (year)
+Show the earnings of the specified month of the specified year.
+.TP
+earning all
+List all the earnings
+.TP
+earning add
+Create a new earning
+.TP
+earning delete (id)
+Delete the given earning
+.TP
+earning edit (id)
+Delete the given earning
+
+.SH AUTHOR
+Baptiste Wicht (baptiste.wicht@gmail.com)
