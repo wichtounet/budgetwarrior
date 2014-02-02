@@ -14,11 +14,17 @@ budgetwarrior has several features:
 * Keeps track of your debts
 * Manage recurring expenses that are automatically created monthly
 
+## Start using budgetwarrior ##
+
+The wiki contains a guide for starting using budgetwarrior: https://github.com/wichtounet/budgetwarrior/wiki/Start-tutorial
+
 ## Installation ##
 
 A Gentoo ebuild is available on this overlay: https://github.com/wichtounet/wichtounet-overlay
 
 Arch Linux packages are also available: https://github.com/StreakyCobra/aur
+
+For other systems, you'll have to install from sources. 
 
 ## Building from sources ##
 
