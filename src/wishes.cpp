@@ -53,6 +53,10 @@ void status_wishes(){
 
     size_t width = 0;
     for(auto& wish : wishes.data){
+        if(wish.paid){
+            continue;
+        }
+
         width = std::max(rsize(wish.name), width);
     }
 
@@ -63,6 +67,10 @@ void status_wishes(){
     auto fortune_amount = budget::current_fortune();
 
     for(auto& wish : wishes.data){
+        if(wish.paid){
+            continue;
+        }
+
         auto amount = wish.amount;
 
         std::cout << "  ";
@@ -208,6 +216,24 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
             set_wishes_changed();
 
             std::cout << "wish " << id << " has been modified" << std::endl;
+        } else if(subcommand == "paid"){
+            enough_args(args, 3);
+
+            std::size_t id = to_number<std::size_t>(args[2]);
+
+            if(!exists(wishes, id)){
+                throw budget_exception("There are no wish with id " + args[2]);
+            }
+
+            auto& wish = get(wishes, id);
+
+            edit_money(wish.paid_amount, "Paid Amount", not_negative_checker(), not_zero_checker());
+
+            wish.paid = true;
+
+            set_wishes_changed();
+
+            std::cout << "wish " << id << " has been marked as paid" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -233,7 +259,7 @@ std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
         << wish.name << ':'
         << wish.amount << ':'
         << to_string(wish.date) << ':'
-        << static_cast<size_t>(wish.paid ? 1 : 0) << ':'
+        << static_cast<size_t>(wish.paid) << ':'
         << wish.paid_amount;
 }
 
@@ -243,7 +269,7 @@ void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
     wish.name = parts[2];
     wish.amount = parse_money(parts[3]);
     wish.date = boost::gregorian::from_string(parts[4]);
-    wish.id = to_number<std::size_t>(parts[5]) == 1;
+    wish.paid = to_number<std::size_t>(parts[5]) == 1;
     wish.paid_amount = parse_money(parts[6]);
 }
 
