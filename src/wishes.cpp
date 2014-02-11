@@ -37,11 +37,11 @@ void list_wishes(){
     if(wishes.data.size() == 0){
         std::cout << "No wishes" << std::endl;
     } else {
-        std::vector<std::string> columns = {"ID", "Name", "Amount"};
+        std::vector<std::string> columns = {"ID", "Name", "Amount", "Paid"};
         std::vector<std::vector<std::string>> contents;
 
         for(auto& wish : wishes.data){
-            contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount)});
+            contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), wish.paid ? to_string(wish.paid_amount) : "No"});
         }
 
         display_table(columns, contents);
@@ -232,7 +232,9 @@ std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
         << wish.guid << ':'
         << wish.name << ':'
         << wish.amount << ':'
-        << to_string(wish.date);
+        << to_string(wish.date) << ':'
+        << static_cast<size_t>(wish.paid ? 1 : 0) << ':'
+        << wish.paid_amount;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
@@ -241,6 +243,8 @@ void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
     wish.name = parts[2];
     wish.amount = parse_money(parts[3]);
     wish.date = boost::gregorian::from_string(parts[4]);
+    wish.id = to_number<std::size_t>(parts[5]) == 1;
+    wish.paid_amount = parse_money(parts[6]);
 }
 
 std::vector<wish>& budget::all_wishes(){
@@ -249,4 +253,21 @@ std::vector<wish>& budget::all_wishes(){
 
 void budget::set_wishes_changed(){
     wishes.changed = true;
+}
+
+void budget::migrate_wishes_2_to_3(){
+    load_data(wishes, "wishes.data", [](const std::vector<std::string>& parts, wish& wish){
+        wish.id = to_number<std::size_t>(parts[0]);
+        wish.guid = parts[1];
+        wish.name = parts[2];
+        wish.amount = parse_money(parts[3]);
+        wish.date = boost::gregorian::from_string(parts[4]);
+        wish.paid = false;
+        wish.paid_amount = budget::money(0,0);
+        });
+
+    set_wishes_changed();
+
+    save_data(wishes, "wishes.data");
+
 }

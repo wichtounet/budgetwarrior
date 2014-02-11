@@ -36,6 +36,8 @@ struct wish {
     boost::gregorian::date date;
     std::string name;
     money amount;
+    bool paid;
+    money paid_amount;
 };
 
 std::ostream& operator<<(std::ostream& stream, const wish& expense);
@@ -48,6 +50,8 @@ std::vector<wish>& all_wishes();
 void add_wish(wish&& objective);
 
 void set_wishes_changed();
+
+void migrate_wishes_2_to_3();
 
 } //end of namespace budget
 

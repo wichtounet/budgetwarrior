@@ -196,8 +196,12 @@ int main(int argc, const char* argv[]) {
     if(old_data_version != DATA_VERSION){
         std::cout << "Migrate data base..." << std::endl;
 
-        if(old_data_version == 1 && DATA_VERSION == 2){
+        if(old_data_version == 1 && DATA_VERSION >= 2){
             migrate_recurring_1_to_2();
+        }
+
+        if(old_data_version <= 2 && DATA_VERSION >= 3){
+            migrate_wishes_2_to_3();
         }
 
         internal_config_value("data_version") = to_string(DATA_VERSION);
