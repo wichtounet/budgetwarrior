@@ -1,8 +1,13 @@
-budgetwarrior 0.3
+budgetwarrior 0.3.1 - in development
+ * Compute totals in wish list
+ * Add feature to mark wishes as paid
+
+budgetwarrior 0.3 - 03.02.2014
  * Change license to MIT
  * Remove support for old command types
  * Add objectives module to fix yearly/monthly objectives on balances,
    earnings and expenses
+ * Add wish list and estimation of when it is a good time to buy something
 
 budgetwarrior 0.2.1 - 15.01.2014
  * Fix recurrings system
