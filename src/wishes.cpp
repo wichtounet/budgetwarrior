@@ -40,9 +40,20 @@ void list_wishes(){
         std::vector<std::string> columns = {"ID", "Name", "Amount", "Paid"};
         std::vector<std::vector<std::string>> contents;
 
+        money total;
+        money unpaid_total;
         for(auto& wish : wishes.data){
             contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), wish.paid ? to_string(wish.paid_amount) : "No"});
+
+            total += wish.amount;
+            if(!wish.paid){
+                unpaid_total += wish.amount;
+            }
         }
+
+        contents.push_back({"", "", "", ""});
+        contents.push_back({"", "Total", to_string(total), ""});
+        contents.push_back({"", "Unpaid Total", to_string(unpaid_total), ""});
 
         display_table(columns, contents);
     }
