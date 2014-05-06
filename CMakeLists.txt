@@ -26,9 +26,9 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES "[Re][Ee][Ll][Ee][Aa][Ss][Ee]")
 
 # Activate specific warnings
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions(-pedantic -Wuninitialized -Wall -Wextra -Wno-long-long -Winit-self)
+    add_definitions(-g -pedantic -Wuninitialized -Wall -Wextra -Wno-long-long -Winit-self)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    add_definitions(-pedantic -Wuninitialized -Wsometimes-uninitialized -Wall -Wextra -Wno-long-long -Winit-self -Wdocumentation -Qunused-arguments)
+    add_definitions(-g -pedantic -Wuninitialized -Wsometimes-uninitialized -Wall -Wextra -Wno-long-long -Winit-self -Wdocumentation -Qunused-arguments)
 else()
     MESSAGE(FATAL_ERROR "ERROR: budgetwarrior can only be compiled on gcc and clang for now")
 endif()
