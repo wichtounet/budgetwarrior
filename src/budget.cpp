@@ -193,6 +193,12 @@ int main(int argc, const char* argv[]) {
 
     auto old_data_version = to_number<std::size_t>(internal_config_value("data_version"));
 
+    if(old_data_version > DATA_VERSION){
+        std::cout << "Unsupported database version, you should update budgetwarrior" << std::endl;
+
+        return 0;
+    }
+
     if(old_data_version < DATA_VERSION){
         std::cout << "Migrate data base..." << std::endl;
 
