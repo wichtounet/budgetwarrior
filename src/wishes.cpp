@@ -165,6 +165,150 @@ void status_wishes(){
     }
 }
 
+void estimate_wishes(){
+    std::cout << "Time to buy (with year objectives)" << std::endl;
+
+    size_t width = 0;
+    for(auto& wish : wishes.data){
+        if(wish.paid){
+            continue;
+        }
+
+        width = std::max(rsize(wish.name), width);
+    }
+
+    auto fortune_amount = budget::current_fortune();
+    auto today = boost::gregorian::day_clock::local_day();
+
+    for(auto& wish : wishes.data){
+        if(wish.paid){
+            continue;
+        }
+
+        std::cout << "  ";
+        print_minimum(wish.name, width);
+        std::cout << "  ";
+
+        bool ok = false;
+    
+        for(std::size_t i = 0; i < 24 && !ok; ++i){
+            auto day = today + boost::gregorian::months(i);
+            auto month_status = budget::compute_month_status(day.year(), day.month());
+            auto year_status = budget::compute_year_status(day.year(), day.month());
+
+            size_t monthly_breaks = 0;
+            size_t yearly_breaks = 0;
+
+            bool month_objective = true;
+            bool year_objective = true;
+
+            for(auto& objective : all_objectives()){
+                if(objective.type == "monthly"){
+                    auto success_before = budget::compute_success(month_status, objective);
+                    auto success_after = budget::compute_success(month_status.add_expense(wish.amount), objective);
+
+                    if(success_before >= 100 && success_after < 100){
+                        ++monthly_breaks;
+                    }
+
+                    if(success_after < 100){
+                        month_objective = false;
+                    }
+                } else if(objective.type == "yearly"){
+                    auto success_before = budget::compute_success(year_status, objective);
+                    auto success_after = budget::compute_success(year_status.add_expense(wish.amount), objective);
+
+                    if(success_before >= 100 && success_after < 100){
+                        ++yearly_breaks;
+                    }
+
+                    if(success_after < 100){
+                        year_objective = false;
+                    }
+                }
+            }
+
+            if(fortune_amount >= wish.amount){
+                if(month_objective && year_objective){
+                    if(wish.amount >= month_status.budget){
+                        if(year_status.balance > wish.amount){
+                            std::cout << day.month() << " " << day.year() << std::endl;
+                            ok = true;
+                        } 
+                    } else {
+                        if(month_status.balance > wish.amount){
+                            std::cout << day.month() << " " << day.year() << std::endl;
+                            ok = true;
+                        }
+                    }
+                } 
+            }
+        }
+
+        if(!ok){
+            std::cout << "You should wait a very long time to buy this" << std::endl;
+        }
+    }
+    
+    std::cout << std::endl << "Time to buy (without year objectives)" << std::endl;
+    
+    for(auto& wish : wishes.data){
+        if(wish.paid){
+            continue;
+        }
+
+        std::cout << "  ";
+        print_minimum(wish.name, width);
+        std::cout << "  ";
+
+        bool ok = false;
+    
+        for(std::size_t i = 0; i < 24 && !ok; ++i){
+            auto day = today + boost::gregorian::months(i);
+            auto month_status = budget::compute_month_status(day.year(), day.month());
+            auto year_status = budget::compute_year_status(day.year(), day.month());
+
+            size_t monthly_breaks = 0;
+            bool month_objective = true;
+
+            for(auto& objective : all_objectives()){
+                if(objective.type == "monthly"){
+                    auto success_before = budget::compute_success(month_status, objective);
+                    auto success_after = budget::compute_success(month_status.add_expense(wish.amount), objective);
+
+                    if(success_before >= 100 && success_after < 100){
+                        ++monthly_breaks;
+                    }
+
+                    if(success_after < 100){
+                        month_objective = false;
+                    }
+                } 
+            }
+
+            if(fortune_amount >= wish.amount){
+                if(month_objective){
+                    if(wish.amount >= month_status.budget){
+                        if(year_status.balance > wish.amount){
+                            std::cout << day.month() << " " << day.year() << std::endl;
+                            ok = true;
+                        } 
+                    } else {
+                        if(month_status.balance > wish.amount){
+                            std::cout << day.month() << " " << day.year() << std::endl;
+                            ok = true;
+                        }
+                    }
+                } 
+            }
+        }
+
+        if(!ok){
+            std::cout << "You should wait a very long time to buy this" << std::endl;
+        }
+    }
+}
+
 void edit(budget::wish& wish){
     edit_string(wish.name, "Name", not_empty_checker());
     edit_money(wish.amount, "Amount", not_negative_checker(), not_zero_checker());
@@ -195,6 +339,8 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
             list_wishes();
         } else if(subcommand == "status"){
             status_wishes();
+        } else if(subcommand == "estimate"){
+            estimate_wishes();
         } else if(subcommand == "add"){
             wish wish;
             wish.guid = generate_guid();
