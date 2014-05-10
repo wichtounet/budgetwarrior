@@ -6,9 +6,32 @@
 //=======================================================================
 
 #include <iostream>
+#include <sstream>
+#include <fstream>
 
 #include "versioning.hpp"
 #include "budget_exception.hpp"
+#include "config.hpp"
+
+namespace {
+
+std::string exec_command(const std::string& command) {
+    std::stringstream output;
+
+    char buffer[1024];
+
+    FILE* stream = popen(command.c_str(), "r");
+
+    while (fgets(buffer, 1024, stream) != NULL) {
+        output << buffer;
+    }
+
+    pclose(stream);
+
+    return output.str();
+}
+
+} //end of anonymous namespace
 
 void budget::versioning_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
@@ -17,7 +40,7 @@ void budget::versioning_module::handle(const std::vector<std::string>& args){
         auto& subcommand = args[1];
 
         if(subcommand == "save"){
-            //TODO
+            std::cout << exec_command("git -C " + budget_folder() + " commit -a -m Update" ) << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
