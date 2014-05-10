@@ -99,7 +99,36 @@ void edit_date(boost::gregorian::date& ref, const std::string& title, Checker...
         std::getline(std::cin, answer);
 
         if(!answer.empty()){
-            ref = boost::gregorian::from_string(answer);
+            bool math = false;
+            if(answer[0] == '+'){
+                std::string str(std::next(answer.begin()), std::prev(answer.end()));
+                if(answer.back() == 'd'){
+                    ref += boost::gregorian::date_duration(std::stoi(str));
+                    math = true;
+                } else if(answer.back() == 'm'){
+                    ref += boost::gregorian::months(std::stoi(str));
+                    math = true;
+                } else if(answer.back() == 'y'){
+                    ref += boost::gregorian::years(std::stoi(str));
+                    math = true;
+                }
+            } else if(answer[0] == '-'){
+                std::string str(std::next(answer.begin()), std::prev(answer.end()));
+                if(answer.back() == 'd'){
+                    ref -= boost::gregorian::date_duration(std::stoi(str));
+                    math = true;
+                } else if(answer.back() == 'm'){
+                    ref -= boost::gregorian::months(std::stoi(str));
+                    math = true;
+                } else if(answer.back() == 'y'){
+                    ref -= boost::gregorian::years(std::stoi(str));
+                    math = true;
+                }
+            } 
+            
+            if(!math) {
+                ref = boost::gregorian::from_string(answer);
+            }
         }
 
         checked = check(ref, checkers...);
