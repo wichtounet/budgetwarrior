@@ -60,6 +60,12 @@ void list_wishes(){
 }
 
 void status_wishes(){
+    auto today = boost::gregorian::day_clock::local_day();
+
+    if(today.day() < 12){
+        std::cout << "WARNING: It is early in the month, no one can know what may happen ;)" << std::endl << std::endl;
+    }
+
     std::cout << "Wishes" << std::endl << std::endl;
 
     size_t width = 0;
@@ -71,7 +77,6 @@ void status_wishes(){
         width = std::max(rsize(wish.name), width);
     }
 
-    auto today = boost::gregorian::day_clock::local_day();
     auto month_status = budget::compute_month_status(today.year(), today.month());
     auto year_status = budget::compute_year_status(today.year(), today.month());
 

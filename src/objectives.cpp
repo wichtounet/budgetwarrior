@@ -80,6 +80,11 @@ void status_objectives(){
         std::cout << "No objectives" << std::endl;
     } else {
         auto today = boost::gregorian::day_clock::local_day();
+
+        if(today.day() < 12){
+            std::cout << "WARNING: It is early in the month, no one can know what may happen ;)" << std::endl << std::endl;
+        }
+
         auto current_month = today.month();
         auto current_year = today.year();
         auto sm = start_month(current_year);
