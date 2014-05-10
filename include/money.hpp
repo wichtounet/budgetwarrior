@@ -75,9 +75,17 @@ struct money {
     bool operator<(const budget::money& rhs) const {
         return value < rhs.value;
     }
+    
+    bool operator<=(const budget::money& rhs) const {
+        return value < rhs.value;
+    }
 
     bool operator>(const budget::money& rhs) const {
         return value > rhs.value;
+    }
+    
+    bool operator>=(const budget::money& rhs) const {
+        return value >= rhs.value;
     }
 
     int cents() const {
