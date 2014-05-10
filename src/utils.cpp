@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #include "utils.hpp"
@@ -15,12 +15,6 @@
 #include <cstdio>
 #include <sys/ioctl.h>
 #include <unistd.h>
-
-void budget::not_empty(const std::string& value, const std::string& message){
-    if(value.empty()){
-        throw budget_exception(message);
-    }
-}
 
 unsigned short budget::start_month(boost::gregorian::greg_year year){
     auto key = to_string(year) + "_start";

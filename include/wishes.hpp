@@ -5,8 +5,8 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef EXPENSES_H
-#define EXPENSES_H
+#ifndef WISHES_H
+#define WISHES_H
 
 #include <vector>
 #include <string>
@@ -18,37 +18,40 @@
 
 namespace budget {
 
-struct expenses_module {
+struct wishes_module {
     void load();
     void unload();
     void handle(const std::vector<std::string>& args);
 };
 
 template<>
-struct module_traits<expenses_module> {
+struct module_traits<wishes_module> {
     static constexpr const bool is_default = false;
-    static constexpr const char* command = "expense";
+    static constexpr const char* command = "wish";
 };
 
-struct expense {
+struct wish {
     std::size_t id;
     std::string guid;
     boost::gregorian::date date;
     std::string name;
-    std::size_t account;
     money amount;
+    bool paid;
+    money paid_amount;
 };
 
-std::ostream& operator<<(std::ostream& stream, const expense& expense);
-void operator>>(const std::vector<std::string>& parts, expense& expense);
+std::ostream& operator<<(std::ostream& stream, const wish& expense);
+void operator>>(const std::vector<std::string>& parts, wish& expense);
 
-void load_expenses();
-void save_expenses();
+void load_wishes();
+void save_wishes();
 
-std::vector<expense>& all_expenses();
-void add_expense(expense&& expense);
+std::vector<wish>& all_wishes();
+void add_wish(wish&& objective);
 
-void set_expenses_changed();
+void set_wishes_changed();
+
+void migrate_wishes_2_to_3();
 
 } //end of namespace budget
 

@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #include <iostream>
@@ -81,6 +81,13 @@ void edit_direction(bool& ref, const std::string& title){
     }
 }
 
+void edit(budget::debt& debt){
+    edit_direction(debt.direction, "Direction");
+    edit_string(debt.name, "Name", not_empty_checker());
+    edit_money(debt.amount, "Amount", not_negative_checker());
+    edit_string(debt.title, "Title", not_empty_checker());
+}
+
 } //end of anonymous namespace
 
 void budget::debt_module::load(){
@@ -107,44 +114,10 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
             debt.guid = generate_guid();
             debt.creation_time = boost::posix_time::second_clock::local_time();
 
-            if(args.size() == 2){
-                edit_direction(debt.direction, "Direction");
+            edit(debt);
 
-                edit_string(debt.name, "Name");
-                not_empty(debt.name, "The name of the debt cannot be empty");
-
-                edit_money(debt.amount, "Amount");
-                not_negative(debt.amount);
-
-                edit_string(debt.title, "Title");
-                not_empty(debt.title, "The title of the debt cannot be empty");
-            } else {
-                enough_args(args, 5);
-
-                std::string direction = args[2];
-
-                if(direction != "to" && direction != "from"){
-                    throw budget_exception("Invalid direction, only \"to\" and \"from\" are valid");
-                }
-
-                debt.direction = direction == "to" ? true : false;
-
-                debt.name = args[3];
-                not_empty(debt.name, "The name of the debt cannot be empty");
-
-                debt.amount = parse_money(args[4]);
-                not_negative(debt.amount);
-
-                if(args.size() > 5){
-                    for(std::size_t i = 5; i < args.size(); ++i){
-                        debt.title += args[i] + " ";
-                    }
-                }
-
-                not_empty(debt.title, "The title of the debt cannot be empty");
-            }
-
-            add_data(debts, std::move(debt));
+            auto id = add_data(debts, std::move(debt));
+            std::cout << "Debt " << id << " has been created" << std::endl;
         } else if(subcommand == "paid"){
             enough_args(args, 3);
 
@@ -154,17 +127,12 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("There are no debt with id " + args[2]);
             }
 
-            for(auto& debt : debts.data){
-                if(debt.id == id){
-                    debt.state = 1;
+            auto& debt = get(debts, id);
+            debt.state = 1;
 
-                    debts.changed = true;
+            debts.changed = true;
 
-                    std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
-
-                    break;
-                }
-            }
+            std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
@@ -186,18 +154,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("There are no debt with id " + args[2]);
             }
 
-            auto& debt = get(debts, id);
-
-            edit_direction(debt.direction, "Direction");
-
-            edit_string(debt.name, "Name");
-            not_empty(debt.name, "The name of the debt cannot be empty");
-
-            edit_money(debt.amount, "Amount");
-            not_negative(debt.amount);
-
-            edit_string(debt.title, "Title");
-            not_empty(debt.title, "The title of the debt cannot be empty");
+            edit(get(debts, id));
 
             std::cout << "Debt " << id << " has been modified" << std::endl;
 

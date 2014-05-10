@@ -1,5 +1,27 @@
+budgetwarrior 0.3.1 - 10.05.2014
+ * Compute totals in wish list
+ * Add feature to mark wishes as paid
+ * Date durations can be used to compute a date from the date of the day
+ * Display warnings if early in the month for objectives and wishes
+ * New wish estimate command to estimate a good time to buy something
+ * New versioning module to commit and sync the budget repository with git
+
+budgetwarrior 0.3 - 03.02.2014
+ * Change license to MIT
+ * Remove support for old command types
+ * Add objectives module to fix yearly/monthly objectives on balances,
+   earnings and expenses
+ * Add wish list and estimation of when it is a good time to buy something
+
+budgetwarrior 0.2.1 - 15.01.2014
+ * Fix recurrings system
+ * Fix archived accounts
+ * The first month of the year now takes the last month of the previous year
+   to compute its balance
+
 budgetwarrior 0.2 - 25.10.2013
- * Add more convenient system to create expenses, earnings, accounts, recurring, expenses and debts
+ * Add more convenient system to create expenses, earnings, accounts, recurring,
+   expenses and debts
  * Sort expenses and earnings by their data, not their creation date
  * Only write data files if they changed
  * Only write configuration files if they changed

@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #ifndef MONEY_H
@@ -75,9 +75,17 @@ struct money {
     bool operator<(const budget::money& rhs) const {
         return value < rhs.value;
     }
+    
+    bool operator<=(const budget::money& rhs) const {
+        return value < rhs.value;
+    }
 
     bool operator>(const budget::money& rhs) const {
         return value > rhs.value;
+    }
+    
+    bool operator>=(const budget::money& rhs) const {
+        return value >= rhs.value;
     }
 
     int cents() const {
@@ -104,7 +112,6 @@ struct money {
 std::ostream& operator<<(std::ostream& stream, const money& amount);
 
 money parse_money(const std::string& money_string);
-void not_negative(const money& money);
 
 template<>
 inline std::string to_string(const money& amount){

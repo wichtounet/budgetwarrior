@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #include <iostream>
@@ -112,58 +112,17 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             earning.guid = generate_guid();
             earning.date = boost::gregorian::day_clock::local_day();
 
-            if(args.size() == 2){
-                edit_date(earning.date, "Date");
+            edit_date(earning.date, "Date");
 
-                std::string account_name;
-                edit_string(account_name, "Account");
-                validate_account(account_name);
-                earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
-
-                edit_string(earning.name, "Name");
-                not_empty(earning.name, "The name of the earning cannot be empty");
-
-                edit_money(earning.amount, "Amount");
-                not_negative(earning.amount);
-            } else {
-                enough_args(args, 5);
-
-                auto account_name = args[2];
-                validate_account(account_name);
-                earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
-
-                earning.amount = parse_money(args[3]);
-                not_negative(earning.amount);
-
-                for(std::size_t i = 4; i < args.size(); ++i){
-                    earning.name += args[i] + " ";
-                }
-
-                not_empty(earning.name, "The name of the earning cannot be empty");
-            }
-
-            add_data(earnings, std::move(earning));
-        } else if(subcommand == "addd"){
-            enough_args(args, 6);
-
-            earning earning;
-            earning.guid = generate_guid();
-            earning.date = boost::gregorian::from_string(args[2]);
-
-            auto account_name = args[3];
-            validate_account(account_name);
+            std::string account_name;
+            edit_string(account_name, "Account", not_empty_checker(), account_checker());
             earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
-            earning.amount = parse_money(args[4]);
-            not_negative(earning.amount);
+            edit_string(earning.name, "Name", not_empty_checker());
+            edit_money(earning.amount, "Amount", not_negative_checker());
 
-            for(std::size_t i = 5; i < args.size(); ++i){
-                earning.name += args[i] + " ";
-            }
-
-            not_empty(earning.name, "The name of the earning cannot be empty");
-
-            add_data(earnings, std::move(earning));
+            auto id = add_data(earnings, std::move(earning));
+            std::cout << "earning " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
@@ -190,15 +149,11 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             edit_date(earning.date, "Date");
 
             auto account_name = get_account(earning.account).name;
-            edit_string(account_name, "Account");
-            validate_account(account_name);
+            edit_string(account_name, "Account", not_empty_checker(), account_checker());
             earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
-            edit_string(earning.name, "Name");
-            not_empty(earning.name, "The name of the earning cannot be empty");
-
-            edit_money(earning.amount, "Amount");
-            not_negative(earning.amount);
+            edit_string(earning.name, "Name", not_empty_checker());
+            edit_money(earning.amount, "Amount", not_negative_checker());
 
             std::cout << "earning " << id << " has been modified" << std::endl;
 

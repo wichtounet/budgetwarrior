@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #include <string>
@@ -25,6 +25,9 @@
 #include "recurring.hpp"
 #include "report.hpp"
 #include "fortune.hpp"
+#include "objectives.hpp"
+#include "wishes.hpp"
+#include "versioning.hpp"
 
 using namespace budget;
 
@@ -39,8 +42,16 @@ typedef boost::mpl::vector<
             budget::recurring_module*,
             budget::fortune_module*,
             budget::report_module*,
+            budget::objectives_module*,
+            budget::wishes_module*,
+            budget::versioning_module*,
             budget::help_module*
     > modules;
+
+template<class T>
+struct Void {
+    typedef void type;
+};
 
 #define HAS_MEM_FUNC(func, name)                                        \
     template<typename T, typename Sign>                                 \
@@ -48,10 +59,22 @@ typedef boost::mpl::vector<
         typedef char yes[1];                                            \
         typedef char no [2];                                            \
         template <typename U, U> struct type_check;                     \
-        template <typename _1> static yes &chk(type_check<Sign, &_1::func> *); \
-        template <typename   > static no  &chk(...);                    \
-        static bool const value = sizeof(chk<T>(0)) == sizeof(yes);     \
+        template <typename _1> static yes &chk(type_check<Sign, &_1::func> *);    \
+        template <typename   > static no  &chk(...);                              \
+        static bool constexpr const value = sizeof(chk<T>(0)) == sizeof(yes);     \
     }
+
+#define HAS_STATIC_FIELD(field, name)                                    \
+template <class T>                                                       \
+class name {                                                             \
+    template<typename U, typename =                                      \
+        typename std::enable_if<!std::is_member_pointer<decltype(&U::field)>::value>::type> \
+    static std::true_type check(int);                                    \
+    template <typename>                                                  \
+    static std::false_type check(...);                                   \
+public:                                                                  \
+    static constexpr const bool value = decltype(check<T>(0))::value;    \
+};
 
 HAS_MEM_FUNC(load, has_load);
 HAS_MEM_FUNC(unload, has_unload);
@@ -72,8 +95,38 @@ struct need_preloading {
     static const bool value = has_preload<Module, void(Module::*)()>::value;
 };
 
+HAS_STATIC_FIELD(disable_preloading, has_disable_preloading_field)
+
+template<typename Module, typename Enable = void>
+struct disable_preloading {
+    static const bool value = false;
+};
+
+template<typename Module>
+struct disable_preloading<Module, typename std::enable_if<has_disable_preloading_field<module_traits<Module>>::value>::type> {
+    static const bool value = module_traits<Module>::disable_preloading;
+};
+
 template<bool B, typename T = void>
 using disable_if = std::enable_if<!B, T>;
+
+struct module_loader {
+    template<typename Module>
+    inline typename std::enable_if<need_preloading<Module>::value, void>::type preload(){
+        Module module;
+        module.preload();
+    }
+
+    template<typename Module>
+    inline typename disable_if<need_preloading<Module>::value, void>::type preload(){
+        //NOP
+    }
+
+    template<typename Module>
+    inline void operator()(Module*){
+        preload<Module>();
+    }
+};
 
 struct module_runner {
     std::vector<std::string> args;
@@ -105,6 +158,12 @@ struct module_runner {
 
     template<typename Module>
     inline void handle_module(){
+        //Preload each module that needs it
+        if(!disable_preloading<Module>::value){
+            module_loader loader;
+            boost::mpl::for_each<modules>(boost::ref(loader));
+        }
+
         Module module;
 
         load(module);
@@ -129,24 +188,6 @@ struct module_runner {
         } else if(args[0] == module_traits<Module>::command){
             handle_module<Module>();
         }
-    }
-};
-
-struct module_loader {
-    template<typename Module>
-    inline typename std::enable_if<need_preloading<Module>::value, void>::type preload(){
-        Module module;
-        module.preload();
-    }
-
-    template<typename Module>
-    inline typename disable_if<need_preloading<Module>::value, void>::type preload(){
-        //NOP
-    }
-
-    template<typename Module>
-    inline void operator()(Module*){
-        preload<Module>();
     }
 };
 
@@ -189,11 +230,21 @@ int main(int argc, const char* argv[]) {
 
     auto old_data_version = to_number<std::size_t>(internal_config_value("data_version"));
 
-    if(old_data_version != DATA_VERSION){
+    if(old_data_version > DATA_VERSION){
+        std::cout << "Unsupported database version, you should update budgetwarrior" << std::endl;
+
+        return 0;
+    }
+
+    if(old_data_version < DATA_VERSION){
         std::cout << "Migrate data base..." << std::endl;
 
-        if(old_data_version == 1 && DATA_VERSION == 2){
+        if(old_data_version == 1 && DATA_VERSION >= 2){
             migrate_recurring_1_to_2();
+        }
+
+        if(old_data_version <= 2 && DATA_VERSION >= 3){
+            migrate_wishes_2_to_3();
         }
 
         internal_config_value("data_version") = to_string(DATA_VERSION);
@@ -206,10 +257,6 @@ int main(int argc, const char* argv[]) {
     int code = 0;
 
     try {
-        //Preload each module that needs it
-        module_loader loader;
-        boost::mpl::for_each<modules>(boost::ref(loader));
-
         //Run the correct module
         module_runner runner(std::move(args));
         boost::mpl::for_each<modules>(boost::ref(runner));

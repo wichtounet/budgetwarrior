@@ -4,30 +4,31 @@ project("budgetwarrior")
 
 #Set the version number
 set(VERSION_MAJOR 0)
-set(VERSION_MINOR 2)
-set(VERSION_PATCH 2)
+set(VERSION_MINOR 3)
+set(VERSION_PATCH 1)
 
 #Boost is necessary
 FIND_PACKAGE(Boost REQUIRED)
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 
-# Activate warnings and C++11 support
+# Activate C++14
+add_definitions(-std=c++1y)
+
+# Set debug mode options
+IF(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
+    add_definitions(-g)
+ENDIF(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
+
+# Set release mode options
+IF(CMAKE_BUILD_TYPE MATCHES "[Re][Ee][Ll][Ee][Aa][Ss][Ee]")
+    add_definitions(-g -O2 -march=native)
+ENDIF(CMAKE_BUILD_TYPE MATCHES "[Re][Ee][Ll][Ee][Aa][Ss][Ee]")
+
+# Activate specific warnings
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS                 "-pipe -pthread -std=c++11")
-    set(CMAKE_EXE_LINKER_FLAGS          "")
-
-    set(CMAKE_CXX_FLAGS_DEBUG           "-g -pedantic -Wuninitialized -Wall -Wextra -Wno-long-long -Winit-self -fstack-protector-all")
-    set(CMAKE_EXE_LINKER_FLAGS_DEBUG    "")
-
-    set(CMAKE_CXX_FLAGS_RELEASE         "-g -DLOGGING_DISABLE -DNDEBUG -O3 -fomit-frame-pointer -march=native")
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE  "")
-
-    set(CMAKE_CXX_FLAGS_COVERAGE        "${CMAKE_CXX_FLAGS} --coverage")
-    set(CMAKE_EXE_LINKER_FLAGS_COVERAGE "--coverage")
+    add_definitions(-g -pedantic -Wuninitialized -Wall -Wextra -Wno-long-long -Winit-self)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS           "-std=c++11 -Qunused-arguments")
-    set(CMAKE_CXX_FLAGS_DEBUG     "-g -pedantic -Wuninitialized -Wsometimes-uninitialized -Wall -Wextra -Wno-long-long -Winit-self -Wdocumentation")
-    set(CMAKE_CXX_FLAGS_RELEASE   "-DLOGGING_DISABLE -DNDEBUG -O3 -march=native")
+    add_definitions(-g -pedantic -Wuninitialized -Wsometimes-uninitialized -Wall -Wextra -Wno-long-long -Winit-self -Wdocumentation -Qunused-arguments)
 else()
     MESSAGE(FATAL_ERROR "ERROR: budgetwarrior can only be compiled on gcc and clang for now")
 endif()
@@ -54,7 +55,7 @@ add_custom_target(gitstats gitstats ${CMAKE_CURRENT_SOURCE_DIR} stats
     COMMENT "Gathering git stats" VERBATIM
 )
 
-# The compiler and the tests should go to the bin directory
+# The executable should go to the bin directory
 set(EXECUTABLE_OUTPUT_PATH bin)
 
 # All the headers are in the include directory
@@ -68,14 +69,9 @@ file(
 	src/*.cpp
 )
 
-file(GLOB to_remove src/budget.cpp)
-list(REMOVE_ITEM source_files ${to_remove})
-
-add_library(Budget OBJECT ${source_files})
-
 # Create the budget executable
 
-add_executable(budget $<TARGET_OBJECTS:Budget> src/budget.cpp)
+add_executable(budget ${source_files})
 target_link_libraries(budget uuid)
 target_link_libraries(budget boost_system)
 target_link_libraries(budget boost_filesystem)

@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #include "money.hpp"
@@ -46,11 +46,5 @@ std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
         } else {
             return stream << amount.dollars() << "." << amount.cents();
         }
-    }
-}
-
-void budget::not_negative(const money& amount){
-    if(amount.dollars() < 0 || amount.cents() < 0){
-        throw budget_exception("Amount cannot be negative");
     }
 }

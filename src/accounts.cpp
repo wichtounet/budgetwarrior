@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #include <iostream>
@@ -75,14 +75,6 @@ boost::gregorian::date find_new_since(){
     return date;
 }
 
-void validate_new_account_name(const std::string& name){
-    not_empty(name, "Account name cannot be empty");
-
-    if(account_exists(name)){
-        throw budget_exception("An account with this name already exists");
-    }
-}
-
 } //end of anonymous namespace
 
 void budget::accounts_module::load(){
@@ -113,23 +105,15 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             account.since = find_new_since();
             account.until = boost::gregorian::date(2099,12,31);
 
-            if(args.size() == 2){
-                edit_string(account.name, "Name");
-                validate_new_account_name(account.name);
+            edit_string(account.name, "Name", not_empty_checker());
+            edit_money(account.amount, "Amount", not_negative_checker());
 
-                edit_money(account.amount, "Amount");
-                not_negative(account.amount);
-            } else {
-                enough_args(args, 4);
-
-                account.name = args[2];
-                validate_new_account_name(account.name);
-
-                account.amount = parse_money(args[3]);
-                not_negative(account.amount);
+            if(account_exists(account.name)){
+                throw budget_exception("An account with this name already exists");
             }
 
-            add_data(accounts, std::move(account));
+            auto id = add_data(accounts, std::move(account));
+            std::cout << "Account " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
@@ -165,14 +149,11 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
             auto& account = get(accounts, id);
 
-            edit_string(account.name, "Name");
-            not_empty(account.name, "Account name cannot be empty");
+            edit_string(account.name, "Name", not_empty_checker());
+            edit_money(account.amount, "Amount", not_negative_checker());
 
             //TODO Verify that there are no OTHER account with this name
             //in the current set of accounts (taking archiving into account)
-
-            edit_money(account.amount, "Amount");
-            not_negative(account.amount);
 
             std::cout << "Account " << id << " has been modified" << std::endl;
 
@@ -308,10 +289,4 @@ std::vector<account> budget::all_accounts(boost::gregorian::greg_year year, boos
     }
 
     return std::move(accounts);
-}
-
-void budget::validate_account(const std::string& account){
-    if(!account_exists(account)){
-        throw budget_exception("The account \"" + account + "\" does not exist");
-    }
 }

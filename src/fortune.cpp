@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #include <iostream>
@@ -66,6 +66,25 @@ void status_fortunes(){
 
 } //end of anonymous namespace
 
+budget::money budget::current_fortune(){
+    auto& all = all_fortunes();
+
+    if(all.empty()){
+        return {};
+    }
+
+    budget::money fortune_amount = all.front().amount;
+    boost::gregorian::date fortune_date = all.front().check_date;;
+    for(auto& fortune : all_fortunes()){
+        if(fortune.check_date > fortune_date){
+            fortune_amount = fortune.amount;
+            fortune_date = fortune.check_date;
+        }
+    }
+
+    return fortune_amount;
+}
+
 void budget::fortune_module::load(){
     load_fortunes();
 }
@@ -97,7 +116,8 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("Too many arguments to fortune check");
             }
 
-            add_data(fortunes, std::move(fortune));
+            auto id = add_data(fortunes, std::move(fortune));
+            std::cout << "Fortune check " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
@@ -109,7 +129,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
 
             remove(fortunes, id);
 
-            std::cout << "Fortune " << id << " has been deleted" << std::endl;
+            std::cout << "Fortune check " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
@@ -125,13 +145,17 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
 
             edit_money(fortune.amount, "Amount");
 
-            std::cout << "Fortune " << id << " has been modified" << std::endl;
+            std::cout << "Fortune check " << id << " has been modified" << std::endl;
 
             fortunes.changed = true;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
+}
+
+std::vector<fortune>& budget::all_fortunes(){
+    return fortunes.data;
 }
 
 void budget::load_fortunes(){

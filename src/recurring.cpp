@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #include <iostream>
@@ -118,42 +118,22 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             auto date = boost::gregorian::day_clock::local_day();
 
-            if(args.size() == 2){
-                std::string account_name;
-                edit_string(account_name, "Account");
-                validate_account(account_name);
-                recurring.account = get_account(account_name, date.year(), date.month()).id;
+            std::string account_name;
+            edit_string(account_name, "Account", not_empty_checker(), account_checker());
+            recurring.account = get_account(account_name, date.year(), date.month()).id;
 
-                edit_string(recurring.name, "Name");
-                not_empty(recurring.name, "The name of the recurring expense cannot be empty");
+            edit_string(recurring.name, "Name", not_empty_checker());
+            edit_money(recurring.amount, "Amount", not_negative_checker());
 
-                edit_money(recurring.amount, "Amount");
-                not_negative(recurring.amount);
-            } else {
-                enough_args(args, 5);
-
-                auto account_name = args[2];
-                validate_account(account_name);
-                recurring.account = get_account(account_name, date.year(), date.month()).id;
-
-                recurring.amount = parse_money(args[3]);
-                not_negative(recurring.amount);
-
-                for(std::size_t i = 4; i < args.size(); ++i){
-                    recurring.name += args[i] + " ";
-                }
-
-                not_empty(recurring.name, "The name of the recurring expense cannot be empty");
-            }
-
-            add_data(recurrings, std::move(recurring));
+            auto id = add_data(recurrings, std::move(recurring));
+            std::cout << "Recurring expense " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             std::size_t id = to_number<std::size_t>(args[2]);
 
             if(!exists(recurrings, id)){
-                throw budget_exception("There are no recurring expense with id ");
+                throw budget_exception("There are no recurring expense with id " + args[2]);
             }
 
             remove(recurrings, id);
@@ -165,23 +145,18 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             std::size_t id = to_number<std::size_t>(args[2]);
 
             if(!exists(recurrings, id)){
-                throw budget_exception("There are no recurring expense with id ");
+                throw budget_exception("There are no recurring expense with id " + args[2]);
             }
 
             auto& recurring = get(recurrings, id);
 
-            edit_string(recurring.account, "Account");
-            validate_account(recurring.account);
-
-            edit_string(recurring.name, "Name");
-            not_empty(recurring.name, "The name of the recurring expense cannot be empty");
-
-            edit_money(recurring.amount, "Amount");
-            not_negative(recurring.amount);
-
-            std::cout << "Recurring expense " << id << " has been modified" << std::endl;
+            edit_string(recurring.account, "Account", not_empty_checker(), account_checker());
+            edit_string(recurring.name, "Name", not_empty_checker());
+            edit_money(recurring.amount, "Amount", not_negative_checker());
 
             recurrings.changed = true;
+
+            std::cout << "Recurring expense " << id << " has been modified" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

@@ -5,8 +5,8 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef EXPENSES_H
-#define EXPENSES_H
+#ifndef OBJECTIVES_H
+#define OBJECTIVES_H
 
 #include <vector>
 #include <string>
@@ -15,40 +15,45 @@
 
 #include "module_traits.hpp"
 #include "money.hpp"
+#include "compute.hpp"
 
 namespace budget {
 
-struct expenses_module {
+struct objectives_module {
     void load();
     void unload();
     void handle(const std::vector<std::string>& args);
 };
 
 template<>
-struct module_traits<expenses_module> {
+struct module_traits<objectives_module> {
     static constexpr const bool is_default = false;
-    static constexpr const char* command = "expense";
+    static constexpr const char* command = "objective";
 };
 
-struct expense {
+struct objective {
     std::size_t id;
     std::string guid;
     boost::gregorian::date date;
     std::string name;
-    std::size_t account;
+    std::string type;
+    std::string source;
+    std::string op;
     money amount;
 };
 
-std::ostream& operator<<(std::ostream& stream, const expense& expense);
-void operator>>(const std::vector<std::string>& parts, expense& expense);
+std::ostream& operator<<(std::ostream& stream, const objective& expense);
+void operator>>(const std::vector<std::string>& parts, objective& expense);
 
-void load_expenses();
-void save_expenses();
+void load_objectives();
+void save_objectives();
 
-std::vector<expense>& all_expenses();
-void add_expense(expense&& expense);
+std::vector<objective>& all_objectives();
+void add_objective(objective&& objective);
 
-void set_expenses_changed();
+void set_objectives_changed();
+
+int compute_success(const budget::status& status, const objective& objective);
 
 } //end of namespace budget
 

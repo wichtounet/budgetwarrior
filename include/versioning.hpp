@@ -5,8 +5,8 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef HELP_H
-#define HELP_H
+#ifndef VERSIONING_H
+#define VERSIONING_H
 
 #include <vector>
 #include <string>
@@ -15,14 +15,15 @@
 
 namespace budget {
 
-struct help_module {
-     void handle(const std::vector<std::string>& args);
+struct versioning_module {
+    void handle(const std::vector<std::string>& args);
 };
 
 template<>
-struct module_traits<help_module> {
+struct module_traits<versioning_module> {
     static constexpr const bool is_default = false;
-    static constexpr const char* command = "help";
+    static constexpr const char* command = "versioning";
+    static constexpr const bool disable_preloading = true;
 };
 
 } //end of namespace budget

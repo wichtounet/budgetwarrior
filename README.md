@@ -1,4 +1,4 @@
-budgetwarrior 0.2.2
+budgetwarrior 0.3.0
 ===================
 
 Simple command line utility to helps keeping track of your expenses and the
@@ -14,7 +14,19 @@ budgetwarrior has several features:
 * Keeps track of your debts
 * Manage recurring expenses that are automatically created monthly
 
-## Building ##
+## Start using budgetwarrior ##
+
+The wiki contains a guide for starting using budgetwarrior: https://github.com/wichtounet/budgetwarrior/wiki/Start-tutorial
+
+## Installation ##
+
+A Gentoo ebuild is available on this overlay: https://github.com/wichtounet/wichtounet-overlay
+
+Arch Linux packages are also available: https://github.com/StreakyCobra/aur
+
+For other systems, you'll have to install from sources. 
+
+## Building from sources ##
 
 A modern compiler is necessary: GCC >= 4.7 or CLang >= 3.1.
 
@@ -30,6 +42,8 @@ You juste have to use CMake to build it:
     $ make
     $ sudo make install
 
+Man pages and ZSH/Bash completions are also available.
+
 ## Usage ##
 
 The executable is named 'budget' and allows to perform all the commands.
@@ -37,6 +51,12 @@ The executable is named 'budget' and allows to perform all the commands.
 Use
 
     $ budget help
+
+Or
+
+    $ man budget
+
+if you have installed the man pages.
 
 to see all the available commands.
 
@@ -56,14 +76,10 @@ If you want to contribute to this project, you can contact me by [email](baptist
 
 If you want to support the development of this project, you can [donate via Pledgie](http://pledgie.com/campaigns/21113). Thank you !
 
-## More informations ##
-
-You can find more information about this project, on the [website](http://baptiste-wicht.com/).
-
 ## Troubleshooting ##
 
 Please consider using [Github issues tracker](http://github.com/wichtounet/budgetwarrior/issues) to submit bug reports or feature requests. You can also contact me via my [website](http://baptiste-wicht.com/).
 
 ## License ##
 
-This project is distributed under the Boost Software License 1.0. Read `LICENSE` for details.
+This project is distributed under the MIT License. Read `LICENSE` for details.

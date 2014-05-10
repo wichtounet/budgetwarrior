@@ -1,8 +1,8 @@
 //=======================================================================
-// Copyright Baptiste Wicht 2013.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+// Copyright (c) 2013-2014 Baptiste Wicht.
+// Distributed under the terms of the MIT License.
+// (See accompanying file LICENSE or copy at
+//  http://opensource.org/licenses/MIT)
 //=======================================================================
 
 #ifndef CONFIG_H
@@ -10,7 +10,7 @@
 
 namespace budget {
 
-const std::size_t DATA_VERSION = 2;
+const std::size_t DATA_VERSION = 3;
 
 std::string home_folder();
 std::string budget_folder();
