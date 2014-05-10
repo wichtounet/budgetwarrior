@@ -58,6 +58,7 @@ void budget::help_module::handle(const std::vector<std::string>&){
 
     std::cout << "       budget wish [status]                                       Show the status of the wishes" << std::endl;
     std::cout << "       budget wish list                                           List all the wishes" << std::endl;
+    std::cout << "       budget wish estimate                                       Estimate the best date to buy something" << std::endl;
     std::cout << "       budget wish add                                            Add a new wish" << std::endl;
     std::cout << "       budget wish edit (id)                                      Edit a wish" << std::endl;
     std::cout << "       budget wish delete (id)                                    Delete a wish" << std::endl;
