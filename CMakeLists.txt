@@ -11,8 +11,8 @@ set(VERSION_PATCH 0)
 FIND_PACKAGE(Boost REQUIRED)
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 
-# Activate C++11
-add_definitions(-std=c++11)
+# Activate C++14
+add_definitions(-std=c++1y)
 
 # Set debug mode options
 IF(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
