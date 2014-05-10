@@ -67,6 +67,9 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget debt paid (id)                                      Mark the given debt as paid" << std::endl;
     std::cout << "       budget debt delete (id)                                    Delete the given debt" << std::endl;
     std::cout << "       budget debt edit (id)                                      Edit the given debt" << std::endl << std::endl;
+    
+    std::cout << "       budget versioning save                                     Commit the budget directory changes with Git" << std::endl;
+    std::cout << "       budget versioning sync                                     Pull the remote changes on the budget directory with Git and push" << std::endl;
 
     std::cout << "       budget report [monthly]                                    Display monthly report in form of bar plot" << std::endl;
 }
