@@ -1,6 +1,7 @@
 budgetwarrior 0.3.1 - in development
  * Compute totals in wish list
  * Add feature to mark wishes as paid
+ * Date durations can be used to compute a date from the date of the day
 
 budgetwarrior 0.3 - 03.02.2014
  * Change license to MIT
