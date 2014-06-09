@@ -55,7 +55,7 @@ debug: debug/bin/budget
 all: release debug
 
 sonar: release
-	cppcheck --xml-version=2 --enable=all --std=c++11 src 2> cppcheck_report.xml
+	cppcheck --xml-version=2 --enable=all --std=c++11 src include 2> cppcheck_report.xml
 	/opt/sonar-runner/bin/sonar-runner
 
 clean:
