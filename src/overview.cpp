@@ -308,6 +308,82 @@ void aggregate_year_overview(){
     aggregate_year_overview(today.year());
 }
 
+void aggregate_month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
+    std::cout << "Aggregate overview of " << month << " " << year << std::endl << std::endl;
+
+    std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
+
+    //Accumulate all the expenses
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == year && expense.date.month() == month){
+            auto& account = get_account(expense.account);
+
+            auto name = expense.name;
+
+            if(name[name.size() - 1] == ' '){
+                name.erase(name.size() - 1, name.size());
+            }
+
+            auto loc = name.find('/');
+            if(loc != std::string::npos){
+                name = name.substr(0, loc);
+            }
+
+            acc_expenses[account.name][name] += expense.amount;
+        }
+    }
+
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    std::vector<std::size_t> current(0, columns.size());
+
+    for(auto& entry: acc_expenses){
+        auto column = columns.size();
+        columns.push_back(entry.first);
+        std::size_t row = 0;
+
+        auto& expenses = entry.second;
+
+        typedef std::pair<std::string, budget::money> s_expense;
+        std::vector<s_expense> sorted_expenses;
+
+        for(auto& expense : expenses){
+            sorted_expenses.push_back(std::make_pair(expense.first, expense.second));
+        }
+
+        std::sort(sorted_expenses.begin(), sorted_expenses.end(),
+            [](const s_expense& a, const s_expense& b){ return a.second > b.second; });
+
+        for(auto& expense : sorted_expenses){
+            if(contents.size() <= row){
+                contents.emplace_back(acc_expenses.size() * 2, "");
+            }
+
+            contents[row][column * 2] = expense.first;
+            contents[row][column * 2 + 1] = to_string(expense.second);
+
+            ++row;
+        }
+    }
+
+    display_table(columns, contents, 2);
+
+    std::cout << std::endl;
+}
+
+void aggregate_month_overview(boost::gregorian::greg_month month){
+    auto today = boost::gregorian::day_clock::local_day();
+
+    aggregate_month_overview(month, today.year());
+}
+
+void aggregate_month_overview(){
+    auto today = boost::gregorian::day_clock::local_day();
+
+    aggregate_month_overview(today.month(), today.year());
+}
+
 void display_local_balance(boost::gregorian::greg_year year);
 void display_balance(boost::gregorian::greg_year year);
 void display_expenses(boost::gregorian::greg_year year);
@@ -639,18 +715,29 @@ void budget::overview_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "aggregate"){
             if(args.size() == 2){
                 aggregate_year_overview();
-            } else if(args.size() == 3 || args.size() == 4){
+            } else if(args.size() == 3 || args.size() == 4 || args.size() == 5){
                 if(args[2] == "year"){
                     if(args.size() == 3){
                         aggregate_year_overview();
                     } else if(args.size() == 4){
                         aggregate_year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
                     }
+                } else if(args[2] == "month"){
+                    if(args.size() == 3){
+                        aggregate_month_overview();
+                    } else if(args.size() == 4){
+                        aggregate_month_overview(boost::gregorian::greg_month(to_number<unsigned short>(args[3])));
+                    } else if(args.size() == 5){
+                        aggregate_month_overview(
+                            boost::gregorian::greg_month(to_number<unsigned short>(args[3])), 
+                            boost::gregorian::greg_year(to_number<unsigned short>(args[4]))
+                            );
+                    }
                 } else {
                     throw budget_exception("Invalid subcommand");
                 }
             } else {
-                throw budget_exception("Too many arguments to overview aggregate year");
+                throw budget_exception("Too many arguments to overview aggregate");
             }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
