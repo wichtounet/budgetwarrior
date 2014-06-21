@@ -234,18 +234,13 @@ void month_overview(){
     month_overview(today.month(), today.year());
 }
 
-void aggregate_year_overview(boost::gregorian::greg_year year){
-    if(invalid_accounts(year)){
-        throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
-    }
-
-    std::cout << "Aggregate overview of " << year << std::endl << std::endl;
-
+template<typename Functor>
+void aggregate_overview(Functor&& func){
     std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
 
     //Accumulate all the expenses
     for(auto& expense : all_expenses()){
-        if(expense.date.year() == year){
+        if(func(expense)){
             auto& account = get_account(expense.account);
 
             auto name = expense.name;
@@ -300,6 +295,16 @@ void aggregate_year_overview(boost::gregorian::greg_year year){
     display_table(columns, contents, 2);
 
     std::cout << std::endl;
+}
+
+void aggregate_year_overview(boost::gregorian::greg_year year){
+    if(invalid_accounts(year)){
+        throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
+    }
+
+    std::cout << "Aggregate overview of " << year << std::endl << std::endl;
+
+    aggregate_overview([year](const auto& expense){ return expense.date.year() == year; });
 }
 
 void aggregate_year_overview(){
@@ -311,65 +316,7 @@ void aggregate_year_overview(){
 void aggregate_month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::cout << "Aggregate overview of " << month << " " << year << std::endl << std::endl;
 
-    std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
-
-    //Accumulate all the expenses
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.date.month() == month){
-            auto& account = get_account(expense.account);
-
-            auto name = expense.name;
-
-            if(name[name.size() - 1] == ' '){
-                name.erase(name.size() - 1, name.size());
-            }
-
-            auto loc = name.find('/');
-            if(loc != std::string::npos){
-                name = name.substr(0, loc);
-            }
-
-            acc_expenses[account.name][name] += expense.amount;
-        }
-    }
-
-    std::vector<std::string> columns;
-    std::vector<std::vector<std::string>> contents;
-
-    std::vector<std::size_t> current(0, columns.size());
-
-    for(auto& entry: acc_expenses){
-        auto column = columns.size();
-        columns.push_back(entry.first);
-        std::size_t row = 0;
-
-        auto& expenses = entry.second;
-
-        typedef std::pair<std::string, budget::money> s_expense;
-        std::vector<s_expense> sorted_expenses;
-
-        for(auto& expense : expenses){
-            sorted_expenses.push_back(std::make_pair(expense.first, expense.second));
-        }
-
-        std::sort(sorted_expenses.begin(), sorted_expenses.end(),
-            [](const s_expense& a, const s_expense& b){ return a.second > b.second; });
-
-        for(auto& expense : sorted_expenses){
-            if(contents.size() <= row){
-                contents.emplace_back(acc_expenses.size() * 2, "");
-            }
-
-            contents[row][column * 2] = expense.first;
-            contents[row][column * 2 + 1] = to_string(expense.second);
-
-            ++row;
-        }
-    }
-
-    display_table(columns, contents, 2);
-
-    std::cout << std::endl;
+    aggregate_overview([month,year](const auto& expense){ return expense.date.month() == month && expense.date.year() == year; });
 }
 
 void aggregate_month_overview(boost::gregorian::greg_month month){
