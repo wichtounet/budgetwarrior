@@ -1,5 +1,6 @@
 budgetwarrior 0.4.0 - in development
  * New version command to display the current version of the tool
+ * New overview aggregate month command to display aggregate expenses of a month
 
 budgetwarrior 0.3.1 - 10.05.2014
  * Compute totals in wish list
