@@ -10,6 +10,8 @@
 
 #include <vector>
 #include <string>
+#include <array>
+#include <utility>
 
 #include "module_traits.hpp"
 
@@ -24,6 +26,8 @@ struct module_traits<versioning_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command = "versioning";
     static constexpr const bool disable_preloading = true;
+
+    static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"sync", "versioning sync"}}};
 };
 
 } //end of namespace budget
