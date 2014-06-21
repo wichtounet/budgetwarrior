@@ -307,28 +307,10 @@ void aggregate_year_overview(boost::gregorian::greg_year year){
     aggregate_overview([year](const auto& expense){ return expense.date.year() == year; });
 }
 
-void aggregate_year_overview(){
-    auto today = boost::gregorian::day_clock::local_day();
-
-    aggregate_year_overview(today.year());
-}
-
 void aggregate_month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::cout << "Aggregate overview of " << month << " " << year << std::endl << std::endl;
 
     aggregate_overview([month,year](const auto& expense){ return expense.date.month() == month && expense.date.year() == year; });
-}
-
-void aggregate_month_overview(boost::gregorian::greg_month month){
-    auto today = boost::gregorian::day_clock::local_day();
-
-    aggregate_month_overview(month, today.year());
-}
-
-void aggregate_month_overview(){
-    auto today = boost::gregorian::day_clock::local_day();
-
-    aggregate_month_overview(today.month(), today.year());
 }
 
 void display_local_balance(boost::gregorian::greg_year year);
@@ -638,6 +620,8 @@ void budget::overview_module::handle(const std::vector<std::string>& args){
         month_overview();
     } else {
         auto& subcommand = args[1];
+                        
+        auto today = boost::gregorian::day_clock::local_day();
 
         if(subcommand == "month"){
             if(args.size() == 2){
@@ -661,19 +645,21 @@ void budget::overview_module::handle(const std::vector<std::string>& args){
             }
         } else if(subcommand == "aggregate"){
             if(args.size() == 2){
-                aggregate_year_overview();
+                aggregate_year_overview(today.year());
             } else if(args.size() == 3 || args.size() == 4 || args.size() == 5){
                 if(args[2] == "year"){
                     if(args.size() == 3){
-                        aggregate_year_overview();
+                        aggregate_year_overview(today.year());
                     } else if(args.size() == 4){
                         aggregate_year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
                     }
                 } else if(args[2] == "month"){
                     if(args.size() == 3){
-                        aggregate_month_overview();
+                        aggregate_month_overview(today.month(), today.year());
                     } else if(args.size() == 4){
-                        aggregate_month_overview(boost::gregorian::greg_month(to_number<unsigned short>(args[3])));
+                        aggregate_month_overview(
+                            boost::gregorian::greg_month(to_number<unsigned short>(args[3])), 
+                            today.year());
                     } else if(args.size() == 5){
                         aggregate_month_overview(
                             boost::gregorian::greg_month(to_number<unsigned short>(args[3])), 
