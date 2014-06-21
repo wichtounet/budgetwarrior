@@ -28,6 +28,7 @@
 #include "objectives.hpp"
 #include "wishes.hpp"
 #include "versioning.hpp"
+#include "version.hpp"
 
 using namespace budget;
 
@@ -45,6 +46,7 @@ typedef boost::mpl::vector<
             budget::objectives_module*,
             budget::wishes_module*,
             budget::versioning_module*,
+            budget::version_module*,
             budget::help_module*
     > modules;
 
