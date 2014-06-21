@@ -109,6 +109,18 @@ struct disable_preloading<Module, typename std::enable_if<has_disable_preloading
     static const bool value = module_traits<Module>::disable_preloading;
 };
 
+HAS_STATIC_FIELD(aliases, has_aliases_field)
+
+template<typename Module, typename Enable = void>
+struct has_aliases {
+    static const bool value = false;
+};
+
+template<typename Module>
+struct has_aliases<Module, typename std::enable_if<has_aliases_field<module_traits<Module>>::value>::type> {
+    static const bool value = true;
+};
+
 template<bool B, typename T = void>
 using disable_if = std::enable_if<!B, T>;
 
@@ -193,6 +205,22 @@ struct module_runner {
     }
 };
 
+struct aliases_collector {
+    std::vector<std::pair<const char*, const char*>> aliases;
+
+    template<typename Module>
+    inline typename std::enable_if<has_aliases<Module>::value, void>::type operator()(Module*){
+        for(auto& v : module_traits<Module>::aliases){
+            aliases.push_back(v);
+        }
+    }
+
+    template<typename Module>
+    inline typename disable_if<has_aliases<Module>::value, void>::type operator()(Module*){
+        //NOP
+    }
+};
+
 std::string exec_command(const std::string& command) {
     std::stringstream output;
 
@@ -253,8 +281,13 @@ int main(int argc, const char* argv[]) {
 
         std::cout << "done" << std::endl;
     }
+    
+    //Collect all aliases
+    aliases_collector collector;
+    boost::mpl::for_each<modules>(boost::ref(collector));
 
-    auto args = parse_args(argc, argv);
+    //Parse the command line args
+    auto args = parse_args(argc, argv, collector.aliases);
 
     int code = 0;
 

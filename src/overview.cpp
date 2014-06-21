@@ -604,6 +604,8 @@ void display_earnings(boost::gregorian::greg_year year){
 }
 
 } // end of anonymous namespace
+    
+constexpr const std::array<std::pair<const char*, const char*>, 1> budget::module_traits<budget::overview_module>::aliases;
 
 void budget::overview_module::load(){
     load_accounts();

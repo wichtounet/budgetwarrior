@@ -26,6 +26,8 @@ template<>
 struct module_traits<overview_module> {
     static constexpr const bool is_default = true;
     static constexpr const char* command = "overview";
+
+    static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"aggregate", "overview aggregate"}}};
 };
 
 } //end of namespace budget
