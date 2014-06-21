@@ -49,6 +49,8 @@ void budget::versioning_module::handle(const std::vector<std::string>& args){
             std::cout << exec_command("git -C " + budget_folder() + " pull" ) << std::endl;
         } else if(subcommand == "push"){
             std::cout << exec_command("git -C " + budget_folder() + " push" ) << std::endl;
+        } else if(subcommand == "status"){
+            std::cout << exec_command("git -C " + budget_folder() + " status" ) << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
