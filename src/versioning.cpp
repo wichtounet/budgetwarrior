@@ -42,7 +42,12 @@ void budget::versioning_module::handle(const std::vector<std::string>& args){
         if(subcommand == "save"){
             std::cout << exec_command("git -C " + budget_folder() + " commit -a -m Update" ) << std::endl;
         } else if(subcommand == "sync"){
+            std::cout << exec_command("git -C " + budget_folder() + " commit -a -m Update" ) << std::endl;
             std::cout << exec_command("git -C " + budget_folder() + " pull" ) << std::endl;
+            std::cout << exec_command("git -C " + budget_folder() + " push" ) << std::endl;
+        } else if(subcommand == "pull"){
+            std::cout << exec_command("git -C " + budget_folder() + " pull" ) << std::endl;
+        } else if(subcommand == "push"){
             std::cout << exec_command("git -C " + budget_folder() + " push" ) << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
