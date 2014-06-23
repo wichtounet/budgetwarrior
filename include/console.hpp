@@ -36,6 +36,15 @@ void print_minimum(const T& str, std::size_t min_width){
  */
 std::size_t rsize(const std::string& value);
 
+/**
+ * Indicate if the given option was present in the list. If present, the option
+ * is removed from the list. 
+ * \param option The full option name with any - included
+ * \param args The command line arguments
+ * \return true if the option was present, false otherwise.
+ */
+bool option(const std::string& option, std::vector<std::string>& args);
+
 std::string format_code(int attr, int fg, int bg);
 std::string format(const std::string& value);
 void display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups = 1);

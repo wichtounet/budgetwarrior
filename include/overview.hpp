@@ -19,7 +19,7 @@ namespace budget {
 
 struct overview_module {
     void load();
-    void handle(const std::vector<std::string>& args);
+    void handle(std::vector<std::string>& args);
 };
 
 template<>
