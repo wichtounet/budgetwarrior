@@ -4,7 +4,8 @@ budgetwarrior 0.3.0
 Simple command line utility to helps keeping track of your expenses and the
 state of your budget.
 
-## Features ##
+Features
+--------
 
 budgetwarrior has several features:
 
@@ -14,19 +15,22 @@ budgetwarrior has several features:
 * Keeps track of your debts
 * Manage recurring expenses that are automatically created monthly
 
-## Start using budgetwarrior ##
+Start using budgetwarrior
+-------------------------
 
-The wiki contains a guide for starting using budgetwarrior: https://github.com/wichtounet/budgetwarrior/wiki/Start-tutorial
+The wiki contains a guide for starting using budgetwarrior: `Start-Tutorial <https://github.com/wichtounet/budgetwarrior/wiki/Start-tutorial>`_
 
-## Installation ##
+Installation
+------------
 
 A Gentoo ebuild is available on this overlay: https://github.com/wichtounet/wichtounet-overlay
 
-Arch Linux packages are also available: https://github.com/StreakyCobra/aur
+Arch Linux packages are also available on AUR: https://github.com/StreakyCobra/aur
 
 For other systems, you'll have to install from sources. 
 
-## Building from sources ##
+Build from source
+-----------------
 
 A modern compiler is necessary: GCC >= 4.7 or CLang >= 3.1.
 
@@ -44,15 +48,16 @@ You juste have to use CMake to build it:
 
 Man pages and ZSH/Bash completions are also available.
 
-## Usage ##
+Usage
+-----
 
 The executable is named 'budget' and allows to perform all the commands.
 
-Use
+Use::
 
     $ budget help
 
-Or
+Or::
 
     $ man budget
 
@@ -60,26 +65,31 @@ if you have installed the man pages.
 
 to see all the available commands.
 
-## Contributors ##
+Contributors
+------------
 
-Read `AUTHORS`
+Read *AUTHORS*
 
-## Release Notes ##
+Release Notes
+-------------
 
-Read `ChangeLog`
+Read *ChangeLog*
 
-## Contribute ##
+Contribute
+----------
 
 The project is open for any kind of contribution : ideas, new features, hotfixes, tests, ...
 
-If you want to contribute to this project, you can contact me by [email](baptiste.wicht@gmail.com) or via my [website](http://baptiste-wicht.com/). You can also directly fork the project and make a pull request.
+If you want to contribute to this project, you can contact me by `email <baptiste.wicht@gmail.com>`_ or via my `website  <http://baptiste-wicht.com/>`_. You can also directly fork the project and make a pull request.
 
-If you want to support the development of this project, you can [donate via Pledgie](http://pledgie.com/campaigns/21113). Thank you !
+If you want to support the development of this project, you can `donate via Pledgie <http://pledgie.com/campaigns/21113>`_. Thank you !
 
-## Troubleshooting ##
+Troubleshooting
+---------------
 
-Please consider using [Github issues tracker](http://github.com/wichtounet/budgetwarrior/issues) to submit bug reports or feature requests. You can also contact me via my [website](http://baptiste-wicht.com/).
+Please consider using `Github issues tracker <http://github.com/wichtounet/budgetwarrior/issues>`_ to submit bug reports or feature requests. You can also contact me via my `website <http://baptiste-wicht.com/>`_.
 
-## License ##
+License
+-------
 
-This project is distributed under the MIT License. Read `LICENSE` for details.
+This project is distributed under the MIT License. Read *LICENSE* for details.
