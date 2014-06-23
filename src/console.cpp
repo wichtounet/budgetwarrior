@@ -32,6 +32,25 @@ std::size_t budget::rsize(const std::string& value){
     return mbstowcs(buf, v.c_str(), 1024);
 }
 
+bool budget::option(const std::string& option, std::vector<std::string>& args){
+    auto it = args.begin();
+    auto end = args.end();
+
+    bool found = false;
+
+    while(it != end){
+        if(*it == option){
+            args.erase(it);
+            found = true;
+        } else {
+            ++it;
+        }
+    }
+
+    return found;
+}
+
+
 std::string budget::format(const std::string& v){
     if(v.substr(0, 5) == "::red"){
         auto value = v.substr(5);
