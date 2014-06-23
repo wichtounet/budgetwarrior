@@ -235,14 +235,13 @@ void month_overview(){
 }
 
 template<typename Functor>
-void aggregate_overview(Functor&& func){
+void aggregate_overview(bool full, Functor&& func){
     std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
+    std::unordered_map<std::string, budget::money> expenses;
 
     //Accumulate all the expenses
     for(auto& expense : all_expenses()){
         if(func(expense)){
-            auto& account = get_account(expense.account);
-
             auto name = expense.name;
 
             if(name[name.size() - 1] == ' '){
@@ -254,7 +253,12 @@ void aggregate_overview(Functor&& func){
                 name = name.substr(0, loc);
             }
 
-            acc_expenses[account.name][name] += expense.amount;
+            if(full){
+                expenses[name] += expense.amount;
+            } else {
+                auto& account = get_account(expense.account);
+                acc_expenses[account.name][name] += expense.amount;
+            }
         }
     }
 
@@ -263,12 +267,10 @@ void aggregate_overview(Functor&& func){
 
     std::vector<std::size_t> current(0, columns.size());
 
-    for(auto& entry: acc_expenses){
+    if(full){
         auto column = columns.size();
-        columns.push_back(entry.first);
+        columns.push_back("All accounts");
         std::size_t row = 0;
-
-        auto& expenses = entry.second;
 
         typedef std::pair<std::string, budget::money> s_expense;
         std::vector<s_expense> sorted_expenses;
@@ -282,13 +284,42 @@ void aggregate_overview(Functor&& func){
 
         for(auto& expense : sorted_expenses){
             if(contents.size() <= row){
-                contents.emplace_back(acc_expenses.size() * 2, "");
+                contents.emplace_back(2, "");
             }
 
             contents[row][column * 2] = expense.first;
             contents[row][column * 2 + 1] = to_string(expense.second);
 
             ++row;
+        }
+    } else {
+        for(auto& entry: acc_expenses){
+            auto column = columns.size();
+            columns.push_back(entry.first);
+            std::size_t row = 0;
+
+            auto& expenses = entry.second;
+
+            typedef std::pair<std::string, budget::money> s_expense;
+            std::vector<s_expense> sorted_expenses;
+
+            for(auto& expense : expenses){
+                sorted_expenses.push_back(std::make_pair(expense.first, expense.second));
+            }
+
+            std::sort(sorted_expenses.begin(), sorted_expenses.end(),
+                [](const s_expense& a, const s_expense& b){ return a.second > b.second; });
+
+            for(auto& expense : sorted_expenses){
+                if(contents.size() <= row){
+                    contents.emplace_back(acc_expenses.size() * 2, "");
+                }
+
+                contents[row][column * 2] = expense.first;
+                contents[row][column * 2 + 1] = to_string(expense.second);
+
+                ++row;
+            }
         }
     }
 
@@ -297,20 +328,20 @@ void aggregate_overview(Functor&& func){
     std::cout << std::endl;
 }
 
-void aggregate_year_overview(boost::gregorian::greg_year year){
+void aggregate_year_overview(bool full, boost::gregorian::greg_year year){
     if(invalid_accounts(year)){
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
     }
 
     std::cout << "Aggregate overview of " << year << std::endl << std::endl;
 
-    aggregate_overview([year](const auto& expense){ return expense.date.year() == year; });
+    aggregate_overview(full, [year](const auto& expense){ return expense.date.year() == year; });
 }
 
-void aggregate_month_overview(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
+void aggregate_month_overview(bool full, boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::cout << "Aggregate overview of " << month << " " << year << std::endl << std::endl;
 
-    aggregate_overview([month,year](const auto& expense){ return expense.date.month() == month && expense.date.year() == year; });
+    aggregate_overview(full, [month,year](const auto& expense){ return expense.date.month() == month && expense.date.year() == year; });
 }
 
 void display_local_balance(boost::gregorian::greg_year year);
@@ -613,7 +644,7 @@ void budget::overview_module::load(){
     load_earnings();
 }
 
-void budget::overview_module::handle(const std::vector<std::string>& args){
+void budget::overview_module::handle(std::vector<std::string>& args){
     if(all_accounts().empty()){
         throw budget_exception("No accounts defined, you should start by defining some of them");
     }
@@ -646,24 +677,28 @@ void budget::overview_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("Too many arguments to overview month");
             }
         } else if(subcommand == "aggregate"){
+            bool full = budget::option("--full", args);
+
+            std::cout << full << std::endl;
+
             if(args.size() == 2){
-                aggregate_year_overview(today.year());
+                aggregate_year_overview(full, today.year());
             } else if(args.size() == 3 || args.size() == 4 || args.size() == 5){
                 if(args[2] == "year"){
                     if(args.size() == 3){
-                        aggregate_year_overview(today.year());
+                        aggregate_year_overview(full, today.year());
                     } else if(args.size() == 4){
-                        aggregate_year_overview(boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
+                        aggregate_year_overview(full, boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
                     }
                 } else if(args[2] == "month"){
                     if(args.size() == 3){
-                        aggregate_month_overview(today.month(), today.year());
+                        aggregate_month_overview(full, today.month(), today.year());
                     } else if(args.size() == 4){
-                        aggregate_month_overview(
+                        aggregate_month_overview(full, 
                             boost::gregorian::greg_month(to_number<unsigned short>(args[3])), 
                             today.year());
                     } else if(args.size() == 5){
-                        aggregate_month_overview(
+                        aggregate_month_overview(full,
                             boost::gregorian::greg_month(to_number<unsigned short>(args[3])), 
                             boost::gregorian::greg_year(to_number<unsigned short>(args[4]))
                             );
