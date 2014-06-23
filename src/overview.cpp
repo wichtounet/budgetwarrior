@@ -237,7 +237,6 @@ void month_overview(){
 template<typename Functor>
 void aggregate_overview(bool full, Functor&& func){
     std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
-    std::unordered_map<std::string, budget::money> expenses;
 
     //Accumulate all the expenses
     for(auto& expense : all_expenses()){
@@ -254,7 +253,7 @@ void aggregate_overview(bool full, Functor&& func){
             }
 
             if(full){
-                expenses[name] += expense.amount;
+                acc_expenses["All accounts"][name] += expense.amount;
             } else {
                 auto& account = get_account(expense.account);
                 acc_expenses[account.name][name] += expense.amount;
@@ -267,10 +266,12 @@ void aggregate_overview(bool full, Functor&& func){
 
     std::vector<std::size_t> current(0, columns.size());
 
-    if(full){
+    for(auto& entry: acc_expenses){
         auto column = columns.size();
-        columns.push_back("All accounts");
+        columns.push_back(entry.first);
         std::size_t row = 0;
+
+        auto& expenses = entry.second;
 
         typedef std::pair<std::string, budget::money> s_expense;
         std::vector<s_expense> sorted_expenses;
@@ -284,42 +285,13 @@ void aggregate_overview(bool full, Functor&& func){
 
         for(auto& expense : sorted_expenses){
             if(contents.size() <= row){
-                contents.emplace_back(2, "");
+                contents.emplace_back(acc_expenses.size() * 2, "");
             }
 
             contents[row][column * 2] = expense.first;
             contents[row][column * 2 + 1] = to_string(expense.second);
 
             ++row;
-        }
-    } else {
-        for(auto& entry: acc_expenses){
-            auto column = columns.size();
-            columns.push_back(entry.first);
-            std::size_t row = 0;
-
-            auto& expenses = entry.second;
-
-            typedef std::pair<std::string, budget::money> s_expense;
-            std::vector<s_expense> sorted_expenses;
-
-            for(auto& expense : expenses){
-                sorted_expenses.push_back(std::make_pair(expense.first, expense.second));
-            }
-
-            std::sort(sorted_expenses.begin(), sorted_expenses.end(),
-                [](const s_expense& a, const s_expense& b){ return a.second > b.second; });
-
-            for(auto& expense : sorted_expenses){
-                if(contents.size() <= row){
-                    contents.emplace_back(acc_expenses.size() * 2, "");
-                }
-
-                contents[row][column * 2] = expense.first;
-                contents[row][column * 2 + 1] = to_string(expense.second);
-
-                ++row;
-            }
         }
     }
 
@@ -678,8 +650,6 @@ void budget::overview_module::handle(std::vector<std::string>& args){
             }
         } else if(subcommand == "aggregate"){
             bool full = budget::option("--full", args);
-
-            std::cout << full << std::endl;
 
             if(args.size() == 2){
                 aggregate_year_overview(full, today.year());
