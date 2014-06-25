@@ -180,7 +180,7 @@ void estimate_wishes(){
             continue;
         }
         
-        auto name = wish.name;
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
         
         boost::algorithm::trim(name);
 
@@ -195,7 +195,7 @@ void estimate_wishes(){
             continue;
         }
         
-        auto name = wish.name;
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
         
         boost::algorithm::trim(name);
 
@@ -271,7 +271,7 @@ void estimate_wishes(){
             continue;
         }
 
-        auto name = wish.name;
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
         
         boost::algorithm::trim(name);
 
