@@ -85,6 +85,8 @@ void status_wishes(){
 
     auto fortune_amount = budget::current_fortune();
 
+    budget::money total_amount;
+
     for(auto& wish : wishes.data){
         if(wish.paid){
             continue;
@@ -98,6 +100,8 @@ void status_wishes(){
         std::cout << "  ";
         print_minimum(name, width);
         std::cout << "  ";
+
+        total_amount += amount;
 
         size_t monthly_breaks = 0;
         size_t yearly_breaks = 0;
@@ -169,6 +173,10 @@ void status_wishes(){
 
         std::cout << std::endl;
     }
+        
+    std::cout << std::endl;
+    print_minimum("Total", width);
+    std::cout << "  " << total_amount << std::endl;
 }
 
 void estimate_wishes(){
