@@ -174,7 +174,7 @@ void status_wishes(){
         std::cout << std::endl;
     }
         
-    std::cout << std::endl;
+    std::cout << std::endl << "  ";
     print_minimum("Total", width);
     std::cout << "  " << total_amount << std::endl;
 }
