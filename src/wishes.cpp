@@ -74,7 +74,7 @@ void status_wishes(){
             continue;
         }
 
-        auto name = wish.name;
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
         boost::algorithm::trim(name);
 
         width = std::max(rsize(name), width);
@@ -91,7 +91,7 @@ void status_wishes(){
         }
 
         auto amount = wish.amount;
-        auto name = wish.name;
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
         
         boost::algorithm::trim(name);
 
