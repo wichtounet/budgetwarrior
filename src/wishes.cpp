@@ -136,18 +136,18 @@ void status_wishes(){
         }
 
         if(fortune_amount < wish.amount){
-            std::cout << "Impossible (not enough fortune)";
+            std::cout << "\033[0;31mImpossible\033[0;3047m (not enough fortune)";
         } else {
             if(month_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(month_objective && year_objective){
-                        std::cout << "Perfect (On month balance, all objectives fullfilled)";
+                        std::cout << "\033[0;32mPerfect\033[0;3047m (On month balance, all objectives fullfilled)";
                     } else if(month_objective){
-                        std::cout << "Good (On month balance, month objectives fullfilled)";
+                        std::cout << "\033[0;32mGood\033[0;3047m (On month balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << "OK (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                        std::cout << "\033[0;33mOK\033[0;3047m (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << "Warning (On month balance, objectives not fullfilled)";
+                        std::cout << "\033[0;31mWarning\033[0;3047m (On month balance, objectives not fullfilled)";
                     }
                 } else {
                     std::cout << "OK (on month balance)";
@@ -155,19 +155,19 @@ void status_wishes(){
             } else if(year_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(month_objective && year_objective){
-                        std::cout << "Perfect (On year balance, all objectives fullfilled)";
+                        std::cout << "\033[0;32mPerfect\033[0;3047m (On year balance, all objectives fullfilled)";
                     } else if(month_objective){
-                        std::cout << "Good (On year balance, month objectives fullfilled)";
+                        std::cout << "\033[0;32mGood\033[0;3047m (On year balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << "OK (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                        std::cout << "\033[0;33mOK\033[0;3047m (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << "Warning (On year balance, objectives not fullfilled)";
+                        std::cout << "\033[0;31mWarning\033[0;3047m (On year balance, objectives not fullfilled)";
                     }
                 } else {
-                    std::cout << "OK (on year balance)";
+                    std::cout << "\033[0;33mOK\033[0;3047m (on year balance)";
                 }
             } else {
-                std::cout << "Warning (on fortune only)";
+                std::cout << "\033[0;31mWarning\033[0;3047m (on fortune only)";
             }
         }
 
