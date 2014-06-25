@@ -74,7 +74,10 @@ void status_wishes(){
             continue;
         }
 
-        width = std::max(rsize(wish.name), width);
+        auto name = wish.name;
+        boost::algorithm::trim(name);
+
+        width = std::max(rsize(name), width);
     }
 
     auto month_status = budget::compute_month_status(today.year(), today.month());
@@ -88,9 +91,12 @@ void status_wishes(){
         }
 
         auto amount = wish.amount;
+        auto name = wish.name;
+        
+        boost::algorithm::trim(name);
 
         std::cout << "  ";
-        print_minimum(wish.name, width);
+        print_minimum(name, width);
         std::cout << "  ";
 
         size_t monthly_breaks = 0;
@@ -173,8 +179,12 @@ void estimate_wishes(){
         if(wish.paid){
             continue;
         }
+        
+        auto name = wish.name;
+        
+        boost::algorithm::trim(name);
 
-        width = std::max(rsize(wish.name), width);
+        width = std::max(rsize(name), width);
     }
 
     auto fortune_amount = budget::current_fortune();
@@ -184,9 +194,13 @@ void estimate_wishes(){
         if(wish.paid){
             continue;
         }
+        
+        auto name = wish.name;
+        
+        boost::algorithm::trim(name);
 
         std::cout << "  ";
-        print_minimum(wish.name, width);
+        print_minimum(name, width);
         std::cout << "  ";
 
         bool ok = false;
@@ -257,8 +271,12 @@ void estimate_wishes(){
             continue;
         }
 
+        auto name = wish.name;
+        
+        boost::algorithm::trim(name);
+
         std::cout << "  ";
-        print_minimum(wish.name, width);
+        print_minimum(name, width);
         std::cout << "  ";
 
         bool ok = false;
