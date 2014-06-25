@@ -114,7 +114,7 @@ std::ostream& operator<<(std::ostream& stream, const money& amount);
 money parse_money(const std::string& money_string);
 
 template<>
-inline std::string to_string(const money& amount){
+inline std::string to_string(money amount){
     std::stringstream stream;
     stream << amount;
     return stream.str();
