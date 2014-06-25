@@ -18,14 +18,6 @@
 
 namespace budget {
 
-template<typename T>
-void print_minimum(const T& str, std::size_t min_width){
-    auto old_width = std::cout.width();
-    std::cout.width(min_width);
-    std::cout << str;
-    std::cout.width(old_width);
-}
-
 /**
  * Returns the real size of a string. By default, accented characteres are
  * represented by several chars and make the length of the string being bigger
@@ -35,6 +27,16 @@ void print_minimum(const T& str, std::size_t min_width){
  * \return The real length of the string.
  */
 std::size_t rsize(const std::string& value);
+
+template<typename T>
+void print_minimum(const T& value, std::size_t min_width){
+    auto str = to_string(value);
+
+    auto old_width = std::cout.width();
+    std::cout.width(min_width + (str.size() - rsize(str)));
+    std::cout << str;
+    std::cout.width(old_width);
+}
 
 /**
  * Indicate if the given option was present in the list. If present, the option
