@@ -8,9 +8,8 @@
 #ifndef COMPUTE_H
 #define COMPUTE_H
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 #include "money.hpp"
+#include "date.hpp"
 
 namespace budget {
 
@@ -40,12 +39,12 @@ struct status {
 };
 
 status compute_year_status();
-status compute_year_status(boost::gregorian::greg_year year);
-status compute_year_status(boost::gregorian::greg_year year, boost::gregorian::greg_month last);
+status compute_year_status(budget::year year);
+status compute_year_status(budget::year year, budget::month last);
 
 status compute_month_status();
-status compute_month_status(boost::gregorian::greg_month year);
-status compute_month_status(boost::gregorian::greg_year year, boost::gregorian::greg_month month);
+status compute_month_status(budget::month year);
+status compute_month_status(budget::year year, budget::month month);
 
 } //end of namespace budget
 

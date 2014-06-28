@@ -11,8 +11,7 @@
 #include <string>
 #include <sstream>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include "date.hpp"
 
 namespace budget {
 
@@ -45,7 +44,7 @@ inline std::string to_string(T value){
 }
 
 template<>
-inline std::string to_string(boost::gregorian::date date){
+inline std::string to_string(budget::date date){
     return boost::gregorian::to_iso_extended_string(date);
 }
 
@@ -62,7 +61,7 @@ inline std::string to_string(const char* value){
 void one_of(const std::string& value, const std::string& message, std::vector<std::string> values);
 
 unsigned short start_year();
-unsigned short start_month(boost::gregorian::greg_year year);
+unsigned short start_month(budget::year year);
 
 unsigned short terminal_width();
 unsigned short terminal_height();

@@ -11,10 +11,9 @@
 #include <vector>
 #include <string>
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 #include "module_traits.hpp"
 #include "money.hpp"
+#include "date.hpp"
 
 namespace budget {
 
@@ -33,7 +32,7 @@ struct module_traits<fortune_module> {
 struct fortune {
     std::size_t id;
     std::string guid;
-    boost::gregorian::date check_date;
+    date check_date;
     money amount;
 };
 

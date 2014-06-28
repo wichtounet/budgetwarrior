@@ -11,8 +11,6 @@
 #include <vector>
 #include <string>
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 #include "module_traits.hpp"
 
 namespace budget {

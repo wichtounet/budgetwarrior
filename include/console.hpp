@@ -11,9 +11,8 @@
 #include <vector>
 #include <string>
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 #include "money.hpp"
+#include "date.hpp"
 #include "accounts.hpp"
 
 namespace budget {
@@ -110,7 +109,7 @@ void edit_money(budget::money& ref, const std::string& title, Checker... checker
 }
 
 template<typename ...Checker>
-void edit_date(boost::gregorian::date& ref, const std::string& title, Checker... checkers){
+void edit_date(date& ref, const std::string& title, Checker... checkers){
     bool checked;
     do {
         std::string answer;
@@ -196,8 +195,7 @@ struct account_checker {
 };
 
 struct one_of_checker {
-    std::vector<std::string> values;
-
+    std::vector<std::string> values; 
     one_of_checker(std::vector<std::string> values) : values(values){
         //Nothing to init
     }
