@@ -235,7 +235,7 @@ void month_overview(){
 }
 
 template<typename Functor>
-void aggregate_overview(bool full, bool disable_groups, Functor&& func){
+void aggregate_overview(bool full, bool disable_groups, const std::string& separator, Functor&& func){
     std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
 
     //Accumulate all the expenses
@@ -248,7 +248,7 @@ void aggregate_overview(bool full, bool disable_groups, Functor&& func){
             }
 
             if(!disable_groups){
-                auto loc = name.find('/');
+                auto loc = name.find(separator);
                 if(loc != std::string::npos){
                     name = name.substr(0, loc);
                 }
@@ -302,20 +302,20 @@ void aggregate_overview(bool full, bool disable_groups, Functor&& func){
     std::cout << std::endl;
 }
 
-void aggregate_year_overview(bool full, bool disable_groups, boost::gregorian::greg_year year){
+void aggregate_year_overview(bool full, bool disable_groups, const std::string& separator, boost::gregorian::greg_year year){
     if(invalid_accounts(year)){
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
     }
 
     std::cout << "Aggregate overview of " << year << std::endl << std::endl;
 
-    aggregate_overview(full, disable_groups, [year](const budget::expense& expense){ return expense.date.year() == year; });
+    aggregate_overview(full, disable_groups, separator, [year](const budget::expense& expense){ return expense.date.year() == year; });
 }
 
-void aggregate_month_overview(bool full, bool disable_groups, boost::gregorian::greg_month month, boost::gregorian::greg_year year){
+void aggregate_month_overview(bool full, bool disable_groups, const std::string& separator, boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::cout << "Aggregate overview of " << month << " " << year << std::endl << std::endl;
 
-    aggregate_overview(full, disable_groups, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
+    aggregate_overview(full, disable_groups, separator, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
 }
 
 void display_local_balance(boost::gregorian::greg_year year);
@@ -651,27 +651,28 @@ void budget::overview_module::handle(std::vector<std::string>& args){
                 throw budget_exception("Too many arguments to overview month");
             }
         } else if(subcommand == "aggregate"){
-            bool full = budget::option("--full", args);
-            bool disable_groups = budget::option("--no-group", args);
+            auto full = budget::option("--full", args);
+            auto disable_groups = budget::option("--no-group", args);
+            auto separator = budget::option_value("--separator", args, "/");
 
             if(args.size() == 2){
-                aggregate_year_overview(full, disable_groups, today.year());
+                aggregate_year_overview(full, disable_groups, separator, today.year());
             } else if(args.size() == 3 || args.size() == 4 || args.size() == 5){
                 if(args[2] == "year"){
                     if(args.size() == 3){
-                        aggregate_year_overview(full, disable_groups, today.year());
+                        aggregate_year_overview(full, disable_groups, separator, today.year());
                     } else if(args.size() == 4){
-                        aggregate_year_overview(full, disable_groups, boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
+                        aggregate_year_overview(full, disable_groups, separator, boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
                     }
                 } else if(args[2] == "month"){
                     if(args.size() == 3){
-                        aggregate_month_overview(full, disable_groups, today.month(), today.year());
+                        aggregate_month_overview(full, disable_groups, separator, today.month(), today.year());
                     } else if(args.size() == 4){
-                        aggregate_month_overview(full, disable_groups, 
+                        aggregate_month_overview(full, disable_groups, separator, 
                             boost::gregorian::greg_month(to_number<unsigned short>(args[3])), 
                             today.year());
                     } else if(args.size() == 5){
-                        aggregate_month_overview(full, disable_groups, 
+                        aggregate_month_overview(full, disable_groups, separator, 
                             boost::gregorian::greg_month(to_number<unsigned short>(args[3])), 
                             boost::gregorian::greg_year(to_number<unsigned short>(args[4]))
                             );
