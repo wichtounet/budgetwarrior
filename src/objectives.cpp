@@ -47,6 +47,25 @@ void list_objectives(){
     }
 }
 
+void print_status(const budget::status& status, const budget::objective& objective){
+    std::string result;
+
+    budget::money basis;
+    if(objective.source == "expenses"){
+        basis = status.expenses;
+    } else if (objective.source == "earnings") {
+        basis = status.earnings;
+    } else {
+        basis = status.balance;
+    }
+
+    result += to_string(basis.dollars());
+    result += "/";
+    result += to_string(objective.amount.dollars());
+
+    print_minimum(result, 10);
+}
+
 void print_success(const budget::status& status, const budget::objective& objective){
     auto success = compute_success(status, objective);
 
@@ -110,14 +129,21 @@ void status_objectives(){
                 }
             }
 
+            //Compute the year status
             auto year_status = budget::compute_year_status();
 
             for(auto& objective : objectives.data){
                 if(objective.type == "yearly"){
+                    //1. Print Objective name
                     std::cout << "  ";
                     print_minimum(objective.name, width);
-                    std::cout << "  ";
 
+                    //2. PrintStatus
+                    std::cout << "  ";
+                    print_status(year_status, objective);
+
+                    //3. Print success indicator
+                    std::cout << "  ";
                     print_success(year_status, objective);
 
                     std::cout << std::endl;
@@ -149,13 +175,20 @@ void status_objectives(){
                     size_t width = 0;
                     for(unsigned short i = sm; i <= current_month; ++i){
                         boost::gregorian::greg_month month = i;
-
-                        std::cout << "  ";
-                        print_minimum(month, width);
-                        std::cout << "  ";
-
+                        
+                        // Compute the month status
                         auto status = budget::compute_month_status(current_year, month);
 
+                        //1. Print month
+                        std::cout << "  ";
+                        print_minimum(month, width);
+                        
+                        //2. Print status
+                        std::cout << "  ";
+                        print_status(status, objective);
+                        
+                        //3. Print success indicator
+                        std::cout << "  ";
                         print_success(status, objective);
 
                         std::cout << std::endl;

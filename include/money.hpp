@@ -15,7 +15,7 @@
 
 namespace budget {
 
-const int SCALE = 100;
+constexpr const int SCALE = 100;
 
 struct money {
     long value;
