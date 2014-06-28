@@ -3,6 +3,7 @@ budgetwarrior 0.4.0 - in development
  * New overview aggregate month command to display aggregate expenses of a month
  * Support for option --full in overview aggregate to aggregate accounts too
  * Support for option --no-group in overview aggregate to disable grouping
+ * Support for option --separator in overview aggregate to change the grouping char
  * More information are displayed on objective status
  * New versioning commands: status, push, pull
 

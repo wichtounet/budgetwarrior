@@ -47,6 +47,15 @@ void print_minimum(const T& value, std::size_t min_width){
  */
 bool option(const std::string& option, std::vector<std::string>& args);
 
+/**
+ * Return the value of the given option if present or the default value
+ * otherwise
+ * \param option The full option name with any - included
+ * \param args The command line arguments
+ * \return The string value of the option or the default value is not present. 
+ */
+std::string option_value(const std::string& option, std::vector<std::string>& args, const std::string& value);
+
 std::string format_code(int attr, int fg, int bg);
 std::string format(const std::string& value);
 void display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups = 1);
