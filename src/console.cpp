@@ -7,6 +7,8 @@
 
 #include <sstream>
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "console.hpp"
@@ -40,7 +42,9 @@ bool budget::option(const std::string& option, std::vector<std::string>& args){
 
     while(it != end){
         if(*it == option){
-            args.erase(it);
+            it = args.erase(it);
+            end = args.end();
+
             found = true;
         } else {
             ++it;
@@ -50,6 +54,25 @@ bool budget::option(const std::string& option, std::vector<std::string>& args){
     return found;
 }
 
+std::string budget::option_value(const std::string& option, std::vector<std::string>& args, const std::string& default_value){
+    auto it = args.begin();
+    auto end = args.end();
+
+    auto value = default_value;
+
+    while(it != end){
+        if (boost::starts_with(*it, option + "=")){
+            value = std::string(it->begin() + option.size() + 1, it->end());
+
+            it = args.erase(it);
+            end = args.end();
+        } else {
+            ++it;
+        }
+    }
+
+    return value;
+}
 
 std::string budget::format(const std::string& v){
     if(v.substr(0, 5) == "::red"){
