@@ -309,13 +309,13 @@ void aggregate_year_overview(bool full, bool disable_groups, boost::gregorian::g
 
     std::cout << "Aggregate overview of " << year << std::endl << std::endl;
 
-    aggregate_overview(full, disable_groups, [year](const auto& expense){ return expense.date.year() == year; });
+    aggregate_overview(full, disable_groups, [year](const budget::expense& expense){ return expense.date.year() == year; });
 }
 
 void aggregate_month_overview(bool full, bool disable_groups, boost::gregorian::greg_month month, boost::gregorian::greg_year year){
     std::cout << "Aggregate overview of " << month << " " << year << std::endl << std::endl;
 
-    aggregate_overview(full, disable_groups, [month,year](const auto& expense){ return expense.date.month() == month && expense.date.year() == year; });
+    aggregate_overview(full, disable_groups, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
 }
 
 void display_local_balance(boost::gregorian::greg_year year);
