@@ -57,7 +57,7 @@ void budget::recurring_module::preload(){
     load_recurrings();
     load_accounts();
 
-    auto now = boost::gregorian::day_clock::local_day();
+    auto now = budget::local_day();
 
     //If it does not contains this value, it is the first start, so there is no
     //need to check anything
@@ -116,7 +116,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             //TODO handling of archived accounts is only temporary and not
             //workign properly
 
-            auto date = boost::gregorian::day_clock::local_day();
+            auto date = budget::local_day();
 
             std::string account_name;
             edit_string(account_name, "Account", not_empty_checker(), account_checker());

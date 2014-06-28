@@ -106,7 +106,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "check"){
             fortune fortune;
             fortune.guid = generate_guid();
-            fortune.check_date = boost::gregorian::day_clock::local_day();
+            fortune.check_date = budget::local_day();
 
             if(args.size() == 2){
                 edit_date(fortune.check_date, "Date");

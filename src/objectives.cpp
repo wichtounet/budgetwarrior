@@ -98,7 +98,7 @@ void status_objectives(){
     if(objectives.data.size() == 0){
         std::cout << "No objectives" << std::endl;
     } else {
-        auto today = boost::gregorian::day_clock::local_day();
+        auto today = budget::local_day();
 
         if(today.day() < 12){
             std::cout << "WARNING: It is early in the month, no one can know what may happen ;)" << std::endl << std::endl;
@@ -160,7 +160,7 @@ void status_objectives(){
 
             size_t width = 0;
             for(unsigned short i = sm; i <= current_month; ++i){
-                boost::gregorian::greg_month month = i;
+                budget::month month = i;
 
                 std::stringstream stream;
                 stream << month;
@@ -174,7 +174,7 @@ void status_objectives(){
 
                     size_t width = 0;
                     for(unsigned short i = sm; i <= current_month; ++i){
-                        boost::gregorian::greg_month month = i;
+                        budget::month month = i;
                         
                         // Compute the month status
                         auto status = budget::compute_month_status(current_year, month);
@@ -260,7 +260,7 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "add"){
             objective objective;
             objective.guid = generate_guid();
-            objective.date = boost::gregorian::day_clock::local_day();
+            objective.date = budget::local_day();
 
             edit(objective);
 

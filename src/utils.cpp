@@ -28,8 +28,8 @@ unsigned short budget::start_month(boost::gregorian::greg_year year){
 }
 
 unsigned short budget::start_year(){
-    auto today = boost::gregorian::day_clock::local_day();
-    boost::gregorian::greg_year y = today.year();
+    auto today = budget::local_day();
+    auto y = today.year();
 
     for(auto& expense : all_expenses()){
         y = std::min(expense.date.year(), y);

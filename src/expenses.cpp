@@ -28,7 +28,7 @@ namespace {
 
 static data_handler<expense> expenses;
 
-void show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
+void show_expenses(budget::month month, budget::year year){
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
@@ -53,14 +53,14 @@ void show_expenses(boost::gregorian::greg_month month, boost::gregorian::greg_ye
     }
 }
 
-void show_expenses(boost::gregorian::greg_month month){
-    auto today = boost::gregorian::day_clock::local_day();
+void show_expenses(budget::month month){
+    auto today = budget::local_day();
 
     show_expenses(month, today.year());
 }
 
 void show_expenses(){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
 
     show_expenses(today.month(), today.year());
 }
@@ -97,11 +97,11 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             if(args.size() == 2){
                 show_expenses();
             } else if(args.size() == 3){
-                show_expenses(boost::gregorian::greg_month(to_number<unsigned short>(args[2])));
+                show_expenses(budget::month(to_number<unsigned short>(args[2])));
             } else if(args.size() == 4){
                 show_expenses(
-                    boost::gregorian::greg_month(to_number<unsigned short>(args[2])),
-                    boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
+                    budget::month(to_number<unsigned short>(args[2])),
+                    budget::year(to_number<unsigned short>(args[3])));
             } else {
                 throw budget_exception("Too many arguments to expense show");
             }
@@ -110,7 +110,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "add"){
             expense expense;
             expense.guid = generate_guid();
-            expense.date = boost::gregorian::day_clock::local_day();
+            expense.date = budget::local_day();
 
             edit_date(expense.date, "Date");
 

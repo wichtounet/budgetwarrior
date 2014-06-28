@@ -60,7 +60,7 @@ void list_wishes(){
 }
 
 void status_wishes(){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
 
     if(today.day() < 12){
         std::cout << "WARNING: It is early in the month, no one can know what may happen ;)" << std::endl << std::endl;
@@ -196,7 +196,7 @@ void estimate_wishes(){
     }
 
     auto fortune_amount = budget::current_fortune();
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
 
     for(auto& wish : wishes.data){
         if(wish.paid){
@@ -370,7 +370,7 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "add"){
             wish wish;
             wish.guid = generate_guid();
-            wish.date = boost::gregorian::day_clock::local_day();
+            wish.date = budget::local_day();
 
             edit(wish);
 

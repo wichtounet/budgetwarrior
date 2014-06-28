@@ -16,6 +16,10 @@ typedef boost::gregorian::date date;
 typedef boost::gregorian::greg_year year;
 typedef boost::gregorian::greg_month month;
 
+inline date local_day(){
+    return boost::gregorian::day_clock::local_day();
+}
+
 } //end of namespace budget
 
 #endif

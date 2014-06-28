@@ -167,9 +167,9 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 std::vector<std::size_t> sources;
                 std::vector<budget::account> copies;
 
-                auto today = boost::gregorian::day_clock::local_day();
+                auto today = budget::local_day();
 
-                auto tmp = boost::gregorian::day_clock::local_day() - boost::gregorian::months(1);
+                auto tmp = budget::local_day() - boost::gregorian::months(1);
                 budget::date until_date(tmp.year(), tmp.month(), tmp.end_of_month().day());
 
                 for(auto& account : all_accounts()){

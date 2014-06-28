@@ -13,7 +13,7 @@
 #include "accounts.hpp"
 
 budget::status budget::compute_year_status(){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
     return compute_year_status(today.year(), today.month());
 }
 
@@ -53,12 +53,12 @@ budget::status budget::compute_year_status(boost::gregorian::greg_year year, boo
 }
 
 budget::status budget::compute_month_status(){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
     return compute_month_status(today.year(), today.month());
 }
 
 budget::status budget::compute_month_status(boost::gregorian::greg_month month){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
     return compute_month_status(today.year(), month);
 }
 
