@@ -38,11 +38,10 @@ The tool is known to work on Linux but has never been tested on Windows.
 You need Boost 1.47.0 or superior and libuuid installed on your computer
 to build this project.
 
-You juste have to use CMake to build it::
+You juste have to use make to build it::
 
     $ git clone git://github.com/wichtounet/budgetwarrior.git
     $ cd budgetwarrior
-    $ cmake .
     $ make
     $ sudo make install
 
