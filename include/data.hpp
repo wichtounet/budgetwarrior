@@ -8,6 +8,9 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include "config.hpp"
 #include "assert.hpp"
 

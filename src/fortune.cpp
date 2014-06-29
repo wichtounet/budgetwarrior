@@ -9,9 +9,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "args.hpp"
 #include "budget_exception.hpp"
 #include "fortune.hpp"

@@ -9,9 +9,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "objectives.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
