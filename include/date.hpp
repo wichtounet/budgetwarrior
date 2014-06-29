@@ -20,6 +20,14 @@ inline date local_day(){
     return boost::gregorian::day_clock::local_day();
 }
 
+inline date from_string(const std::string& str){
+    return boost::gregorian::from_string(str);
+}
+
+inline std::string date_to_string(date date){
+    return boost::gregorian::to_iso_extended_string(date);
+}
+
 } //end of namespace budget
 
 #endif

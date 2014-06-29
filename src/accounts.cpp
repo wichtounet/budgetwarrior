@@ -258,8 +258,8 @@ void budget::operator>>(const std::vector<std::string>& parts, account& account)
     account.guid = parts[1];
     account.name = parts[2];
     account.amount = parse_money(parts[3]);
-    account.since = boost::gregorian::from_string(parts[4]);
-    account.until = boost::gregorian::from_string(parts[5]);
+    account.since = from_string(parts[4]);
+    account.until = from_string(parts[5]);
 }
 
 bool budget::account_exists(const std::string& name){

@@ -74,7 +74,7 @@ budget::money budget::current_fortune(){
     }
 
     budget::money fortune_amount = all.front().amount;
-    boost::gregorian::date fortune_date = all.front().check_date;;
+    date fortune_date = all.front().check_date;;
     for(auto& fortune : all_fortunes()){
         if(fortune.check_date > fortune_date){
             fortune_amount = fortune.amount;
@@ -173,6 +173,6 @@ std::ostream& budget::operator<<(std::ostream& stream, const fortune& fortune){
 void budget::operator>>(const std::vector<std::string>& parts, fortune& fortune){
     fortune.id = to_number<int>(parts[0]);
     fortune.guid = parts[1];
-    fortune.check_date = boost::gregorian::from_string(parts[2]);
+    fortune.check_date = from_string(parts[2]);
     fortune.amount = parse_money(parts[3]);
 }

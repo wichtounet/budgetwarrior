@@ -45,7 +45,7 @@ inline std::string to_string(T value){
 
 template<>
 inline std::string to_string(budget::date date){
-    return boost::gregorian::to_iso_extended_string(date);
+    return date_to_string(date);
 }
 
 template<>

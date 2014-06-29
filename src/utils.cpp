@@ -16,7 +16,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-unsigned short budget::start_month(boost::gregorian::greg_year year){
+unsigned short budget::start_month(budget::year year){
     auto key = to_string(year) + "_start";
     if(config_contains(key)){
         auto value = to_number<unsigned short>(config_value(key));

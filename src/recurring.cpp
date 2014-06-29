@@ -63,7 +63,7 @@ void budget::recurring_module::preload(){
     //need to check anything
     if(internal_config_contains("recurring:last_checked")){
         auto last_checked_str = internal_config_value("recurring:last_checked");
-        auto last_checked = boost::gregorian::from_string(last_checked_str);
+        auto last_checked = from_string(last_checked_str);
 
         if(last_checked.month() < now.month() || last_checked.year() < now.year()){
             load_expenses();
@@ -71,7 +71,7 @@ void budget::recurring_module::preload(){
             while(last_checked.year() < now.year() || last_checked.month() < now.month()){
                 last_checked += boost::gregorian::months(1);
 
-                boost::gregorian::date recurring_date(last_checked.year(), last_checked.month(), 1);
+                date recurring_date(last_checked.year(), last_checked.month(), 1);
 
                 for(auto& recurring : recurrings.data){
                     budget::expense recurring_expense;

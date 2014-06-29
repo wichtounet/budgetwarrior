@@ -332,7 +332,7 @@ void budget::operator>>(const std::vector<std::string>& parts, objective& object
     objective.source = parts[4];
     objective.op = parts[5];
     objective.amount = parse_money(parts[6]);
-    objective.date = boost::gregorian::from_string(parts[7]);
+    objective.date = from_string(parts[7]);
 }
 
 std::vector<objective>& budget::all_objectives(){

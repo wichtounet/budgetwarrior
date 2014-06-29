@@ -146,7 +146,7 @@ void edit_date(date& ref, const std::string& title, Checker... checkers){
             } 
             
             if(!math) {
-                ref = boost::gregorian::from_string(answer);
+                ref = from_string(answer);
             }
         }
 

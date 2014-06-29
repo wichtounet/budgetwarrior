@@ -456,7 +456,7 @@ void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
     wish.guid = parts[1];
     wish.name = parts[2];
     wish.amount = parse_money(parts[3]);
-    wish.date = boost::gregorian::from_string(parts[4]);
+    wish.date = from_string(parts[4]);
     wish.paid = to_number<std::size_t>(parts[5]) == 1;
     wish.paid_amount = parse_money(parts[6]);
 }
@@ -475,7 +475,7 @@ void budget::migrate_wishes_2_to_3(){
         wish.guid = parts[1];
         wish.name = parts[2];
         wish.amount = parse_money(parts[3]);
-        wish.date = boost::gregorian::from_string(parts[4]);
+        wish.date = from_string(parts[4]);
         wish.paid = false;
         wish.paid_amount = budget::money(0,0);
         });

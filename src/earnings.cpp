@@ -182,7 +182,7 @@ void budget::operator>>(const std::vector<std::string>& parts, earning& earning)
     earning.account = to_number<std::size_t>(parts[2]);
     earning.name = parts[3];
     earning.amount = parse_money(parts[4]);
-    earning.date = boost::gregorian::from_string(parts[5]);
+    earning.date = from_string(parts[5]);
 }
 
 std::vector<earning>& budget::all_earnings(){
