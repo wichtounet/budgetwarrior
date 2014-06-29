@@ -33,17 +33,33 @@ namespace {
 
 static data_handler<wish> wishes;
 
+std::string status(std::size_t v){
+    switch(v){
+        case 1:
+            return "Low";
+        case 2:
+            return "Medium";
+        case 3:
+            return "High";
+        default:
+            budget_unreachable("Invalid status value");
+            return "Invalid";
+    }
+}
+
 void list_wishes(){
     if(wishes.data.size() == 0){
         std::cout << "No wishes" << std::endl;
     } else {
-        std::vector<std::string> columns = {"ID", "Name", "Amount", "Paid"};
+        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid"};
         std::vector<std::vector<std::string>> contents;
 
         money total;
         money unpaid_total;
         for(auto& wish : wishes.data){
-            contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), wish.paid ? to_string(wish.paid_amount) : "No"});
+            contents.push_back({
+                to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency), 
+                to_string(wish.amount), wish.paid ? to_string(wish.paid_amount) : "No"});
 
             total += wish.amount;
             if(!wish.paid){
