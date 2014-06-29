@@ -59,11 +59,21 @@ std::string status_short(std::size_t v){
     }
 }
 
+std::string accuracy(budget::money paid, budget::money estimation){
+    auto a = paid < estimation ? 
+        static_cast<double>(paid.dollars()) / estimation.dollars() : 
+        static_cast<double>(estimation.dollars()) / paid.dollars();
+
+    a *= 100.0;
+
+    return to_string(static_cast<std::size_t>(a)) + "%";
+}
+
 void list_wishes(){
     if(wishes.data.size() == 0){
         std::cout << "No wishes" << std::endl;
     } else {
-        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff"};
+        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff", "Accuracy"};
         std::vector<std::vector<std::string>> contents;
 
         money total;
@@ -73,7 +83,8 @@ void list_wishes(){
                 to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency), 
                 to_string(wish.amount), 
                 wish.paid ? to_string(wish.paid_amount) : "No", 
-                wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : ""});
+                wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : "", 
+                wish.paid ? accuracy(wish.paid_amount, wish.amount) : ""});
 
             total += wish.amount;
             if(!wish.paid){
