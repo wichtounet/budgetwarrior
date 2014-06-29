@@ -36,14 +36,14 @@ static data_handler<wish> wishes;
 std::string status(std::size_t v){
     switch(v){
         case 1:
-            return "Low";
+            return "::greenLow";
         case 2:
             return "Medium";
         case 3:
-            return "High";
+            return "::redHigh";
         default:
             budget_unreachable("Invalid status value");
-            return "Invalid";
+            return "::redInvalid";
     }
 }
 
