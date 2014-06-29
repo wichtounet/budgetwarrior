@@ -448,7 +448,9 @@ std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
         << wish.amount << ':'
         << to_string(wish.date) << ':'
         << static_cast<size_t>(wish.paid) << ':'
-        << wish.paid_amount;
+        << wish.paid_amount << ':'
+        << wish.importance << ':'
+        << wish.urgency;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
@@ -459,6 +461,8 @@ void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
     wish.date = from_string(parts[4]);
     wish.paid = to_number<std::size_t>(parts[5]) == 1;
     wish.paid_amount = parse_money(parts[6]);
+    wish.importance = to_number<std::size_t>(parts[7]);
+    wish.urgency = to_number<std::size_t>(parts[8]);
 }
 
 std::vector<wish>& budget::all_wishes(){
@@ -478,6 +482,24 @@ void budget::migrate_wishes_2_to_3(){
         wish.date = from_string(parts[4]);
         wish.paid = false;
         wish.paid_amount = budget::money(0,0);
+        });
+
+    set_wishes_changed();
+
+    save_data(wishes, "wishes.data");
+}
+
+void budget::migrate_wishes_3_to_4(){
+    load_data(wishes, "wishes.data", [](const std::vector<std::string>& parts, wish& wish){
+        wish.id = to_number<std::size_t>(parts[0]);
+        wish.guid = parts[1];
+        wish.name = parts[2];
+        wish.amount = parse_money(parts[3]);
+        wish.date = from_string(parts[4]);
+        wish.paid = to_number<std::size_t>(parts[5]) == 1;
+        wish.paid_amount = parse_money(parts[6]);
+        wish.importance = 2;
+        wish.urgency = 2;
         });
 
     set_wishes_changed();

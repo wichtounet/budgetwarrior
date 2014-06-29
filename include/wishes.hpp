@@ -37,6 +37,8 @@ struct wish {
     money amount;
     bool paid;
     money paid_amount;
+    std::size_t importance;
+    std::size_t urgency;
 };
 
 std::ostream& operator<<(std::ostream& stream, const wish& expense);
@@ -51,6 +53,7 @@ void add_wish(wish&& objective);
 void set_wishes_changed();
 
 void migrate_wishes_2_to_3();
+void migrate_wishes_3_to_4();
 
 } //end of namespace budget
 
