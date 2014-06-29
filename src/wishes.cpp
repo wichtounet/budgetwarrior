@@ -525,5 +525,4 @@ void budget::migrate_wishes_3_to_4(){
     set_wishes_changed();
 
     save_data(wishes, "wishes.data");
-
 }
