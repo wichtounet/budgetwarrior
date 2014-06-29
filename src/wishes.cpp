@@ -47,6 +47,20 @@ std::string status(std::size_t v){
     }
 }
 
+std::string status_short(std::size_t v){
+    switch(v){
+        case 1:
+            return "\033[0;32mL\033[0;3047m";
+        case 2:
+            return "M";
+        case 3:
+            return "\033[0;31mH\033[0;3047m";
+        default:
+            budget_unreachable("Invalid status value");
+            return "::redInvalid";
+    }
+}
+
 void list_wishes(){
     if(wishes.data.size() == 0){
         std::cout << "No wishes" << std::endl;
@@ -115,6 +129,10 @@ void status_wishes(){
 
         std::cout << "  ";
         print_minimum(name, width);
+        
+        std::cout << "  ";
+        std::cout << status_short(wish.importance) << "-" << status_short(wish.urgency);
+
         std::cout << "  ";
 
         total_amount += amount;
