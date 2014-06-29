@@ -7,9 +7,7 @@
 
 #include <string>
 #include <iostream>
-
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/for_each.hpp>
+#include <tuple>
 
 #include "config.hpp"
 #include "args.hpp"
@@ -34,21 +32,59 @@ using namespace budget;
 
 namespace {
 
-typedef boost::mpl::vector<
-            budget::debt_module*,
-            budget::expenses_module*,
-            budget::overview_module*,
-            budget::accounts_module*,
-            budget::earnings_module*,
-            budget::recurring_module*,
-            budget::fortune_module*,
-            budget::report_module*,
-            budget::objectives_module*,
-            budget::wishes_module*,
-            budget::versioning_module*,
-            budget::version_module*,
-            budget::help_module*
-    > modules;
+typedef std::tuple<
+            budget::debt_module,
+            budget::expenses_module,
+            budget::overview_module,
+            budget::accounts_module,
+            budget::earnings_module,
+            budget::recurring_module,
+            budget::fortune_module,
+            budget::report_module,
+            budget::objectives_module,
+            budget::wishes_module,
+            budget::versioning_module,
+            budget::version_module,
+            budget::help_module
+    > modules_tuple;
+
+template<std::size_t I, typename Tuple, typename Functor>
+struct for_each_impl {
+    static void for_each(Functor& func){
+        func.template operator()<typename std::tuple_element<I, Tuple>::type>();
+        for_each_impl<I - 1, Tuple, Functor>::for_each(func);
+    }
+};
+
+template<typename Tuple, typename Functor>
+struct for_each_impl<0, Tuple, Functor> {
+    static void for_each(Functor& func){
+        func.template operator()<typename std::tuple_element<0, Tuple>::type>();
+    }
+};
+
+template<typename Tuple, typename Functor>
+void for_each(Functor& func){
+    for_each_impl<std::tuple_size<Tuple>::value - 1, Tuple, Functor>::for_each(func);
+}
+
+enum class enabler_t { DUMMY };
+constexpr const enabler_t dummy = enabler_t::DUMMY;
+
+template<bool B, typename T = void>
+using enable_if_t = typename std::enable_if<B, T>::type;
+
+template<bool B>
+using enable_if_u = typename std::enable_if<B, enabler_t>::type;
+
+template<bool B, typename T = void>
+using disable_if = std::enable_if<!B, T>;
+
+template<bool B, typename T = void>
+using disable_if_t = typename std::enable_if<!B, T>::type;
+
+template<bool B, typename T = void>
+using disable_if_u = typename std::enable_if<!B, enabler_t>::type;
 
 template<class T>
 struct Void {
@@ -105,7 +141,7 @@ struct disable_preloading {
 };
 
 template<typename Module>
-struct disable_preloading<Module, typename std::enable_if<has_disable_preloading_field<module_traits<Module>>::value>::type> {
+struct disable_preloading<Module, enable_if_t<has_disable_preloading_field<module_traits<Module>>::value>> {
     static const bool value = module_traits<Module>::disable_preloading;
 };
 
@@ -117,27 +153,24 @@ struct has_aliases {
 };
 
 template<typename Module>
-struct has_aliases<Module, typename std::enable_if<has_aliases_field<module_traits<Module>>::value>::type> {
+struct has_aliases<Module, enable_if_t<has_aliases_field<module_traits<Module>>::value>> {
     static const bool value = true;
 };
 
-template<bool B, typename T = void>
-using disable_if = std::enable_if<!B, T>;
-
 struct module_loader {
-    template<typename Module>
-    inline typename std::enable_if<need_preloading<Module>::value, void>::type preload(){
+    template<typename Module, enable_if_u<need_preloading<Module>::value> = dummy>
+    inline void preload(){
         Module module;
         module.preload();
     }
 
-    template<typename Module>
-    inline typename disable_if<need_preloading<Module>::value, void>::type preload(){
+    template<typename Module, disable_if_u<need_preloading<Module>::value> = dummy>
+    inline void preload(){
         //NOP
     }
 
     template<typename Module>
-    inline void operator()(Module*){
+    inline void operator()(){
         preload<Module>();
     }
 };
@@ -150,23 +183,23 @@ struct module_runner {
         //Nothing to init
     }
 
-    template<typename Module>
-    inline typename std::enable_if<need_loading<Module>::value, void>::type load(Module& module){
+    template<typename Module, enable_if_u<need_loading<Module>::value> = dummy>
+    inline void load(Module& module){
        module.load();
     }
 
-    template<typename Module>
-    inline typename disable_if<need_loading<Module>::value, void>::type load(Module&){
+    template<typename Module, disable_if_u<need_loading<Module>::value> = dummy>
+    inline void load(Module&){
         //NOP
     }
 
-    template<typename Module>
-    inline typename std::enable_if<need_unloading<Module>::value, void>::type unload(Module& module){
+    template<typename Module, enable_if_u<need_unloading<Module>::value> = dummy>
+    inline void unload(Module& module){
        module.unload();
     }
 
-    template<typename Module>
-    inline typename disable_if<need_unloading<Module>::value, void>::type unload(Module&){
+    template<typename Module, disable_if_u<need_unloading<Module>::value> = dummy>
+    inline void unload(Module&){
         //NOP
     }
 
@@ -175,7 +208,7 @@ struct module_runner {
         //Preload each module that needs it
         if(!disable_preloading<Module>::value){
             module_loader loader;
-            boost::mpl::for_each<modules>(boost::ref(loader));
+            for_each<modules_tuple>(loader);
         }
 
         Module module;
@@ -190,7 +223,7 @@ struct module_runner {
     }
 
     template<typename Module>
-    inline void operator()(Module*){
+    inline void operator()(){
         if(handled){
             return;
         }
@@ -208,15 +241,15 @@ struct module_runner {
 struct aliases_collector {
     std::vector<std::pair<const char*, const char*>> aliases;
 
-    template<typename Module>
-    inline typename std::enable_if<has_aliases<Module>::value, void>::type operator()(Module*){
+    template<typename Module, enable_if_u<has_aliases<Module>::value> = dummy>
+    inline void operator()(){
         for(auto& v : module_traits<Module>::aliases){
             aliases.push_back(v);
         }
     }
 
-    template<typename Module>
-    inline typename disable_if<has_aliases<Module>::value, void>::type operator()(Module*){
+    template<typename Module, disable_if_u<has_aliases<Module>::value> = dummy>
+    inline void operator()(){
         //NOP
     }
 };
@@ -284,7 +317,7 @@ int main(int argc, const char* argv[]) {
     
     //Collect all aliases
     aliases_collector collector;
-    boost::mpl::for_each<modules>(boost::ref(collector));
+    for_each<modules_tuple>(collector);
 
     //Parse the command line args
     auto args = parse_args(argc, argv, collector.aliases);
@@ -294,7 +327,7 @@ int main(int argc, const char* argv[]) {
     try {
         //Run the correct module
         module_runner runner(std::move(args));
-        boost::mpl::for_each<modules>(boost::ref(runner));
+        for_each<modules_tuple>(runner);
 
         if(!runner.handled){
             std::cout << "Unhandled command \"" << runner.args[0] << "\"" << std::endl;
