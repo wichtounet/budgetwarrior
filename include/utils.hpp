@@ -10,8 +10,7 @@
 
 #include <string>
 #include <sstream>
-
-#include "date.hpp"
+#include <vector>
 
 namespace budget {
 
@@ -35,17 +34,17 @@ inline T to_number (const std::string& text) {
  */
 template<>
 inline int to_number (const std::string& text) {
-    return boost::lexical_cast<int>(text);
+    return std::stoi(text);
+}
+
+template<>
+inline unsigned short to_number (const std::string& text) {
+    return static_cast<unsigned short>(std::stoi(text));
 }
 
 template<typename T>
 inline std::string to_string(T value){
     return std::to_string(value);
-}
-
-template<>
-inline std::string to_string(budget::date date){
-    return date_to_string(date);
 }
 
 template<>
@@ -59,9 +58,6 @@ inline std::string to_string(const char* value){
 }
 
 void one_of(const std::string& value, const std::string& message, std::vector<std::string> values);
-
-unsigned short start_year();
-unsigned short start_month(budget::year year);
 
 unsigned short terminal_width();
 unsigned short terminal_height();

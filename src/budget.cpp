@@ -310,6 +310,10 @@ int main(int argc, const char* argv[]) {
             migrate_wishes_2_to_3();
         }
 
+        if(old_data_version <= 3 && DATA_VERSION >= 4){
+            migrate_wishes_2_to_3();
+        }
+
         internal_config_value("data_version") = to_string(DATA_VERSION);
 
         std::cout << "done" << std::endl;

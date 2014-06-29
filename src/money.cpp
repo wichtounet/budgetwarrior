@@ -5,6 +5,8 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <stdexcept>
+
 #include "money.hpp"
 #include "utils.hpp"
 #include "budget_exception.hpp"
@@ -26,7 +28,9 @@ money budget::parse_money(const std::string& money_string){
             auto cents_str = money_string.substr(dot_pos+1, money_string.size() - dot_pos);
             cents = to_number<int>(cents_str);
         }
-    } catch (boost::bad_lexical_cast& e){
+    } catch (std::invalid_argument& e){
+        throw budget::budget_exception("\"" + money_string + "\" is not a valid amount of money");
+    } catch (std::out_of_range& e){
         throw budget::budget_exception("\"" + money_string + "\" is not a valid amount of money");
     }
 
