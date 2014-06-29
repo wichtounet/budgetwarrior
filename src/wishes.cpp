@@ -75,7 +75,7 @@ void status_wishes(){
         }
 
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
-        boost::algorithm::trim(name);
+        trim(name);
 
         width = std::max(rsize(name), width);
     }
@@ -95,7 +95,7 @@ void status_wishes(){
         auto amount = wish.amount;
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
         
-        boost::algorithm::trim(name);
+        trim(name);
 
         std::cout << "  ";
         print_minimum(name, width);
@@ -190,7 +190,7 @@ void estimate_wishes(){
         
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
         
-        boost::algorithm::trim(name);
+        trim(name);
 
         width = std::max(rsize(name), width);
     }
@@ -205,7 +205,7 @@ void estimate_wishes(){
         
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
         
-        boost::algorithm::trim(name);
+        trim(name);
 
         std::cout << "  ";
         print_minimum(name, width);
@@ -281,7 +281,7 @@ void estimate_wishes(){
 
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
         
-        boost::algorithm::trim(name);
+        trim(name);
 
         std::cout << "  ";
         print_minimum(name, width);

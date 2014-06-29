@@ -96,7 +96,7 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
 
     for(auto& row : contents){
         for(auto& cell : row){
-            boost::algorithm::trim(cell);
+            trim(cell);
         }
     }
 

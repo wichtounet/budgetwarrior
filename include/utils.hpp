@@ -11,6 +11,10 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm> 
+#include <functional> 
+#include <cctype>
+#include <locale>
 
 namespace budget {
 
@@ -61,6 +65,20 @@ void one_of(const std::string& value, const std::string& message, std::vector<st
 
 unsigned short terminal_width();
 unsigned short terminal_height();
+
+inline std::string &ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), ::isspace));
+    return s;
+}
+
+inline std::string &rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), ::isspace).base(), s.end());
+    return s;
+}
+
+inline std::string &trim(std::string &s) {
+    return ltrim(rtrim(s));
+}
 
 } //end of namespace budget
 
