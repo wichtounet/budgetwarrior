@@ -9,9 +9,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "wishes.hpp"
 #include "objectives.hpp"
 #include "expenses.hpp"
@@ -26,6 +23,7 @@
 #include "console.hpp"
 #include "budget_exception.hpp"
 #include "compute.hpp"
+#include "console.hpp"
 
 using namespace budget;
 
@@ -65,7 +63,7 @@ void list_wishes(){
     if(wishes.data.size() == 0){
         std::cout << "No wishes" << std::endl;
     } else {
-        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid"};
+        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff"};
         std::vector<std::vector<std::string>> contents;
 
         money total;
@@ -73,7 +71,9 @@ void list_wishes(){
         for(auto& wish : wishes.data){
             contents.push_back({
                 to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency), 
-                to_string(wish.amount), wish.paid ? to_string(wish.paid_amount) : "No"});
+                to_string(wish.amount), 
+                wish.paid ? to_string(wish.paid_amount) : "No", 
+                wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : ""});
 
             total += wish.amount;
             if(!wish.paid){
