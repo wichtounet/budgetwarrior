@@ -50,14 +50,14 @@ std::string status(std::size_t v){
 std::string status_short(std::size_t v){
     switch(v){
         case 1:
-            return "\033[0;32mL\033[0;3047m";
+            return green("L");
         case 2:
             return "M";
         case 3:
-            return "\033[0;31mH\033[0;3047m";
+            return red("H");
         default:
             budget_unreachable("Invalid status value");
-            return "::redInvalid";
+            return red("Invalid");
     }
 }
 
@@ -170,18 +170,18 @@ void status_wishes(){
         }
 
         if(fortune_amount < wish.amount){
-            std::cout << "\033[0;31mImpossible\033[0;3047m (not enough fortune)";
+            std::cout << red("Impossible") << " (not enough fortune)";
         } else {
             if(month_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(month_objective && year_objective){
-                        std::cout << "\033[0;32mPerfect\033[0;3047m (On month balance, all objectives fullfilled)";
+                        std::cout << green("Perfect") << " (On month balance, all objectives fullfilled)";
                     } else if(month_objective){
-                        std::cout << "\033[0;32mGood\033[0;3047m (On month balance, month objectives fullfilled)";
+                        std::cout << green("Good") << " (On month balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << "\033[0;33mOK\033[0;3047m (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                        std::cout << cyan("OK") << " (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << "\033[0;31mWarning\033[0;3047m (On month balance, objectives not fullfilled)";
+                        std::cout << red("Warning") << " (On month balance, objectives not fullfilled)";
                     }
                 } else {
                     std::cout << "OK (on month balance)";
@@ -189,19 +189,19 @@ void status_wishes(){
             } else if(year_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(month_objective && year_objective){
-                        std::cout << "\033[0;32mPerfect\033[0;3047m (On year balance, all objectives fullfilled)";
+                        std::cout << green("Perfect") << " (On year balance, all objectives fullfilled)";
                     } else if(month_objective){
-                        std::cout << "\033[0;32mGood\033[0;3047m (On year balance, month objectives fullfilled)";
+                        std::cout << green("Good") << " (On year balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << "\033[0;33mOK\033[0;3047m (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                        std::cout << cyan("OK") << " (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << "\033[0;31mWarning\033[0;3047m (On year balance, objectives not fullfilled)";
+                        std::cout << red("Warning") << " (On year balance, objectives not fullfilled)";
                     }
                 } else {
-                    std::cout << "\033[0;33mOK\033[0;3047m (on year balance)";
+                    std::cout << cyan("OK") << " (on year balance)";
                 }
             } else {
-                std::cout << "\033[0;31mWarning\033[0;3047m (on fortune only)";
+                std::cout << red("Warning") << " (on fortune only)";
             }
         }
 

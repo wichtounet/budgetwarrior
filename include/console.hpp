@@ -17,6 +17,18 @@
 
 namespace budget {
 
+inline std::string red(const std::string& str){
+    return "\033[0;31m" + str + "\033[0;3047m";
+}
+
+inline std::string green(const std::string& str){
+    return "\033[0;32m" + str + "\033[0;3047m";
+}
+
+inline std::string cyan(const std::string& str){
+    return "\033[0;33m" + str + "\033[0;3047m";
+}
+
 /**
  * Returns the real size of a string. By default, accented characteres are
  * represented by several chars and make the length of the string being bigger
