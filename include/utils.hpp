@@ -31,21 +31,6 @@ inline T to_number (const std::string& text) {
     return result;
 }
 
-/*!
- * \brief Convert a string to a number of an int. This function is optimized for speed when converting int.
- * \param text The string to convert.
- * \return The text converted to an int.
- */
-template<>
-inline int to_number (const std::string& text) {
-    return std::stoi(text);
-}
-
-template<>
-inline unsigned short to_number (const std::string& text) {
-    return static_cast<unsigned short>(std::stoi(text));
-}
-
 template<typename T>
 inline std::string to_string(T value){
     return std::to_string(value);
