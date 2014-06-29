@@ -16,32 +16,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-unsigned short budget::start_month(budget::year year){
-    auto key = to_string(year) + "_start";
-    if(config_contains(key)){
-        auto value = to_number<unsigned short>(config_value(key));
-        budget_assert(value < 13 && value > 0, "The start month is incorrect (must be in [1,12])");
-        return value;
-    }
-
-    return 1;
-}
-
-unsigned short budget::start_year(){
-    auto today = budget::local_day();
-    auto y = today.year();
-
-    for(auto& expense : all_expenses()){
-        y = std::min(expense.date.year(), y);
-    }
-
-    for(auto& earning : all_earnings()){
-        y = std::min(earning.date.year(), y);
-    }
-
-    return y;
-}
-
 unsigned short budget::terminal_width(){
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);

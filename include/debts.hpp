@@ -11,10 +11,9 @@
 #include <vector>
 #include <string>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-
 #include "module_traits.hpp"
 #include "money.hpp"
+#include "date.hpp"
 
 namespace budget {
 
@@ -34,7 +33,7 @@ struct debt {
     std::size_t id;
     int state;
     std::string guid;
-    boost::posix_time::ptime creation_time;
+    date creation_date;
     bool direction;
     std::string name;
     money amount;
@@ -46,6 +45,8 @@ void operator>>(const std::vector<std::string>& parts, debt& debt);
 
 void load_debts();
 void save_debts();
+
+void migrate_debts_3_to_4();
 
 } //end of namespace budget
 
