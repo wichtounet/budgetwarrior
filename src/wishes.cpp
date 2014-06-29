@@ -9,9 +9,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "wishes.hpp"
 #include "objectives.hpp"
 #include "expenses.hpp"
@@ -26,6 +23,7 @@
 #include "console.hpp"
 #include "budget_exception.hpp"
 #include "compute.hpp"
+#include "console.hpp"
 
 using namespace budget;
 
@@ -50,22 +48,32 @@ std::string status(std::size_t v){
 std::string status_short(std::size_t v){
     switch(v){
         case 1:
-            return "\033[0;32mL\033[0;3047m";
+            return green("L");
         case 2:
             return "M";
         case 3:
-            return "\033[0;31mH\033[0;3047m";
+            return red("H");
         default:
             budget_unreachable("Invalid status value");
-            return "::redInvalid";
+            return red("Invalid");
     }
+}
+
+std::string accuracy(budget::money paid, budget::money estimation){
+    auto a = paid < estimation ? 
+        static_cast<double>(paid.dollars()) / estimation.dollars() : 
+        static_cast<double>(estimation.dollars()) / paid.dollars();
+
+    a *= 100.0;
+
+    return to_string(static_cast<std::size_t>(a)) + "%";
 }
 
 void list_wishes(){
     if(wishes.data.size() == 0){
         std::cout << "No wishes" << std::endl;
     } else {
-        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid"};
+        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff", "Accuracy"};
         std::vector<std::vector<std::string>> contents;
 
         money total;
@@ -73,7 +81,10 @@ void list_wishes(){
         for(auto& wish : wishes.data){
             contents.push_back({
                 to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency), 
-                to_string(wish.amount), wish.paid ? to_string(wish.paid_amount) : "No"});
+                to_string(wish.amount), 
+                wish.paid ? to_string(wish.paid_amount) : "No", 
+                wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : "", 
+                wish.paid ? accuracy(wish.paid_amount, wish.amount) : ""});
 
             total += wish.amount;
             if(!wish.paid){
@@ -170,18 +181,18 @@ void status_wishes(){
         }
 
         if(fortune_amount < wish.amount){
-            std::cout << "\033[0;31mImpossible\033[0;3047m (not enough fortune)";
+            std::cout << red("Impossible") << " (not enough fortune)";
         } else {
             if(month_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(month_objective && year_objective){
-                        std::cout << "\033[0;32mPerfect\033[0;3047m (On month balance, all objectives fullfilled)";
+                        std::cout << green("Perfect") << " (On month balance, all objectives fullfilled)";
                     } else if(month_objective){
-                        std::cout << "\033[0;32mGood\033[0;3047m (On month balance, month objectives fullfilled)";
+                        std::cout << green("Good") << " (On month balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << "\033[0;33mOK\033[0;3047m (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                        std::cout << cyan("OK") << " (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << "\033[0;31mWarning\033[0;3047m (On month balance, objectives not fullfilled)";
+                        std::cout << red("Warning") << " (On month balance, objectives not fullfilled)";
                     }
                 } else {
                     std::cout << "OK (on month balance)";
@@ -189,19 +200,19 @@ void status_wishes(){
             } else if(year_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(month_objective && year_objective){
-                        std::cout << "\033[0;32mPerfect\033[0;3047m (On year balance, all objectives fullfilled)";
+                        std::cout << green("Perfect") << " (On year balance, all objectives fullfilled)";
                     } else if(month_objective){
-                        std::cout << "\033[0;32mGood\033[0;3047m (On year balance, month objectives fullfilled)";
+                        std::cout << green("Good") << " (On year balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << "\033[0;33mOK\033[0;3047m (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                        std::cout << cyan("OK") << " (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << "\033[0;31mWarning\033[0;3047m (On year balance, objectives not fullfilled)";
+                        std::cout << red("Warning") << " (On year balance, objectives not fullfilled)";
                     }
                 } else {
-                    std::cout << "\033[0;33mOK\033[0;3047m (on year balance)";
+                    std::cout << cyan("OK") << " (on year balance)";
                 }
             } else {
-                std::cout << "\033[0;31mWarning\033[0;3047m (on fortune only)";
+                std::cout << red("Warning") << " (on fortune only)";
             }
         }
 

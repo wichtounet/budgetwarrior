@@ -19,6 +19,30 @@ std::string budget::format_code(int attr, int fg, int bg){
     return stream.str();
 }
 
+std::string budget::format_money(const budget::money& m){
+    if(m.positive()){
+        return "::green" + budget::to_string(m);
+    } else if(m.negative()){
+        return "::red" + budget::to_string(m);
+    } else if(m.zero()){
+        return budget::to_string(m);
+    } else {
+        return budget::to_string(m);
+    }
+}
+
+std::string budget::format_money_reverse(const budget::money& m){
+    if(m.positive()){
+        return "::red" + budget::to_string(m);
+    } else if(m.negative()){
+        return "::green" + budget::to_string(m);
+    } else if(m.zero()){
+        return budget::to_string(m);
+    } else {
+        return budget::to_string(m);
+    }
+}
+
 std::size_t budget::rsize(const std::string& value){
     auto v = value;
 

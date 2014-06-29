@@ -78,18 +78,6 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
     return add_recap_line(contents, title, values, [](const T& t){return t;});
 }
 
-std::string format_money(const budget::money& m){
-    if(m.positive()){
-        return "::green" + budget::to_string(m);
-    } else if(m.negative()){
-        return "::red" + budget::to_string(m);
-    } else if(m.zero()){
-        return budget::to_string(m);
-    } else {
-        return budget::to_string(m);
-    }
-}
-
 std::vector<budget::money> compute_total_budget(budget::month month, budget::year year){
     std::unordered_map<std::string, budget::money> tmp;
 
