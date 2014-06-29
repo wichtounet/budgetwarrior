@@ -33,17 +33,47 @@ namespace {
 
 static data_handler<wish> wishes;
 
+std::string status(std::size_t v){
+    switch(v){
+        case 1:
+            return "::greenLow";
+        case 2:
+            return "Medium";
+        case 3:
+            return "::redHigh";
+        default:
+            budget_unreachable("Invalid status value");
+            return "::redInvalid";
+    }
+}
+
+std::string status_short(std::size_t v){
+    switch(v){
+        case 1:
+            return "\033[0;32mL\033[0;3047m";
+        case 2:
+            return "M";
+        case 3:
+            return "\033[0;31mH\033[0;3047m";
+        default:
+            budget_unreachable("Invalid status value");
+            return "::redInvalid";
+    }
+}
+
 void list_wishes(){
     if(wishes.data.size() == 0){
         std::cout << "No wishes" << std::endl;
     } else {
-        std::vector<std::string> columns = {"ID", "Name", "Amount", "Paid"};
+        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid"};
         std::vector<std::vector<std::string>> contents;
 
         money total;
         money unpaid_total;
         for(auto& wish : wishes.data){
-            contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), wish.paid ? to_string(wish.paid_amount) : "No"});
+            contents.push_back({
+                to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency), 
+                to_string(wish.amount), wish.paid ? to_string(wish.paid_amount) : "No"});
 
             total += wish.amount;
             if(!wish.paid){
@@ -99,6 +129,10 @@ void status_wishes(){
 
         std::cout << "  ";
         print_minimum(name, width);
+        
+        std::cout << "  ";
+        std::cout << status_short(wish.importance) << "-" << status_short(wish.urgency);
+
         std::cout << "  ";
 
         total_amount += amount;
@@ -338,6 +372,8 @@ void estimate_wishes(){
 void edit(budget::wish& wish){
     edit_string(wish.name, "Name", not_empty_checker());
     edit_money(wish.amount, "Amount", not_negative_checker(), not_zero_checker());
+    edit_number(wish.importance, "Importance", range_checker<1,3>());
+    edit_number(wish.urgency, "Urgency", range_checker<1,3>());
 }
 
 } //end of anonymous namespace
@@ -371,6 +407,8 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
             wish wish;
             wish.guid = generate_guid();
             wish.date = budget::local_day();
+            wish.importance = 2;
+            wish.urgency = 2;
 
             edit(wish);
 
@@ -448,7 +486,9 @@ std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
         << wish.amount << ':'
         << to_string(wish.date) << ':'
         << static_cast<size_t>(wish.paid) << ':'
-        << wish.paid_amount;
+        << wish.paid_amount << ':'
+        << wish.importance << ':'
+        << wish.urgency;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
@@ -459,6 +499,8 @@ void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
     wish.date = from_string(parts[4]);
     wish.paid = to_number<std::size_t>(parts[5]) == 1;
     wish.paid_amount = parse_money(parts[6]);
+    wish.importance = to_number<std::size_t>(parts[7]);
+    wish.urgency = to_number<std::size_t>(parts[8]);
 }
 
 std::vector<wish>& budget::all_wishes(){
@@ -483,5 +525,22 @@ void budget::migrate_wishes_2_to_3(){
     set_wishes_changed();
 
     save_data(wishes, "wishes.data");
+}
 
+void budget::migrate_wishes_3_to_4(){
+    load_data(wishes, "wishes.data", [](const std::vector<std::string>& parts, wish& wish){
+        wish.id = to_number<std::size_t>(parts[0]);
+        wish.guid = parts[1];
+        wish.name = parts[2];
+        wish.amount = parse_money(parts[3]);
+        wish.date = from_string(parts[4]);
+        wish.paid = to_number<std::size_t>(parts[5]) == 1;
+        wish.paid_amount = parse_money(parts[6]);
+        wish.importance = 2;
+        wish.urgency = 2;
+        });
+
+    set_wishes_changed();
+
+    save_data(wishes, "wishes.data");
 }

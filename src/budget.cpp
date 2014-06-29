@@ -311,7 +311,8 @@ int main(int argc, const char* argv[]) {
         }
 
         if(old_data_version <= 3 && DATA_VERSION >= 4){
-            migrate_debts_3_to_4();
+            //migrate_debts_3_to_4();
+            migrate_wishes_3_to_4();
         }
 
         internal_config_value("data_version") = to_string(DATA_VERSION);

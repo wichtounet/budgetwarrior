@@ -92,6 +92,23 @@ void edit_string(std::string& ref, const std::string& title, Checker... checkers
 }
 
 template<typename ...Checker>
+void edit_number(std::size_t& ref, const std::string& title, Checker... checkers){
+    bool checked;
+    do {
+        std::string answer;
+
+        std::cout << title << " [" << ref << "]: ";
+        std::getline(std::cin, answer);
+
+        if(!answer.empty()){
+            ref = to_number<std::size_t>(answer);
+        }
+
+        checked = check(ref, checkers...);
+    } while(!checked);
+}
+
+template<typename ...Checker>
 void edit_money(budget::money& ref, const std::string& title, Checker... checkers){
     bool checked;
     do {
@@ -191,6 +208,22 @@ struct account_checker {
 
     std::string message(){
         return "The account does not exist";
+    }
+};
+
+template<std::size_t First, std::size_t Last>
+struct range_checker {
+    bool operator()(const std::size_t& value){
+        return value >= First && value <= Last;
+    }
+
+    std::string message(){
+        std::string m = "Value must in the range [";
+        m += to_string(First);
+        m += ", ";
+        m += to_string(Last);
+        m += "]";
+        return m;
     }
 };
 
