@@ -354,6 +354,8 @@ void estimate_wishes(){
 void edit(budget::wish& wish){
     edit_string(wish.name, "Name", not_empty_checker());
     edit_money(wish.amount, "Amount", not_negative_checker(), not_zero_checker());
+    edit_number(wish.importance, "Importance", range_checker<1,3>());
+    edit_number(wish.urgency, "Urgency", range_checker<1,3>());
 }
 
 } //end of anonymous namespace
@@ -387,6 +389,8 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
             wish wish;
             wish.guid = generate_guid();
             wish.date = budget::local_day();
+            wish.importance = 2;
+            wish.urgency = 2;
 
             edit(wish);
 
