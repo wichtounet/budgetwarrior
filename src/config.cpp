@@ -27,7 +27,7 @@ typedef std::unordered_map<std::string, std::string> config_type;
 namespace {
 
 bool load_configuration(const std::string& path, config_type& configuration){
-    if(boost::filesystem::exists(path)){
+    if(file_exists(path)){
         std::ifstream file(path);
 
         if(file.is_open()){
@@ -63,7 +63,7 @@ void save_configuration(const std::string& path, const config_type& configuratio
 bool verify_folder(){
     auto folder_path = budget_folder();
 
-    if(!boost::filesystem::exists(folder_path)){
+    if(!folder_exists(folder_path)){
         std::cout << "The folder " << folder_path << " does not exist. Would like to create it [yes/no] ? ";
 
         std::string answer;

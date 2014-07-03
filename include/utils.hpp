@@ -66,6 +66,7 @@ inline std::string &trim(std::string &s) {
 }
 
 bool file_exists(const std::string& name);
+bool folder_exists(const std::string& name);
 
 } //end of namespace budget
 

@@ -9,6 +9,7 @@
 #include <fstream>
 
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 
 #include "utils.hpp"
 #include "budget_exception.hpp"
@@ -38,4 +39,9 @@ bool budget::file_exists(const std::string& name){
         f.close();
         return false;
     }
+}
+
+bool budget::folder_exists(const std::string& name){
+    struct stat sb;
+    return stat(name.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode);
 }
