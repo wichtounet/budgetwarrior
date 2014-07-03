@@ -45,3 +45,18 @@ bool budget::folder_exists(const std::string& name){
     struct stat sb;
     return stat(name.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode);
 }
+
+std::vector<std::string>& budget::split(const std::string& s, char delim, std::vector<std::string>& elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+std::vector<std::string> budget::split(const std::string& s, char delim) {
+    std::vector<std::string> elems;
+    split(s, delim, elems);
+    return elems;
+}

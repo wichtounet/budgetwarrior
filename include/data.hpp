@@ -8,8 +8,6 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include <boost/algorithm/string.hpp>
-
 #include "config.hpp"
 #include "assert.hpp"
 #include "utils.hpp"
@@ -63,8 +61,7 @@ void load_data(data_handler<T>& data, const std::string& path, Functor f){
 
                 std::string line;
                 while(file.good() && getline(file, line)){
-                    std::vector<std::string> parts;
-                    boost::split(parts, line, boost::is_any_of(":"), boost::token_compress_on);
+                    auto parts = split(line, ':');
 
                     T entry;
 

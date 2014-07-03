@@ -8,10 +8,9 @@
 #include <vector>
 #include <string>
 
-#include <boost/algorithm/string.hpp>
-
 #include "args.hpp"
 #include "budget_exception.hpp"
+#include "utils.hpp"
 
 std::vector<std::string> budget::parse_args(int argc, const char* argv[], const std::vector<std::pair<const char*, const char*>>& aliases){
     std::vector<std::string> args;
@@ -24,12 +23,9 @@ std::vector<std::string> budget::parse_args(int argc, const char* argv[], const 
 
             for(auto& alias : aliases){
                 if(alias.first == arg){
-                    std::vector<std::string> parts;
-                    boost::split(parts, alias.second, boost::is_any_of(" "), boost::token_compress_on);
+                    auto parts = split(alias.second, ' ');
 
-                    for(auto& part : parts){
-                        args.push_back(part);
-                    }
+                    std::copy(parts.begin(), parts.end(), std::back_inserter(args));
 
                     found_alias = true;
                 }
