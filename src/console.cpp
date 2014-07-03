@@ -55,23 +55,9 @@ std::size_t budget::rsize(const std::string& value){
 }
 
 bool budget::option(const std::string& option, std::vector<std::string>& args){
-    auto it = args.begin();
-    auto end = args.end();
-
-    bool found = false;
-
-    while(it != end){
-        if(*it == option){
-            it = args.erase(it);
-            end = args.end();
-
-            found = true;
-        } else {
-            ++it;
-        }
-    }
-
-    return found;
+    auto before = args.size();
+    args.erase(std::remove(args.begin(), args.end(), option), args.end());
+    return before != args.size();
 }
 
 std::string budget::option_value(const std::string& option, std::vector<std::string>& args, const std::string& default_value){
