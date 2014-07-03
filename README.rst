@@ -34,7 +34,10 @@ Build from source
 
 A modern compiler is necessary: GCC >= 4.7 or CLang >= 3.1.
 
-The tool is known to work on Linux but has never been tested on Windows.
+The tool is made for Linux. If there is some interest on using it on Windows, it
+should not take too much work to port it to Windows. Just le met me know (or
+make a Pull Request with the changes ;) ). . 
+
 You need Boost 1.47.0 or superior and libuuid installed on your computer
 to build this project.
 
