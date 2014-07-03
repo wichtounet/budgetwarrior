@@ -7,9 +7,6 @@
 
 #include <sstream>
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "console.hpp"
 #include "assert.hpp"
 
@@ -84,7 +81,7 @@ std::string budget::option_value(const std::string& option, std::vector<std::str
     auto value = default_value;
 
     while(it != end){
-        if (boost::starts_with(*it, option + "=")){
+        if (it->find(option + "=") == 0){
             value = std::string(it->begin() + option.size() + 1, it->end());
 
             it = args.erase(it);
