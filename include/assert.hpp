@@ -5,50 +5,69 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef BUDGET_ASSERT_H
-#define BUDGET_ASSERT_H
+#ifndef BUDGET_ASSERT_HPP
+#define BUDGET_ASSERT_HPP
 
-#include <cassert>
+#include <iostream>
 
-#include <boost/assert.hpp>
+#include "likely.hpp"
 
-/*!
- * \def budget_assert(condition, message)
- * \brief Verify that the condition is true. If not, fails and display the specified message.
- * \param condition The condition that have to be true
- * \param message The message to be printed if the assertion is not verified.
- */
-#define budget_assert(condition, message) BOOST_ASSERT_MSG(condition, message);
+#ifdef NDEBUG
 
-#ifdef __GNUC__
+#define budget_assert(condition, message) ((void)0)
 
-/*!
- * \def boost_unreachable(message)
- * \brief Assert that this path is not taken. If it is taken, fails and display the specified message.
- * \param message The message to be printed if the assertion is not verified.
- */
-#define budget_unreachable(message) BOOST_ASSERT_MSG(false, message); assert(false); __builtin_unreachable();
-
-#endif
-
-#ifdef __clang__
+#if defined __clang__
 
 #if __has_builtin(__builtin_unreachable)
-    /*!
-     * \def budget_unreachable(message)
-     * \brief Assert that this path is not taken. If it is taken, fails and display the specified message.
-     * \param message The message to be printed if the assertion is not verified.
-     */
-    #define budget_unreachable(message) BOOST_ASSERT_MSG(false, message); assert(false); __builtin_unreachable();
+#define budget_unreachable(message) __builtin_unreachable();
 #else
-    /*!
-     * \def budget_unreachable(message)
-     * \brief Assert that this path is not taken. If it is taken, fails and display the specified message.
-     * \param message The message to be printed if the assertion is not verified.
-     */
-    #define budget_unreachable(message) BOOST_ASSERT_MSG(false, message); assert(false);
-#endif
+#define budget_unreachable(message) ((void)0)
+#endif //__has_builtin(__builtin_unreachable)
 
-#endif
+#elif defined __GNUC__
 
-#endif
+#define budget_unreachable(message) __builtin_unreachable();
+
+#endif //__clang__
+
+#else
+
+#define budget_assert(condition, message) (likely(condition) \
+    ? ((void)0) \
+    : ::budget::assertion::detail::assertion_failed_msg(#condition, message, \
+    __PRETTY_FUNCTION__, __FILE__, __LINE__))
+
+#if defined __clang__
+
+#if __has_builtin(__builtin_unreachable)
+#define budget_unreachable(message) budget_assert(false, message); __builtin_unreachable();
+#else
+#define budget_unreachable(message) budget_assert(false, message);
+#endif //__has_builtin(__builtin_unreachable)
+
+#elif defined __GNUC__
+
+#define budget_unreachable(message) budget_assert(false, message); __builtin_unreachable();
+
+#endif //__clang__
+
+#endif //NDEBUG
+
+namespace budget {
+namespace assertion {
+namespace detail {
+
+    template< typename CharT >
+    void assertion_failed_msg(const CharT* expr, const char* msg, const char* function, const char* file, long line){
+        std::cerr
+            << "***** Internal Program Error - assertion (" << expr << ") failed in "
+            << function << ":\n"
+            << file << '(' << line << "): " << msg << std::endl;
+        std::abort();
+    }
+
+} // end of detail namespace
+} // end of assertion namespace
+} // end of detail namespace
+
+#endif //BUDGET_ASSERT_HPP
