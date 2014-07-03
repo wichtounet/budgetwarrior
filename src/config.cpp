@@ -9,13 +9,10 @@
 #include <fstream>
 #include <unordered_map>
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
+#include <sys/stat.h> //For mkdir
+#include <pwd.h>      //For getpwuid
 
 #include <boost/algorithm/string.hpp>
-
-#include <boost/filesystem.hpp>
 
 #include "config.hpp"
 #include "utils.hpp"
@@ -70,7 +67,7 @@ bool verify_folder(){
         std::cin >> answer;
 
         if(answer == "yes" || answer == "y"){
-            if(boost::filesystem::create_directories(folder_path)){
+            if(mkdir(folder_path.c_str(), ACCESSPERMS) == 0){
                 std::cout << "The folder " << folder_path << " was created. " << std::endl;
 
                 return true;
