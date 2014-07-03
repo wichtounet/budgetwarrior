@@ -27,23 +27,21 @@ bool load_configuration(const std::string& path, config_type& configuration){
     if(file_exists(path)){
         std::ifstream file(path);
 
-        if(file.is_open()){
-            if(file.good()){
-                std::string line;
-                while(file.good() && getline(file, line)){
-                    auto first = line.find('=');
+        if(file.is_open() && file.good()){
+            std::string line;
+            while(file.good() && getline(file, line)){
+                auto first = line.find('=');
 
-                    if(first == std::string::npos || line.rfind('=') != first){
-                        std::cout << "The configuration file " << path << " is invalid only supports entries in form of key=value" << std::endl;
+                if(first == std::string::npos || line.rfind('=') != first){
+                    std::cout << "The configuration file " << path << " is invalid only supports entries in form of key=value" << std::endl;
 
-                        return false;
-                    }
-
-                    auto key = line.substr(0, first);
-                    auto value = line.substr(first + 1, line.size());
-
-                    configuration[key] = value;
+                    return false;
                 }
+
+                auto key = line.substr(0, first);
+                auto value = line.substr(first + 1, line.size());
+
+                configuration[key] = value;
             }
         }
     }
