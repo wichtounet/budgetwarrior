@@ -9,10 +9,10 @@
 #include <fstream>
 #include <unordered_map>
 
-#include <sys/stat.h> //For mkdir
-#include <pwd.h>      //For getpwuid
-
-#include <boost/algorithm/string.hpp>
+#include <unistd.h>    //for getuid
+#include <sys/types.h> //for getuid
+#include <sys/stat.h>  //For mkdir
+#include <pwd.h>       //For getpwuid
 
 #include "config.hpp"
 #include "utils.hpp"
@@ -31,16 +31,18 @@ bool load_configuration(const std::string& path, config_type& configuration){
             if(file.good()){
                 std::string line;
                 while(file.good() && getline(file, line)){
-                    std::vector<std::string> parts;
-                    boost::split(parts, line, boost::is_any_of("="), boost::token_compress_on);
+                    auto first = line.find('=');
 
-                    if(parts.size() != 2){
+                    if(first == std::string::npos || line.rfind('=') != first){
                         std::cout << "The configuration file " << path << " is invalid only supports entries in form of key=value" << std::endl;
 
                         return false;
                     }
 
-                    configuration[parts[0]] = parts[1];
+                    auto key = line.substr(0, first);
+                    auto value = line.substr(first + 1, line.size());
+
+                    configuration[key] = value;
                 }
             }
         }
