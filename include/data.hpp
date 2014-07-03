@@ -8,11 +8,11 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "config.hpp"
 #include "assert.hpp"
+#include "utils.hpp"
 
 namespace budget {
 
@@ -47,7 +47,7 @@ template<typename T, typename Functor>
 void load_data(data_handler<T>& data, const std::string& path, Functor f){
     auto file_path = path_to_budget_file(path);
 
-    if(!boost::filesystem::exists(file_path)){
+    if(!file_exists(file_path)){
         data.next_id = 1;
     } else {
         std::ifstream file(file_path);

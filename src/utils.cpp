@@ -5,16 +5,17 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <cstdio>
+#include <fstream>
+
+#include <sys/ioctl.h>
+
 #include "utils.hpp"
 #include "budget_exception.hpp"
 #include "assert.hpp"
 #include "config.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
-
-#include <cstdio>
-#include <sys/ioctl.h>
-#include <unistd.h>
 
 unsigned short budget::terminal_width(){
     struct winsize w;
@@ -26,4 +27,15 @@ unsigned short budget::terminal_height(){
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     return w.ws_row;
+}
+
+bool budget::file_exists(const std::string& name){
+    std::ifstream f(name.c_str());
+    if (f.good()) {
+        f.close();
+        return true;
+    } else {
+        f.close();
+        return false;
+    }
 }

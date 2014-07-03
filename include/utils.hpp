@@ -65,6 +65,8 @@ inline std::string &trim(std::string &s) {
     return ltrim(rtrim(s));
 }
 
+bool file_exists(const std::string& name);
+
 } //end of namespace budget
 
 #endif
