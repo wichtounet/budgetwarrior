@@ -1,4 +1,4 @@
-budgetwarrior 0.4.0 - in development
+budgetwarrior 0.4.0 - 04.07.2014
  * New version command to display the current version of the tool
  * New overview aggregate month command to display aggregate expenses of a month
  * Add importance and urgency fields to wish
