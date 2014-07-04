@@ -10,8 +10,7 @@
 
 #include <vector>
 #include <string>
-
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <array>
 
 #include "module_traits.hpp"
 
@@ -19,13 +18,15 @@ namespace budget {
 
 struct overview_module {
     void load();
-    void handle(const std::vector<std::string>& args);
+    void handle(std::vector<std::string>& args);
 };
 
 template<>
 struct module_traits<overview_module> {
     static constexpr const bool is_default = true;
     static constexpr const char* command = "overview";
+
+    static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"aggregate", "overview aggregate"}}};
 };
 
 } //end of namespace budget

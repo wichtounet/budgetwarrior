@@ -11,10 +11,9 @@
 #include <vector>
 #include <string>
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 #include "module_traits.hpp"
 #include "money.hpp"
+#include "date.hpp"
 
 namespace budget {
 
@@ -33,11 +32,13 @@ struct module_traits<wishes_module> {
 struct wish {
     std::size_t id;
     std::string guid;
-    boost::gregorian::date date;
+    date date;
     std::string name;
     money amount;
     bool paid;
     money paid_amount;
+    std::size_t importance;
+    std::size_t urgency;
 };
 
 std::ostream& operator<<(std::ostream& stream, const wish& expense);
@@ -52,6 +53,7 @@ void add_wish(wish&& objective);
 void set_wishes_changed();
 
 void migrate_wishes_2_to_3();
+void migrate_wishes_3_to_4();
 
 } //end of namespace budget
 

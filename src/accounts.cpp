@@ -10,15 +10,11 @@
 #include <sstream>
 #include <unordered_map>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "accounts.hpp"
 #include "budget_exception.hpp"
 #include "args.hpp"
 #include "data.hpp"
 #include "guid.hpp"
-#include "money.hpp"
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"
@@ -38,7 +34,7 @@ void show_accounts(){
     money total;
 
     for(auto& account : accounts.data){
-        if(account.until == boost::gregorian::date(2099,12,31)){
+        if(account.until == budget::date(2099,12,31)){
             contents.push_back({to_string(account.id), account.name, to_string(account.amount)});
 
             total += account.amount;
@@ -61,11 +57,11 @@ void show_all_accounts(){
     display_table(columns, contents);
 }
 
-boost::gregorian::date find_new_since(){
-    boost::gregorian::date date(1400,1,1);
+budget::date find_new_since(){
+    budget::date date(1400,1,1);
 
     for(auto& account : all_accounts()){
-        if(account.until != boost::gregorian::date(2099,12,31)){
+        if(account.until != budget::date(2099,12,31)){
             if(account.until - boost::gregorian::date_duration(1) > date){
                 date = account.until - boost::gregorian::date_duration(1);
             }
@@ -103,7 +99,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             account account;
             account.guid = generate_guid();
             account.since = find_new_since();
-            account.until = boost::gregorian::date(2099,12,31);
+            account.until = budget::date(2099,12,31);
 
             edit_string(account.name, "Name", not_empty_checker());
             edit_money(account.amount, "Amount", not_negative_checker());
@@ -168,18 +164,18 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 std::vector<std::size_t> sources;
                 std::vector<budget::account> copies;
 
-                auto today = boost::gregorian::day_clock::local_day();
+                auto today = budget::local_day();
 
-                auto tmp = boost::gregorian::day_clock::local_day() - boost::gregorian::months(1);
-                boost::gregorian::date until_date(tmp.year(), tmp.month(), tmp.end_of_month().day());
+                auto tmp = budget::local_day() - boost::gregorian::months(1);
+                budget::date until_date(tmp.year(), tmp.month(), tmp.end_of_month().day());
 
                 for(auto& account : all_accounts()){
-                    if(account.until == boost::gregorian::date(2099,12,31)){
+                    if(account.until == budget::date(2099,12,31)){
                         budget::account copy;
                         copy.guid = generate_guid();
                         copy.name = account.name;
                         copy.amount = account.amount;
-                        copy.until = boost::gregorian::date(2099,12,31);
+                        copy.until = budget::date(2099,12,31);
                         copy.since = until_date + boost::gregorian::date_duration(1);
 
                         account.until = until_date;
@@ -238,8 +234,8 @@ budget::account& budget::get_account(std::size_t id){
     return get(accounts, id);
 }
 
-budget::account& budget::get_account(std::string name, boost::gregorian::greg_year year, boost::gregorian::greg_month month){
-    boost::gregorian::date date(year, month, 5);
+budget::account& budget::get_account(std::string name, budget::year year, budget::month month){
+    budget::date date(year, month, 5);
 
     for(auto& account : accounts.data){
         if(account.since < date && account.until > date && account.name == name){
@@ -259,8 +255,8 @@ void budget::operator>>(const std::vector<std::string>& parts, account& account)
     account.guid = parts[1];
     account.name = parts[2];
     account.amount = parse_money(parts[3]);
-    account.since = boost::gregorian::from_string(parts[4]);
-    account.until = boost::gregorian::from_string(parts[5]);
+    account.since = from_string(parts[4]);
+    account.until = from_string(parts[5]);
 }
 
 bool budget::account_exists(const std::string& name){
@@ -277,10 +273,10 @@ std::vector<account>& budget::all_accounts(){
     return accounts.data;
 }
 
-std::vector<account> budget::all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month){
+std::vector<account> budget::all_accounts(budget::year year, budget::month month){
     std::vector<account> accounts;
 
-    boost::gregorian::date date(year, month, 5);
+    budget::date date(year, month, 5);
 
     for(auto& account : all_accounts()){
         if(account.since < date && account.until > date){

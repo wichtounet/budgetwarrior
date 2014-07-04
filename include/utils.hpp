@@ -10,9 +10,11 @@
 
 #include <string>
 #include <sstream>
-
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <vector>
+#include <algorithm> 
+#include <functional> 
+#include <cctype>
+#include <locale>
 
 namespace budget {
 
@@ -29,38 +31,45 @@ inline T to_number (const std::string& text) {
     return result;
 }
 
-/*!
- * \brief Convert a string to a number of an int. This function is optimized for speed when converting int.
- * \param text The string to convert.
- * \return The text converted to an int.
- */
-template<>
-inline int to_number (const std::string& text) {
-    return boost::lexical_cast<int>(text);
-}
-
 template<typename T>
-inline std::string to_string(const T& value){
+inline std::string to_string(T value){
     return std::to_string(value);
 }
 
 template<>
-inline std::string to_string(const boost::gregorian::date& date){
-    return boost::gregorian::to_iso_extended_string(date);
+inline std::string to_string(std::string value){
+    return value;
 }
 
 template<>
-inline std::string to_string(const std::string& value){
+inline std::string to_string(const char* value){
     return value;
 }
 
 void one_of(const std::string& value, const std::string& message, std::vector<std::string> values);
 
-unsigned short start_year();
-unsigned short start_month(boost::gregorian::greg_year year);
-
 unsigned short terminal_width();
 unsigned short terminal_height();
+
+inline std::string& ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+    return s;
+}
+
+inline std::string& rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    return s;
+}
+
+inline std::string &trim(std::string &s) {
+    return ltrim(rtrim(s));
+}
+
+bool file_exists(const std::string& name);
+bool folder_exists(const std::string& name);
+
+std::vector<std::string> split(const std::string &s, char delim);
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 } //end of namespace budget
 

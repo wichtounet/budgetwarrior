@@ -9,9 +9,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "earnings.hpp"
 #include "args.hpp"
 #include "accounts.hpp"
@@ -28,7 +25,7 @@ namespace {
 
 static data_handler<earning> earnings;
 
-void show_earnings(boost::gregorian::greg_month month, boost::gregorian::greg_year year){
+void show_earnings(budget::month month, budget::year year){
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
@@ -53,14 +50,14 @@ void show_earnings(boost::gregorian::greg_month month, boost::gregorian::greg_ye
     }
 }
 
-void show_earnings(boost::gregorian::greg_month month){
-    auto today = boost::gregorian::day_clock::local_day();
+void show_earnings(budget::month month){
+    auto today = budget::local_day();
 
     show_earnings(month, today.year());
 }
 
 void show_earnings(){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
 
     show_earnings(today.month(), today.year());
 }
@@ -97,11 +94,11 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             if(args.size() == 2){
                 show_earnings();
             } else if(args.size() == 3){
-                show_earnings(boost::gregorian::greg_month(to_number<unsigned short>(args[2])));
+                show_earnings(budget::month(to_number<unsigned short>(args[2])));
             } else if(args.size() == 4){
                 show_earnings(
-                    boost::gregorian::greg_month(to_number<unsigned short>(args[2])),
-                    boost::gregorian::greg_year(to_number<unsigned short>(args[3])));
+                    budget::month(to_number<unsigned short>(args[2])),
+                    budget::year(to_number<unsigned short>(args[3])));
             } else {
                 throw budget_exception("Too many arguments to earning show");
             }
@@ -110,7 +107,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "add"){
             earning earning;
             earning.guid = generate_guid();
-            earning.date = boost::gregorian::day_clock::local_day();
+            earning.date = budget::local_day();
 
             edit_date(earning.date, "Date");
 
@@ -182,7 +179,7 @@ void budget::operator>>(const std::vector<std::string>& parts, earning& earning)
     earning.account = to_number<std::size_t>(parts[2]);
     earning.name = parts[3];
     earning.amount = parse_money(parts[4]);
-    earning.date = boost::gregorian::from_string(parts[5]);
+    earning.date = from_string(parts[5]);
 }
 
 std::vector<earning>& budget::all_earnings(){

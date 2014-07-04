@@ -1,3 +1,17 @@
+budgetwarrior 0.4.0 - 04.07.2014
+ * New version command to display the current version of the tool
+ * New overview aggregate month command to display aggregate expenses of a month
+ * Add importance and urgency fields to wish
+ * Compute estimation accuracy in wish list
+ * Support for aliases: budget sync -> budget versioning sync and budget aggregate -> budget overview aggregate
+ * Support for option --full in overview aggregate to aggregate accounts too
+ * Support for option --no-group in overview aggregate to disable grouping
+ * Support for option --separator in overview aggregate to change the grouping char
+ * All overview aggregate options can also be set in the configuration file
+ * More information are displayed on objective status
+ * New versioning commands: status, push, pull
+ * versioning sync now also perform save
+
 budgetwarrior 0.3.1 - 10.05.2014
  * Compute totals in wish list
  * Add feature to mark wishes as paid

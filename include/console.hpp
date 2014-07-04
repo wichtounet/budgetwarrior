@@ -11,20 +11,26 @@
 #include <vector>
 #include <string>
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 #include "money.hpp"
+#include "date.hpp"
 #include "accounts.hpp"
 
 namespace budget {
 
-template<typename T>
-void print_minimum(const T& str, std::size_t min_width){
-    auto old_width = std::cout.width();
-    std::cout.width(min_width);
-    std::cout << str;
-    std::cout.width(old_width);
+inline std::string red(const std::string& str){
+    return "\033[0;31m" + str + "\033[0;3047m";
 }
+
+inline std::string green(const std::string& str){
+    return "\033[0;32m" + str + "\033[0;3047m";
+}
+
+inline std::string cyan(const std::string& str){
+    return "\033[0;33m" + str + "\033[0;3047m";
+}
+
+std::string format_money(const budget::money& m);
+std::string format_money_reverse(const budget::money& m);
 
 /**
  * Returns the real size of a string. By default, accented characteres are
@@ -35,6 +41,34 @@ void print_minimum(const T& str, std::size_t min_width){
  * \return The real length of the string.
  */
 std::size_t rsize(const std::string& value);
+
+template<typename T>
+void print_minimum(const T& value, std::size_t min_width){
+    auto str = to_string(value);
+
+    auto old_width = std::cout.width();
+    std::cout.width(min_width + (str.size() - rsize(str)));
+    std::cout << str;
+    std::cout.width(old_width);
+}
+
+/**
+ * Indicate if the given option was present in the list. If present, the option
+ * is removed from the list. 
+ * \param option The full option name with any - included
+ * \param args The command line arguments
+ * \return true if the option was present, false otherwise.
+ */
+bool option(const std::string& option, std::vector<std::string>& args);
+
+/**
+ * Return the value of the given option if present or the default value
+ * otherwise
+ * \param option The full option name with any - included
+ * \param args The command line arguments
+ * \return The string value of the option or the default value is not present. 
+ */
+std::string option_value(const std::string& option, std::vector<std::string>& args, const std::string& value);
 
 std::string format_code(int attr, int fg, int bg);
 std::string format(const std::string& value);
@@ -73,6 +107,23 @@ void edit_string(std::string& ref, const std::string& title, Checker... checkers
 }
 
 template<typename ...Checker>
+void edit_number(std::size_t& ref, const std::string& title, Checker... checkers){
+    bool checked;
+    do {
+        std::string answer;
+
+        std::cout << title << " [" << ref << "]: ";
+        std::getline(std::cin, answer);
+
+        if(!answer.empty()){
+            ref = to_number<std::size_t>(answer);
+        }
+
+        checked = check(ref, checkers...);
+    } while(!checked);
+}
+
+template<typename ...Checker>
 void edit_money(budget::money& ref, const std::string& title, Checker... checkers){
     bool checked;
     do {
@@ -90,7 +141,7 @@ void edit_money(budget::money& ref, const std::string& title, Checker... checker
 }
 
 template<typename ...Checker>
-void edit_date(boost::gregorian::date& ref, const std::string& title, Checker... checkers){
+void edit_date(date& ref, const std::string& title, Checker... checkers){
     bool checked;
     do {
         std::string answer;
@@ -127,7 +178,7 @@ void edit_date(boost::gregorian::date& ref, const std::string& title, Checker...
             } 
             
             if(!math) {
-                ref = boost::gregorian::from_string(answer);
+                ref = from_string(answer);
             }
         }
 
@@ -175,9 +226,24 @@ struct account_checker {
     }
 };
 
-struct one_of_checker {
-    std::vector<std::string> values;
+template<std::size_t First, std::size_t Last>
+struct range_checker {
+    bool operator()(const std::size_t& value){
+        return value >= First && value <= Last;
+    }
 
+    std::string message(){
+        std::string m = "Value must in the range [";
+        m += to_string(First);
+        m += ", ";
+        m += to_string(Last);
+        m += "]";
+        return m;
+    }
+};
+
+struct one_of_checker {
+    std::vector<std::string> values; 
     one_of_checker(std::vector<std::string> values) : values(values){
         //Nothing to init
     }

@@ -9,9 +9,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "args.hpp"
 #include "budget_exception.hpp"
 #include "debts.hpp"
@@ -112,7 +109,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
             debt debt;
             debt.state = 0;
             debt.guid = generate_guid();
-            debt.creation_time = boost::posix_time::second_clock::local_time();
+            debt.creation_date = local_day();
 
             edit(debt);
 
@@ -174,16 +171,40 @@ void budget::save_debts(){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const debt& debt){
-    return stream << debt.id  << ':' << debt.state << ':' << debt.guid << ':' << boost::posix_time::to_iso_string(debt.creation_time) << ':' << debt.direction << ':' << debt.name << ':' << debt.amount << ':' << debt.title;
+    return stream << debt.id  
+        << ':' << debt.state 
+        << ':' << debt.guid 
+        << ':' << to_string(debt.creation_date) 
+        << ':' << debt.direction 
+        << ':' << debt.name 
+        << ':' << debt.amount 
+        << ':' << debt.title;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, debt& debt){
     debt.id = to_number<int>(parts[0]);
     debt.state = to_number<int>(parts[1]);
     debt.guid = parts[2];
-    debt.creation_time = boost::posix_time::from_iso_string(parts[3]);
+    debt.creation_date = from_string(parts[3]);
     debt.direction = to_number<bool>(parts[4]);
     debt.name = parts[5];
     debt.amount = parse_money(parts[6]);
     debt.title = parts[7];
+}
+
+void budget::migrate_debts_3_to_4(){
+    load_data(debts, "debts.data", [](const std::vector<std::string>& parts, debt& debt){
+            debt.id = to_number<int>(parts[0]);
+            debt.state = to_number<int>(parts[1]);
+            debt.guid = parts[2];
+            debt.creation_date = from_iso_string(parts[3]);
+            debt.direction = to_number<bool>(parts[4]);
+            debt.name = parts[5];
+            debt.amount = parse_money(parts[6]);
+            debt.title = parts[7];
+        });
+
+    debts.changed = true;
+
+    save_data(debts, "debts.data");
 }

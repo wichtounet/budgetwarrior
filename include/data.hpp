@@ -10,6 +10,7 @@
 
 #include "config.hpp"
 #include "assert.hpp"
+#include "utils.hpp"
 
 namespace budget {
 
@@ -44,7 +45,7 @@ template<typename T, typename Functor>
 void load_data(data_handler<T>& data, const std::string& path, Functor f){
     auto file_path = path_to_budget_file(path);
 
-    if(!boost::filesystem::exists(file_path)){
+    if(!file_exists(file_path)){
         data.next_id = 1;
     } else {
         std::ifstream file(file_path);
@@ -60,8 +61,7 @@ void load_data(data_handler<T>& data, const std::string& path, Functor f){
 
                 std::string line;
                 while(file.good() && getline(file, line)){
-                    std::vector<std::string> parts;
-                    boost::split(parts, line, boost::is_any_of(":"), boost::token_compress_on);
+                    auto parts = split(line, ':');
 
                     T entry;
 

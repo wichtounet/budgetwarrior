@@ -13,6 +13,7 @@
 
 #include "module_traits.hpp"
 #include "money.hpp"
+#include "date.hpp"
 
 namespace budget {
 
@@ -33,8 +34,8 @@ struct account {
     std::string guid;
     std::string name;
     money amount;
-    boost::gregorian::date since;
-    boost::gregorian::date until;
+    date since;
+    date until;
 };
 
 std::ostream& operator<<(std::ostream& stream, const account& account);
@@ -46,10 +47,10 @@ void save_accounts();
 bool account_exists(const std::string& account);
 
 std::vector<budget::account>& all_accounts();
-std::vector<budget::account>  all_accounts(boost::gregorian::greg_year year, boost::gregorian::greg_month month);
+std::vector<budget::account>  all_accounts(year year, month month);
 
 budget::account& get_account(std::size_t id);
-budget::account& get_account(std::string name, boost::gregorian::greg_year year, boost::gregorian::greg_month month);
+budget::account& get_account(std::string name, year year, month month);
 
 } //end of namespace budget
 

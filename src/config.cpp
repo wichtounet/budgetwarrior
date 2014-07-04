@@ -9,13 +9,10 @@
 #include <fstream>
 #include <unordered_map>
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
-
-#include <boost/algorithm/string.hpp>
-
-#include <boost/filesystem.hpp>
+#include <unistd.h>    //for getuid
+#include <sys/types.h> //for getuid
+#include <sys/stat.h>  //For mkdir
+#include <pwd.h>       //For getpwuid
 
 #include "config.hpp"
 #include "utils.hpp"
@@ -27,24 +24,24 @@ typedef std::unordered_map<std::string, std::string> config_type;
 namespace {
 
 bool load_configuration(const std::string& path, config_type& configuration){
-    if(boost::filesystem::exists(path)){
+    if(file_exists(path)){
         std::ifstream file(path);
 
-        if(file.is_open()){
-            if(file.good()){
-                std::string line;
-                while(file.good() && getline(file, line)){
-                    std::vector<std::string> parts;
-                    boost::split(parts, line, boost::is_any_of("="), boost::token_compress_on);
+        if(file.is_open() && file.good()){
+            std::string line;
+            while(file.good() && getline(file, line)){
+                auto first = line.find('=');
 
-                    if(parts.size() != 2){
-                        std::cout << "The configuration file " << path << " is invalid only supports entries in form of key=value" << std::endl;
+                if(first == std::string::npos || line.rfind('=') != first){
+                    std::cout << "The configuration file " << path << " is invalid only supports entries in form of key=value" << std::endl;
 
-                        return false;
-                    }
-
-                    configuration[parts[0]] = parts[1];
+                    return false;
                 }
+
+                auto key = line.substr(0, first);
+                auto value = line.substr(first + 1, line.size());
+
+                configuration[key] = value;
             }
         }
     }
@@ -63,14 +60,14 @@ void save_configuration(const std::string& path, const config_type& configuratio
 bool verify_folder(){
     auto folder_path = budget_folder();
 
-    if(!boost::filesystem::exists(folder_path)){
+    if(!folder_exists(folder_path)){
         std::cout << "The folder " << folder_path << " does not exist. Would like to create it [yes/no] ? ";
 
         std::string answer;
         std::cin >> answer;
 
         if(answer == "yes" || answer == "y"){
-            if(boost::filesystem::create_directories(folder_path)){
+            if(mkdir(folder_path.c_str(), ACCESSPERMS) == 0){
                 std::cout << "The folder " << folder_path << " was created. " << std::endl;
 
                 return true;

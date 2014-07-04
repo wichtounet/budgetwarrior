@@ -13,15 +13,15 @@
 #include "accounts.hpp"
 
 budget::status budget::compute_year_status(){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
     return compute_year_status(today.year(), today.month());
 }
 
-budget::status budget::compute_year_status(boost::gregorian::greg_year year){
+budget::status budget::compute_year_status(year year){
     return compute_year_status(year, 12);
 }
 
-budget::status budget::compute_year_status(boost::gregorian::greg_year year, boost::gregorian::greg_month month){
+budget::status budget::compute_year_status(year year, month month){
     budget::status status;
 
     auto sm = start_month(year);
@@ -40,7 +40,7 @@ budget::status budget::compute_year_status(boost::gregorian::greg_year year, boo
     }
 
     for(unsigned short i = sm; i <= month; ++i){
-        boost::gregorian::greg_month month = i;
+        budget::month month = i;
 
         for(auto& c : all_accounts(year, month)){
             status.budget += c.amount;
@@ -53,16 +53,16 @@ budget::status budget::compute_year_status(boost::gregorian::greg_year year, boo
 }
 
 budget::status budget::compute_month_status(){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
     return compute_month_status(today.year(), today.month());
 }
 
-budget::status budget::compute_month_status(boost::gregorian::greg_month month){
-    auto today = boost::gregorian::day_clock::local_day();
+budget::status budget::compute_month_status(month month){
+    auto today = budget::local_day();
     return compute_month_status(today.year(), month);
 }
 
-budget::status budget::compute_month_status(boost::gregorian::greg_year year, boost::gregorian::greg_month month){
+budget::status budget::compute_month_status(year year, month month){
     budget::status status;
 
     for(auto& expense : all_expenses()){

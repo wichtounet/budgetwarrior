@@ -34,8 +34,8 @@ void write(graph_type& graph, int row, int col, const std::string& value){
     }
 }
 
-void monthly_report(boost::gregorian::greg_year year){
-    auto today = boost::gregorian::day_clock::local_day();
+void monthly_report(budget::year year){
+    auto today = budget::local_day();
 
     budget::money max_expenses;
     budget::money max_earnings;
@@ -51,7 +51,7 @@ void monthly_report(boost::gregorian::greg_year year){
     std::vector<int> balances(13);
 
     for(unsigned short i = sm + 1; i < today.month() + 1; ++i){
-        boost::gregorian::greg_month month = i;
+        budget::month month = i;
 
         budget::money total_expenses;
         budget::money total_earnings;
@@ -135,7 +135,7 @@ void monthly_report(boost::gregorian::greg_year year){
     //TODO Choose bar width based on the terminal width
 
     for(unsigned short i = sm + 1; i < today.month() + 1; ++i){
-        boost::gregorian::greg_month month = i;
+        budget::month month = i;
 
         auto col_start = first_bar + 10 * (i - sm - 1);
 
@@ -203,7 +203,7 @@ void budget::report_module::load(){
 }
 
 void budget::report_module::handle(const std::vector<std::string>& args){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
 
     if(args.size() == 1){
         monthly_report(today.year());

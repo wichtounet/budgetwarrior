@@ -7,8 +7,6 @@
 
 #include <sstream>
 
-#include <boost/algorithm/string.hpp>
-
 #include "console.hpp"
 #include "assert.hpp"
 
@@ -16,6 +14,30 @@ std::string budget::format_code(int attr, int fg, int bg){
     std::stringstream stream;
     stream << "" << '\033' << "[" << attr << ";" << (fg + 30) << (bg + 40) << "m";
     return stream.str();
+}
+
+std::string budget::format_money(const budget::money& m){
+    if(m.positive()){
+        return "::green" + budget::to_string(m);
+    } else if(m.negative()){
+        return "::red" + budget::to_string(m);
+    } else if(m.zero()){
+        return budget::to_string(m);
+    } else {
+        return budget::to_string(m);
+    }
+}
+
+std::string budget::format_money_reverse(const budget::money& m){
+    if(m.positive()){
+        return "::red" + budget::to_string(m);
+    } else if(m.negative()){
+        return "::green" + budget::to_string(m);
+    } else if(m.zero()){
+        return budget::to_string(m);
+    } else {
+        return budget::to_string(m);
+    }
 }
 
 std::size_t budget::rsize(const std::string& value){
@@ -30,6 +52,32 @@ std::size_t budget::rsize(const std::string& value){
     static wchar_t buf[1025];
 
     return mbstowcs(buf, v.c_str(), 1024);
+}
+
+bool budget::option(const std::string& option, std::vector<std::string>& args){
+    auto before = args.size();
+    args.erase(std::remove(args.begin(), args.end(), option), args.end());
+    return before != args.size();
+}
+
+std::string budget::option_value(const std::string& option, std::vector<std::string>& args, const std::string& default_value){
+    auto it = args.begin();
+    auto end = args.end();
+
+    auto value = default_value;
+
+    while(it != end){
+        if (it->find(option + "=") == 0){
+            value = std::string(it->begin() + option.size() + 1, it->end());
+
+            it = args.erase(it);
+            end = args.end();
+        } else {
+            ++it;
+        }
+    }
+
+    return value;
 }
 
 std::string budget::format(const std::string& v){
@@ -55,7 +103,7 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
 
     for(auto& row : contents){
         for(auto& cell : row){
-            boost::algorithm::trim(cell);
+            trim(cell);
         }
     }
 

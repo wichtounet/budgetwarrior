@@ -9,9 +9,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "recurring.hpp"
 #include "args.hpp"
 #include "accounts.hpp"
@@ -57,13 +54,13 @@ void budget::recurring_module::preload(){
     load_recurrings();
     load_accounts();
 
-    auto now = boost::gregorian::day_clock::local_day();
+    auto now = budget::local_day();
 
     //If it does not contains this value, it is the first start, so there is no
     //need to check anything
     if(internal_config_contains("recurring:last_checked")){
         auto last_checked_str = internal_config_value("recurring:last_checked");
-        auto last_checked = boost::gregorian::from_string(last_checked_str);
+        auto last_checked = from_string(last_checked_str);
 
         if(last_checked.month() < now.month() || last_checked.year() < now.year()){
             load_expenses();
@@ -71,7 +68,7 @@ void budget::recurring_module::preload(){
             while(last_checked.year() < now.year() || last_checked.month() < now.month()){
                 last_checked += boost::gregorian::months(1);
 
-                boost::gregorian::date recurring_date(last_checked.year(), last_checked.month(), 1);
+                date recurring_date(last_checked.year(), last_checked.month(), 1);
 
                 for(auto& recurring : recurrings.data){
                     budget::expense recurring_expense;
@@ -116,7 +113,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             //TODO handling of archived accounts is only temporary and not
             //workign properly
 
-            auto date = boost::gregorian::day_clock::local_day();
+            auto date = budget::local_day();
 
             std::string account_name;
             edit_string(account_name, "Account", not_empty_checker(), account_checker());

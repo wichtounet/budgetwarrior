@@ -9,9 +9,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "wishes.hpp"
 #include "objectives.hpp"
 #include "expenses.hpp"
@@ -26,6 +23,7 @@
 #include "console.hpp"
 #include "budget_exception.hpp"
 #include "compute.hpp"
+#include "console.hpp"
 
 using namespace budget;
 
@@ -33,17 +31,60 @@ namespace {
 
 static data_handler<wish> wishes;
 
+std::string status(std::size_t v){
+    switch(v){
+        case 1:
+            return "::greenLow";
+        case 2:
+            return "Medium";
+        case 3:
+            return "::redHigh";
+        default:
+            budget_unreachable("Invalid status value");
+            return "::redInvalid";
+    }
+}
+
+std::string status_short(std::size_t v){
+    switch(v){
+        case 1:
+            return green("L");
+        case 2:
+            return "M";
+        case 3:
+            return red("H");
+        default:
+            budget_unreachable("Invalid status value");
+            return red("Invalid");
+    }
+}
+
+std::string accuracy(budget::money paid, budget::money estimation){
+    auto a = paid < estimation ? 
+        static_cast<double>(paid.dollars()) / estimation.dollars() : 
+        static_cast<double>(estimation.dollars()) / paid.dollars();
+
+    a *= 100.0;
+
+    return to_string(static_cast<std::size_t>(a)) + "%";
+}
+
 void list_wishes(){
     if(wishes.data.size() == 0){
         std::cout << "No wishes" << std::endl;
     } else {
-        std::vector<std::string> columns = {"ID", "Name", "Amount", "Paid"};
+        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff", "Accuracy"};
         std::vector<std::vector<std::string>> contents;
 
         money total;
         money unpaid_total;
         for(auto& wish : wishes.data){
-            contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), wish.paid ? to_string(wish.paid_amount) : "No"});
+            contents.push_back({
+                to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency), 
+                to_string(wish.amount), 
+                wish.paid ? to_string(wish.paid_amount) : "No", 
+                wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : "", 
+                wish.paid ? accuracy(wish.paid_amount, wish.amount) : ""});
 
             total += wish.amount;
             if(!wish.paid){
@@ -60,7 +101,7 @@ void list_wishes(){
 }
 
 void status_wishes(){
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
 
     if(today.day() < 12){
         std::cout << "WARNING: It is early in the month, no one can know what may happen ;)" << std::endl << std::endl;
@@ -74,7 +115,10 @@ void status_wishes(){
             continue;
         }
 
-        width = std::max(rsize(wish.name), width);
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
+        trim(name);
+
+        width = std::max(rsize(name), width);
     }
 
     auto month_status = budget::compute_month_status(today.year(), today.month());
@@ -82,16 +126,27 @@ void status_wishes(){
 
     auto fortune_amount = budget::current_fortune();
 
+    budget::money total_amount;
+
     for(auto& wish : wishes.data){
         if(wish.paid){
             continue;
         }
 
         auto amount = wish.amount;
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
+        
+        trim(name);
 
         std::cout << "  ";
-        print_minimum(wish.name, width);
+        print_minimum(name, width);
+        
         std::cout << "  ";
+        std::cout << status_short(wish.importance) << "-" << status_short(wish.urgency);
+
+        std::cout << "  ";
+
+        total_amount += amount;
 
         size_t monthly_breaks = 0;
         size_t yearly_breaks = 0;
@@ -126,18 +181,18 @@ void status_wishes(){
         }
 
         if(fortune_amount < wish.amount){
-            std::cout << "Impossible (not enough fortune)";
+            std::cout << red("Impossible") << " (not enough fortune)";
         } else {
             if(month_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(month_objective && year_objective){
-                        std::cout << "Perfect (On month balance, all objectives fullfilled)";
+                        std::cout << green("Perfect") << " (On month balance, all objectives fullfilled)";
                     } else if(month_objective){
-                        std::cout << "Good (On month balance, month objectives fullfilled)";
+                        std::cout << green("Good") << " (On month balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << "OK (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                        std::cout << cyan("OK") << " (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << "Warning (On month balance, objectives not fullfilled)";
+                        std::cout << red("Warning") << " (On month balance, objectives not fullfilled)";
                     }
                 } else {
                     std::cout << "OK (on month balance)";
@@ -145,24 +200,28 @@ void status_wishes(){
             } else if(year_status.balance > wish.amount){
                 if(!all_objectives().empty()){
                     if(month_objective && year_objective){
-                        std::cout << "Perfect (On year balance, all objectives fullfilled)";
+                        std::cout << green("Perfect") << " (On year balance, all objectives fullfilled)";
                     } else if(month_objective){
-                        std::cout << "Good (On year balance, month objectives fullfilled)";
+                        std::cout << green("Good") << " (On year balance, month objectives fullfilled)";
                     } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << "OK (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
+                        std::cout << cyan("OK") << " (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
                     } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << "Warning (On year balance, objectives not fullfilled)";
+                        std::cout << red("Warning") << " (On year balance, objectives not fullfilled)";
                     }
                 } else {
-                    std::cout << "OK (on year balance)";
+                    std::cout << cyan("OK") << " (on year balance)";
                 }
             } else {
-                std::cout << "Warning (on fortune only)";
+                std::cout << red("Warning") << " (on fortune only)";
             }
         }
 
         std::cout << std::endl;
     }
+        
+    std::cout << std::endl << "  ";
+    print_minimum("Total", width);
+    std::cout << "  " << total_amount << std::endl;
 }
 
 void estimate_wishes(){
@@ -173,20 +232,28 @@ void estimate_wishes(){
         if(wish.paid){
             continue;
         }
+        
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
+        
+        trim(name);
 
-        width = std::max(rsize(wish.name), width);
+        width = std::max(rsize(name), width);
     }
 
     auto fortune_amount = budget::current_fortune();
-    auto today = boost::gregorian::day_clock::local_day();
+    auto today = budget::local_day();
 
     for(auto& wish : wishes.data){
         if(wish.paid){
             continue;
         }
+        
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
+        
+        trim(name);
 
         std::cout << "  ";
-        print_minimum(wish.name, width);
+        print_minimum(name, width);
         std::cout << "  ";
 
         bool ok = false;
@@ -257,8 +324,12 @@ void estimate_wishes(){
             continue;
         }
 
+        auto name = wish.name + " (" + to_string(wish.amount) + ")";
+        
+        trim(name);
+
         std::cout << "  ";
-        print_minimum(wish.name, width);
+        print_minimum(name, width);
         std::cout << "  ";
 
         bool ok = false;
@@ -312,6 +383,8 @@ void estimate_wishes(){
 void edit(budget::wish& wish){
     edit_string(wish.name, "Name", not_empty_checker());
     edit_money(wish.amount, "Amount", not_negative_checker(), not_zero_checker());
+    edit_number(wish.importance, "Importance", range_checker<1,3>());
+    edit_number(wish.urgency, "Urgency", range_checker<1,3>());
 }
 
 } //end of anonymous namespace
@@ -344,7 +417,9 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "add"){
             wish wish;
             wish.guid = generate_guid();
-            wish.date = boost::gregorian::day_clock::local_day();
+            wish.date = budget::local_day();
+            wish.importance = 2;
+            wish.urgency = 2;
 
             edit(wish);
 
@@ -422,7 +497,9 @@ std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
         << wish.amount << ':'
         << to_string(wish.date) << ':'
         << static_cast<size_t>(wish.paid) << ':'
-        << wish.paid_amount;
+        << wish.paid_amount << ':'
+        << wish.importance << ':'
+        << wish.urgency;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
@@ -430,9 +507,11 @@ void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
     wish.guid = parts[1];
     wish.name = parts[2];
     wish.amount = parse_money(parts[3]);
-    wish.date = boost::gregorian::from_string(parts[4]);
+    wish.date = from_string(parts[4]);
     wish.paid = to_number<std::size_t>(parts[5]) == 1;
     wish.paid_amount = parse_money(parts[6]);
+    wish.importance = to_number<std::size_t>(parts[7]);
+    wish.urgency = to_number<std::size_t>(parts[8]);
 }
 
 std::vector<wish>& budget::all_wishes(){
@@ -449,7 +528,7 @@ void budget::migrate_wishes_2_to_3(){
         wish.guid = parts[1];
         wish.name = parts[2];
         wish.amount = parse_money(parts[3]);
-        wish.date = boost::gregorian::from_string(parts[4]);
+        wish.date = from_string(parts[4]);
         wish.paid = false;
         wish.paid_amount = budget::money(0,0);
         });
@@ -457,5 +536,22 @@ void budget::migrate_wishes_2_to_3(){
     set_wishes_changed();
 
     save_data(wishes, "wishes.data");
+}
 
+void budget::migrate_wishes_3_to_4(){
+    load_data(wishes, "wishes.data", [](const std::vector<std::string>& parts, wish& wish){
+        wish.id = to_number<std::size_t>(parts[0]);
+        wish.guid = parts[1];
+        wish.name = parts[2];
+        wish.amount = parse_money(parts[3]);
+        wish.date = from_string(parts[4]);
+        wish.paid = to_number<std::size_t>(parts[5]) == 1;
+        wish.paid_amount = parse_money(parts[6]);
+        wish.importance = 2;
+        wish.urgency = 2;
+        });
+
+    set_wishes_changed();
+
+    save_data(wishes, "wishes.data");
 }

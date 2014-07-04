@@ -5,16 +5,25 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef ARGS_H
-#define ARGS_H
+#ifndef BUDGET_VERSION_H
+#define BUDGET_VERSION_H
 
 #include <vector>
 #include <string>
 
+#include "module_traits.hpp"
+
 namespace budget {
 
-std::vector<std::string> parse_args(int argc, const char* argv[], const std::vector<std::pair<const char*, const char*>>& aliases);
-void enough_args(const std::vector<std::string>& args, std::size_t min);
+struct version_module {
+     void handle(const std::vector<std::string>& args);
+};
+
+template<>
+struct module_traits<version_module> {
+    static constexpr const bool is_default = false;
+    static constexpr const char* command = "version";
+};
 
 } //end of namespace budget
 

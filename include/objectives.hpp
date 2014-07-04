@@ -11,11 +11,10 @@
 #include <vector>
 #include <string>
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-
 #include "module_traits.hpp"
 #include "money.hpp"
 #include "compute.hpp"
+#include "date.hpp"
 
 namespace budget {
 
@@ -34,7 +33,7 @@ struct module_traits<objectives_module> {
 struct objective {
     std::size_t id;
     std::string guid;
-    boost::gregorian::date date;
+    date date;
     std::string name;
     std::string type;
     std::string source;
