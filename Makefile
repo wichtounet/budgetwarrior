@@ -58,6 +58,10 @@ sonar: release
 	cppcheck --xml-version=2 --enable=all --std=c++11 src include 2> cppcheck_report.xml
 	/opt/sonar-runner/bin/sonar-runner
 
+install: install-man
+	echo "Installation of budgetwarrior"
+	install budget.man /usr/share/man/man3/budget.3
+
 clean:
 	rm -rf release/
 	rm -rf debug/
