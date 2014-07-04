@@ -90,6 +90,12 @@ Group expenses of the current year together by their name or by their categories
 .TP
 overview aggregate year (year)
 Group expenses of the specified year together by their name or by their categories if specified.
+.TP
+overview aggregate month
+Group expenses of the current month together by their name or by their categories if specified.
+.TP
+overview aggregate month (month)
+Group expenses of the specified month together by their name or by their categories if specified.
 .SH RECURRING EXPENSES
 It is possible to create monthly recurring expenses that are automatically created at the beginning of the month.
 .TP
@@ -152,6 +158,9 @@ Delete the wish with the specified id.
 .TP
 wish edit (id)
 Edit the wish with the specified id.
+.TP
+wish estimate
+Display an estimation of a good time to buy an item from the wish list. 
 .SH DEBTS
 With this module, you can track your debts, either you're owing someone or someone is owing you..
 .TP
