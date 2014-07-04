@@ -639,9 +639,43 @@ void budget::overview_module::handle(std::vector<std::string>& args){
                 throw budget_exception("Too many arguments to overview month");
             }
         } else if(subcommand == "aggregate"){
-            auto full = budget::option("--full", args);
-            auto disable_groups = budget::option("--no-group", args);
-            auto separator = budget::option_value("--separator", args, "/");
+            //Default values
+            bool full = false;
+            bool disable_groups = false;
+            std::string separator = "/";
+
+            //Get defaults from config
+
+            if(budget::config_contains("aggregate_full")){
+                if(budget::config_value("aggregate_full") == "true"){
+                    full = true;
+                }
+            }
+
+            if(budget::config_contains("aggregate_no_group")){
+                if(budget::config_value("aggregate_no_group") == "true"){
+                    disable_groups = true;
+                }
+            }
+
+            if(budget::config_contains("aggregate_separator")){
+                separator = budget::config_value("aggregate_separator");
+            }
+
+            //Command-line  overrides config
+
+            if(budget::option("--full", args)){
+                full = true;
+            }
+
+            if(budget::option("--no-group", args)){
+                disable_groups = true;
+            }
+
+            auto sep_value = budget::option_value("--separator", args, "");
+            if(!sep_value.empty()){
+                separator = sep_value;
+            }
 
             if(args.size() == 2){
                 aggregate_year_overview(full, disable_groups, separator, today.year());

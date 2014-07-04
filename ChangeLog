@@ -7,6 +7,7 @@ budgetwarrior 0.4.0 - in development
  * Support for option --full in overview aggregate to aggregate accounts too
  * Support for option --no-group in overview aggregate to disable grouping
  * Support for option --separator in overview aggregate to change the grouping char
+ * All overview aggregate options can also be set in the configuration file
  * More information are displayed on objective status
  * New versioning commands: status, push, pull
  * versioning sync now also perform save
