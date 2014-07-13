@@ -8,6 +8,8 @@
 #ifndef DATE_HPP
 #define DATE_HPP
 
+#include <ctime>
+
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "utils.hpp"
@@ -19,9 +21,7 @@ typedef boost::gregorian::greg_year year;
 typedef boost::gregorian::greg_month month;
 typedef boost::gregorian::greg_day day;
 
-inline date local_day(){
-    return boost::gregorian::day_clock::local_day();
-}
+date local_day();
 
 inline date from_string(const std::string& str){
     return boost::gregorian::from_string(str);

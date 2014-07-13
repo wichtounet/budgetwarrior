@@ -12,6 +12,13 @@
 #include "expenses.hpp"
 #include "earnings.hpp"
 
+budget::date budget::local_day(){
+    auto tt = time( NULL );
+    auto timeval = localtime( &tt );
+
+    return {timeval->tm_year + 1900, timeval->tm_mon + 1, timeval->tm_mday};
+}
+
 unsigned short budget::start_month(budget::year year){
     auto key = to_string(year) + "_start";
     if(config_contains(key)){
