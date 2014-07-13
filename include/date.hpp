@@ -23,17 +23,8 @@ typedef boost::gregorian::greg_day day;
 
 date local_day();
 
-inline date from_string(const std::string& str){
-    return boost::gregorian::from_string(str);
-}
-
-inline date from_iso_string(const std::string& str){
-    auto y = year(to_number<unsigned short>(str.substr(0, 4)));
-    auto m = month(to_number<unsigned short>(str.substr(4, 2)));
-    auto d = day(to_number<unsigned short>(str.substr(6, 2)));
-
-    return {y, m, d};
-}
+date from_string(const std::string& str);
+date from_iso_string(const std::string& str);
 
 inline std::string date_to_string(date date){
     return boost::gregorian::to_iso_extended_string(date);

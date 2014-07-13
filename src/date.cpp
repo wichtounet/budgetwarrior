@@ -19,6 +19,22 @@ budget::date budget::local_day(){
     return {timeval->tm_year + 1900, timeval->tm_mon + 1, timeval->tm_mday};
 }
 
+budget::date budget::from_string(const std::string& str){
+    auto y = year(to_number<unsigned short>(str.substr(0, 4)));
+    auto m = month(to_number<unsigned short>(str.substr(5, 2)));
+    auto d = day(to_number<unsigned short>(str.substr(8, 2)));
+
+    return {y, m, d};
+}
+
+budget::date budget::from_iso_string(const std::string& str){
+    auto y = year(to_number<unsigned short>(str.substr(0, 4)));
+    auto m = month(to_number<unsigned short>(str.substr(4, 2)));
+    auto d = day(to_number<unsigned short>(str.substr(6, 2)));
+
+    return {y, m, d};
+}
+
 unsigned short budget::start_month(budget::year year){
     auto key = to_string(year) + "_start";
     if(config_contains(key)){
