@@ -26,9 +26,7 @@ date local_day();
 date from_string(const std::string& str);
 date from_iso_string(const std::string& str);
 
-inline std::string date_to_string(date date){
-    return boost::gregorian::to_iso_extended_string(date);
-}
+std::string date_to_string(date date);
 
 template<>
 inline std::string to_string(budget::date date){

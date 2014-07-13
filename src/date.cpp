@@ -35,6 +35,12 @@ budget::date budget::from_iso_string(const std::string& str){
     return {y, m, d};
 }
 
+std::string budget::date_to_string(budget::date date){
+    return std::to_string(date.year())
+        + "-" + (date.month() < 10 ? "0" : "") + std::to_string(date.month())
+        + "-" + (date.day() < 10 ? "0" : "") + std::to_string(date.day());
+}
+
 unsigned short budget::start_month(budget::year year){
     auto key = to_string(year) + "_start";
     if(config_contains(key)){
