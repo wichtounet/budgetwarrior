@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "money.hpp"
 #include "date.hpp"
@@ -144,45 +145,51 @@ template<typename ...Checker>
 void edit_date(date& ref, const std::string& title, Checker... checkers){
     bool checked;
     do {
-        std::string answer;
+        try {
+            std::string answer;
 
-        std::cout << title << " [" << ref << "]: ";
-        std::getline(std::cin, answer);
+            std::cout << title << " [" << ref << "]: ";
+            std::getline(std::cin, answer);
 
-        if(!answer.empty()){
-            bool math = false;
-            if(answer[0] == '+'){
-                std::string str(std::next(answer.begin()), std::prev(answer.end()));
-                if(answer.back() == 'd'){
-                    ref += boost::gregorian::date_duration(std::stoi(str));
-                    math = true;
-                } else if(answer.back() == 'm'){
-                    ref += boost::gregorian::months(std::stoi(str));
-                    math = true;
-                } else if(answer.back() == 'y'){
-                    ref += boost::gregorian::years(std::stoi(str));
-                    math = true;
+            if(!answer.empty()){
+                bool math = false;
+                if(answer[0] == '+'){
+                    std::string str(std::next(answer.begin()), std::prev(answer.end()));
+                    if(answer.back() == 'd'){
+                        ref += days(std::stoi(str));
+                        math = true;
+                    } else if(answer.back() == 'm'){
+                        ref += months(std::stoi(str));
+                        math = true;
+                    } else if(answer.back() == 'y'){
+                        ref += years(std::stoi(str));
+                        math = true;
+                    }
+                } else if(answer[0] == '-'){
+                    std::string str(std::next(answer.begin()), std::prev(answer.end()));
+                    if(answer.back() == 'd'){
+                        ref -= days(std::stoi(str));
+                        math = true;
+                    } else if(answer.back() == 'm'){
+                        ref -= months(std::stoi(str));
+                        math = true;
+                    } else if(answer.back() == 'y'){
+                        ref -= years(std::stoi(str));
+                        math = true;
+                    }
+                } 
+
+                if(!math) {
+                    ref = from_string(answer);
                 }
-            } else if(answer[0] == '-'){
-                std::string str(std::next(answer.begin()), std::prev(answer.end()));
-                if(answer.back() == 'd'){
-                    ref -= boost::gregorian::date_duration(std::stoi(str));
-                    math = true;
-                } else if(answer.back() == 'm'){
-                    ref -= boost::gregorian::months(std::stoi(str));
-                    math = true;
-                } else if(answer.back() == 'y'){
-                    ref -= boost::gregorian::years(std::stoi(str));
-                    math = true;
-                }
-            } 
-
-            if(!math) {
-                ref = from_string(answer);
             }
+
+            checked = check(ref, checkers...);
+        } catch(const date_exception& e){
+            std::cout << e.message() << std::endl;
+            checked = false;
         }
 
-        checked = check(ref, checkers...);
     } while(!checked);
 }
 

@@ -62,8 +62,8 @@ budget::date find_new_since(){
 
     for(auto& account : all_accounts()){
         if(account.until != budget::date(2099,12,31)){
-            if(account.until - boost::gregorian::date_duration(1) > date){
-                date = account.until - boost::gregorian::date_duration(1);
+            if(account.until - days(1) > date){
+                date = account.until - days(1);
             }
         }
     }
@@ -166,7 +166,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
                 auto today = budget::local_day();
 
-                auto tmp = budget::local_day() - boost::gregorian::months(1);
+                auto tmp = budget::local_day() - months(1);
                 budget::date until_date(tmp.year(), tmp.month(), tmp.end_of_month().day());
 
                 for(auto& account : all_accounts()){
@@ -176,7 +176,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                         copy.name = account.name;
                         copy.amount = account.amount;
                         copy.until = budget::date(2099,12,31);
-                        copy.since = until_date + boost::gregorian::date_duration(1);
+                        copy.since = until_date + days(1);
 
                         account.until = until_date;
 

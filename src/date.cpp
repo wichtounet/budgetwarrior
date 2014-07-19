@@ -16,7 +16,10 @@ budget::date budget::local_day(){
     auto tt = time( NULL );
     auto timeval = localtime( &tt );
 
-    return {timeval->tm_year + 1900, timeval->tm_mon + 1, timeval->tm_mday};
+    return {
+        static_cast<date_type>(timeval->tm_year + 1900), 
+        static_cast<date_type>(timeval->tm_mon + 1), 
+        static_cast<date_type>(timeval->tm_mday)};
 }
 
 budget::date budget::from_string(const std::string& str){
@@ -65,4 +68,12 @@ unsigned short budget::start_year(){
     }
 
     return y;
+}
+
+std::ostream& budget::operator<<(std::ostream& stream, const date& date){
+    return stream << date.year() << "-" << date.month() << "-" << date.day();
+}
+
+std::ostream& budget::operator<<(std::ostream& stream, const month& month){
+    return stream << month.as_short_string();
 }

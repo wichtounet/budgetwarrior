@@ -5,6 +5,8 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <iostream>
+
 #include "report.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"

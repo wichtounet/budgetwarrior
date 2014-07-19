@@ -259,7 +259,7 @@ void estimate_wishes(){
         bool ok = false;
     
         for(std::size_t i = 0; i < 24 && !ok; ++i){
-            auto day = today + boost::gregorian::months(i);
+            auto day = today + months(i);
             auto month_status = budget::compute_month_status(day.year(), day.month());
             auto year_status = budget::compute_year_status(day.year(), day.month());
 
@@ -335,7 +335,7 @@ void estimate_wishes(){
         bool ok = false;
     
         for(std::size_t i = 0; i < 24 && !ok; ++i){
-            auto day = today + boost::gregorian::months(i);
+            auto day = today + months(i);
             auto month_status = budget::compute_month_status(day.year(), day.month());
             auto year_status = budget::compute_year_status(day.year(), day.month());
 

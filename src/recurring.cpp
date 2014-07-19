@@ -66,7 +66,7 @@ void budget::recurring_module::preload(){
             load_expenses();
 
             while(last_checked.year() < now.year() || last_checked.month() < now.month()){
-                last_checked += boost::gregorian::months(1);
+                last_checked += months(1);
 
                 date recurring_date(last_checked.year(), last_checked.month(), 1);
 
