@@ -176,7 +176,7 @@ void edit_date(date& ref, const std::string& title, Checker... checkers){
                     math = true;
                 }
             } 
-            
+
             if(!math) {
                 ref = from_string(answer);
             }
