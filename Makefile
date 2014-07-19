@@ -20,7 +20,7 @@ LD=clang++
 
 WARNING_FLAGS=-Wextra -Wall -Qunused-arguments -Wuninitialized -Wsometimes-uninitialized -Wno-long-long -Winit-self -Wdocumentation
 CXX_FLAGS=-Iinclude -std=c++11 $(WARNING_FLAGS)
-LD_FLAGS=$(CXX_FLAGS) -luuid -lboost_date_time
+LD_FLAGS=$(CXX_FLAGS) -luuid
 
 DEBUG_FLAGS=-g
 RELEASE_FLAGS=-g -DNDEBUG -Ofast -march=native -fvectorize -fslp-vectorize-aggressive -fomit-frame-pointer
