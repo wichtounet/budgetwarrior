@@ -78,6 +78,9 @@ void list_wishes(){
 
         money total;
         money unpaid_total;
+        double acc = 0.0;
+        double acc_counter = 0;
+
         for(auto& wish : wishes.data){
             contents.push_back({
                 to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency), 
@@ -87,7 +90,14 @@ void list_wishes(){
                 wish.paid ? accuracy(wish.paid_amount, wish.amount) : ""});
 
             total += wish.amount;
-            if(!wish.paid){
+            if(wish.paid){
+                auto a = wish.paid_amount < wish.amount ?
+                    static_cast<double>(wish.paid_amount.dollars()) / wish.amount.dollars() :
+                    static_cast<double>(wish.amount.dollars()) / wish.paid_amount.dollars();
+
+                acc += a;
+                acc_counter += 1;
+            } else {
                 unpaid_total += wish.amount;
             }
         }
@@ -95,6 +105,10 @@ void list_wishes(){
         contents.push_back({"", "", "", ""});
         contents.push_back({"", "Total", to_string(total), ""});
         contents.push_back({"", "Unpaid Total", to_string(unpaid_total), ""});
+
+        if(acc_counter > 0){
+            contents.push_back({"", "Mean accuracy", to_string(static_cast<std::size_t>((acc / acc_counter) * 100.0)) + "%", ""});
+        }
 
         display_table(columns, contents);
     }
@@ -325,7 +339,7 @@ void estimate_wishes(){
         }
 
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
-        
+
         trim(name);
 
         std::cout << "  ";
@@ -333,7 +347,7 @@ void estimate_wishes(){
         std::cout << "  ";
 
         bool ok = false;
-    
+
         for(std::size_t i = 0; i < 24 && !ok; ++i){
             auto day = today + months(i);
             auto month_status = budget::compute_month_status(day.year(), day.month());
