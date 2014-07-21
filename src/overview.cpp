@@ -683,7 +683,7 @@ void budget::display_local_balance(budget::year year, bool current, bool relaxed
     display_table(columns, contents);
 }
 
-void budget::display_balance(budget::year year, bool, bool){
+void budget::display_balance(budget::year year, bool, bool relaxed){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -721,8 +721,16 @@ void budget::display_balance(budget::year year, bool, bool){
         budget::month m = i;
 
         for(auto& account : all_accounts(year, m)){
-            auto total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-            auto total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+            budget::money total_expenses;
+            budget::money total_earnings;
+
+            if(relaxed){
+                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+            } else {
+                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+            }
 
             auto month_total = account_previous[account.name][i - 1] + account.amount - total_expenses + total_earnings;
             account_previous[account.name][i] = month_total;
