@@ -27,6 +27,7 @@
 #include "wishes.hpp"
 #include "versioning.hpp"
 #include "version.hpp"
+#include "predict.hpp"
 
 using namespace budget;
 
@@ -45,6 +46,7 @@ typedef std::tuple<
             budget::wishes_module,
             budget::versioning_module,
             budget::version_module,
+            budget::predict_module,
             budget::help_module
     > modules_tuple;
 
