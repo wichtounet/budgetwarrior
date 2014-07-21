@@ -60,8 +60,8 @@ std::string status_short(std::size_t v){
 }
 
 std::string accuracy(budget::money paid, budget::money estimation){
-    auto a = paid < estimation ? 
-        static_cast<double>(paid.dollars()) / estimation.dollars() : 
+    auto a = paid < estimation ?
+        static_cast<double>(paid.dollars()) / estimation.dollars() :
         static_cast<double>(estimation.dollars()) / paid.dollars();
 
     a *= 100.0;
@@ -83,10 +83,10 @@ void list_wishes(){
 
         for(auto& wish : wishes.data){
             contents.push_back({
-                to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency), 
-                to_string(wish.amount), 
-                wish.paid ? to_string(wish.paid_amount) : "No", 
-                wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : "", 
+                to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency),
+                to_string(wish.amount),
+                wish.paid ? to_string(wish.paid_amount) : "No",
+                wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : "",
                 wish.paid ? accuracy(wish.paid_amount, wish.amount) : ""});
 
             total += wish.amount;
@@ -149,12 +149,12 @@ void status_wishes(){
 
         auto amount = wish.amount;
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
-        
+
         trim(name);
 
         std::cout << "  ";
         print_minimum(name, width);
-        
+
         std::cout << "  ";
         std::cout << status_short(wish.importance) << "-" << status_short(wish.urgency);
 
@@ -232,7 +232,7 @@ void status_wishes(){
 
         std::cout << std::endl;
     }
-        
+
     std::cout << std::endl << "  ";
     print_minimum("Total", width);
     std::cout << "  " << total_amount << std::endl;
@@ -246,9 +246,9 @@ void estimate_wishes(){
         if(wish.paid){
             continue;
         }
-        
+
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
-        
+
         trim(name);
 
         width = std::max(rsize(name), width);
@@ -261,9 +261,9 @@ void estimate_wishes(){
         if(wish.paid){
             continue;
         }
-        
+
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
-        
+
         trim(name);
 
         std::cout << "  ";
@@ -271,7 +271,7 @@ void estimate_wishes(){
         std::cout << "  ";
 
         bool ok = false;
-    
+
         for(std::size_t i = 0; i < 24 && !ok; ++i){
             auto day = today + months(i);
             auto month_status = budget::compute_month_status(day.year(), day.month());
@@ -315,14 +315,14 @@ void estimate_wishes(){
                         if(year_status.balance > wish.amount){
                             std::cout << day.month() << " " << day.year() << std::endl;
                             ok = true;
-                        } 
+                        }
                     } else {
                         if(month_status.balance > wish.amount){
                             std::cout << day.month() << " " << day.year() << std::endl;
                             ok = true;
                         }
                     }
-                } 
+                }
             }
         }
 
@@ -330,9 +330,9 @@ void estimate_wishes(){
             std::cout << "You should wait a very long time to buy this" << std::endl;
         }
     }
-    
+
     std::cout << std::endl << "Time to buy (without year objectives)" << std::endl;
-    
+
     for(auto& wish : wishes.data){
         if(wish.paid){
             continue;
@@ -368,7 +368,7 @@ void estimate_wishes(){
                     if(success_after < 100){
                         month_objective = false;
                     }
-                } 
+                }
             }
 
             if(fortune_amount >= wish.amount){
@@ -377,14 +377,14 @@ void estimate_wishes(){
                         if(year_status.balance > wish.amount){
                             std::cout << day.month() << " " << day.year() << std::endl;
                             ok = true;
-                        } 
+                        }
                     } else {
                         if(month_status.balance > wish.amount){
                             std::cout << day.month() << " " << day.year() << std::endl;
                             ok = true;
                         }
                     }
-                } 
+                }
             }
         }
 
