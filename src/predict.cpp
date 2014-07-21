@@ -60,6 +60,17 @@ void predict_overview(){
         }
     }
 
+    if(today.month() < 12){
+        auto prev_year = today.year() - 1;
+        for(budget::month m = today.month() + 1; m <= 12; m = m + 1){
+            for(auto& expense : expenses){
+                if(expense.date.month() == m && expense.date.year() == prev_year){
+                    expense.date = {today.year(), expense.date.month(), expense.date.day()};
+                }
+            }
+        }
+    }
+
     std::cout << std::endl;
     display_local_balance(today.year(), false);
     std::cout << std::endl;
