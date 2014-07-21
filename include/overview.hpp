@@ -32,8 +32,10 @@ struct module_traits<overview_module> {
     static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"aggregate", "overview aggregate"}}};
 };
 
-void display_expenses(budget::year year, const std::string& title, const std::vector<budget::expense>& values, bool current = true);
-void display_earnings(budget::year year, const std::string& title, const std::vector<budget::earning>& values, bool current = true);
+void display_local_balance(budget::year year, bool current = true);
+void display_balance(budget::year year, bool current = true);
+void display_expenses(budget::year year, bool current = true);
+void display_earnings(budget::year year, bool current = true);
 
 } //end of namespace budget
 

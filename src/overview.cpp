@@ -306,11 +306,6 @@ void aggregate_month_overview(bool full, bool disable_groups, const std::string&
     aggregate_overview(full, disable_groups, separator, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
 }
 
-void display_local_balance(budget::year year);
-void display_balance(budget::year year);
-void display_expenses(budget::year year);
-void display_earnings(budget::year year);
-
 void year_overview(budget::year year){
     if(invalid_accounts(year)){
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
@@ -393,131 +388,6 @@ inline void generate_total_line(std::vector<std::vector<std::string>>& contents,
     contents.emplace_back(std::move(last_row));
 }
 
-void display_local_balance(budget::year year){
-    std::vector<std::string> columns;
-    std::vector<std::vector<std::string>> contents;
-
-    auto sm = start_month(year);
-    auto months = 12 - sm + 1;
-    auto current_months = get_current_months(year);
-
-    columns.push_back("Local Balance");
-    add_month_columns(columns, sm);
-    columns.push_back("Total");
-    columns.push_back("Mean");
-    columns.push_back("C. Total");
-    columns.push_back("C. Mean");
-
-    std::vector<budget::money> totals(12, budget::money());
-
-    std::unordered_map<std::string, std::size_t> row_mapping;
-    std::unordered_map<std::string, budget::money> account_totals;
-    std::unordered_map<std::string, budget::money> account_current_totals;
-
-    //Prepare the rows
-
-    for(auto& account : all_accounts(year, sm)){
-        row_mapping[account.name] = contents.size();
-
-        contents.push_back({account.name});
-    }
-
-    //Fill the table
-
-    for(unsigned short i = sm; i < 13; ++i){
-        budget::month m = i;
-
-        for(auto& account : all_accounts(year, m)){
-            auto total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-            auto total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-
-            auto month_total = account.amount - total_expenses + total_earnings;
-
-            contents[row_mapping[account.name]].push_back(format_money(month_total));
-
-            account_totals[account.name] += month_total;
-
-            totals[i - 1] += month_total;
-
-            if(m < sm + current_months){
-                account_current_totals[account.name] += month_total;
-            }
-        }
-    }
-
-    //Generate total and mean columns for each account
-
-    for(auto& account : all_accounts(year, sm)){
-        contents[row_mapping[account.name]].push_back(format_money(account_totals[account.name]));
-        contents[row_mapping[account.name]].push_back(format_money(account_totals[account.name] / months));
-        contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name]));
-        contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name] / current_months));
-    }
-
-    //Generate the total final line
-
-    generate_total_line<true, true>(contents, totals, year, sm);
-
-    display_table(columns, contents);
-}
-
-void display_balance(budget::year year){
-    std::vector<std::string> columns;
-    std::vector<std::vector<std::string>> contents;
-
-    auto sm = start_month(year);
-
-    columns.push_back("Balance");
-    add_month_columns(columns, sm);
-
-    std::vector<budget::money> totals(12, budget::money());
-
-    std::unordered_map<std::string, std::size_t> row_mapping;
-    std::unordered_map<std::string, std::vector<budget::money>> account_previous;
-
-    //Prepare the rows
-
-    for(auto& account : all_accounts(year, sm)){
-        row_mapping[account.name] = contents.size();
-
-        contents.push_back({account.name});
-        account_previous[account.name] = std::vector<budget::money>(13, budget::money());
-    }
-
-    auto today = budget::local_day();
-    if(year > today.year()){
-        auto pretotal = compute_total_budget(sm, year);
-        std::size_t i = 0;
-        for(auto& account : all_accounts(year, sm)){
-            account_previous[account.name][sm - 1] += pretotal[i++] - account.amount;
-        }
-    }
-
-    //Fill the table
-
-    for(unsigned short i = sm; i < 13; ++i){
-        budget::month m = i;
-
-        for(auto& account : all_accounts(year, m)){
-            auto total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-            auto total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-
-            auto month_total = account_previous[account.name][i - 1] + account.amount - total_expenses + total_earnings;
-            account_previous[account.name][i] = month_total;
-
-            totals[i - 1] += month_total;
-
-            contents[row_mapping[account.name]].push_back(format_money(month_total));
-        }
-    }
-
-    //Generate the final total line
-
-    generate_total_line(contents, totals, year, sm);
-
-    display_table(columns, contents);
-}
-
 template<typename T>
 void display_values(budget::year year, const std::string& title, const std::vector<T>& values, bool current = true){
     std::vector<std::string> columns;
@@ -596,14 +466,6 @@ void display_values(budget::year year, const std::string& title, const std::vect
     }
 
     display_table(columns, contents);
-}
-
-void display_expenses(budget::year year){
-    display_values(year, "Expenses", all_expenses());
-}
-
-void display_earnings(budget::year year){
-    display_values(year, "Earnings", all_earnings());
 }
 
 } // end of anonymous namespace
@@ -721,10 +583,146 @@ void budget::overview_module::handle(std::vector<std::string>& args){
     }
 }
 
-void budget::display_expenses(budget::year year, const std::string& title, const std::vector<budget::expense>& values, bool current){
-    display_values(year, title, values, current);
+void budget::display_expenses(budget::year year, bool current){
+    display_values(year, "Expenses", all_expenses(), current);
 }
 
-void budget::display_earnings(budget::year year, const std::string& title, const std::vector<budget::earning>& values, bool current){
-    display_values(year, title, values, current);
+void budget::display_earnings(budget::year year, bool current){
+    display_values(year, "Earnings", all_earnings(), current);
 }
+
+void budget::display_local_balance(budget::year year, bool current){
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    auto sm = start_month(year);
+    auto months = 12 - sm + 1;
+    auto current_months = get_current_months(year);
+
+    columns.push_back("Local Balance");
+    add_month_columns(columns, sm);
+    columns.push_back("Total");
+    columns.push_back("Mean");
+
+    if(current){
+        columns.push_back("C. Total");
+        columns.push_back("C. Mean");
+    }
+
+    std::vector<budget::money> totals(12, budget::money());
+
+    std::unordered_map<std::string, std::size_t> row_mapping;
+    std::unordered_map<std::string, budget::money> account_totals;
+    std::unordered_map<std::string, budget::money> account_current_totals;
+
+    //Prepare the rows
+
+    for(auto& account : all_accounts(year, sm)){
+        row_mapping[account.name] = contents.size();
+
+        contents.push_back({account.name});
+    }
+
+    //Fill the table
+
+    for(unsigned short i = sm; i < 13; ++i){
+        budget::month m = i;
+
+        for(auto& account : all_accounts(year, m)){
+            auto total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+            auto total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+
+            auto month_total = account.amount - total_expenses + total_earnings;
+
+            contents[row_mapping[account.name]].push_back(format_money(month_total));
+
+            account_totals[account.name] += month_total;
+
+            totals[i - 1] += month_total;
+
+            if(m < sm + current_months){
+                account_current_totals[account.name] += month_total;
+            }
+        }
+    }
+
+    //Generate total and mean columns for each account
+
+    for(auto& account : all_accounts(year, sm)){
+        contents[row_mapping[account.name]].push_back(format_money(account_totals[account.name]));
+        contents[row_mapping[account.name]].push_back(format_money(account_totals[account.name] / months));
+
+        if(current){
+            contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name]));
+            contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name] / current_months));
+        }
+    }
+
+    //Generate the total final line
+
+    if(current){
+        generate_total_line<true, true>(contents, totals, year, sm);
+    } else {
+        generate_total_line<true, false>(contents, totals, year, sm);
+    }
+
+    display_table(columns, contents);
+}
+
+void budget::display_balance(budget::year year, bool){
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    auto sm = start_month(year);
+
+    columns.push_back("Balance");
+    add_month_columns(columns, sm);
+
+    std::vector<budget::money> totals(12, budget::money());
+
+    std::unordered_map<std::string, std::size_t> row_mapping;
+    std::unordered_map<std::string, std::vector<budget::money>> account_previous;
+
+    //Prepare the rows
+
+    for(auto& account : all_accounts(year, sm)){
+        row_mapping[account.name] = contents.size();
+
+        contents.push_back({account.name});
+        account_previous[account.name] = std::vector<budget::money>(13, budget::money());
+    }
+
+    auto today = budget::local_day();
+    if(year > today.year()){
+        auto pretotal = compute_total_budget(sm, year);
+        std::size_t i = 0;
+        for(auto& account : all_accounts(year, sm)){
+            account_previous[account.name][sm - 1] += pretotal[i++] - account.amount;
+        }
+    }
+
+    //Fill the table
+
+    for(unsigned short i = sm; i < 13; ++i){
+        budget::month m = i;
+
+        for(auto& account : all_accounts(year, m)){
+            auto total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+            auto total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+
+            auto month_total = account_previous[account.name][i - 1] + account.amount - total_expenses + total_earnings;
+            account_previous[account.name][i] = month_total;
+
+            totals[i - 1] += month_total;
+
+            contents[row_mapping[account.name]].push_back(format_money(month_total));
+        }
+    }
+
+    //Generate the final total line
+
+    generate_total_line(contents, totals, year, sm);
+
+    display_table(columns, contents);
+}
+
