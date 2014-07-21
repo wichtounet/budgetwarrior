@@ -125,6 +125,23 @@ void edit_number(std::size_t& ref, const std::string& title, Checker... checkers
 }
 
 template<typename ...Checker>
+void edit_double(double& ref, const std::string& title, Checker... checkers){
+    bool checked;
+    do {
+        std::string answer;
+
+        std::cout << title << " [" << ref << "]: ";
+        std::getline(std::cin, answer);
+
+        if(!answer.empty()){
+            ref = to_number<double>(answer);
+        }
+
+        checked = check(ref, checkers...);
+    } while(!checked);
+}
+
+template<typename ...Checker>
 void edit_money(budget::money& ref, const std::string& title, Checker... checkers){
     bool checked;
     do {

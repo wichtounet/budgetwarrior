@@ -1,4 +1,5 @@
 budgetwarrior 0.4.1 - in development
+ * Simple prediction command
  * No more Boost dependency
  * Display mean accuracy in budget wish list
 
