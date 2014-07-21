@@ -519,7 +519,7 @@ void display_balance(budget::year year){
 }
 
 template<typename T>
-void display_values(budget::year year, const std::string& title, const std::vector<T>& values){
+void display_values(budget::year year, const std::string& title, const std::vector<T>& values, bool current = true){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -531,8 +531,11 @@ void display_values(budget::year year, const std::string& title, const std::vect
     add_month_columns(columns, sm);
     columns.push_back("Total");
     columns.push_back("Mean");
-    columns.push_back("C. Total");
-    columns.push_back("C. Mean");
+
+    if(current){
+        columns.push_back("C. Total");
+        columns.push_back("C. Mean");
+    }
 
     std::unordered_map<std::string, std::size_t> row_mapping;
     std::unordered_map<std::string, budget::money> account_totals;;
@@ -577,13 +580,20 @@ void display_values(budget::year year, const std::string& title, const std::vect
     for(auto& account : all_accounts(year, sm)){
         contents[row_mapping[account.name]].push_back(to_string(account_totals[account.name]));
         contents[row_mapping[account.name]].push_back(to_string(account_totals[account.name] / months));
-        contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name]));
-        contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name] / current_months));
+
+        if(current){
+            contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name]));
+            contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name] / current_months));
+        }
     }
 
     //Generate the final total line
 
-    generate_total_line<true, true>(contents, totals, year, sm);
+    if(current){
+        generate_total_line<true, true>(contents, totals, year, sm);
+    } else {
+        generate_total_line<true, false>(contents, totals, year, sm);
+    }
 
     display_table(columns, contents);
 }
@@ -709,4 +719,12 @@ void budget::overview_module::handle(std::vector<std::string>& args){
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
+}
+
+void budget::display_expenses(budget::year year, const std::string& title, const std::vector<budget::expense>& values, bool current){
+    display_values(year, title, values, current);
+}
+
+void budget::display_earnings(budget::year year, const std::string& title, const std::vector<budget::earning>& values, bool current){
+    display_values(year, title, values, current);
 }
