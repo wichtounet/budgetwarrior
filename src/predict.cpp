@@ -31,7 +31,7 @@ void predict_overview(){
 
     auto accounts = all_accounts(today.year(), today.month());
 
-    std::map<std::size_t, std::size_t> account_mappings;
+    std::map<std::string, std::size_t> account_mappings;
 
     std::vector<double> expense_multipliers(accounts.size(), 100.0);
     std::vector<double> earning_multipliers(accounts.size(), 100.0);
@@ -40,7 +40,7 @@ void predict_overview(){
 
     std::size_t i = 0;
     for(auto& account : accounts){
-        account_mappings[account.id] = i;
+        account_mappings[account.name] = i;
 
         std::cout << "   ";
         edit_double(expense_multipliers[i], account.name);
@@ -49,14 +49,14 @@ void predict_overview(){
     }
 
     for(auto& expense : expenses){
-        if(account_mappings.count(expense.account)){
-            expense.amount *= (expense_multipliers[account_mappings[expense.account]] / 100.0);
+        if(account_mappings.count(get_account(expense.account).name)){
+            expense.amount *= (expense_multipliers[account_mappings[get_account(expense.account).name]] / 100.0);
         }
     }
 
     for(auto& earning : earnings){
-        if(account_mappings.count(earning.account)){
-            earning.amount *= (earning_multipliers[account_mappings[earning.account]] / 100.0);
+        if(account_mappings.count(get_account(earning.account).name)){
+            earning.amount *= (earning_multipliers[account_mappings[get_account(earning.account).name]] / 100.0);
         }
     }
 
