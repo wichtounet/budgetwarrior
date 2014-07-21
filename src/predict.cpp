@@ -78,13 +78,13 @@ void predict_overview(){
     }
 
     std::cout << std::endl;
-    display_local_balance(today.year(), false);
+    display_local_balance(today.year(), false, true);
     std::cout << std::endl;
-    display_balance(today.year(), false);
+    display_balance(today.year(), false, true);
     std::cout << std::endl;
-    display_expenses(today.year(), false);
+    display_expenses(today.year(), false, true);
     std::cout << std::endl;
-    display_earnings(today.year(), false);
+    display_earnings(today.year(), false, true);
     std::cout << std::endl;
 }
 

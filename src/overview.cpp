@@ -389,7 +389,7 @@ inline void generate_total_line(std::vector<std::vector<std::string>>& contents,
 }
 
 template<typename T>
-void display_values(budget::year year, const std::string& title, const std::vector<T>& values, bool current = true){
+void display_values(budget::year year, const std::string& title, const std::vector<T>& values, bool current = true, bool relaxed = true){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -429,8 +429,14 @@ void display_values(budget::year year, const std::string& title, const std::vect
             budget::money month_total;
 
             for(auto& value : values){
-                if(value.account == account.id && value.date.year() == year && value.date.month() == m){
-                    month_total += value.amount;
+                if(relaxed){
+                    if(get_account(value.account).name == account.name && value.date.year() == year && value.date.month() == m){
+                        month_total += value.amount;
+                    }
+                } else {
+                    if(value.account == account.id && value.date.year() == year && value.date.month() == m){
+                        month_total += value.amount;
+                    }
                 }
             }
 
@@ -487,7 +493,7 @@ void budget::overview_module::handle(std::vector<std::string>& args){
         month_overview();
     } else {
         auto& subcommand = args[1];
-                        
+
         auto today = budget::local_day();
 
         if(subcommand == "month"){
@@ -583,15 +589,15 @@ void budget::overview_module::handle(std::vector<std::string>& args){
     }
 }
 
-void budget::display_expenses(budget::year year, bool current){
-    display_values(year, "Expenses", all_expenses(), current);
+void budget::display_expenses(budget::year year, bool current, bool relaxed){
+    display_values(year, "Expenses", all_expenses(), current, relaxed);
 }
 
-void budget::display_earnings(budget::year year, bool current){
-    display_values(year, "Earnings", all_earnings(), current);
+void budget::display_earnings(budget::year year, bool current, bool relaxed){
+    display_values(year, "Earnings", all_earnings(), current, relaxed);
 }
 
-void budget::display_local_balance(budget::year year, bool current){
+void budget::display_local_balance(budget::year year, bool current, bool relaxed){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -629,8 +635,16 @@ void budget::display_local_balance(budget::year year, bool current){
         budget::month m = i;
 
         for(auto& account : all_accounts(year, m)){
-            auto total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-            auto total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+            budget::money total_expenses;
+            budget::money total_earnings;
+
+            if(relaxed){
+                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+            } else {
+                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+            }
 
             auto month_total = account.amount - total_expenses + total_earnings;
 
@@ -669,7 +683,7 @@ void budget::display_local_balance(budget::year year, bool current){
     display_table(columns, contents);
 }
 
-void budget::display_balance(budget::year year, bool){
+void budget::display_balance(budget::year year, bool, bool){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
