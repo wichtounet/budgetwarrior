@@ -102,12 +102,12 @@ void list_wishes(){
             }
         }
 
-        contents.push_back({"", "", "", ""});
-        contents.push_back({"", "Total", to_string(total), ""});
-        contents.push_back({"", "Unpaid Total", to_string(unpaid_total), ""});
+        contents.push_back({"", "", "", "", "", ""});
+        contents.push_back({"", "Total", "", "", to_string(total), ""});
+        contents.push_back({"", "Unpaid Total", "", "", to_string(unpaid_total), ""});
 
         if(acc_counter > 0){
-            contents.push_back({"", "Mean accuracy", to_string(static_cast<std::size_t>((acc / acc_counter) * 100.0)) + "%", ""});
+            contents.push_back({"", "Mean accuracy", "", "", to_string(static_cast<std::size_t>((acc / acc_counter) * 100.0)) + "%", ""});
         }
 
         display_table(columns, contents);
