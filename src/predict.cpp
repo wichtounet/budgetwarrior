@@ -68,6 +68,12 @@ void predict_overview(){
                     expense.date = {today.year(), expense.date.month(), expense.date.day()};
                 }
             }
+
+            for(auto& earning : earnings){
+                if(earning.date.month() == m && earning.date.year() == prev_year){
+                    earning.date = {today.year(), earning.date.month(), earning.date.day()};
+                }
+            }
         }
     }
 
