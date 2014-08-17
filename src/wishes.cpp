@@ -129,7 +129,7 @@ void status_wishes(){
             continue;
         }
 
-        auto name = wish.name + " (" + to_string(wish.amount) + ")";
+        auto name = to_string(wish.id) + ". " + wish.name + " (" + to_string(wish.amount) + ")";
         trim(name);
 
         width = std::max(rsize(name), width);
@@ -148,7 +148,7 @@ void status_wishes(){
         }
 
         auto amount = wish.amount;
-        auto name = wish.name + " (" + to_string(wish.amount) + ")";
+        auto name = to_string(wish.id) + ". " + wish.name + " (" + to_string(wish.amount) + ")";
 
         trim(name);
 
