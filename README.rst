@@ -1,6 +1,9 @@
 budgetwarrior 0.4.0
 ===================
 
+.. image:: https://raw.githubusercontent.com/wichtounet/budgetwarrior/develop/screenshots/budget_report.png
+   :align: center
+
 Simple command line utility to helps keeping track of your expenses and the
 state of your budget.
 
