@@ -71,6 +71,28 @@ budget::date find_new_since(){
     return date;
 }
 
+std::size_t get_account_id(std::string name, budget::year year, budget::month month){
+    budget::date date(year, month, 5);
+
+    for(auto& account : accounts.data){
+        if(account.since < date && account.until > date && account.name == name){
+            return account.id;
+        }
+    }
+
+    return 0;
+}
+
+template<typename Values>
+void adapt(Values& values, std::size_t old, std::size_t id){
+    for(auto& value : values){
+        if(value.account == old){
+            value.account = id;
+        }
+    }
+}
+
+
 } //end of anonymous namespace
 
 void budget::accounts_module::load(){
@@ -154,6 +176,77 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             std::cout << "Account " << id << " has been modified" << std::endl;
 
             accounts.changed = true;
+        } else if(subcommand == "migrate"){
+            std::string source_account_name;
+            edit_string(source_account_name, "Source Account", not_empty_checker(), account_checker());
+
+            std::string destination_account_name;
+            edit_string(destination_account_name, "Destination Account", not_empty_checker(), account_checker());
+
+            std::cout << "This command will move all expenses and earnings from \"" << source_account_name 
+                << "\" to \"" << destination_account_name <<"\" and delete \"" << source_account_name 
+                << "\". Are you sure you want to proceed ? [yes/no] ? ";
+
+            std::string answer;
+            std::getline(std::cin, answer);
+
+            if(answer == "yes" || answer == "y"){
+                if(source_account_name == destination_account_name){
+                    std::cout << "Migrating an account to itself has no effect" << std::endl;
+                } else {
+                    //Make sure that we find the destination for
+                    //each source accounts
+
+                    for(auto& account : all_accounts()){
+                        if(account.name == source_account_name){
+                            auto destination_id = get_account_id(destination_account_name, account.since.year(), account.since.month());
+
+                            if(!destination_id){
+                                std::cout << "Impossible to find the corresponding account for account " << account.id 
+                                    << ". This may come from a migration issue. Open an issue on Github if you think that this is a bug" << std::endl;
+
+                                return;
+                            }
+                        }
+                    }
+
+                    std::vector<std::size_t> deleted;
+
+                    //Perform the migration
+
+                    for(auto& account : all_accounts()){
+                        if(account.name == source_account_name){
+                            auto source_id = account.id;
+                            auto& destination_account = get_account(destination_account_name, account.since.year(), account.since.month());
+                            auto destination_id = destination_account.id;
+
+                            std::cout << "Migrate account " << source_id << " to account " << destination_id << std::endl;
+
+                            destination_account.amount += account.amount;
+
+                            adapt(all_expenses(), source_id, destination_id);
+                            adapt(all_earnings(), source_id, destination_id);
+
+                            deleted.push_back(source_id);
+                        }
+                    }
+
+                    set_expenses_changed();
+                    set_earnings_changed();
+
+                    //Delete the source accounts
+
+                    for(auto& id : deleted){
+                        std::cout << "Delete account " << id << std::endl;
+
+                        remove(accounts, id);
+                    }
+
+                    set_accounts_changed();
+
+                    std::cout << "Migration done" << std::endl;
+                }
+            }
         } else if(subcommand == "archive"){
             std::cout << "This command will create new accounts that will be used starting from the beginning of the current month. Are you sure you want to proceed ? [yes/no] ? ";
 
