@@ -49,6 +49,9 @@ void migrate_recurring_1_to_2();
 
 std::vector<recurring>& all_recurrings();
 
+void set_recurrings_changed();
+void set_recurrings_next_id(std::size_t next_id);
+
 } //end of namespace budget
 
 #endif
