@@ -51,6 +51,7 @@ std::vector<objective>& all_objectives();
 void add_objective(objective&& objective);
 
 void set_objectives_changed();
+void set_objectives_next_id(std::size_t next_id);
 
 int compute_success(const budget::status& status, const objective& objective);
 
