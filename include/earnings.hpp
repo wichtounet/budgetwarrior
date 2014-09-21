@@ -47,6 +47,7 @@ void save_earnings();
 std::vector<earning>& all_earnings();
 
 void set_earnings_changed();
+void set_earnings_next_id(std::size_t next_id);
 
 } //end of namespace budget
 
