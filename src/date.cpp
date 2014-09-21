@@ -12,6 +12,38 @@
 #include "expenses.hpp"
 #include "earnings.hpp"
 
+budget::date budget::local_day(){
+    auto tt = time( NULL );
+    auto timeval = localtime( &tt );
+
+    return {
+        static_cast<date_type>(timeval->tm_year + 1900), 
+        static_cast<date_type>(timeval->tm_mon + 1), 
+        static_cast<date_type>(timeval->tm_mday)};
+}
+
+budget::date budget::from_string(const std::string& str){
+    auto y = year(to_number<unsigned short>(str.substr(0, 4)));
+    auto m = month(to_number<unsigned short>(str.substr(5, 2)));
+    auto d = day(to_number<unsigned short>(str.substr(8, 2)));
+
+    return {y, m, d};
+}
+
+budget::date budget::from_iso_string(const std::string& str){
+    auto y = year(to_number<unsigned short>(str.substr(0, 4)));
+    auto m = month(to_number<unsigned short>(str.substr(4, 2)));
+    auto d = day(to_number<unsigned short>(str.substr(6, 2)));
+
+    return {y, m, d};
+}
+
+std::string budget::date_to_string(budget::date date){
+    return std::to_string(date.year())
+        + "-" + (date.month() < 10 ? "0" : "") + std::to_string(date.month())
+        + "-" + (date.day() < 10 ? "0" : "") + std::to_string(date.day());
+}
+
 unsigned short budget::start_month(budget::year year){
     auto key = to_string(year) + "_start";
     if(config_contains(key)){
@@ -36,4 +68,12 @@ unsigned short budget::start_year(){
     }
 
     return y;
+}
+
+std::ostream& budget::operator<<(std::ostream& stream, const date& date){
+    return stream << date.year() << "-" << date.month() << "-" << date.day();
+}
+
+std::ostream& budget::operator<<(std::ostream& stream, const month& month){
+    return stream << month.as_short_string();
 }

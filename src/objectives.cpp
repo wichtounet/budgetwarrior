@@ -339,3 +339,7 @@ std::vector<objective>& budget::all_objectives(){
 void budget::set_objectives_changed(){
     objectives.changed = true;
 }
+
+void budget::set_objectives_next_id(std::size_t next_id){
+    objectives.next_id = next_id;
+}

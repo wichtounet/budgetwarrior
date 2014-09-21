@@ -17,14 +17,17 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget account add                                         Add a new account" << std::endl;
     std::cout << "       budget account delete (id)                                 Delete the given account" << std::endl;
     std::cout << "       budget account edit (id)                                   Edit the given account" << std::endl;
+    std::cout << "       budget account migrate                                     Merge two accounts together" << std::endl << std::endl;
     std::cout << "       budget account archive                                     Archive the current accounts to start new accounts" << std::endl << std::endl;
 
     std::cout << "       budget expense [show]                                      Display the expenses of the current month" << std::endl;
     std::cout << "       budget expense show (month) (year)                         Display the expenses of the specified month of the specified year" << std::endl;
     std::cout << "       budget expense all                                         Display all the expenses" << std::endl;
     std::cout << "       budget expense add                                         Add a new expense" << std::endl;
+    std::cout << "       budget expense add (template name)                         Add a new expense from a template or create a new template" << std::endl;
     std::cout << "       budget expense delete (id)                                 Remove completely the expense with the given id" << std::endl;
     std::cout << "       budget expense edit (id)                                   Modify the expense with the given id" << std::endl << std::endl;
+    std::cout << "       budget expense template                                    Display the templates" << std::endl << std::endl;
 
     std::cout << "       budget earning [earnings]                                  Display the earnings of the current month" << std::endl;
     std::cout << "       budget earning show (month) (year)                         Display the earnings of the specified month of the specified year" << std::endl;
@@ -73,4 +76,6 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget versioning sync                                     Pull the remote changes on the budget directory with Git and push" << std::endl;
 
     std::cout << "       budget report [monthly]                                    Display monthly report in form of bar plot" << std::endl;
+
+    std::cout << "       budget gc                                                  Make sure all IDs are contiguous" << std::endl;
 }

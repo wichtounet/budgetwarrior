@@ -173,3 +173,11 @@ void budget::operator>>(const std::vector<std::string>& parts, fortune& fortune)
     fortune.check_date = from_string(parts[2]);
     fortune.amount = parse_money(parts[3]);
 }
+
+void budget::set_fortunes_changed(){
+    fortunes.changed = true;
+}
+
+void budget::set_fortunes_next_id(std::size_t next_id){
+    fortunes.next_id = next_id;
+}

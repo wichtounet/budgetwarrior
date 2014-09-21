@@ -13,6 +13,9 @@
 #include <array>
 
 #include "module_traits.hpp"
+#include "expenses.hpp"
+#include "earnings.hpp"
+#include "date.hpp"
 
 namespace budget {
 
@@ -28,6 +31,11 @@ struct module_traits<overview_module> {
 
     static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"aggregate", "overview aggregate"}}};
 };
+
+void display_local_balance(budget::year year, bool current = true, bool relaxed = false);
+void display_balance(budget::year year, bool current = true, bool relaxed = false);
+void display_expenses(budget::year year, bool current = true, bool relaxed = false);
+void display_earnings(budget::year year, bool current = true, bool relaxed = false);
 
 } //end of namespace budget
 

@@ -39,12 +39,15 @@ struct fortune {
 std::ostream& operator<<(std::ostream& stream, const fortune& fortune);
 void operator>>(const std::vector<std::string>& parts, fortune& fortune);
 
-std::vector<fortune>& all_fortunes();
-
 budget::money current_fortune();
 
 void load_fortunes();
 void save_fortunes();
+
+std::vector<fortune>& all_fortunes();
+
+void set_fortunes_changed();
+void set_fortunes_next_id(std::size_t next_id);
 
 } //end of namespace budget
 

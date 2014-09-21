@@ -1,3 +1,12 @@
+budgetwarrior 0.4.1 - 21.09.2014
+ * Support for expense template to create common expenses faster
+ * Support for merging accounts together
+ * Simple prediction command
+ * No more Boost dependency
+ * Display mean accuracy in budget wish list
+ * Command gc make all IDs contiguous
+ * Bugfix: The scale of the budget report was not displayed correctly
+
 budgetwarrior 0.4.0 - 04.07.2014
  * New version command to display the current version of the tool
  * New overview aggregate month command to display aggregate expenses of a month

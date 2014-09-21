@@ -5,6 +5,8 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <iostream>
+
 #include "report.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
@@ -117,10 +119,8 @@ void monthly_report(budget::year year){
 
     //Display scale
 
-    int first_step = min == 0 ? 0 : -1 * ((-min % scale) + 1) * scale;
-
     for(size_t i = 0; i <= levels; ++i){
-        int level = first_step + i * scale;
+        int level = min + i * scale;
 
         write(graph, 4 + step_height * i, 1, to_string(level));
     }

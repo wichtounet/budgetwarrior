@@ -50,6 +50,26 @@ void show_expenses(budget::month month, budget::year year){
     }
 }
 
+void show_templates(){
+    std::vector<std::string> columns = {"ID", "Account", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    std::size_t count = 0;
+
+    for(auto& expense : expenses.data){
+        if(expense.date == TEMPLATE_DATE){
+            contents.push_back({to_string(expense.id), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+            ++count;
+        }
+    }
+
+    if(count == 0){
+        std::cout << "No templates" << std::endl;
+    } else {
+        display_table(columns, contents);
+    }
+}
+
 void show_expenses(budget::month month){
     auto today = budget::local_day();
 
@@ -104,22 +124,72 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             }
         } else if(subcommand == "all"){
             show_all_expenses();
+        } else if(subcommand == "template"){
+            show_templates();
         } else if(subcommand == "add"){
-            expense expense;
-            expense.guid = generate_guid();
-            expense.date = budget::local_day();
+            if(args.size() > 2){
+                std::string template_name;
+                std::string space;
 
-            edit_date(expense.date, "Date");
+                for(std::size_t i = 2; i < args.size(); ++i){
+                    template_name += space;
+                    template_name += args[i];
+                    space = " ";
+                }
 
-            std::string account_name;
-            edit_string(account_name, "Account", not_empty_checker(), account_checker());
-            expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
+                bool template_found = false;
 
-            edit_string(expense.name, "Name", not_empty_checker());
-            edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
+                for(auto& template_expense : all_expenses()){
+                    if(template_expense.date == TEMPLATE_DATE && template_expense.name == template_name){
+                        expense expense;
+                        expense.guid = generate_guid();
+                        expense.date = budget::local_day();
+                        expense.name = template_expense.name;
+                        expense.amount = template_expense.amount;
+                        expense.account = template_expense.account;
 
-            auto id = add_data(expenses, std::move(expense));
-            std::cout << "Expense " << id << " has been created" << std::endl;
+                        auto id = add_data(expenses, std::move(expense));
+                        std::cout << "Expense " << id << " has been created" << std::endl;
+
+                        template_found = true;
+                        break;
+                    }
+                }
+
+                if(!template_found){
+                    std::cout << "Template \"" << template_name << "\" not found, creating a new template" << std::endl;
+
+                    expense expense;
+                    expense.guid = generate_guid();
+                    expense.date = TEMPLATE_DATE;
+                    expense.name = template_name;
+
+                    std::string account_name;
+                    edit_string(account_name, "Account", not_empty_checker(), account_checker());
+                    expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
+
+                    edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
+
+                    auto id = add_data(expenses, std::move(expense));
+                    std::cout << "Template " << id << " has been created" << std::endl;
+                }
+            } else {
+                expense expense;
+                expense.guid = generate_guid();
+                expense.date = budget::local_day();
+
+                edit_date(expense.date, "Date");
+
+                std::string account_name;
+                edit_string(account_name, "Account", not_empty_checker(), account_checker());
+                expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
+
+                edit_string(expense.name, "Name", not_empty_checker());
+                edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
+
+                auto id = add_data(expenses, std::move(expense));
+                std::cout << "Expense " << id << " has been created" << std::endl;
+            }
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
@@ -192,4 +262,8 @@ std::vector<expense>& budget::all_expenses(){
 
 void budget::set_expenses_changed(){
     expenses.changed = true;
+}
+
+void budget::set_expenses_next_id(std::size_t next_id){
+    expenses.next_id = next_id;
 }

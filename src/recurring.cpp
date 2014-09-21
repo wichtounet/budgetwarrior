@@ -66,7 +66,7 @@ void budget::recurring_module::preload(){
             load_expenses();
 
             while(last_checked.year() < now.year() || last_checked.month() < now.month()){
-                last_checked += boost::gregorian::months(1);
+                last_checked += months(1);
 
                 date recurring_date(last_checked.year(), last_checked.month(), 1);
 
@@ -204,4 +204,12 @@ void budget::operator>>(const std::vector<std::string>& parts, recurring& recurr
 
 std::vector<recurring>& budget::all_recurrings(){
     return recurrings.data;
+}
+
+void budget::set_recurrings_changed(){
+    recurrings.changed = true;
+}
+
+void budget::set_recurrings_next_id(std::size_t next_id){
+    recurrings.next_id = next_id;
 }

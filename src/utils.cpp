@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <fstream>
 
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 

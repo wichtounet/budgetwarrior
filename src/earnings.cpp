@@ -189,3 +189,7 @@ std::vector<earning>& budget::all_earnings(){
 void budget::set_earnings_changed(){
     earnings.changed = true;
 }
+
+void budget::set_earnings_next_id(std::size_t next_id){
+    earnings.next_id = next_id;
+}

@@ -17,6 +17,8 @@
 
 namespace budget {
 
+const date TEMPLATE_DATE(1666, 6, 6);
+
 struct expenses_module {
     void load();
     void unload();
@@ -48,6 +50,7 @@ std::vector<expense>& all_expenses();
 void add_expense(expense&& expense);
 
 void set_expenses_changed();
+void set_expenses_next_id(std::size_t next_id);
 
 } //end of namespace budget
 
