@@ -102,6 +102,7 @@ void gc_accounts(){
 
             adapt(all_expenses(), old_account, account.id);
             adapt(all_earnings(), old_account, account.id);
+
             //Note: No need to adapt recurrings since the account is stored with its name
         }
 
