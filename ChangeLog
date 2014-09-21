@@ -1,5 +1,6 @@
 budgetwarrior 0.4.1 - in development
  * Support for expense template to create common expenses faster
+ * Support for merging accounts together
  * Simple prediction command
  * No more Boost dependency
  * Display mean accuracy in budget wish list
