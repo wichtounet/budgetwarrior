@@ -18,6 +18,32 @@ using namespace budget;
 
 namespace {
 
+template<typename Values>
+std::size_t gc(Values& values){
+    std::sort(values.begin(), values.end(), 
+        [](const typename Values::value_type& a, const typename Values::value_type& b){ return a.id < b.id; });
+
+    std::size_t next_id = 0;
+
+    for(auto& expense : values){
+        expense.id = ++next_id;
+    }
+
+    return ++next_id;
+}
+
+void gc_expenses(){
+    auto next_id = gc(all_expenses());
+    set_expenses_next_id(next_id);
+    set_expenses_changed();
+}
+
+void gc_earnings(){
+    auto next_id = gc(all_earnings());
+    set_earnings_next_id(next_id);
+    set_earnings_changed();
+}
+
 } //end of anonymous namespace
 
 void budget::gc_module::load(){
@@ -37,6 +63,9 @@ void budget::gc_module::handle(const std::vector<std::string>& args){
         std::cout << "Too many parameters" << std::endl;
     } else {
         std::cout << "Make all IDs contiguous..." << std::endl;
+
+        gc_expenses();
+        gc_earnings();
 
         std::cout << "...done" << std::endl;
     }
