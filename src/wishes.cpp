@@ -536,6 +536,10 @@ void budget::set_wishes_changed(){
     wishes.changed = true;
 }
 
+void budget::set_wishes_next_id(std::size_t next_id){
+    wishes.next_id = next_id;
+}
+
 void budget::migrate_wishes_2_to_3(){
     load_data(wishes, "wishes.data", [](const std::vector<std::string>& parts, wish& wish){
         wish.id = to_number<std::size_t>(parts[0]);

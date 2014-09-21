@@ -205,3 +205,11 @@ void budget::operator>>(const std::vector<std::string>& parts, recurring& recurr
 std::vector<recurring>& budget::all_recurrings(){
     return recurrings.data;
 }
+
+void budget::set_recurrings_changed(){
+    recurrings.changed = true;
+}
+
+void budget::set_recurrings_next_id(std::size_t next_id){
+    recurrings.next_id = next_id;
+}

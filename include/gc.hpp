@@ -5,26 +5,28 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef PREDICT_H
-#define PREDICT_H
+#ifndef BUDGET_GC_HPP
+#define BUDGET_GC_HPP
 
 #include <vector>
 #include <string>
 #include <array>
+#include <utility>
 
 #include "module_traits.hpp"
 
 namespace budget {
 
-struct predict_module {
+struct gc_module {
     void load();
-    void handle(std::vector<std::string>& args);
+    void unload();
+    void handle(const std::vector<std::string>& args);
 };
 
 template<>
-struct module_traits<predict_module> {
+struct module_traits<gc_module> {
     static constexpr const bool is_default = false;
-    static constexpr const char* command = "predict";
+    static constexpr const char* command = "gc";
 };
 
 } //end of namespace budget

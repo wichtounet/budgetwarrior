@@ -193,3 +193,7 @@ std::vector<expense>& budget::all_expenses(){
 void budget::set_expenses_changed(){
     expenses.changed = true;
 }
+
+void budget::set_expenses_next_id(std::size_t next_id){
+    expenses.next_id = next_id;
+}

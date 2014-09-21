@@ -286,3 +286,11 @@ std::vector<account> budget::all_accounts(budget::year year, budget::month month
 
     return std::move(accounts);
 }
+
+void budget::set_accounts_changed(){
+    accounts.changed = true;
+}
+
+void budget::set_accounts_next_id(std::size_t next_id){
+    accounts.next_id = next_id;
+}

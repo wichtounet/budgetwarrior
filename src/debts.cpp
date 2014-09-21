@@ -24,7 +24,7 @@ namespace {
 
 static data_handler<debt> debts;
 
-void all_debts(){
+void display_all_debts(){
     std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Paid", "Title"};
     std::vector<std::vector<std::string>> contents;
 
@@ -104,7 +104,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
         if(subcommand == "list"){
             list_debts();
         } else if(subcommand == "all"){
-            all_debts();
+            display_all_debts();
         } else if(subcommand == "add"){
             debt debt;
             debt.state = 0;
@@ -207,4 +207,16 @@ void budget::migrate_debts_3_to_4(){
     debts.changed = true;
 
     save_data(debts, "debts.data");
+}
+
+std::vector<debt>& budget::all_debts(){
+    return debts.data;
+}
+
+void budget::set_debts_changed(){
+    debts.changed = true;
+}
+
+void budget::set_debts_next_id(std::size_t next_id){
+    debts.next_id = next_id;
 }
