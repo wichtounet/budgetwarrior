@@ -51,6 +51,7 @@ std::vector<wish>& all_wishes();
 void add_wish(wish&& objective);
 
 void set_wishes_changed();
+void set_wishes_next_id(std::size_t next_id);
 
 void migrate_wishes_2_to_3();
 void migrate_wishes_3_to_4();
