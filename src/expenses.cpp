@@ -50,6 +50,26 @@ void show_expenses(budget::month month, budget::year year){
     }
 }
 
+void show_templates(){
+    std::vector<std::string> columns = {"ID", "Account", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    std::size_t count = 0;
+
+    for(auto& expense : expenses.data){
+        if(expense.date == TEMPLATE_DATE){
+            contents.push_back({to_string(expense.id), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+            ++count;
+        }
+    }
+
+    if(count == 0){
+        std::cout << "No templates" << std::endl;
+    } else {
+        display_table(columns, contents);
+    }
+}
+
 void show_expenses(budget::month month){
     auto today = budget::local_day();
 
@@ -104,6 +124,8 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             }
         } else if(subcommand == "all"){
             show_all_expenses();
+        } else if(subcommand == "template"){
+            show_templates();
         } else if(subcommand == "add"){
             if(args.size() > 2){
                 std::string template_name;
