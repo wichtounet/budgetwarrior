@@ -17,6 +17,7 @@
 #include "fortune.hpp"
 #include "wishes.hpp"
 #include "objectives.hpp"
+#include "recurring.hpp"
 
 using namespace budget;
 
@@ -29,11 +30,20 @@ std::size_t gc(Values& values){
 
     std::size_t next_id = 0;
 
-    for(auto& expense : values){
-        expense.id = ++next_id;
+    for(auto& value : values){
+        value.id = ++next_id;
     }
 
     return ++next_id;
+}
+
+template<typename Values>
+void adapt(Values& values, std::size_t old, std::size_t id){
+    for(auto& value : values){
+        if(value.account == old){
+            value.account = id;
+        }
+    }
 }
 
 void gc_expenses(){
@@ -72,6 +82,38 @@ void gc_objectives(){
     set_objectives_changed();
 }
 
+void gc_recurrings(){
+    auto next_id = gc(all_recurrings());
+    set_recurrings_next_id(next_id);
+    set_recurrings_changed();
+}
+
+void gc_accounts(){
+    auto& accounts = all_accounts();
+
+    std::size_t next_id = 1;
+
+    std::sort(accounts.begin(), accounts.end(), [](const account& a, const account& b){ return a.id < b.id; });
+
+    for(auto& account : accounts){
+        if(account.id != next_id){
+            auto old_account = account.id;
+            account.id = next_id;
+
+            adapt(all_expenses(), old_account, account.id);
+            adapt(all_earnings(), old_account, account.id);
+            //Note: No need to adapt recurrings since the account is stored with its name
+        }
+
+        ++next_id;
+    }
+
+    ++next_id;
+
+    set_accounts_changed();
+    set_accounts_next_id(next_id);
+}
+
 } //end of anonymous namespace
 
 void budget::gc_module::load(){
@@ -82,6 +124,7 @@ void budget::gc_module::load(){
     load_fortunes();
     load_wishes();
     load_objectives();
+    load_recurrings();
 }
 
 void budget::gc_module::unload(){
@@ -92,6 +135,7 @@ void budget::gc_module::unload(){
     save_fortunes();
     save_wishes();
     save_objectives();
+    save_recurrings();
 }
 
 void budget::gc_module::handle(const std::vector<std::string>& args){
@@ -106,6 +150,8 @@ void budget::gc_module::handle(const std::vector<std::string>& args){
         gc_fortunes();
         gc_wishes();
         gc_objectives();
+        gc_recurrings();
+        gc_accounts();
 
         std::cout << "...done" << std::endl;
     }
