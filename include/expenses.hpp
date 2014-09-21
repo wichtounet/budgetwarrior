@@ -48,6 +48,7 @@ std::vector<expense>& all_expenses();
 void add_expense(expense&& expense);
 
 void set_expenses_changed();
+void set_expenses_next_id(std::size_t next_id);
 
 } //end of namespace budget
 
