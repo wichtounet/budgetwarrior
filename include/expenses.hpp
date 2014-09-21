@@ -17,6 +17,8 @@
 
 namespace budget {
 
+const date TEMPLATE_DATE(1666, 6, 6);
+
 struct expenses_module {
     void load();
     void unload();
