@@ -23,7 +23,7 @@ struct predict_module {
 
 template<>
 struct module_traits<predict_module> {
-    static constexpr const bool is_default = true;
+    static constexpr const bool is_default = false;
     static constexpr const char* command = "predict";
 };
 
