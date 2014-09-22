@@ -68,7 +68,7 @@ install: release
 	@ echo ""
 	install budget.man $(mandir)/man3/budget.3
 	install release/bin/budget $(bindir)/budget
-	install completions/bash /etc/bash_completion.d/budget
+	install completions/bash $(prefix)/../etc/bash_completion.d/budget
 	install completions/zsh $(prefix)/share/zsh/site-functions/_budget
 
 clean:
