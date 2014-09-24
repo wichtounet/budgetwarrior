@@ -60,11 +60,15 @@ unsigned short budget::start_year(){
     auto y = today.year();
 
     for(auto& expense : all_expenses()){
-        y = std::min(expense.date.year(), y);
+        if(expense.date != TEMPLATE_DATE){
+            y = std::min(expense.date.year(), y);
+        }
     }
 
     for(auto& earning : all_earnings()){
-        y = std::min(earning.date.year(), y);
+        if(earning.date != TEMPLATE_DATE){
+            y = std::min(earning.date.year(), y);
+        }
     }
 
     return y;
