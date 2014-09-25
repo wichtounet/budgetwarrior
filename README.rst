@@ -6,6 +6,21 @@ state of your budget.
 
 .. image:: https://raw.githubusercontent.com/wichtounet/budgetwarrior/develop/screenshots/budget_report.png
    :align: center
+   
+Personal accounting method
+--------------------------
+
+Not everyone manages its money the same way. budgetwarrior is based on my way of managing my money.  I'm separating all my expenses in several "accounts" and I give each of them a certain amount of money each month. 
+
+**Accounts are recipients for your expenses and earnings. They are not bank accounts, they only are logical recipients**. Think of them as categories. The sum of the accounts should be equivalent to your salary.
+
+For instance, if you have 1000$ per month, you could have three accounts: 
+* Food (200$)
+* Car (300$)
+* House (500$)
+
+That means you allow yourself to spend 200$ on food each month. Of course, some month you'll be lower or higher. 
+And the tool will indicate you how well your accounts. 
 
 Features
 --------
