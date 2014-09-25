@@ -27,11 +27,18 @@ Features
 
 budgetwarrior has several features:
 
-* Manage a set of account with a limit
+* Manage a set of account with a monthly limit
 * Keeps track of your expenses and earnings in each of your accounts
 * Give you the state of your budget by month and by year
 * Keeps track of your debts
 * Manage recurring expenses that are automatically created monthly
+* Keep track of your wishes
+* Keep track of your current fortune
+
+On the other hand, budgetwarrior:
+
+* Has no notion of bank, cash, credit card
+* Will not communicate with your ebanking tool to extract information
 
 Start using budgetwarrior
 -------------------------
