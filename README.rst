@@ -10,7 +10,7 @@ state of your budget.
 Personal accounting method
 --------------------------
 
-Not everyone manages its money the same way. budgetwarrior is based on my way of managing my money.  I'm separating all my expenses in several "accounts" and I give each of them a certain amount of money each month. 
+Not everyone manages its money the same way. budgetwarrior is based on my way of managing my money. It may not be adapted to everyone. I'm separating all my expenses in several "accounts" and I give each of them a certain amount of money each month. 
 
 **Accounts are recipients for your expenses and earnings. They are not bank accounts, they only are logical recipients**. Think of them as categories. The sum of the accounts should be equivalent to your salary.
 
