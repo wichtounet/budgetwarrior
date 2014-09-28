@@ -60,11 +60,7 @@ std::string status_short(std::size_t v){
 }
 
 std::string accuracy(budget::money paid, budget::money estimation){
-    auto a = paid < estimation ?
-        static_cast<double>(paid.dollars()) / estimation.dollars() :
-        static_cast<double>(estimation.dollars()) / paid.dollars();
-
-    a *= 100.0;
+    auto a = 100.0 * (static_cast<double>(paid.dollars()) / static_cast<double>(estimation.dollars()));
 
     return to_string(static_cast<std::size_t>(a)) + "%";
 }
@@ -91,9 +87,7 @@ void list_wishes(){
 
             total += wish.amount;
             if(wish.paid){
-                auto a = wish.paid_amount < wish.amount ?
-                    static_cast<double>(wish.paid_amount.dollars()) / wish.amount.dollars() :
-                    static_cast<double>(wish.amount.dollars()) / wish.paid_amount.dollars();
+                auto a = static_cast<double>(wish.paid_amount.dollars()) / wish.amount.dollars();
 
                 acc += a;
                 acc_counter += 1;
