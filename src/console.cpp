@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include "cpp_utils/assert.hpp"
+#include "cpp_utils/string.hpp"
 
 #include "console.hpp"
 
@@ -104,7 +105,7 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
 
     for(auto& row : contents){
         for(auto& cell : row){
-            trim(cell);
+            cpp::trim(cell);
         }
     }
 

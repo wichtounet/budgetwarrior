@@ -51,20 +51,6 @@ void one_of(const std::string& value, const std::string& message, std::vector<st
 unsigned short terminal_width();
 unsigned short terminal_height();
 
-inline std::string& ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-    return s;
-}
-
-inline std::string& rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-    return s;
-}
-
-inline std::string &trim(std::string &s) {
-    return ltrim(rtrim(s));
-}
-
 bool file_exists(const std::string& name);
 bool folder_exists(const std::string& name);
 

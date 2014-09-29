@@ -9,6 +9,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "cpp_utils/string.hpp"
+
 #include "wishes.hpp"
 #include "objectives.hpp"
 #include "expenses.hpp"
@@ -124,7 +126,7 @@ void status_wishes(){
         }
 
         auto name = to_string(wish.id) + ". " + wish.name + " (" + to_string(wish.amount) + ")";
-        trim(name);
+        cpp::trim(name);
 
         width = std::max(rsize(name), width);
     }
@@ -144,7 +146,7 @@ void status_wishes(){
         auto amount = wish.amount;
         auto name = to_string(wish.id) + ". " + wish.name + " (" + to_string(wish.amount) + ")";
 
-        trim(name);
+        cpp::trim(name);
 
         std::cout << "  ";
         print_minimum(name, width);
@@ -243,7 +245,7 @@ void estimate_wishes(){
 
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
 
-        trim(name);
+        cpp::trim(name);
 
         width = std::max(rsize(name), width);
     }
@@ -258,7 +260,7 @@ void estimate_wishes(){
 
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
 
-        trim(name);
+        cpp::trim(name);
 
         std::cout << "  ";
         print_minimum(name, width);
@@ -334,7 +336,7 @@ void estimate_wishes(){
 
         auto name = wish.name + " (" + to_string(wish.amount) + ")";
 
-        trim(name);
+        cpp::trim(name);
 
         std::cout << "  ";
         print_minimum(name, width);
