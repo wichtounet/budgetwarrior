@@ -5,9 +5,10 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include "cpp_utils/assert.hpp"
+
 #include "date.hpp"
 #include "budget_exception.hpp"
-#include "assert.hpp"
 #include "config.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
@@ -48,7 +49,7 @@ unsigned short budget::start_month(budget::year year){
     auto key = to_string(year) + "_start";
     if(config_contains(key)){
         auto value = to_number<unsigned short>(config_value(key));
-        budget_assert(value < 13 && value > 0, "The start month is incorrect (must be in [1,12])");
+        cpp_assert(value < 13 && value > 0, "The start month is incorrect (must be in [1,12])");
         return value;
     }
 

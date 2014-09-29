@@ -8,8 +8,9 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include "cpp_utils/assert.hpp"
+
 #include "config.hpp"
-#include "assert.hpp"
 #include "utils.hpp"
 
 namespace budget {
@@ -106,7 +107,7 @@ T& get(data_handler<T>& data, std::size_t id){
         }
     }
 
-    budget_unreachable("The data must exists");
+    cpp_unreachable("The data must exists");
 }
 
 template<typename T>

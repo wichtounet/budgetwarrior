@@ -40,7 +40,7 @@ std::string status(std::size_t v){
         case 3:
             return "::redHigh";
         default:
-            budget_unreachable("Invalid status value");
+            cpp_unreachable("Invalid status value");
             return "::redInvalid";
     }
 }
@@ -54,7 +54,7 @@ std::string status_short(std::size_t v){
         case 3:
             return red("H");
         default:
-            budget_unreachable("Invalid status value");
+            cpp_unreachable("Invalid status value");
             return red("Invalid");
     }
 }

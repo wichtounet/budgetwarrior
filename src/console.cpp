@@ -7,8 +7,9 @@
 
 #include <sstream>
 
+#include "cpp_utils/assert.hpp"
+
 #include "console.hpp"
-#include "assert.hpp"
 
 std::string budget::format_code(int attr, int fg, int bg){
     std::stringstream stream;
@@ -99,7 +100,7 @@ std::string budget::format(const std::string& v){
 }
 
 void budget::display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups){
-    budget_assert(groups > 0, "There must be at least 1 group");
+    cpp_assert(groups > 0, "There must be at least 1 group");
 
     for(auto& row : contents){
         for(auto& cell : row){
@@ -126,7 +127,7 @@ void budget::display_table(std::vector<std::string> columns, std::vector<std::ve
         }
     }
 
-    budget_assert(widths.size() == groups * columns.size(), "Widths incorrectly computed");
+    cpp_assert(widths.size() == groups * columns.size(), "Widths incorrectly computed");
 
     for(std::size_t i = 0; i < columns.size(); ++i){
         auto& column = columns[i];

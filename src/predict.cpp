@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "cpp_utils/assert.hpp"
+
 #include "predict.hpp"
 #include "overview.hpp"
 #include "console.hpp"
@@ -17,7 +19,6 @@
 #include "earnings.hpp"
 #include "budget_exception.hpp"
 #include "config.hpp"
-#include "assert.hpp"
 
 using namespace budget;
 

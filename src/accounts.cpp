@@ -336,7 +336,7 @@ budget::account& budget::get_account(std::string name, budget::year year, budget
         }
     }
 
-    budget_unreachable("The account does not exist");
+    cpp_unreachable("The account does not exist");
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const account& account){

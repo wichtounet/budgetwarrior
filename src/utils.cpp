@@ -12,9 +12,10 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 
+#include "cpp_utils/assert.hpp"
+
 #include "utils.hpp"
 #include "budget_exception.hpp"
-#include "assert.hpp"
 #include "config.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
