@@ -1,0 +1,4 @@
+[submodule "include/cpp_utils"]
+	path = include/cpp_utils
+	url = https://github.com/wichtounet/cpp_utils.git
+	branch = master
