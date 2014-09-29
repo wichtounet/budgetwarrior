@@ -9,6 +9,8 @@
 #include <iostream>
 #include <tuple>
 
+#include "cpp_utils/tmp.hpp"
+
 #include "config.hpp"
 #include "args.hpp"
 #include "budget_exception.hpp"
@@ -52,26 +54,6 @@ typedef std::tuple<
             budget::help_module
     > modules_tuple;
 
-template<std::size_t I, typename Tuple, typename Functor>
-struct for_each_impl {
-    static void for_each(Functor& func){
-        func.template operator()<typename std::tuple_element<I, Tuple>::type>();
-        for_each_impl<I - 1, Tuple, Functor>::for_each(func);
-    }
-};
-
-template<typename Tuple, typename Functor>
-struct for_each_impl<0, Tuple, Functor> {
-    static void for_each(Functor& func){
-        func.template operator()<typename std::tuple_element<0, Tuple>::type>();
-    }
-};
-
-template<typename Tuple, typename Functor>
-void for_each(Functor& func){
-    for_each_impl<std::tuple_size<Tuple>::value - 1, Tuple, Functor>::for_each(func);
-}
-
 enum class enabler_t { DUMMY };
 constexpr const enabler_t dummy = enabler_t::DUMMY;
 
@@ -93,29 +75,6 @@ using disable_if_u = typename std::enable_if<!B, enabler_t>::type;
 template<class T>
 struct Void {
     typedef void type;
-};
-
-#define HAS_MEM_FUNC(func, name)                                        \
-    template<typename T, typename Sign>                                 \
-    struct name {                                                       \
-        typedef char yes[1];                                            \
-        typedef char no [2];                                            \
-        template <typename U, U> struct type_check;                     \
-        template <typename _1> static yes &chk(type_check<Sign, &_1::func> *);    \
-        template <typename   > static no  &chk(...);                              \
-        static bool constexpr const value = sizeof(chk<T>(0)) == sizeof(yes);     \
-    }
-
-#define HAS_STATIC_FIELD(field, name)                                    \
-template <class T>                                                       \
-class name {                                                             \
-    template<typename U, typename =                                      \
-        typename std::enable_if<!std::is_member_pointer<decltype(&U::field)>::value>::type> \
-    static std::true_type check(int);                                    \
-    template <typename>                                                  \
-    static std::false_type check(...);                                   \
-public:                                                                  \
-    static constexpr const bool value = decltype(check<T>(0))::value;    \
 };
 
 HAS_MEM_FUNC(load, has_load);
@@ -212,7 +171,7 @@ struct module_runner {
         //Preload each module that needs it
         if(!disable_preloading<Module>::value){
             module_loader loader;
-            for_each<modules_tuple>(loader);
+            cpp::for_each_tuple_t<modules_tuple>(loader);
         }
 
         Module module;
@@ -326,7 +285,7 @@ int main(int argc, const char* argv[]) {
     
     //Collect all aliases
     aliases_collector collector;
-    for_each<modules_tuple>(collector);
+    cpp::for_each_tuple_t<modules_tuple>(collector);
 
     //Parse the command line args
     auto args = parse_args(argc, argv, collector.aliases);
@@ -336,7 +295,7 @@ int main(int argc, const char* argv[]) {
     try {
         //Run the correct module
         module_runner runner(std::move(args));
-        for_each<modules_tuple>(runner);
+        cpp::for_each_tuple_t<modules_tuple>(runner);
 
         if(!runner.handled){
             std::cout << "Unhandled command \"" << runner.args[0] << "\"" << std::endl;
