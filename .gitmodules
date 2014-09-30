@@ -2,3 +2,7 @@
 	path = include/cpp_utils
 	url = https://github.com/wichtounet/cpp_utils.git
 	branch = master
+[submodule "make-utils"]
+	path = make-utils
+	url = https://github.com/wichtounet/make-utils.git
+	branch = master
