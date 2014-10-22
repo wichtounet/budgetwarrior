@@ -54,18 +54,6 @@ typedef std::tuple<
             budget::help_module
     > modules_tuple;
 
-enum class enabler_t { DUMMY };
-constexpr const enabler_t dummy = enabler_t::DUMMY;
-
-template<bool B>
-using enable_if_u = typename std::enable_if<B, enabler_t>::type;
-
-template<bool B, typename T = void>
-using disable_if = std::enable_if<!B, T>;
-
-template<bool B, typename T = void>
-using disable_if_u = typename std::enable_if<!B, enabler_t>::type;
-
 template<class T>
 struct Void {
     typedef void type;
@@ -115,13 +103,13 @@ struct has_aliases<Module, std::enable_if_t<has_aliases_field<module_traits<Modu
 };
 
 struct module_loader {
-    template<typename Module, enable_if_u<need_preloading<Module>::value> = dummy>
+    template<typename Module, cpp::enable_if_u<need_preloading<Module>::value> = cpp::detail::dummy>
     inline void preload(){
         Module module;
         module.preload();
     }
 
-    template<typename Module, disable_if_u<need_preloading<Module>::value> = dummy>
+    template<typename Module, cpp::disable_if_u<need_preloading<Module>::value> = cpp::detail::dummy>
     inline void preload(){
         //NOP
     }
@@ -140,22 +128,22 @@ struct module_runner {
         //Nothing to init
     }
 
-    template<typename Module, enable_if_u<need_loading<Module>::value> = dummy>
+    template<typename Module, cpp::enable_if_u<need_loading<Module>::value> = cpp::detail::dummy>
     inline void load(Module& module){
        module.load();
     }
 
-    template<typename Module, disable_if_u<need_loading<Module>::value> = dummy>
+    template<typename Module, cpp::disable_if_u<need_loading<Module>::value> = cpp::detail::dummy>
     inline void load(Module&){
         //NOP
     }
 
-    template<typename Module, enable_if_u<need_unloading<Module>::value> = dummy>
+    template<typename Module, cpp::enable_if_u<need_unloading<Module>::value> = cpp::detail::dummy>
     inline void unload(Module& module){
        module.unload();
     }
 
-    template<typename Module, disable_if_u<need_unloading<Module>::value> = dummy>
+    template<typename Module, cpp::disable_if_u<need_unloading<Module>::value> = cpp::detail::dummy>
     inline void unload(Module&){
         //NOP
     }
@@ -198,14 +186,14 @@ struct module_runner {
 struct aliases_collector {
     std::vector<std::pair<const char*, const char*>> aliases;
 
-    template<typename Module, enable_if_u<has_aliases<Module>::value> = dummy>
+    template<typename Module, cpp::enable_if_u<has_aliases<Module>::value> = cpp::detail::dummy>
     inline void operator()(){
         for(auto& v : module_traits<Module>::aliases){
             aliases.push_back(v);
         }
     }
 
-    template<typename Module, disable_if_u<has_aliases<Module>::value> = dummy>
+    template<typename Module, cpp::disable_if_u<has_aliases<Module>::value> = cpp::detail::dummy>
     inline void operator()(){
         //NOP
     }
