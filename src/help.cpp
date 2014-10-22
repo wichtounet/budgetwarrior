@@ -76,6 +76,7 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget versioning sync                                     Pull the remote changes on the budget directory with Git and push" << std::endl;
 
     std::cout << "       budget report [monthly]                                    Display monthly report in form of bar plot" << std::endl;
+    std::cout << "       budget report account [monthly]                            Display monthly report of a specific account in form of bar plot" << std::endl;
 
     std::cout << "       budget gc                                                  Make sure all IDs are contiguous" << std::endl;
 }

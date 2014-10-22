@@ -12,6 +12,7 @@
 #include "earnings.hpp"
 #include "budget_exception.hpp"
 #include "accounts.hpp"
+#include "console.hpp"
 
 using namespace budget;
 
@@ -36,7 +37,8 @@ void write(graph_type& graph, int row, int col, const std::string& value){
     }
 }
 
-void monthly_report(budget::year year){
+template<typename Predicate>
+void report(budget::year year, Predicate predicate){
     auto today = budget::local_day();
 
     budget::money max_expenses;
@@ -60,19 +62,21 @@ void monthly_report(budget::year year){
         budget::money total_balance;
 
         for(auto& account : all_accounts(year, month)){
-            auto expenses = accumulate_amount_if(all_expenses(),
-                [year,month,account](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == month;});
-            auto earnings = accumulate_amount_if(all_earnings(),
-                [year,month,account](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == month;});
+            if(predicate(account)){
+                auto expenses = accumulate_amount_if(all_expenses(),
+                    [year,month,account](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == month;});
+                auto earnings = accumulate_amount_if(all_earnings(),
+                    [year,month,account](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == month;});
 
-            total_expenses += expenses;
-            total_earnings += earnings;
+                total_expenses += expenses;
+                total_earnings += earnings;
 
-            auto balance = account.amount;
-            balance -= expenses;
-            balance += earnings;
+                auto balance = account.amount;
+                balance -= expenses;
+                balance += earnings;
 
-            total_balance += balance;
+                total_balance += balance;
+            }
         }
 
         expenses[month] = total_expenses.dollars();
@@ -206,12 +210,17 @@ void budget::report_module::handle(const std::vector<std::string>& args){
     auto today = budget::local_day();
 
     if(args.size() == 1){
-        monthly_report(today.year());
+        report(today.year(), [](budget::account&){ return true; });
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "monthly"){
-            monthly_report(today.year());
+            report(today.year(), [](budget::account&){ return true; });
+        } else if(subcommand == "account"){
+            std::string account_name;
+            edit_string(account_name, "Account", not_empty_checker(), account_checker());
+
+            report(today.year(), [&account_name](budget::account& account){ return account.name == account_name; });
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
