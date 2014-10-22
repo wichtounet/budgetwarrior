@@ -157,12 +157,22 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
             std::cout << "Account " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
-            enough_args(args, 3);
+            std::size_t id = 0;
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            if(args.size() >= 3){
+                enough_args(args, 3);
 
-            if(!exists(accounts, id)){
-                throw budget_exception("There are no account with id " + args[2]);
+                id = to_number<std::size_t>(args[2]);
+
+                if(!exists(accounts, id)){
+                    throw budget_exception("There are no account with id " + args[2]);
+                }
+            } else {
+                std::string name;
+                edit_string(name, "Account", not_empty_checker(), account_checker());
+
+                auto today = budget::local_day();
+                id = get_account(name, today.year(), today.month()).id;
             }
 
             auto& account = get(accounts, id);
