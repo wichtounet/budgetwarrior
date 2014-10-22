@@ -176,6 +176,40 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             std::cout << "Account " << id << " has been modified" << std::endl;
 
             accounts.changed = true;
+        } else if(subcommand == "transfer"){
+            std::string from_name;
+            edit_string(from_name, "Transfer from", not_empty_checker(), account_checker());
+
+            std::string to_name;
+            edit_string(to_name, "Transfer to", not_empty_checker(), account_checker());
+
+            if(from_name == to_name){
+                throw budget_exception("Cannot transfer to an from the same account");
+            }
+
+            std::string name = "Transfer";
+            edit_string(name, "Transfer Name", not_empty_checker());
+
+            money amount;
+            edit_money(amount, "Amount", not_negative_checker(), not_zero_checker());
+
+            expense expense;
+            expense.guid = generate_guid();
+            expense.date = budget::local_day();
+            expense.name = name;
+            expense.amount = amount;
+            expense.account = get_account(from_name, expense.date.year(), expense.date.month()).id;
+
+            add_expense(std::move(expense));
+
+            earning earning;
+            earning.guid = generate_guid();
+            earning.date = budget::local_day();
+            earning.name = name;
+            earning.amount = amount;
+            earning.account = get_account(to_name, expense.date.year(), expense.date.month()).id;
+
+            add_earning(std::move(earning));
         } else if(subcommand == "migrate"){
             std::string source_account_name;
             edit_string(source_account_name, "Source Account", not_empty_checker(), account_checker());

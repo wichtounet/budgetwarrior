@@ -17,6 +17,7 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget account add                                         Add a new account" << std::endl;
     std::cout << "       budget account delete (id)                                 Delete the given account" << std::endl;
     std::cout << "       budget account edit (id)                                   Edit the given account" << std::endl;
+    std::cout << "       budget account transfer                                    Transfer money from one account to another" << std::endl << std::endl;
     std::cout << "       budget account migrate                                     Merge two accounts together" << std::endl << std::endl;
     std::cout << "       budget account archive                                     Archive the current accounts to start new accounts" << std::endl << std::endl;
 

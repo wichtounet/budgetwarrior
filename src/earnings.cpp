@@ -193,3 +193,7 @@ void budget::set_earnings_changed(){
 void budget::set_earnings_next_id(std::size_t next_id){
     earnings.next_id = next_id;
 }
+
+void budget::add_earning(budget::earning&& earning){
+    add_data(earnings, std::forward<budget::earning>(earning));
+}
