@@ -57,17 +57,11 @@ typedef std::tuple<
 enum class enabler_t { DUMMY };
 constexpr const enabler_t dummy = enabler_t::DUMMY;
 
-template<bool B, typename T = void>
-using enable_if_t = typename std::enable_if<B, T>::type;
-
 template<bool B>
 using enable_if_u = typename std::enable_if<B, enabler_t>::type;
 
 template<bool B, typename T = void>
 using disable_if = std::enable_if<!B, T>;
-
-template<bool B, typename T = void>
-using disable_if_t = typename std::enable_if<!B, T>::type;
 
 template<bool B, typename T = void>
 using disable_if_u = typename std::enable_if<!B, enabler_t>::type;
@@ -104,7 +98,7 @@ struct disable_preloading {
 };
 
 template<typename Module>
-struct disable_preloading<Module, enable_if_t<has_disable_preloading_field<module_traits<Module>>::value>> {
+struct disable_preloading<Module, std::enable_if_t<has_disable_preloading_field<module_traits<Module>>::value>> {
     static const bool value = module_traits<Module>::disable_preloading;
 };
 
@@ -116,7 +110,7 @@ struct has_aliases {
 };
 
 template<typename Module>
-struct has_aliases<Module, enable_if_t<has_aliases_field<module_traits<Module>>::value>> {
+struct has_aliases<Module, std::enable_if_t<has_aliases_field<module_traits<Module>>::value>> {
     static const bool value = true;
 };
 
