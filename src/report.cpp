@@ -194,6 +194,10 @@ void monthly_report(budget::year year){
     render(graph);
 }
 
+void account_report(const std::string& account){
+    //TODO
+}
+
 } //end of anonymous namespace
 
 void budget::report_module::load(){
@@ -212,6 +216,12 @@ void budget::report_module::handle(const std::vector<std::string>& args){
 
         if(subcommand == "monthly"){
             monthly_report(today.year());
+        } else if(subcommand == "account"){
+            if(args.size() == 3){
+                account_report(args[2]);
+            } else {
+                throw budget_exception("Invalid number of parameters");
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
