@@ -46,7 +46,7 @@ to build this project.
 
 You juste have to use make to build it::
 
-    $ git clone git://github.com/wichtounet/budgetwarrior.git
+    $ git clone --recursive git://github.com/wichtounet/budgetwarrior.git
     $ cd budgetwarrior
     $ make
     $ sudo make install
