@@ -1,5 +1,6 @@
 budgetwarrior 0.4.2 - in development
  * Graph report by account
+ * Add transfer command in module account
  * Fix accuracies 
  * Refactorings
 
