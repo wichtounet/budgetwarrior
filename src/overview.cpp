@@ -5,6 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <numeric>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -476,7 +477,7 @@ void display_values(budget::year year, const std::string& title, const std::vect
 }
 
 } // end of anonymous namespace
-    
+
 constexpr const std::array<std::pair<const char*, const char*>, 1> budget::module_traits<budget::overview_module>::aliases;
 
 void budget::overview_module::load(){
@@ -569,12 +570,12 @@ void budget::overview_module::handle(std::vector<std::string>& args){
                     if(args.size() == 3){
                         aggregate_month_overview(full, disable_groups, separator, today.month(), today.year());
                     } else if(args.size() == 4){
-                        aggregate_month_overview(full, disable_groups, separator, 
-                            budget::month(to_number<unsigned short>(args[3])), 
+                        aggregate_month_overview(full, disable_groups, separator,
+                            budget::month(to_number<unsigned short>(args[3])),
                             today.year());
                     } else if(args.size() == 5){
-                        aggregate_month_overview(full, disable_groups, separator, 
-                            budget::month(to_number<unsigned short>(args[3])), 
+                        aggregate_month_overview(full, disable_groups, separator,
+                            budget::month(to_number<unsigned short>(args[3])),
                             budget::year(to_number<unsigned short>(args[4]))
                             );
                     }
