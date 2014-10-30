@@ -33,7 +33,7 @@ std::string budget::format_money_reverse(const budget::money& m){
         return "::red" + budget::to_string(m);
     } else if(m.negative()){
         return "::green" + budget::to_string(m);
-    } else if(m.zero()){
+    } else {
         return budget::to_string(m);
     }
 }
