@@ -5,6 +5,10 @@ default: release
 include make-utils/flags.mk
 include make-utils/cpp-utils.mk
 
+ifneq (,$(findstring clang,$(CXX)))
+	CXX_FLAGS += -stdlib=libc++
+endif
+
 LD_FLAGS += -luuid
 
 $(eval $(call auto_folder_compile,src))
