@@ -52,7 +52,7 @@ void status_fortunes(){
             contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), ""});
             first = false;
         } else {
-            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), to_string(fortune.amount - previous)});
+            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), format_money(fortune.amount - previous)});
         }
 
         previous = fortune.amount;
