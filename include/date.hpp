@@ -201,7 +201,10 @@ struct date {
     }
 
     date& operator-=(months months){
-        if(_month < months){
+        if(_month == months){
+            *this -= years(1);
+            _month = 12;
+        } else if(_month < months){
             *this -= years(months / 12);
             _month -= months % 12;
         } else {
