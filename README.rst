@@ -30,7 +30,7 @@ A Gentoo ebuild is available on this overlay: https://github.com/wichtounet/wich
 
 Arch Linux packages are also available on AUR: https://github.com/StreakyCobra/aur
 
-For other systems, you'll have to install from sources. 
+For other systems, you'll have to install from sources.
 
 Build from source
 -----------------
@@ -39,12 +39,12 @@ A modern compiler is necessary: GCC >= 4.7 or CLang >= 3.1.
 
 The tool is made for Linux. If there is some interest on using it on Windows, it
 should not take too much work to port it to Windows. Just le met me know (or
-make a Pull Request with the changes ;) ). . 
+make a Pull Request with the changes ;) ). .
 
 You need Boost 1.47.0 or superior and libuuid installed on your computer
 to build this project.
 
-You juste have to use make to build it::
+You just have to use make to build it::
 
     $ git clone --recursive git://github.com/wichtounet/budgetwarrior.git
     $ cd budgetwarrior
