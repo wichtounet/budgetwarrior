@@ -12,14 +12,16 @@ Features
 
 budgetwarrior has several features:
 
-* Manage a set of account with a limit
+* Manages a set of account with a limit
 * Keeps track of your expenses and earnings in each of your accounts
-* Give you the state of your budget by month and by year
-* Keeps track of your debts
-* Manage recurring expenses that are automatically created monthly
+* Gives you the state of your budget by month and by year
+* Keeps tracks of your objectives
+* Keeps track of your wish list and indicates if it is a good time to buy them
+* Manages recurring expenses that are automatically created monthly
+* Keeps track of your debts (your debts and debts that people owe you)
 
-Start using budgetwarrior
--------------------------
+Starting guide
+-------------
 
 The wiki contains a guide for starting using budgetwarrior: `Start-Tutorial <https://github.com/wichtounet/budgetwarrior/wiki/Start-tutorial>`_
 
@@ -35,7 +37,7 @@ For other systems, you'll have to install from sources.
 Build from source
 -----------------
 
-A modern compiler is necessary: GCC >= 4.7 or CLang >= 3.1.
+A modern compiler is necessary: GCC >= 4.7 or Clang >= 3.1.
 
 The tool is made for Linux. If there is some interest on using it on Windows, it
 should not take too much work to port it to Windows. Just le met me know (or
@@ -83,7 +85,7 @@ Read *ChangeLog*
 Contribute
 ----------
 
-The project is open for any kind of contribution : ideas, new features, hotfixes, tests, ...
+The project is open for any kind of contribution : ideas, new features, bug fixes, tests, ...
 
 If you want to contribute to this project, you can contact me by `email <baptiste.wicht@gmail.com>`_ or via my `website  <http://baptiste-wicht.com/>`_. You can also directly fork the project and make a pull request.
 
