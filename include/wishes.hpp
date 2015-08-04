@@ -32,7 +32,7 @@ struct module_traits<wishes_module> {
 struct wish {
     std::size_t id;
     std::string guid;
-    date date;
+    budget::date date;
     std::string name;
     money amount;
     bool paid;

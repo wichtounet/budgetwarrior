@@ -34,7 +34,7 @@ struct module_traits<expenses_module> {
 struct expense {
     std::size_t id;
     std::string guid;
-    date date;
+    budget::date date;
     std::string name;
     std::size_t account;
     money amount;

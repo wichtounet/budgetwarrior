@@ -32,7 +32,7 @@ struct module_traits<earnings_module> {
 struct earning {
     std::size_t id;
     std::string guid;
-    date date;
+    budget::date date;
     std::string name;
     std::size_t account;
     money amount;

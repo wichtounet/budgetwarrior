@@ -33,7 +33,7 @@ struct debt {
     std::size_t id;
     int state;
     std::string guid;
-    date creation_date;
+    budget::date creation_date;
     bool direction;
     std::string name;
     money amount;

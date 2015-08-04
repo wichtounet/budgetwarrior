@@ -33,7 +33,7 @@ struct module_traits<objectives_module> {
 struct objective {
     std::size_t id;
     std::string guid;
-    date date;
+    budget::date date;
     std::string name;
     std::string type;
     std::string source;

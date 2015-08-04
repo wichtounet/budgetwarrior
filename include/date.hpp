@@ -48,14 +48,14 @@ struct month {
     operator date_type() const { return value; }
 
     std::string as_short_string() const {
-        static constexpr const char* months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+        static constexpr const char* months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
         return months[value-1];
     }
 
     std::string as_long_string() const {
-        static constexpr const char* months[12] = {"January", "February", "March", "April", "May", "June", 
+        static constexpr const char* months[12] = {"January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"};
 
         return months[value-1];
@@ -111,15 +111,15 @@ struct date {
         //Nothing else
     }
 
-    year year() const {
+    budget::year year() const {
         return _year;
     }
 
-    month month() const {
+    budget::month month() const {
         return _month;
     }
 
-    day day() const {
+    budget::day day() const {
         return _day;
     }
 
@@ -218,7 +218,7 @@ struct date {
 
     date& operator-=(days d){
         while(d > 0){
-            --_day; 
+            --_day;
             if(_day == 0){
                 --_month;
 
