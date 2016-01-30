@@ -7,18 +7,38 @@ state of your budget.
 .. image:: https://raw.githubusercontent.com/wichtounet/budgetwarrior/develop/screenshots/budget_report.png
    :align: center
 
+Personal accounting method
+--------------------------
+
+Not everyone manages its money the same way. budgetwarrior is based on my way of managing my money. It may not be adapted to everyone. I'm separating all my expenses in several "accounts" and I give each of them a certain amount of money each month.
+
+**Accounts are recipients for your expenses and earnings. They are not bank accounts, they only are logical recipients**. Think of them as categories. The sum of the accounts should be equivalent to your salary.
+
+For instance, if you have 1000$ per month, you could have three accounts:
+* Food (200$)
+* Car (300$)
+* House (500$)
+
+That means you allow yourself to spend 200$ on food each month. Of course, some month you'll be lower or higher.
+And the tool will indicate you how well your accounts.
+
 Features
 --------
 
 budgetwarrior has several features:
 
-* Manages a set of account with a limit
+* Manage a set of account with a monthly limit
 * Keeps track of your expenses and earnings in each of your accounts
-* Gives you the state of your budget by month and by year
-* Keeps tracks of your objectives
-* Keeps track of your wish list and indicates if it is a good time to buy them
-* Manages recurring expenses that are automatically created monthly
-* Keeps track of your debts (your debts and debts that people owe you)
+* Give you the state of your budget by month and by year
+* Keeps track of your debts
+* Manage recurring expenses that are automatically created monthly
+* Keep track of your wishes
+* Keep track of your current fortune
+
+On the other hand, budgetwarrior:
+
+* Has no notion of bank, cash, credit card
+* Will not communicate with your ebanking tool to extract information
 
 Starting guide
 -------------
