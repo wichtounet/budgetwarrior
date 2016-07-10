@@ -9,7 +9,11 @@
 #include <fstream>
 
 #include <unistd.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <sys/ioctl.h>
+#endif
 #include <sys/stat.h>
 
 #include "cpp_utils/assert.hpp"
@@ -21,15 +25,29 @@
 #include "earnings.hpp"
 
 unsigned short budget::terminal_width(){
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    SHORT columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    return static_cast<unsigned short>(columns);
+#else
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     return w.ws_col;
+#endif
 }
 
 unsigned short budget::terminal_height(){
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    SHORT rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+    return static_cast<unsigned short>(rows);
+#else
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     return w.ws_row;
+#endif
 }
 
 bool budget::file_exists(const std::string& name){

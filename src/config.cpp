@@ -12,7 +12,11 @@
 #include <unistd.h>    //for getuid
 #include <sys/types.h> //for getuid
 #include <sys/stat.h>  //For mkdir
+#ifdef _WIN32
+#include <shlobj.h>
+#else
 #include <pwd.h>       //For getpwuid
+#endif
 
 #include "config.hpp"
 #include "utils.hpp"
@@ -67,7 +71,11 @@ bool verify_folder(){
         std::cin >> answer;
 
         if(answer == "yes" || answer == "y"){
+#ifdef _WIN32
+            if(mkdir(folder_path.c_str()) == 0){
+#else
             if(mkdir(folder_path.c_str(), ACCESSPERMS) == 0){
+#endif
                 std::cout << "The folder " << folder_path << " was created. " << std::endl;
 
                 return true;
@@ -120,11 +128,20 @@ void budget::save_config(){
 }
 
 std::string budget::home_folder(){
+#ifdef _WIN32
+    TCHAR path[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, path))) {
+        std::wstring wpath(path);
+        return std::string(wpath.begin(), wpath.end());
+    }
+    return "c:\\";
+#else
     struct passwd *pw = getpwuid(getuid());
 
     const char* homedir = pw->pw_dir;
 
     return std::string(homedir);
+#endif
 }
 
 std::string budget::path_to_home_file(const std::string& file){
