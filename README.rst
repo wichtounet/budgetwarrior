@@ -57,7 +57,8 @@ For other systems, you'll have to install from sources.
 Build from source
 -----------------
 
-A modern compiler is necessary: GCC >= 4.7 or Clang >= 3.1.
+A modern compiler is necessary: GCC >= 4.7 or Clang >= 3.1 You need to set the
+$CXX variable before executing make.
 
 The tool is made for Linux. If there is some interest on using it on Windows, it
 should not take too much work to port it to Windows. Just le met me know (or
