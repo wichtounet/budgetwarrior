@@ -37,21 +37,7 @@ pipeline {
             }
         }
 
-        stage ('sonar-master'){
-            when {
-                branch 'master'
-            }
-            steps {
-                sh "/opt/sonar-runner/bin/sonar-runner"
-            }
-        }
-
-        stage ('sonar-branch'){
-            when {
-                not {
-                    branch 'master'
-                }
-            }
+        stage ('sonar'){
             steps {
                 sh "/opt/sonar-runner/bin/sonar-runner -Dsonar.branch=${env.BRANCH_NAME}"
             }
