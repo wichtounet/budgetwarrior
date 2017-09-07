@@ -86,6 +86,11 @@ struct years {
     operator date_type() const { return value; }
 };
 
+struct date;
+
+std::ostream& operator<<(std::ostream& stream, const month& month);
+std::ostream& operator<<(std::ostream& stream, const date& date);
+
 struct date {
     date_type _year;
     date_type _month;
@@ -307,10 +312,27 @@ struct date {
 
         return false;
     }
-};
 
-std::ostream& operator<<(std::ostream& stream, const month& month);
-std::ostream& operator<<(std::ostream& stream, const date& date);
+    date_type operator-(const date& rhs) const {
+        if(*this == rhs){
+            return 0;
+        }
+
+        if(rhs > *this){
+            return -(rhs - *this);
+        }
+
+        auto x = *this;
+        size_t d = 0;
+
+        while(x != rhs){
+            x -= days(1);
+            ++d;
+        }
+
+        return d;
+    }
+};
 
 date local_day();
 
