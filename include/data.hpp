@@ -34,6 +34,8 @@ void save_data(const data_handler<T>& data, const std::string& path){
         auto file_path = path_to_budget_file(path);
 
         std::ofstream file(file_path);
+
+        // We still save the file ID so that it's still compatible with older versions for now
         file << data.next_id << std::endl;
 
         for(auto& entry: data.data){
@@ -57,8 +59,12 @@ void load_data(data_handler<T>& data, const std::string& path, Functor f){
                 //several times
                 data.data.clear();
 
-                file >> data.next_id;
+                // We do not use the next_id saved anymore
+                size_t fake;
+                file >> fake;
                 file.get();
+
+                data.next_id = 1;
 
                 std::string line;
                 while(file.good() && getline(file, line)){
@@ -67,6 +73,10 @@ void load_data(data_handler<T>& data, const std::string& path, Functor f){
                     T entry;
 
                     f(parts, entry);
+
+                    if(entry.id >= data.next_id){
+                        data.next_id = entry.id + 1;
+                    }
 
                     data.data.push_back(std::move(entry));
                 }
