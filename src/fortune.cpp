@@ -36,7 +36,7 @@ void list_fortunes(){
 }
 
 void status_fortunes(){
-    std::vector<std::string> columns = {"ID", "Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot."};
+    std::vector<std::string> columns = {"ID", "Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot."};
     std::vector<std::vector<std::string>> contents;
 
     std::vector<budget::fortune> sorted_values = fortunes.data;
@@ -47,6 +47,7 @@ void status_fortunes(){
     budget::money previous;
     budget::money first = sorted_values.front().amount;
     budget::date previous_date;
+    budget::date first_date = sorted_values.front().check_date;
 
     size_t index = 0;
 
@@ -58,13 +59,18 @@ void status_fortunes(){
             auto d = fortune.check_date - previous_date;
             auto avg = diff / float(d);
             contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount),
-                format_money(diff), to_string(d), to_string(avg), ""});
+                format_money(diff), to_string(d), to_string(avg), "", ""});
         } else {
             auto diff = fortune.amount - previous;
             auto d = fortune.check_date - previous_date;
             auto avg = diff / float(d);
+
+            auto tot_diff = fortune.amount - first;
+            auto tot_d = fortune.check_date - first_date;
+            auto tot_avg = tot_diff / float(tot_d);
+
             contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount),
-                format_money(diff), to_string(d), to_string(avg), format_money(fortune.amount - first)});
+                format_money(diff), to_string(d), to_string(avg), format_money(tot_diff), to_string(tot_avg)});
         }
 
         previous = fortune.amount;
