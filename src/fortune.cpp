@@ -36,7 +36,7 @@ void list_fortunes(){
 }
 
 void status_fortunes(){
-    std::vector<std::string> columns = {"ID", "Date", "Amount", "Diff."};
+    std::vector<std::string> columns = {"ID", "Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot."};
     std::vector<std::vector<std::string>> contents;
 
     std::vector<budget::fortune> sorted_values = fortunes.data;
@@ -44,18 +44,32 @@ void status_fortunes(){
     std::sort(sorted_values.begin(), sorted_values.end(),
         [](const budget::fortune& a, const budget::fortune& b){ return a.check_date < b.check_date; });
 
-    bool first = true;
     budget::money previous;
+    budget::money first = sorted_values.front().amount;
+    budget::date previous_date;
+
+    size_t index = 0;
 
     for(auto& fortune : sorted_values){
-        if(first){
-            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), ""});
-            first = false;
+        if(index == 0){
+            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), "", "", "", ""});
+        } else if(index == 1){
+            auto diff = fortune.amount - previous;
+            auto d = fortune.check_date - previous_date;
+            auto avg = diff / float(d);
+            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount),
+                format_money(diff), to_string(d), to_string(avg), ""});
         } else {
-            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), format_money(fortune.amount - previous)});
+            auto diff = fortune.amount - previous;
+            auto d = fortune.check_date - previous_date;
+            auto avg = diff / float(d);
+            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount),
+                format_money(diff), to_string(d), to_string(avg), format_money(fortune.amount - first)});
         }
 
         previous = fortune.amount;
+        previous_date = fortune.check_date;
+        ++index;
     }
 
     display_table(columns, contents);
