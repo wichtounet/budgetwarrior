@@ -50,11 +50,11 @@ void report(budget::year year, Predicate predicate){
 
     auto sm = start_month(year);
 
-    std::vector<int> expenses(13);
-    std::vector<int> earnings(13);
-    std::vector<int> balances(13);
+    std::vector<int> expenses(12);
+    std::vector<int> earnings(12);
+    std::vector<int> balances(12);
 
-    for(unsigned short i = sm + 1; i < today.month() + 1; ++i){
+    for(auto i = sm; i <= today.month(); ++i){
         budget::month month = i;
 
         budget::money total_expenses;
@@ -79,9 +79,9 @@ void report(budget::year year, Predicate predicate){
             }
         }
 
-        expenses[month] = total_expenses.dollars();
-        earnings[month] = total_earnings.dollars();
-        balances[month] = total_balance.dollars();
+        expenses[month - 1] = total_expenses.dollars();
+        earnings[month - 1] = total_earnings.dollars();
+        balances[month - 1] = total_balance.dollars();
 
         max_expenses = std::max(max_expenses, total_expenses);
         max_earnings = std::max(max_earnings, total_earnings);
@@ -138,36 +138,36 @@ void report(budget::year year, Predicate predicate){
 
     //TODO Choose bar width based on the terminal width
 
-    for(unsigned short i = sm + 1; i < today.month() + 1; ++i){
+    for(auto i = sm; i <= today.month(); ++i){
         budget::month month = i;
 
-        auto col_start = first_bar + 10 * (i - sm - 1);
+        auto col_start = first_bar + 10 * (i - sm);
 
         //Display month legend
         auto month_str = month.as_short_string();
         write(graph, 1, col_start + 2, month_str);
 
-        for(std::size_t j = 0; j < expenses[month] / precision; ++j){
+        for(std::size_t j = 0; j < expenses[month-1] / precision; ++j){
            graph[zero_index + j][col_start] = "\033[1;41m \033[0m";
            graph[zero_index + j][col_start + 1] = "\033[1;41m \033[0m";
         }
 
         col_start += 3;
 
-        for(std::size_t j = 0; j < earnings[month] / precision; ++j){
+        for(std::size_t j = 0; j < earnings[month-1] / precision; ++j){
            graph[zero_index + j][col_start] = "\033[1;42m \033[0m";
            graph[zero_index + j][col_start + 1] = "\033[1;42m \033[0m";
         }
 
         col_start += 3;
 
-        if(balances[month] >= 0){
-            for(std::size_t j = 0; j < balances[month] / precision; ++j){
+        if(balances[month-1] >= 0){
+            for(std::size_t j = 0; j < balances[month-1] / precision; ++j){
                 graph[zero_index + j][col_start] = "\033[1;44m \033[0m";
                 graph[zero_index + j][col_start + 1] = "\033[1;44m \033[0m";
             }
         } else {
-            for(std::size_t j = 0; j < std::abs(balances[month]) / precision; ++j){
+            for(std::size_t j = 0; j < std::abs(balances[month-1]) / precision; ++j){
                 graph[zero_index - 1 - j][col_start] = "\033[1;44m \033[0m";
                 graph[zero_index - 1 - j][col_start + 1] = "\033[1;44m \033[0m";
             }
@@ -176,7 +176,7 @@ void report(budget::year year, Predicate predicate){
 
     //Display legend
 
-    int start_legend = first_bar + 10 * (today.month() - sm) + 4;
+    int start_legend = first_bar + 10 * (today.month() - sm + 1) + 4;
 
     graph[4][start_legend - 2] = "|";
     graph[3][start_legend - 2] = "|";
