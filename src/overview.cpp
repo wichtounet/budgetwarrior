@@ -719,7 +719,7 @@ void budget::display_balance(budget::year year, bool, bool relaxed){
 
     //Fill the table
 
-    for(unsigned short i = sm; i < 13; ++i){
+    for(unsigned short i = sm; i <= 12; ++i){
         budget::month m = i;
 
         for(auto& account : all_accounts(year, m)){
