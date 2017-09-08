@@ -83,7 +83,15 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
 std::vector<budget::money> compute_total_budget(budget::month month, budget::year year){
     std::unordered_map<std::string, budget::money> tmp;
 
-    for(budget::year y = start_year(); y <= year; y = y + 1){
+    // By default, the start is the year of the overview
+    auto start_year_report = year;
+
+    // Using option, can change to the beginning of all time
+    if(budget::config_contains("multi_year_balance") && budget::config_value("multi_year_balance") == "true"){
+        start_year_report = start_year();
+    }
+
+    for(budget::year y = start_year_report; y <= year; y = y + 1){
         budget::month m = start_month(y);
         while(true){
             if(y == year && m >= month){
