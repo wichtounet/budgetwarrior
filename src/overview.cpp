@@ -264,8 +264,6 @@ void aggregate_overview(bool full, bool disable_groups, const std::string& separ
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    std::vector<std::size_t> current(0, columns.size());
-
     for(auto& entry: acc_expenses){
         auto column = columns.size();
         columns.push_back(entry.first);
