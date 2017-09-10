@@ -20,6 +20,7 @@
 #include "accounts.hpp"
 #include "expenses.hpp"
 #include "overview.hpp"
+#include "summary.hpp"
 #include "earnings.hpp"
 #include "help.hpp"
 #include "recurring.hpp"
@@ -40,6 +41,7 @@ typedef std::tuple<
             budget::debt_module,
             budget::expenses_module,
             budget::overview_module,
+            budget::summary_module,
             budget::accounts_module,
             budget::earnings_module,
             budget::recurring_module,
@@ -264,7 +266,7 @@ int main(int argc, const char* argv[]) {
 
         std::cout << "done" << std::endl;
     }
-    
+
     //Collect all aliases
     aliases_collector collector;
     cpp::for_each_tuple_t<modules_tuple>(collector);
