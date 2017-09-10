@@ -306,14 +306,18 @@ void aggregate_overview(bool full, bool disable_groups, const std::string& separ
 
     size_t i = 0;
 
+    contents.back()[i++] = "Total";
+
     for(auto& entry: acc_expenses){
-        contents.back()[i++] = "Total";
         contents.back()[i++] = to_string(totals[entry.first]);
+        i++;
     }
 
     contents.emplace_back(acc_expenses.size() * 2, "");
 
     i = 0;
+
+    contents.back()[i++] = "Part";
 
     for(auto& entry: acc_expenses){
         auto& amount = totals[entry.first];
@@ -322,8 +326,8 @@ void aggregate_overview(bool full, bool disable_groups, const std::string& separ
         char buffer[32];
         snprintf(buffer, 32, "%.2f%%", part);
 
-        contents.back()[i++] = "Part";
         contents.back()[i++] = buffer;
+        i++;
     }
 
     display_table(columns, contents, 2);
