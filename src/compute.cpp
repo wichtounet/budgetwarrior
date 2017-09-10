@@ -49,7 +49,7 @@ budget::status budget::compute_year_status(year year, month month){
 
     status.balance = status.budget + status.earnings - status.expenses;
 
-    return std::move(status);
+    return status;
 }
 
 budget::status budget::compute_month_status(){
@@ -84,4 +84,34 @@ budget::status budget::compute_month_status(year year, month month){
     status.balance = status.budget + status.earnings - status.expenses;
 
     return std::move(status);
+}
+
+budget::status budget::compute_avg_month_status(){
+    auto today = budget::local_day();
+    return compute_avg_month_status(today.year(), today.month());
+}
+
+budget::status budget::compute_avg_month_status(month month){
+    auto today = budget::local_day();
+    return compute_avg_month_status(today.year(), month);
+}
+
+budget::status budget::compute_avg_month_status(year year, month month){
+    budget::status avg_status;
+
+    for(budget::month m = 1; m < month; m = m + 1){
+        auto status = compute_month_status(year, m);
+
+        avg_status.expenses += status.expenses;
+        avg_status.earnings += status.earnings;
+        avg_status.budget += status.budget;
+        avg_status.balance += status.balance;
+    }
+
+    avg_status.expenses /= month.value;
+    avg_status.earnings /= month.value;
+    avg_status.budget /= month.value;
+    avg_status.balance /= month.value;
+
+    return std::move(avg_status);
 }

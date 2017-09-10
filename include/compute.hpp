@@ -46,6 +46,10 @@ status compute_month_status();
 status compute_month_status(budget::month year);
 status compute_month_status(budget::year year, budget::month month);
 
+status compute_avg_month_status();
+status compute_avg_month_status(budget::month year);
+status compute_avg_month_status(budget::year year, budget::month month);
+
 } //end of namespace budget
 
 #endif
