@@ -127,7 +127,7 @@ std::vector<budget::money> compute_total_budget(budget::month month, budget::yea
         total_budgets.push_back(tmp[account.name]);
     }
 
-    return std::move(total_budgets);
+    return total_budgets;
 }
 
 template<typename T>
