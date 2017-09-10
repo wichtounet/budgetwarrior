@@ -31,6 +31,7 @@ inline std::string cyan(const std::string& str){
 }
 
 std::string format_money(const budget::money& m);
+std::string format_money_no_color(const budget::money& m);
 std::string format_money_reverse(const budget::money& m);
 
 /**
@@ -55,7 +56,7 @@ void print_minimum(const T& value, std::size_t min_width){
 
 /**
  * Indicate if the given option was present in the list. If present, the option
- * is removed from the list. 
+ * is removed from the list.
  * \param option The full option name with any - included
  * \param args The command line arguments
  * \return true if the option was present, false otherwise.
@@ -67,11 +68,12 @@ bool option(const std::string& option, std::vector<std::string>& args);
  * otherwise
  * \param option The full option name with any - included
  * \param args The command line arguments
- * \return The string value of the option or the default value is not present. 
+ * \return The string value of the option or the default value is not present.
  */
 std::string option_value(const std::string& option, std::vector<std::string>& args, const std::string& value);
 
 std::string format_code(int attr, int fg, int bg);
+std::string format_reset();
 std::string format(const std::string& value);
 void display_table(std::vector<std::string> columns, std::vector<std::vector<std::string>> contents, std::size_t groups = 1);
 
@@ -194,7 +196,7 @@ void edit_date(date& ref, const std::string& title, Checker... checkers){
                         ref -= years(std::stoi(str));
                         math = true;
                     }
-                } 
+                }
 
                 if(!math) {
                     ref = from_string(answer);
@@ -267,7 +269,7 @@ struct range_checker {
 };
 
 struct one_of_checker {
-    std::vector<std::string> values; 
+    std::vector<std::string> values;
     one_of_checker(std::vector<std::string> values) : values(values){
         //Nothing to init
     }
