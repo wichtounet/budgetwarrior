@@ -369,10 +369,10 @@ void year_overview(budget::year year){
     display_balance(year);
     std::cout << std::endl;
 
-    display_expenses(year);
+    display_expenses(year, true, false, true);
     std::cout << std::endl;
 
-    display_earnings(year);
+    display_earnings(year, true, false, true);
     std::cout << std::endl;
 }
 
@@ -439,7 +439,7 @@ inline void generate_total_line(std::vector<std::vector<std::string>>& contents,
 }
 
 template<typename T>
-void display_values(budget::year year, const std::string& title, const std::vector<T>& values, bool current = true, bool relaxed = true){
+void display_values(budget::year year, const std::string& title, const std::vector<T>& values, bool current = true, bool relaxed = true, bool last = false){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -519,6 +519,37 @@ void display_values(budget::year year, const std::string& title, const std::vect
         generate_total_line<true, true>(contents, totals, year, sm);
     } else {
         generate_total_line<true, false>(contents, totals, year, sm);
+    }
+
+    if(last){
+        contents.push_back({"Previous Year"});
+
+        budget::year last_year = year - 1;
+        budget::money total;
+
+        for(unsigned short j = sm; j < 13; ++j){
+            budget::month m = j;
+
+            budget::money month_total;
+
+            for(auto& value : values){
+                if(value.date.year() == last_year && value.date.month() == m){
+                    month_total += value.amount;
+                }
+            }
+
+            contents.back().push_back(to_string(month_total));
+
+            total += month_total;
+        }
+
+        contents.back().push_back(to_string(total));
+        contents.back().push_back(to_string(total / 12));
+
+        if(current){
+            contents.back().push_back(to_string(total));
+            contents.back().push_back(to_string(total / 12));
+        }
     }
 
     display_table(columns, contents);
@@ -639,15 +670,15 @@ void budget::overview_module::handle(std::vector<std::string>& args){
     }
 }
 
-void budget::display_expenses(budget::year year, bool current, bool relaxed){
-    display_values(year, "Expenses", all_expenses(), current, relaxed);
+void budget::display_expenses(budget::year year, bool current, bool relaxed, bool last){
+    display_values(year, "Expenses", all_expenses(), current, relaxed, last);
 }
 
-void budget::display_earnings(budget::year year, bool current, bool relaxed){
-    display_values(year, "Earnings", all_earnings(), current, relaxed);
+void budget::display_earnings(budget::year year, bool current, bool relaxed, bool last){
+    display_values(year, "Earnings", all_earnings(), current, relaxed, last);
 }
 
-void budget::display_local_balance(budget::year year, bool current, bool relaxed){
+void budget::display_local_balance(budget::year year, bool current, bool relaxed, bool last){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -733,7 +764,7 @@ void budget::display_local_balance(budget::year year, bool current, bool relaxed
     display_table(columns, contents);
 }
 
-void budget::display_balance(budget::year year, bool, bool relaxed){
+void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
