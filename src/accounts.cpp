@@ -28,20 +28,35 @@ namespace {
 static data_handler<account> accounts;
 
 void show_accounts(){
-    std::vector<std::string> columns = {"ID", "Name", "Amount"};
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Part"};
     std::vector<std::vector<std::string>> contents;
+
+    // Compute the total
 
     money total;
 
     for(auto& account : accounts.data){
         if(account.until == budget::date(2099,12,31)){
-            contents.push_back({to_string(account.id), account.name, to_string(account.amount)});
-
             total += account.amount;
         }
     }
 
-    contents.push_back({"", "Total", to_string(total)});
+    // Display the accounts
+
+    for(auto& account : accounts.data){
+        if(account.until == budget::date(2099,12,31)){
+            float part = 100.0 * (account.amount.value / float(total.value));
+
+            char buffer[32];
+            snprintf(buffer, 32, "%.2f%%", part);
+
+            contents.push_back({to_string(account.id), account.name,
+                to_string(account.amount),
+                buffer});
+        }
+    }
+
+    contents.push_back({"", "Total", to_string(total), ""});
 
     display_table(columns, contents);
 }
@@ -237,8 +252,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             std::string destination_account_name;
             edit_string(destination_account_name, "Destination Account", not_empty_checker(), account_checker());
 
-            std::cout << "This command will move all expenses and earnings from \"" << source_account_name 
-                << "\" to \"" << destination_account_name <<"\" and delete \"" << source_account_name 
+            std::cout << "This command will move all expenses and earnings from \"" << source_account_name
+                << "\" to \"" << destination_account_name <<"\" and delete \"" << source_account_name
                 << "\". Are you sure you want to proceed ? [yes/no] ? ";
 
             std::string answer;
@@ -256,7 +271,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                             auto destination_id = get_account_id(destination_account_name, account.since.year(), account.since.month());
 
                             if(!destination_id){
-                                std::cout << "Impossible to find the corresponding account for account " << account.id 
+                                std::cout << "Impossible to find the corresponding account for account " << account.id
                                     << ". This may come from a migration issue. Open an issue on Github if you think that this is a bug" << std::endl;
 
                                 return;
