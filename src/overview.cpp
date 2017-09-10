@@ -261,12 +261,17 @@ void aggregate_overview(bool full, bool disable_groups, const std::string& separ
         }
     }
 
+    std::unordered_map<std::string, budget::money> totals;
+    budget::money total;
+
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
     for(auto& entry: acc_expenses){
+        auto& account = entry.first;
+
         auto column = columns.size();
-        columns.push_back(entry.first);
+        columns.push_back(account);
         std::size_t row = 0;
 
         auto& expenses = entry.second;
@@ -289,8 +294,36 @@ void aggregate_overview(bool full, bool disable_groups, const std::string& separ
             contents[row][column * 2] = expense.first;
             contents[row][column * 2 + 1] = to_string(expense.second);
 
+            totals[account] += expense.second;
+            total += expense.second;
+
             ++row;
         }
+    }
+
+    contents.emplace_back(acc_expenses.size() * 2, "");
+    contents.emplace_back(acc_expenses.size() * 2, "");
+
+    size_t i = 0;
+
+    for(auto& entry: acc_expenses){
+        contents.back()[i++] = "Total";
+        contents.back()[i++] = to_string(totals[entry.first]);
+    }
+
+    contents.emplace_back(acc_expenses.size() * 2, "");
+
+    i = 0;
+
+    for(auto& entry: acc_expenses){
+        auto& amount = totals[entry.first];
+        float part = 100.0 * (amount.value / float(total.value));
+
+        char buffer[32];
+        snprintf(buffer, 32, "%.2f%%", part);
+
+        contents.back()[i++] = "Part";
+        contents.back()[i++] = buffer;
     }
 
     display_table(columns, contents, 2);
