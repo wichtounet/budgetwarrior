@@ -363,10 +363,10 @@ void year_overview(budget::year year){
 
     std::cout << "Overview of " << year << std::endl << std::endl;
 
-    display_local_balance(year);
+    display_local_balance(year, true, false, true);
     std::cout << std::endl;
 
-    display_balance(year);
+    display_balance(year, true, false, true);
     std::cout << std::endl;
 
     display_expenses(year, true, false, true);
@@ -761,6 +761,30 @@ void budget::display_local_balance(budget::year year, bool current, bool relaxed
         generate_total_line<true, false>(contents, totals, year, sm);
     }
 
+    if(last){
+        contents.push_back({"Previous Year"});
+
+        budget::money total;
+
+        for(unsigned short i = sm; i < 13; ++i){
+            budget::month m = i;
+
+            auto status = compute_month_status(year - 1, m);
+
+            contents.back().push_back(format_money(status.balance));
+
+            total += status.balance;
+        }
+
+        contents.back().push_back(format_money(total));
+        contents.back().push_back(format_money(total / 12));
+
+        if(current){
+            contents.back().push_back(format_money(total));
+            contents.back().push_back(format_money(total / 12));
+        }
+    }
+
     display_table(columns, contents);
 }
 
@@ -825,6 +849,22 @@ void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
     //Generate the final total line
 
     generate_total_line(contents, totals, year, sm);
+
+    if(last){
+        contents.push_back({"Previous Year"});
+
+        budget::money total;
+
+        for(unsigned short i = sm; i < 13; ++i){
+            budget::month m = i;
+
+            auto status = compute_month_status(year - 1, m);
+
+            total += status.balance;
+
+            contents.back().push_back(format_money(total));
+        }
+    }
 
     display_table(columns, contents);
 }
