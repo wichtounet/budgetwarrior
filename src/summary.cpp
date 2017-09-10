@@ -24,7 +24,7 @@ using namespace budget;
 
 namespace {
 
-void month_overview(budget::month month, budget::year year){
+void month_overview(budget::month month, budget::year year) {
     // First display overview of the accounts
 
     std::vector<std::string> columns;
@@ -47,17 +47,17 @@ void month_overview(budget::month month, budget::year year){
     budget::money tot_balance;
     budget::money tot_local;
 
-    for(unsigned short i = sm; i <= month; ++i){
+    for (unsigned short i = sm; i <= month; ++i) {
         budget::month m = i;
 
-        for(auto& account : all_accounts(year, m)){
-            auto total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-            auto total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+        for (auto& account : all_accounts(year, m)) {
+            auto total_expenses = accumulate_amount_if(all_expenses(), [account, year, m](budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
+            auto total_earnings = accumulate_amount_if(all_earnings(), [account, year, m](budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
 
-            auto balance = account_previous[account.name] + account.amount - total_expenses + total_earnings;
+            auto balance       = account_previous[account.name] + account.amount - total_expenses + total_earnings;
             auto local_balance = account.amount - total_expenses + total_earnings;
 
-            if(i == month){
+            if (i == month) {
                 contents.push_back({account.name});
 
                 contents.back().push_back(format_money(total_expenses));
@@ -78,11 +78,11 @@ void month_overview(budget::month month, budget::year year){
     display_table(columns, contents);
 }
 
-void month_overview(budget::month m){
+void month_overview(budget::month m) {
     month_overview(m, local_day().year());
 }
 
-void month_overview(){
+void month_overview() {
     month_overview(local_day().month(), local_day().year());
 }
 
@@ -90,44 +90,44 @@ void month_overview(){
 
 constexpr const std::array<std::pair<const char*, const char*>, 1> budget::module_traits<budget::summary_module>::aliases;
 
-void budget::summary_module::load(){
+void budget::summary_module::load() {
     load_accounts();
     load_expenses();
     load_earnings();
 }
 
-void budget::summary_module::handle(std::vector<std::string>& args){
-    if(all_accounts().empty()){
+void budget::summary_module::handle(std::vector<std::string>& args) {
+    if (all_accounts().empty()) {
         throw budget_exception("No accounts defined, you should start by defining some of them");
     }
 
-    if(args.empty() || args.size() == 1){
+    if (args.empty() || args.size() == 1) {
         month_overview();
     } else {
         auto& subcommand = args[1];
 
-        if(subcommand == "month"){
+        if (subcommand == "month") {
             auto today = local_day();
 
-            if(args.size() == 2){
+            if (args.size() == 2) {
                 month_overview();
-            } else if(args.size() == 3){
+            } else if (args.size() == 3) {
                 auto m = budget::month(to_number<unsigned short>(args[2]));
 
-                if (m > today.month()){
+                if (m > today.month()) {
                     throw budget_exception("Cannot compute the summary of the future");
                 }
 
                 month_overview(m);
-            } else if(args.size() == 4){
+            } else if (args.size() == 4) {
                 auto m = budget::month(to_number<unsigned short>(args[2]));
                 auto y = budget::year(to_number<unsigned short>(args[3]));
 
-                if (y> today.year()){
+                if (y > today.year()) {
                     throw budget_exception("Cannot compute the summary of the future");
                 }
 
-                if (y == today.year() && m > today.month()){
+                if (y == today.year() && m > today.month()) {
                     throw budget_exception("Cannot compute the summary of the future");
                 }
 
@@ -140,4 +140,3 @@ void budget::summary_module::handle(std::vector<std::string>& args){
         }
     }
 }
-
