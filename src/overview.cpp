@@ -14,6 +14,7 @@
 #include "overview.hpp"
 #include "console.hpp"
 #include "accounts.hpp"
+#include "compute.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
 #include "budget_exception.hpp"
@@ -205,19 +206,23 @@ void month_overview(budget::month month, budget::year year){
 
     display_table(columns, contents, 3);
 
-    std::cout << std::endl;
+    std::cout << format_code(0, 0, 7) << std::endl;
 
     auto total_all_expenses = std::accumulate(total_expenses.begin(), total_expenses.end(), budget::money());
-    std::cout << std::string(accounts.size() * 10, ' ')         << "Total expenses: " << total_all_expenses << std::endl;
-
     auto total_all_earnings = std::accumulate(total_earnings.begin(), total_earnings.end(), budget::money());
-    std::cout << std::string(accounts.size() * 10, ' ')         << "Total earnings: " << total_all_earnings << std::endl;
-
     auto total_balance = std::accumulate(balances.begin(), balances.end(), budget::money());
-    std::cout << std::string(accounts.size() * 10 + 7, ' ')     <<        "Balance: " << format(format_money(total_balance)) << format_code(0,0,7) << std::endl;
-
     auto total_local_balance = std::accumulate(local_balances.begin(), local_balances.end(), budget::money());
-    std::cout << std::string(accounts.size() * 10 + 1, ' ')     <<  "Local Balance: " << format(format_money(total_local_balance)) << format_code(0,0,7) << std::endl;
+
+    auto avg_status = budget::compute_avg_month_status(year, month);
+
+    std::cout << std::string(accounts.size() * 9, ' ')         << "Total expenses: " << format_money_no_color(total_all_expenses);
+    std::cout << std::string(12 - rsize(format_money(total_all_expenses)), ' ') << "Avg: " << format_money_no_color(avg_status.expenses) << std::endl;
+    std::cout << std::string(accounts.size() * 9, ' ')         << "Total earnings: " << format_money_no_color(total_all_earnings);
+    std::cout << std::string(12 - rsize(format_money(total_all_earnings)), ' ') << "Avg: " << format_money_no_color(avg_status.earnings) << std::endl;
+
+    std::cout << std::string(accounts.size() * 9 + 7, ' ')     <<        "Balance: " << format(format_money(total_balance)) << std::endl;
+    std::cout << std::string(accounts.size() * 9 + 1, ' ')     <<  "Local Balance: " << format(format_money(total_local_balance));
+    std::cout << std::string(12 - rsize(format_money(total_local_balance)), ' ') << "Avg: " << format(format_money(avg_status.balance)) << std::endl;
 }
 
 void month_overview(budget::month month){
