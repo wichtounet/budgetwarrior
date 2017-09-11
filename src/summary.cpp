@@ -17,8 +17,10 @@
 #include "compute.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
+#include "objectives.hpp"
 #include "budget_exception.hpp"
 #include "config.hpp"
+#include "utils.hpp"
 
 using namespace budget;
 
@@ -78,11 +80,67 @@ std::string account_summary(budget::month month, budget::year year){
     return ss.str();
 }
 
+std::string objectives_summary(){
+    std::stringstream ss;
+    budget::yearly_objective_status(ss, false);
+    return ss.str();
+}
+
+void print_columns(const std::vector<std::string>& columns){
+    std::vector<std::vector<std::string>> split_columns;
+
+    for(auto& column : columns){
+        split_columns.push_back(budget::split(column, '\n'));
+    }
+
+    std::vector<std::string> composed_columns;
+
+    for(auto& column : split_columns){
+        size_t max_width = 0;
+
+        for(auto& row : column){
+            max_width = std::max(max_width, rsize_after(row));
+        }
+
+        for(size_t i = 0; i < column.size(); ++i){
+            auto& row = column[i];
+
+            if(i >= composed_columns.size()){
+                composed_columns.emplace_back();
+            }
+
+            composed_columns[i] += row;
+
+            auto length = rsize_after(row);
+
+            if(length < max_width){
+                composed_columns[i] += std::string(max_width - length, ' ');
+            }
+        }
+
+        for(size_t i = column.size(); i < composed_columns.size(); ++i){
+            composed_columns[i] += std::string(max_width, ' ');
+        }
+
+        // Add some spacing from previous column
+        for(auto& row : composed_columns){
+            row += " ";
+        }
+    }
+
+    for(auto& row : composed_columns){
+        std::cout << row << std::endl;
+    }
+}
+
 void month_overview(budget::month month, budget::year year) {
     // First display overview of the accounts
     auto m_summary = account_summary(month, year);
 
-    std::cout << m_summary;
+    // Second display a summary of the objectives
+    auto y_objectives_summary = objectives_summary();
+
+    print_columns({m_summary, y_objectives_summary});
 }
 
 void month_overview(budget::month m) {
@@ -101,6 +159,7 @@ void budget::summary_module::load() {
     load_accounts();
     load_expenses();
     load_earnings();
+    load_objectives();
 }
 
 void budget::summary_module::handle(std::vector<std::string>& args) {
