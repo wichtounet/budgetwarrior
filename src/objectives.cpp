@@ -117,35 +117,7 @@ void status_objectives(){
         }
 
         if(yearly){
-            std::cout << "Year objectives" << std::endl << std::endl;
-
-            size_t width = 0;
-            for(auto& objective : objectives.data){
-                if(objective.type == "yearly"){
-                    width = std::max(rsize(objective.name), width);
-                }
-            }
-
-            //Compute the year status
-            auto year_status = budget::compute_year_status();
-
-            for(auto& objective : objectives.data){
-                if(objective.type == "yearly"){
-                    //1. Print Objective name
-                    std::cout << "  ";
-                    print_minimum(objective.name, width);
-
-                    //2. PrintStatus
-                    std::cout << "  ";
-                    print_status(year_status, objective);
-
-                    //3. Print success indicator
-                    std::cout << "  ";
-                    print_success(year_status, objective);
-
-                    std::cout << std::endl;
-                }
-            }
+            budget::yearly_objective_status(std::cout, true);
 
             if(monthly){
                 std::cout << std::endl;
@@ -172,18 +144,18 @@ void status_objectives(){
                     size_t width = 0;
                     for(unsigned short i = sm; i <= current_month; ++i){
                         budget::month month = i;
-                        
+
                         // Compute the month status
                         auto status = budget::compute_month_status(current_year, month);
 
                         //1. Print month
                         std::cout << "  ";
                         print_minimum(month, width);
-                        
+
                         //2. Print status
                         std::cout << "  ";
                         print_status(status, objective);
-                        
+
                         //3. Print success indicator
                         std::cout << "  ";
                         print_success(status, objective);
@@ -205,6 +177,53 @@ void edit(budget::objective& objective){
 }
 
 } //end of anonymous namespace
+
+void budget::yearly_objective_status(std::ostream& os, bool lines){
+    size_t yearly = 0;
+
+    for (auto& objective : objectives.data) {
+        if (objective.type == "yearly") {
+            ++yearly;
+        }
+    }
+
+    if (yearly) {
+        os << "Year objectives" << std::endl;
+
+        if (lines) {
+            os << std::endl;
+        }
+
+        size_t width = 0;
+        for (auto& objective : objectives.data) {
+            if (objective.type == "yearly") {
+                width = std::max(rsize(objective.name), width);
+            }
+        }
+
+        //Compute the year status
+        auto year_status = budget::compute_year_status();
+
+        for (auto& objective : objectives.data) {
+            if (objective.type == "yearly") {
+                //1. Print Objective name
+                os << "  ";
+                print_minimum(objective.name, width);
+
+                //2. PrintStatus
+                os << "  ";
+                print_status(year_status, objective);
+
+                //3. Print success indicator
+                os << "  ";
+                print_success(year_status, objective);
+
+                os << std::endl;
+            }
+        }
+    }
+}
+
 
 int budget::compute_success(const budget::status& status, const budget::objective& objective){
     auto amount = objective.amount;

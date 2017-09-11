@@ -44,6 +44,8 @@ struct objective {
 std::ostream& operator<<(std::ostream& stream, const objective& expense);
 void operator>>(const std::vector<std::string>& parts, objective& expense);
 
+void yearly_objective_status(std::ostream& os, bool lines);
+
 void load_objectives();
 void save_objectives();
 
