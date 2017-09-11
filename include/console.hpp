@@ -43,15 +43,21 @@ std::string format_money_reverse(const budget::money& m);
  * \return The real length of the string.
  */
 std::size_t rsize(const std::string& value);
+std::size_t rsize_after(const std::string& value);
+
+template<typename T>
+void print_minimum(std::ostream& os, const T& value, std::size_t min_width){
+    auto str = to_string(value);
+
+    auto old_width = os.width();
+    os.width(min_width + (str.size() - rsize(str)));
+    os << str;
+    os.width(old_width);
+}
 
 template<typename T>
 void print_minimum(const T& value, std::size_t min_width){
-    auto str = to_string(value);
-
-    auto old_width = std::cout.width();
-    std::cout.width(min_width + (str.size() - rsize(str)));
-    std::cout << str;
-    std::cout.width(old_width);
+    print_minimum(std::cout, value, min_width);
 }
 
 /**
