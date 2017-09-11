@@ -65,8 +65,9 @@ std::size_t budget::rsize_after(const std::string& value){
     auto index = v.find('\033');
 
     while(index != std::string::npos){
-        // Remove either the long code or the short code
-        if (v[index + 6] == 'm') {
+        if (v[index + 3] == 'm') {
+            v.erase(index, 4);
+        } else if (v[index + 6] == 'm') {
             v.erase(index, 7);
         } else {
             v.erase(index, 9);
