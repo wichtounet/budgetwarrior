@@ -24,9 +24,7 @@ using namespace budget;
 
 namespace {
 
-void month_overview(budget::month month, budget::year year) {
-    // First display overview of the accounts
-
+std::string account_summary(budget::month month, budget::year year){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -75,7 +73,16 @@ void month_overview(budget::month month, budget::year year) {
         }
     }
 
-    display_table(columns, contents);
+    std::stringstream ss;
+    display_table(ss, columns, contents);
+    return ss.str();
+}
+
+void month_overview(budget::month month, budget::year year) {
+    // First display overview of the accounts
+    auto m_summary = account_summary(month, year);
+
+    std::cout << m_summary;
 }
 
 void month_overview(budget::month m) {
