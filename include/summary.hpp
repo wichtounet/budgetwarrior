@@ -26,7 +26,7 @@ struct summary_module {
 
 template<>
 struct module_traits<summary_module> {
-    static constexpr const bool is_default = true;
+    static constexpr const bool is_default = false;
     static constexpr const char* command = "summary";
 
     static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"aggregate", "overview aggregate"}}};
