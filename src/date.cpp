@@ -18,8 +18,8 @@ budget::date budget::local_day(){
     auto timeval = localtime( &tt );
 
     return {
-        static_cast<date_type>(timeval->tm_year + 1900), 
-        static_cast<date_type>(timeval->tm_mon + 1), 
+        static_cast<date_type>(timeval->tm_year + 1900),
+        static_cast<date_type>(timeval->tm_mon + 1),
         static_cast<date_type>(timeval->tm_mday)};
 }
 
@@ -46,14 +46,21 @@ std::string budget::date_to_string(budget::date date){
 }
 
 unsigned short budget::start_month(budget::year year){
-    auto key = to_string(year) + "_start";
-    if(config_contains(key)){
-        auto value = to_number<unsigned short>(config_value(key));
-        cpp_assert(value < 13 && value > 0, "The start month is incorrect (must be in [1,12])");
-        return value;
+    budget::month m = 12;
+
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == year){
+            m = std::min(expense.date.month(), m);
+        }
     }
 
-    return 1;
+    for(auto& earning : all_earnings()){
+        if(earning.date.year() == year){
+            m = std::min(earning.date.month(), m);
+        }
+    }
+
+    return m;
 }
 
 unsigned short budget::start_year(){
