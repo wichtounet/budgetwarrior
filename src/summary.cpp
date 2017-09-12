@@ -47,6 +47,11 @@ std::string account_summary(budget::month month, budget::year year){
     budget::money tot_balance;
     budget::money tot_local;
 
+    budget::money prev_expenses;
+    budget::money prev_earnings;
+    budget::money prev_balance;
+    budget::money prev_local;
+
     for (unsigned short i = sm; i <= month; ++i) {
         budget::month m = i;
 
@@ -68,11 +73,39 @@ std::string account_summary(budget::month month, budget::year year){
                 tot_expenses += total_expenses;
                 tot_earnings += total_earnings;
                 tot_balance += balance;
-                tot_expenses += local_balance;
+                tot_local += local_balance;
+            } else if(month > 1 && m == month - 1){
+                prev_expenses = total_expenses;
+                prev_earnings = total_earnings;
+                prev_balance  = balance;
+                prev_local    = local_balance;
             }
 
             account_previous[account.name] = balance;
         }
+    }
+
+    contents.push_back({"Total"});
+
+    contents.back().push_back(format_money(tot_expenses));
+    contents.back().push_back(format_money(tot_earnings));
+    contents.back().push_back(format_money(tot_balance));
+    contents.back().push_back(format_money(tot_local));
+
+    if(month > 1){
+        contents.push_back({"Previous"});
+
+        contents.back().push_back(format_money(prev_expenses));
+        contents.back().push_back(format_money(prev_earnings));
+        contents.back().push_back(format_money(prev_balance));
+        contents.back().push_back(format_money(prev_local));
+
+        contents.push_back({"Average"});
+
+        contents.back().push_back(format_money(tot_expenses / month.value));
+        contents.back().push_back(format_money(tot_earnings / month.value));
+        contents.back().push_back(format_money(tot_balance / month.value));
+        contents.back().push_back(format_money(tot_local / month.value));
     }
 
     std::stringstream ss;
