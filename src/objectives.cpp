@@ -63,10 +63,6 @@ void print_status(std::ostream& os, const budget::status& status, const budget::
     print_minimum(os, result, 10);
 }
 
-void print_status(const budget::status& status, const budget::objective& objective){
-    print_status(std::cout, status, objective);
-}
-
 void print_success(std::ostream& os, const budget::status& status, const budget::objective& objective){
     auto success = compute_success(status, objective);
 
@@ -95,10 +91,6 @@ void print_success(std::ostream& os, const budget::status& status, const budget:
     }
 }
 
-void print_success(const budget::status& status, const budget::objective& objective){
-    print_success(std::cout, status, objective);
-}
-
 void status_objectives(){
     if(objectives.data.size() == 0){
         std::cout << "No objectives" << std::endl;
@@ -108,10 +100,6 @@ void status_objectives(){
         if(today.day() < 12){
             std::cout << "WARNING: It is early in the month, no one can know what may happen ;)" << std::endl << std::endl;
         }
-
-        auto current_month = today.month();
-        auto current_year = today.year();
-        auto sm = start_month(current_year);
 
         size_t monthly = 0;
         size_t yearly = 0;
@@ -133,45 +121,7 @@ void status_objectives(){
         }
 
         if(monthly){
-            std::cout << "Month objectives" << std::endl;
-
-            size_t width = 0;
-            for(unsigned short i = sm; i <= current_month; ++i){
-                budget::month month = i;
-
-                std::stringstream stream;
-                stream << month;
-
-                width = std::max(width, stream.str().size());
-            }
-
-            for(auto& objective : objectives.data){
-                if(objective.type == "monthly"){
-                    std::cout << std::endl << objective.name << std::endl;
-
-                    size_t width = 0;
-                    for(unsigned short i = sm; i <= current_month; ++i){
-                        budget::month month = i;
-
-                        // Compute the month status
-                        auto status = budget::compute_month_status(current_year, month);
-
-                        //1. Print month
-                        std::cout << "  ";
-                        print_minimum(month, width);
-
-                        //2. Print status
-                        std::cout << "  ";
-                        print_status(status, objective);
-
-                        //3. Print success indicator
-                        std::cout << "  ";
-                        print_success(status, objective);
-
-                        std::cout << std::endl;
-                    }
-                }
-            }
+            budget::monthly_objective_status(std::cout);
         }
     }
 }
@@ -225,6 +175,53 @@ void budget::yearly_objective_status(std::ostream& os, bool lines){
                 //3. Print success indicator
                 os << "  ";
                 print_success(os, year_status, objective);
+
+                os << std::endl;
+            }
+        }
+    }
+}
+
+void budget::monthly_objective_status(std::ostream& os){
+    os << "Month objectives" << std::endl;
+
+    auto today         = budget::local_day();
+    auto current_month = today.month();
+    auto current_year  = today.year();
+    auto sm            = start_month(current_year);
+
+    size_t width = 0;
+    for (unsigned short i = sm; i <= current_month; ++i) {
+        budget::month month = i;
+
+        std::stringstream stream;
+        stream << month;
+
+        width = std::max(width, stream.str().size());
+    }
+
+    for (auto& objective : objectives.data) {
+        if (objective.type == "monthly") {
+            os << std::endl << objective.name << std::endl;
+
+            size_t width = 0;
+            for (unsigned short i = sm; i <= current_month; ++i) {
+                budget::month month = i;
+
+                // Compute the month status
+                auto status = budget::compute_month_status(current_year, month);
+
+                //1. Print month
+                os << "  ";
+                print_minimum(os, month, width);
+
+                //2. Print status
+                os << "  ";
+                print_status(os, status, objective);
+
+                //3. Print success indicator
+                os << "  ";
+                print_success(os, status, objective);
 
                 os << std::endl;
             }
