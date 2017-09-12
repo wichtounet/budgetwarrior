@@ -229,6 +229,30 @@ void budget::monthly_objective_status(std::ostream& os){
     }
 }
 
+void budget::current_monthly_objective_status(std::ostream& os){
+    os << "Month objectives" << std::endl;
+
+    auto today         = budget::local_day();
+
+    for (auto& objective : objectives.data) {
+        if (objective.type == "monthly") {
+            os << "  " << objective.name << " ";
+
+            // Compute the month status
+            auto status = budget::compute_month_status(today.year(), today.month());
+
+            //1. Print status
+            os << "  ";
+            print_status(os, status, objective);
+
+            //2. Print success indicator
+            os << "  ";
+            print_success(os, status, objective);
+
+            os << std::endl;
+        }
+    }
+}
 
 int budget::compute_success(const budget::status& status, const budget::objective& objective){
     auto amount = objective.amount;
