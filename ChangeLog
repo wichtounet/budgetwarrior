@@ -5,6 +5,7 @@ budgetwarrior 0.4.2 - in development
  * Display more information in overview month
  * No more need for month start in config
  * Graph report by account
+ * Bug Fix: report was not displaying the first month
  * Add transfer command in module account
  * Fix accuracies
  * Review of the recurrings (less merge conflicts)
