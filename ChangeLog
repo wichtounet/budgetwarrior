@@ -1,9 +1,16 @@
 budgetwarrior 0.4.2 - in development
+ * New command: summary for a global view
+ * Improved fortune reports
+ * Disable balance over years (can be changed with option)
+ * Display more information in overview month
+ * No more need for month start in config
  * Graph report by account
  * Add transfer command in module account
- * Add colors to budget fortune view
- * Fix accuracies 
+ * Fix accuracies
+ * Review of the recurrings (less merge conflicts)
  * Refactorings
+ * Reviewed the build system
+ * Improved Windows support
 
 budgetwarrior 0.4.1.2 - 24.09.2014
  * Fix important bug with overview

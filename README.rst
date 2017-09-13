@@ -1,5 +1,5 @@
-budgetwarrior 0.4.1.2
-=====================
+budgetwarrior 0.4.2
+===================
 
 Simple command line utility to helps keeping track of your expenses and the
 state of your budget.
@@ -21,7 +21,7 @@ For instance, if you have 1000$ per month, you could have three accounts:
 * House (500$)
 
 That means you allow yourself to spend 200$ on food each month. Of course, some month you'll be lower or higher.
-And the tool will indicate you how well your accounts are doing, month by month and by year. 
+And the tool will indicate you how well your accounts are doing, month by month and by year.
 
 Features
 --------
