@@ -83,10 +83,18 @@ struct money {
         return *this;
     }
 
+    bool operator==(const budget::money& rhs) const {
+        return value == rhs.value;
+    }
+
+    bool operator!=(const budget::money& rhs) const {
+        return value != rhs.value;
+    }
+
     bool operator<(const budget::money& rhs) const {
         return value < rhs.value;
     }
-    
+
     bool operator<=(const budget::money& rhs) const {
         return value < rhs.value;
     }
@@ -94,7 +102,7 @@ struct money {
     bool operator>(const budget::money& rhs) const {
         return value > rhs.value;
     }
-    
+
     bool operator>=(const budget::money& rhs) const {
         return value >= rhs.value;
     }
