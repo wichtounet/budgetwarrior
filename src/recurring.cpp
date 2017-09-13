@@ -202,6 +202,62 @@ void budget::operator>>(const std::vector<std::string>& parts, recurring& recurr
     recurring.recurs = parts[5];
 }
 
+budget::year budget::first_year(const budget::recurring& recurring){
+    budget::year year(1400);
+
+    for(auto& expense : all_expenses()){
+        if(expense.name == recurring.name && expense.amount == recurring.amount && recurring.amount == expense.amount){
+            if(year == 1400 || expense.date.year() < year){
+                year = expense.date.year();
+            }
+        }
+    }
+
+    return year;
+}
+
+budget::month budget::first_month(const budget::recurring& recurring, budget::year year){
+    budget::month month(13);
+
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && recurring.amount == expense.amount){
+            if(month == 13 || expense.date.month() < month){
+                month = expense.date.month();
+            }
+        }
+    }
+
+    return month;
+}
+
+budget::year budget::last_year(const budget::recurring& recurring){
+    budget::year year(1400);
+
+    for(auto& expense : all_expenses()){
+        if(expense.name == recurring.name && expense.amount == recurring.amount && recurring.amount == expense.amount){
+            if(year == 1400 || expense.date.year() > year){
+                year = expense.date.year();
+            }
+        }
+    }
+
+    return year;
+}
+
+budget::month budget::last_month(const budget::recurring& recurring, budget::year year){
+    budget::month month(13);
+
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && recurring.amount == expense.amount){
+            if(month == 13 || expense.date.month() > month){
+                month = expense.date.month();
+            }
+        }
+    }
+
+    return month;
+}
+
 std::vector<recurring>& budget::all_recurrings(){
     return recurrings.data;
 }

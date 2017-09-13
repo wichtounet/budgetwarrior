@@ -13,6 +13,7 @@
 
 #include "module_traits.hpp"
 #include "money.hpp"
+#include "date.hpp"
 
 namespace budget {
 
@@ -41,6 +42,12 @@ struct recurring {
 
 std::ostream& operator<<(std::ostream& stream, const recurring& recurring);
 void operator>>(const std::vector<std::string>& parts, recurring& recurring);
+
+year first_year(const recurring& recurring);
+month first_month(const recurring& recurring, budget::year year);
+
+year last_year(const recurring& recurring);
+month last_month(const recurring& recurring, budget::year year);
 
 void load_recurrings();
 void save_recurrings();
