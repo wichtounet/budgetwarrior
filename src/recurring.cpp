@@ -53,40 +53,40 @@ void show_recurrings(){
 void budget::recurring_module::preload(){
     load_recurrings();
     load_accounts();
+    load_expenses();
 
     auto now = budget::local_day();
 
-    //If it does not contains this value, it is the first start, so there is no
-    //need to check anything
-    if(internal_config_contains("recurring:last_checked")){
-        auto last_checked_str = internal_config_value("recurring:last_checked");
-        auto last_checked = from_string(last_checked_str);
+    bool changed = false;
 
-        if(last_checked.month() < now.month() || last_checked.year() < now.year()){
-            load_expenses();
+    for (auto& recurring : recurrings.data) {
+        auto l_year  = last_year(recurring);
+        auto l_month = last_month(recurring, l_year);
 
-            while(last_checked.year() < now.year() || last_checked.month() < now.month()){
-                last_checked += months(1);
+        budget::date recurring_date(l_year, l_month, 1);
 
-                date recurring_date(last_checked.year(), last_checked.month(), 1);
+        while (!(recurring_date.year() == now.year() && recurring_date.month() == now.month())) {
+            // Get to the next month
+            recurring_date += budget::months(1);
 
-                for(auto& recurring : recurrings.data){
-                    budget::expense recurring_expense;
-                    recurring_expense.guid = generate_guid();
-                    recurring_expense.date = recurring_date;
-                    recurring_expense.account = get_account(recurring.account, recurring_date.year(), recurring_date.month()).id;
-                    recurring_expense.amount = recurring.amount;
-                    recurring_expense.name = recurring.name;
+            budget::expense recurring_expense;
+            recurring_expense.guid    = generate_guid();
+            recurring_expense.date    = recurring_date;
+            recurring_expense.account = get_account(recurring.account, recurring_date.year(), recurring_date.month()).id;
+            recurring_expense.amount  = recurring.amount;
+            recurring_expense.name    = recurring.name;
 
-                    add_expense(std::move(recurring_expense));
-                }
-            }
+            add_expense(std::move(recurring_expense));
 
-            save_expenses();
+            changed = true;
         }
     }
 
-    internal_config_value("recurring:last_checked") = budget::to_string(now);
+    if(changed){
+        save_expenses();
+    }
+
+    internal_config_remove("recurring:last_checked");
 }
 
 void budget::recurring_module::load(){
@@ -110,17 +110,24 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             recurring.guid = generate_guid();
             recurring.recurs = "monthly";
 
-            //TODO handling of archived accounts is only temporary and not
-            //workign properly
+            edit_string(recurring.account, "Account", not_empty_checker(), account_checker());
+            edit_string(recurring.name, "Name", not_empty_checker());
+            edit_money(recurring.amount, "Amount", not_negative_checker());
+
+            // Create the equivalent expense
 
             auto date = budget::local_day();
 
-            std::string account_name;
-            edit_string(account_name, "Account", not_empty_checker(), account_checker());
-            recurring.account = get_account(account_name, date.year(), date.month()).id;
+            budget::expense recurring_expense;
+            recurring_expense.guid    = generate_guid();
+            recurring_expense.account = get_account(recurring.account, date.year(), date.month()).id;
+            recurring_expense.date    = date;
+            recurring_expense.amount  = recurring.amount;
+            recurring_expense.name    = recurring.name;
 
-            edit_string(recurring.name, "Name", not_empty_checker());
-            edit_money(recurring.amount, "Amount", not_negative_checker());
+            add_expense(std::move(recurring_expense));
+
+            save_expenses();
 
             auto id = add_data(recurrings, std::move(recurring));
             std::cout << "Recurring expense " << id << " has been created" << std::endl;
@@ -136,6 +143,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             remove(recurrings, id);
 
             std::cout << "Recurring expense " << id << " has been deleted" << std::endl;
+            std::cout << "Note: The generated expenses have not been deleted" << std::endl;
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
@@ -146,10 +154,29 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             }
 
             auto& recurring = get(recurrings, id);
+            auto previous_recurring = recurring; // Temporary Copy
+
+            auto now = budget::local_day();
 
             edit_string(recurring.account, "Account", not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
+
+            // Update the corresponding expense
+
+            for(auto& expense : all_expenses()){
+                if(expense.date.year() == now.year() && expense.date.month() == now.month()
+                        && expense.name == previous_recurring.name && expense.amount == previous_recurring.amount
+                        && get_account(expense.account).name == previous_recurring.account){
+                    expense.name    = recurring.name;
+                    expense.amount  = recurring.amount;
+                    expense.account = get_account(recurring.account, now.year(), now.month()).id;
+                    break;
+                }
+            }
+
+            set_expenses_changed();
+            save_expenses();
 
             recurrings.changed = true;
 
@@ -206,7 +233,7 @@ budget::year budget::first_year(const budget::recurring& recurring){
     budget::year year(1400);
 
     for(auto& expense : all_expenses()){
-        if(expense.name == recurring.name && expense.amount == recurring.amount && recurring.amount == expense.amount){
+        if(expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account){
             if(year == 1400 || expense.date.year() < year){
                 year = expense.date.year();
             }
@@ -220,7 +247,7 @@ budget::month budget::first_month(const budget::recurring& recurring, budget::ye
     budget::month month(13);
 
     for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && recurring.amount == expense.amount){
+        if(expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account){
             if(month == 13 || expense.date.month() < month){
                 month = expense.date.month();
             }
@@ -234,7 +261,7 @@ budget::year budget::last_year(const budget::recurring& recurring){
     budget::year year(1400);
 
     for(auto& expense : all_expenses()){
-        if(expense.name == recurring.name && expense.amount == recurring.amount && recurring.amount == expense.amount){
+        if(expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account){
             if(year == 1400 || expense.date.year() > year){
                 year = expense.date.year();
             }
@@ -248,7 +275,7 @@ budget::month budget::last_month(const budget::recurring& recurring, budget::yea
     budget::month month(13);
 
     for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && recurring.amount == expense.amount){
+        if(expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account){
             if(month == 13 || expense.date.month() > month){
                 month = expense.date.month();
             }
