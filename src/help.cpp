@@ -17,8 +17,8 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget account add                              Add a new account\n";
     std::cout << "       budget account delete (id)                      Delete the given account\n";
     std::cout << "       budget account edit (id)                        Edit the given account\n";
-    std::cout << "       budget account transfer                         Transfer money from one account to another\n\n";
-    std::cout << "       budget account migrate                          Merge two accounts together\n\n";
+    std::cout << "       budget account transfer                         Transfer money from one account to another\n";
+    std::cout << "       budget account migrate                          Merge two accounts together\n";
     std::cout << "       budget account archive                          Archive the current accounts to start new accounts\n\n";
 
     std::cout << "       budget expense [show]                           Display the expenses of the current month\n";
@@ -27,7 +27,7 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget expense add                              Add a new expense\n";
     std::cout << "       budget expense add (template name)              Add a new expense from a template or create a new template\n";
     std::cout << "       budget expense delete (id)                      Remove completely the expense with the given id\n";
-    std::cout << "       budget expense edit (id)                        Modify the expense with the given id\n\n";
+    std::cout << "       budget expense edit (id)                        Modify the expense with the given id\n";
     std::cout << "       budget expense template                         Display the templates\n\n";
 
     std::cout << "       budget earning [earnings]                       Display the earnings of the current month\n";
@@ -36,6 +36,8 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget earning add                              Add a new earning\n";
     std::cout << "       budget earning delete (id)                      Remove completely the earning with the given id\n";
     std::cout << "       budget earning edit (id)                        Modify the earning with the given id\n\n";
+
+    std::cout << "       budget summary [month] (month)                  Display a complete summary of the current month and the state of the current year\n";
 
     std::cout << "       budget overview [month]                         Display the overvew of the current month\n";
     std::cout << "       budget overview month (month) (year)            Display the overvew of the specified month of the current year\n";
@@ -58,14 +60,14 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget objective list                           List all the defined objectives\n";
     std::cout << "       budget objective add                            Add a new objective\n";
     std::cout << "       budget objective edit (id)                      Edit an objective\n";
-    std::cout << "       budget objective delete (id)                    Delete an objective\n";
+    std::cout << "       budget objective delete (id)                    Delete an objective\n\n";
 
     std::cout << "       budget wish [status]                            Show the status of the wishes\n";
     std::cout << "       budget wish list                                List all the wishes\n";
     std::cout << "       budget wish estimate                            Estimate the best date to buy something\n";
     std::cout << "       budget wish add                                 Add a new wish\n";
     std::cout << "       budget wish edit (id)                           Edit a wish\n";
-    std::cout << "       budget wish delete (id)                         Delete a wish\n";
+    std::cout << "       budget wish delete (id)                         Delete a wish\n\n";
 
     std::cout << "       budget debt [list]                              Display the unpaid debts\n";
     std::cout << "       budget debt all                                 Display all debts\n";
@@ -73,12 +75,12 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget debt delete (id)                         Delete the given debt\n";
     std::cout << "       budget debt edit (id)                           Edit the given debt\n\n";
 
-    std::cout << "       budget versioning save                          Commit the budget directory changes with Git\n";
-    std::cout << "       budget versioning sync                          Pull the remote changes on the budget directory with Git and push\n\n";
-    std::cout << "       budget sync                                     Pull the remote changes on the budget directory with Git and push\n\n";
-
     std::cout << "       budget report [monthly]                         Display monthly report in form of bar plot\n";
     std::cout << "       budget report account [monthly]                 Display monthly report of a specific account in form of bar plot\n\n";
+
+    std::cout << "       budget versioning save                          Commit the budget directory changes with Git\n";
+    std::cout << "       budget versioning sync                          Pull the remote changes on the budget directory with Git and push\n";
+    std::cout << "       budget sync                                     Pull the remote changes on the budget directory with Git and push\n\n";
 
     std::cout << "       budget gc                                       Make sure all IDs are contiguous\n";
 }
