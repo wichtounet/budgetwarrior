@@ -38,7 +38,10 @@ void list_fortunes(){
 } //end of anonymous namespace
 
 void budget::status_fortunes(std::ostream& os, bool short_view){
-    std::vector<std::string> columns = {"Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot."};
+    std::vector<std::string> short_columns = {"Date", "Amount", "Diff.", "Avg/Day", "Avg/Day Tot."};
+    std::vector<std::string> long_columns = {"Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot."};
+
+    auto columns = short_view ? short_columns : long_columns;
     std::vector<std::vector<std::string>> contents;
 
     std::vector<budget::fortune> sorted_values = fortunes.data;
@@ -56,13 +59,23 @@ void budget::status_fortunes(std::ostream& os, bool short_view){
 
         if (!short_view || i > sorted_values.size() - 3) {
             if (i == 0) {
-                contents.push_back({to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", ""});
+                if (short_view) {
+                    contents.push_back({to_string(fortune.check_date), to_string(fortune.amount), "", "", ""});
+                } else {
+                    contents.push_back({to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", ""});
+                }
             } else if (i == 1) {
                 auto diff = fortune.amount - previous;
                 auto d    = fortune.check_date - previous_date;
                 auto avg  = diff / float(d);
-                contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
-                                    format_money(diff), to_string(d), to_string(avg), "", ""});
+
+                if (short_view) {
+                    contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
+                                        format_money(diff), to_string(avg), ""});
+                } else {
+                    contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
+                                        format_money(diff), to_string(d), to_string(avg), "", ""});
+                }
             } else {
                 auto diff = fortune.amount - previous;
                 auto d    = fortune.check_date - previous_date;
@@ -72,8 +85,13 @@ void budget::status_fortunes(std::ostream& os, bool short_view){
                 auto tot_d    = fortune.check_date - first_date;
                 auto tot_avg  = tot_diff / float(tot_d);
 
-                contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
-                                    format_money(diff), to_string(d), to_string(avg), format_money(tot_diff), to_string(tot_avg)});
+                if (short_view) {
+                    contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
+                                        format_money(diff), to_string(avg), to_string(tot_avg)});
+                } else {
+                    contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
+                                        format_money(diff), to_string(d), to_string(avg), format_money(tot_diff), to_string(tot_avg)});
+                }
             }
         }
 
