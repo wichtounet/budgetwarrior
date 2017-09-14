@@ -132,6 +132,8 @@ std::ostream& operator<<(std::ostream& stream, const money& amount);
 
 money parse_money(const std::string& money_string);
 
+money random_money(size_t min, size_t max);
+
 template<>
 inline std::string to_string(money amount){
     std::stringstream stream;

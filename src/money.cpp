@@ -6,6 +6,7 @@
 //=======================================================================
 
 #include <stdexcept>
+#include <random>
 
 #include "money.hpp"
 #include "utils.hpp"
@@ -51,4 +52,14 @@ std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
             return stream << amount.dollars() << "." << amount.cents();
         }
     }
+}
+
+budget::money budget::random_money(size_t min, size_t max){
+    static std::random_device rd;
+    static std::mt19937_64 engine(rd());
+
+    std::uniform_int_distribution<int> dollars_dist(min, max);
+    std::uniform_int_distribution<int> cents_dist(0, 99);
+
+    return budget::money(dollars_dist(engine), cents_dist(engine));
 }
