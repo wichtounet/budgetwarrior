@@ -33,7 +33,7 @@ namespace {
 
 static data_handler<wish> wishes;
 
-std::string status(std::size_t v){
+std::string status(size_t v){
     switch(v){
         case 1:
             return "::greenLow";
@@ -47,7 +47,7 @@ std::string status(std::size_t v){
     }
 }
 
-std::string status_short(std::size_t v){
+std::string status_short(size_t v){
     switch(v){
         case 1:
             return green("L");
@@ -64,7 +64,7 @@ std::string status_short(std::size_t v){
 std::string accuracy(budget::money paid, budget::money estimation){
     auto a = 100.0 * (static_cast<double>(paid.dollars()) / static_cast<double>(estimation.dollars()));
 
-    return to_string(static_cast<std::size_t>(a)) + "%";
+    return to_string(static_cast<size_t>(a)) + "%";
 }
 
 void list_wishes(){
@@ -103,7 +103,7 @@ void list_wishes(){
         contents.push_back({"", "Unpaid Total", "", "", to_string(unpaid_total), ""});
 
         if(acc_counter > 0){
-            contents.push_back({"", "Mean accuracy", "", "", to_string(static_cast<std::size_t>((acc / acc_counter) * 100.0)) + "%", ""});
+            contents.push_back({"", "Mean accuracy", "", "", to_string(static_cast<size_t>((acc / acc_counter) * 100.0)) + "%", ""});
         }
 
         display_table(columns, contents);
@@ -268,7 +268,7 @@ void estimate_wishes(){
 
         bool ok = false;
 
-        for(std::size_t i = 0; i < 24 && !ok; ++i){
+        for(size_t i = 0; i < 24 && !ok; ++i){
             auto day = today + months(i);
             auto month_status = budget::compute_month_status(day.year(), day.month());
             auto year_status = budget::compute_year_status(day.year(), day.month());
@@ -344,7 +344,7 @@ void estimate_wishes(){
 
         bool ok = false;
 
-        for(std::size_t i = 0; i < 24 && !ok; ++i){
+        for(size_t i = 0; i < 24 && !ok; ++i){
             auto day = today + months(i);
             auto month_status = budget::compute_month_status(day.year(), day.month());
             auto year_status = budget::compute_year_status(day.year(), day.month());
@@ -438,7 +438,7 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(wishes, id)){
                 throw budget_exception("There are no wish with id " + args[2]);
@@ -450,7 +450,7 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(wishes, id)){
                 throw budget_exception("There are no wish with id " + args[2]);
@@ -466,7 +466,7 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "paid"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(wishes, id)){
                 throw budget_exception("There are no wish with id " + args[2]);
@@ -513,15 +513,15 @@ std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
-    wish.id = to_number<std::size_t>(parts[0]);
+    wish.id = to_number<size_t>(parts[0]);
     wish.guid = parts[1];
     wish.name = parts[2];
     wish.amount = parse_money(parts[3]);
     wish.date = from_string(parts[4]);
-    wish.paid = to_number<std::size_t>(parts[5]) == 1;
+    wish.paid = to_number<size_t>(parts[5]) == 1;
     wish.paid_amount = parse_money(parts[6]);
-    wish.importance = to_number<std::size_t>(parts[7]);
-    wish.urgency = to_number<std::size_t>(parts[8]);
+    wish.importance = to_number<size_t>(parts[7]);
+    wish.urgency = to_number<size_t>(parts[8]);
 }
 
 std::vector<wish>& budget::all_wishes(){
@@ -532,13 +532,13 @@ void budget::set_wishes_changed(){
     wishes.changed = true;
 }
 
-void budget::set_wishes_next_id(std::size_t next_id){
+void budget::set_wishes_next_id(size_t next_id){
     wishes.next_id = next_id;
 }
 
 void budget::migrate_wishes_2_to_3(){
     load_data(wishes, "wishes.data", [](const std::vector<std::string>& parts, wish& wish){
-        wish.id = to_number<std::size_t>(parts[0]);
+        wish.id = to_number<size_t>(parts[0]);
         wish.guid = parts[1];
         wish.name = parts[2];
         wish.amount = parse_money(parts[3]);
@@ -554,12 +554,12 @@ void budget::migrate_wishes_2_to_3(){
 
 void budget::migrate_wishes_3_to_4(){
     load_data(wishes, "wishes.data", [](const std::vector<std::string>& parts, wish& wish){
-        wish.id = to_number<std::size_t>(parts[0]);
+        wish.id = to_number<size_t>(parts[0]);
         wish.guid = parts[1];
         wish.name = parts[2];
         wish.amount = parse_money(parts[3]);
         wish.date = from_string(parts[4]);
-        wish.paid = to_number<std::size_t>(parts[5]) == 1;
+        wish.paid = to_number<size_t>(parts[5]) == 1;
         wish.paid_amount = parse_money(parts[6]);
         wish.importance = 2;
         wish.urgency = 2;

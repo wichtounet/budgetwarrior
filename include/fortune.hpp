@@ -30,7 +30,7 @@ struct module_traits<fortune_module> {
 };
 
 struct fortune {
-    std::size_t id;
+    size_t id;
     std::string guid;
     date check_date;
     money amount;
@@ -47,7 +47,7 @@ void save_fortunes();
 std::vector<fortune>& all_fortunes();
 
 void set_fortunes_changed();
-void set_fortunes_next_id(std::size_t next_id);
+void set_fortunes_next_id(size_t next_id);
 
 } //end of namespace budget
 

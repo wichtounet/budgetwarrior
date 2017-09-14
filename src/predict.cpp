@@ -32,14 +32,14 @@ void predict_overview(){
 
     auto accounts = all_accounts(today.year(), today.month());
 
-    std::map<std::string, std::size_t> account_mappings;
+    std::map<std::string, size_t> account_mappings;
 
     std::vector<double> expense_multipliers(accounts.size(), 100.0);
     std::vector<double> earning_multipliers(accounts.size(), 100.0);
 
     std::cout << "Multipliers for expenses" << std::endl;
 
-    std::size_t i = 0;
+    size_t i = 0;
     for(auto& account : accounts){
         account_mappings[account.name] = i;
 

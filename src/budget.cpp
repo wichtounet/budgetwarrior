@@ -238,7 +238,7 @@ int main(int argc, const char* argv[]) {
         std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
     }
 
-    auto old_data_version = to_number<std::size_t>(internal_config_value("data_version"));
+    auto old_data_version = to_number<size_t>(internal_config_value("data_version"));
 
     if(old_data_version > DATA_VERSION){
         std::cout << "Unsupported database version, you should update budgetwarrior" << std::endl;

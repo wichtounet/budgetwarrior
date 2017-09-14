@@ -30,7 +30,7 @@ struct module_traits<accounts_module> {
 };
 
 struct account {
-    std::size_t id;
+    size_t id;
     std::string guid;
     std::string name;
     money amount;
@@ -49,11 +49,11 @@ bool account_exists(const std::string& account);
 std::vector<budget::account>& all_accounts();
 std::vector<budget::account>  all_accounts(year year, month month);
 
-budget::account& get_account(std::size_t id);
+budget::account& get_account(size_t id);
 budget::account& get_account(std::string name, year year, month month);
 
 void set_accounts_changed();
-void set_accounts_next_id(std::size_t next_id);
+void set_accounts_next_id(size_t next_id);
 
 } //end of namespace budget
 

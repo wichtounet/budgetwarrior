@@ -86,7 +86,7 @@ budget::date find_new_since(){
     return date;
 }
 
-std::size_t get_account_id(std::string name, budget::year year, budget::month month){
+size_t get_account_id(std::string name, budget::year year, budget::month month){
     budget::date date(year, month, 5);
 
     for(auto& account : accounts.data){
@@ -99,7 +99,7 @@ std::size_t get_account_id(std::string name, budget::year year, budget::month mo
 }
 
 template<typename Values>
-void adapt(Values& values, std::size_t old, std::size_t id){
+void adapt(Values& values, size_t old, size_t id){
     for(auto& value : values){
         if(value.account == old){
             value.account = id;
@@ -148,12 +148,12 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             auto id = add_data(accounts, std::move(account));
             std::cout << "Account " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
-            std::size_t id = 0;
+            size_t id = 0;
 
             if(args.size() >= 3){
                 enough_args(args, 3);
 
-                id = to_number<std::size_t>(args[2]);
+                id = to_number<size_t>(args[2]);
 
                 if(!exists(accounts, id)){
                     throw budget_exception("There are no account with id " + args[2]);
@@ -182,14 +182,14 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
             std::cout << "Account " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
-            std::size_t id = 0;
+            size_t id = 0;
 
             auto today = budget::local_day();
 
             if(args.size() >= 3){
                 enough_args(args, 3);
 
-                id = to_number<std::size_t>(args[2]);
+                id = to_number<size_t>(args[2]);
 
                 if(!exists(accounts, id)){
                     throw budget_exception("There are no account with id " + args[2]);
@@ -289,7 +289,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                         }
                     }
 
-                    std::vector<std::size_t> deleted;
+                    std::vector<size_t> deleted;
 
                     //Perform the migration
 
@@ -333,7 +333,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             std::cin >> answer;
 
             if(answer == "yes" || answer == "y"){
-                std::vector<std::size_t> sources;
+                std::vector<size_t> sources;
                 std::vector<budget::account> copies;
 
                 auto today = budget::local_day();
@@ -358,9 +358,9 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                     }
                 }
 
-                std::unordered_map<std::size_t, std::size_t> mapping;
+                std::unordered_map<size_t, size_t> mapping;
 
-                for(std::size_t i = 0; i < copies.size(); ++i){
+                for(size_t i = 0; i < copies.size(); ++i){
                     auto& copy = copies[i];
 
                     auto id = add_data(accounts, std::move(copy));
@@ -402,7 +402,7 @@ void budget::save_accounts(){
     save_data(accounts, "accounts.data");
 }
 
-budget::account& budget::get_account(std::size_t id){
+budget::account& budget::get_account(size_t id){
     return get(accounts, id);
 }
 
@@ -423,7 +423,7 @@ std::ostream& budget::operator<<(std::ostream& stream, const account& account){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, account& account){
-    account.id = to_number<std::size_t>(parts[0]);
+    account.id = to_number<size_t>(parts[0]);
     account.guid = parts[1];
     account.name = parts[2];
     account.amount = parse_money(parts[3]);
@@ -463,6 +463,6 @@ void budget::set_accounts_changed(){
     accounts.changed = true;
 }
 
-void budget::set_accounts_next_id(std::size_t next_id){
+void budget::set_accounts_next_id(size_t next_id){
     accounts.next_id = next_id;
 }

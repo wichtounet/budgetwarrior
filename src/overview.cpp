@@ -67,7 +67,7 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
     total_line.push_back(title);
     total_line.push_back(to_string(functor(values.front())));
 
-    for(std::size_t i = 1; i < values.size(); ++i){
+    for(size_t i = 1; i < values.size(); ++i){
         total_line.push_back("");
         total_line.push_back("");
         total_line.push_back(to_string(functor(values[i])));
@@ -131,16 +131,16 @@ std::vector<budget::money> compute_total_budget(budget::month month, budget::yea
 }
 
 template<typename T>
-void add_values_column(budget::month month, budget::year year, const std::string& title, std::vector<std::vector<std::string>>& contents, std::unordered_map<std::string, std::size_t>& indexes, std::size_t columns, std::vector<T>& values, std::vector<budget::money>& total){
-    std::vector<std::size_t> current(columns, contents.size());
+void add_values_column(budget::month month, budget::year year, const std::string& title, std::vector<std::vector<std::string>>& contents, std::unordered_map<std::string, size_t>& indexes, size_t columns, std::vector<T>& values, std::vector<budget::money>& total){
+    std::vector<size_t> current(columns, contents.size());
 
     std::vector<T> sorted_values = values;
     std::sort(sorted_values.begin(), sorted_values.end(), [](const T& a, const T& b){ return a.date < b.date; });
 
     for(auto& expense : sorted_values){
         if(expense.date.year() == year && expense.date.month() == month){
-            std::size_t index = indexes[get_account(expense.account).name];
-            std::size_t& row = current[index];
+            size_t index = indexes[get_account(expense.account).name];
+            size_t& row = current[index];
 
             if(contents.size() <= row){
                 contents.emplace_back(columns * 3, "");
@@ -167,7 +167,7 @@ void month_overview(budget::month month, budget::year year){
     std::cout << "Overview of " << month << " " << year << std::endl << std::endl;
 
     std::vector<std::string> columns;
-    std::unordered_map<std::string, std::size_t> indexes;
+    std::unordered_map<std::string, size_t> indexes;
     std::vector<std::vector<std::string>> contents;
     std::vector<money> total_expenses(accounts.size(), budget::money());
     std::vector<money> total_earnings(accounts.size(), budget::money());
@@ -196,7 +196,7 @@ void month_overview(budget::month month, budget::year year){
     std::vector<budget::money> balances;
     std::vector<budget::money> local_balances;
 
-    for(std::size_t i = 0; i < accounts.size(); ++i){
+    for(size_t i = 0; i < accounts.size(); ++i){
         balances.push_back(total_budgets[i] - total_expenses[i] + total_earnings[i]);
         local_balances.push_back(accounts[i].amount - total_expenses[i] + total_earnings[i]);
     }
@@ -277,7 +277,7 @@ void aggregate_overview(bool full, bool disable_groups, const std::string& separ
 
         auto column = columns.size();
         columns.push_back(account);
-        std::size_t row = 0;
+        size_t row = 0;
 
         auto& expenses = entry.second;
 
@@ -457,7 +457,7 @@ void display_values(budget::year year, const std::string& title, const std::vect
         columns.push_back("C. Mean");
     }
 
-    std::unordered_map<std::string, std::size_t> row_mapping;
+    std::unordered_map<std::string, size_t> row_mapping;
     std::unordered_map<std::string, budget::money> account_totals;;
     std::unordered_map<std::string, budget::money> account_current_totals;;
     std::vector<budget::money> totals(13, budget::money());
@@ -698,7 +698,7 @@ void budget::display_local_balance(budget::year year, bool current, bool relaxed
 
     std::vector<budget::money> totals(12, budget::money());
 
-    std::unordered_map<std::string, std::size_t> row_mapping;
+    std::unordered_map<std::string, size_t> row_mapping;
     std::unordered_map<std::string, budget::money> account_totals;
     std::unordered_map<std::string, budget::money> account_current_totals;
 
@@ -799,7 +799,7 @@ void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
 
     std::vector<budget::money> totals(12, budget::money());
 
-    std::unordered_map<std::string, std::size_t> row_mapping;
+    std::unordered_map<std::string, size_t> row_mapping;
     std::unordered_map<std::string, std::vector<budget::money>> account_previous;
 
     //Prepare the rows
@@ -814,7 +814,7 @@ void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
     auto today = budget::local_day();
     if(year > today.year()){
         auto pretotal = compute_total_budget(sm, year);
-        std::size_t i = 0;
+        size_t i = 0;
         for(auto& account : all_accounts(year, sm)){
             account_previous[account.name][sm - 1] += pretotal[i++] - account.amount;
         }

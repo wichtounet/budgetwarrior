@@ -42,11 +42,11 @@ std::string format_money_reverse(const budget::money& m);
  * \param value The string we want the real length for.
  * \return The real length of the string.
  */
-std::size_t rsize(const std::string& value);
-std::size_t rsize_after(const std::string& value);
+size_t rsize(const std::string& value);
+size_t rsize_after(const std::string& value);
 
 template<typename T>
-void print_minimum(std::ostream& os, const T& value, std::size_t min_width){
+void print_minimum(std::ostream& os, const T& value, size_t min_width){
     auto str = to_string(value);
 
     auto old_width = os.width();
@@ -56,7 +56,7 @@ void print_minimum(std::ostream& os, const T& value, std::size_t min_width){
 }
 
 template<typename T>
-void print_minimum(const T& value, std::size_t min_width){
+void print_minimum(const T& value, size_t min_width){
     print_minimum(std::cout, value, min_width);
 }
 
@@ -82,8 +82,8 @@ std::string format_code(int attr, int fg, int bg);
 std::string format_reset();
 std::string format(const std::string& value);
 
-void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, std::size_t groups = 1);
-void display_table(std::ostream& os, std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, std::size_t groups = 1);
+void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1);
+void display_table(std::ostream& os, std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1);
 
 template<typename T>
 bool check(const T&){
@@ -118,7 +118,7 @@ void edit_string(std::string& ref, const std::string& title, Checker... checkers
 }
 
 template<typename ...Checker>
-void edit_number(std::size_t& ref, const std::string& title, Checker... checkers){
+void edit_number(size_t& ref, const std::string& title, Checker... checkers){
     bool checked;
     do {
         std::string answer;
@@ -127,7 +127,7 @@ void edit_number(std::size_t& ref, const std::string& title, Checker... checkers
         std::getline(std::cin, answer);
 
         if(!answer.empty()){
-            ref = to_number<std::size_t>(answer);
+            ref = to_number<size_t>(answer);
         }
 
         checked = check(ref, checkers...);
@@ -260,9 +260,9 @@ struct account_checker {
     }
 };
 
-template<std::size_t First, std::size_t Last>
+template<size_t First, size_t Last>
 struct range_checker {
-    bool operator()(const std::size_t& value){
+    bool operator()(const size_t& value){
         return value >= First && value <= Last;
     }
 

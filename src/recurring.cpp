@@ -134,7 +134,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(recurrings, id)){
                 throw budget_exception("There are no recurring expense with id " + args[2]);
@@ -147,7 +147,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(recurrings, id)){
                 throw budget_exception("There are no recurring expense with id " + args[2]);
@@ -203,9 +203,9 @@ void budget::migrate_recurring_1_to_2(){
     load_accounts();
 
     load_data(recurrings, "recurrings.data", [](const std::vector<std::string>& parts, recurring& recurring){
-        recurring.id = to_number<std::size_t>(parts[0]);
+        recurring.id = to_number<size_t>(parts[0]);
         recurring.guid = parts[1];
-        recurring.old_account = to_number<std::size_t>(parts[2]);
+        recurring.old_account = to_number<size_t>(parts[2]);
         recurring.name = parts[3];
         recurring.amount = parse_money(parts[4]);
         recurring.recurs = parts[5];
@@ -221,7 +221,7 @@ void budget::migrate_recurring_1_to_2(){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, recurring& recurring){
-    recurring.id = to_number<std::size_t>(parts[0]);
+    recurring.id = to_number<size_t>(parts[0]);
     recurring.guid = parts[1];
     recurring.account = parts[2];
     recurring.name = parts[3];
@@ -293,6 +293,6 @@ void budget::set_recurrings_changed(){
     recurrings.changed = true;
 }
 
-void budget::set_recurrings_next_id(std::size_t next_id){
+void budget::set_recurrings_next_id(size_t next_id){
     recurrings.next_id = next_id;
 }

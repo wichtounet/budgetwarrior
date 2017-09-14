@@ -17,7 +17,7 @@ namespace budget {
 
 template<typename T>
 struct data_handler {
-    std::size_t next_id;
+    size_t next_id;
     std::vector<T> data;
     bool changed = false;
 
@@ -91,7 +91,7 @@ void load_data(data_handler<T>& data, const std::string& path){
 }
 
 template<typename T>
-bool exists(const data_handler<T>& data, std::size_t id){
+bool exists(const data_handler<T>& data, size_t id){
     for(auto& entry : data.data){
         if(entry.id == id){
             return true;
@@ -102,7 +102,7 @@ bool exists(const data_handler<T>& data, std::size_t id){
 }
 
 template<typename T>
-void remove(data_handler<T>& data, std::size_t id){
+void remove(data_handler<T>& data, size_t id){
     data.data.erase(std::remove_if(data.data.begin(), data.data.end(),
         [id](const T& entry){ return entry.id == id; }), data.data.end());
 
@@ -110,7 +110,7 @@ void remove(data_handler<T>& data, std::size_t id){
 }
 
 template<typename T>
-T& get(data_handler<T>& data, std::size_t id){
+T& get(data_handler<T>& data, size_t id){
     for(auto& value : data.data){
         if(value.id == id){
             return value;
@@ -121,7 +121,7 @@ T& get(data_handler<T>& data, std::size_t id){
 }
 
 template<typename T>
-std::size_t add_data(data_handler<T>& data, T&& entry){
+size_t add_data(data_handler<T>& data, T&& entry){
     entry.id = data.next_id++;
 
     data.data.push_back(std::forward<T>(entry));

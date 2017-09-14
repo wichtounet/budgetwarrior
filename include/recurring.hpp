@@ -31,10 +31,10 @@ struct module_traits<recurring_module> {
 };
 
 struct recurring {
-    std::size_t id;
+    size_t id;
     std::string guid;
     std::string name;
-    std::size_t old_account;
+    size_t old_account;
     money amount;
     std::string recurs;
     std::string account;
@@ -57,7 +57,7 @@ void migrate_recurring_1_to_2();
 std::vector<recurring>& all_recurrings();
 
 void set_recurrings_changed();
-void set_recurrings_next_id(std::size_t next_id);
+void set_recurrings_next_id(size_t next_id);
 
 } //end of namespace budget
 

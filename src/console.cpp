@@ -46,7 +46,7 @@ std::string budget::format_money_reverse(const budget::money& m){
     }
 }
 
-std::size_t budget::rsize(const std::string& value){
+size_t budget::rsize(const std::string& value){
     auto v = value;
 
     if(v.substr(0, 5) == "::red"){
@@ -59,7 +59,7 @@ std::size_t budget::rsize(const std::string& value){
     return mbstowcs(buf, v.c_str(), 1024);
 }
 
-std::size_t budget::rsize_after(const std::string& value){
+size_t budget::rsize_after(const std::string& value){
     auto v = value;
 
     auto index = v.find('\033');
@@ -120,11 +120,11 @@ std::string budget::format(const std::string& v){
     return v;
 }
 
-void budget::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, std::size_t groups){
+void budget::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups){
     display_table(std::cout, columns, contents, groups);
 }
 
-void budget::display_table(std::ostream& os, std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, std::size_t groups){
+void budget::display_table(std::ostream& os, std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups){
     cpp_assert(groups > 0, "There must be at least 1 group");
 
     for(auto& row : contents){
@@ -133,8 +133,8 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
         }
     }
 
-    std::vector<std::size_t> widths;
-    std::vector<std::size_t> header_widths;
+    std::vector<size_t> widths;
+    std::vector<size_t> header_widths;
 
     if(!contents.size()){
         for(auto& column : columns){
@@ -146,7 +146,7 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
         widths.assign(first.size(), 0);
 
         for(auto& row : contents){
-            for(std::size_t i = 0; i < row.size(); ++i){
+            for(size_t i = 0; i < row.size(); ++i){
                 widths[i] = std::max(widths[i], rsize(row[i]) + 1);
             }
         }
@@ -156,11 +156,11 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
 
     // Display the header
 
-    for(std::size_t i = 0; i < columns.size(); ++i){
+    for(size_t i = 0; i < columns.size(); ++i){
         auto& column = columns[i];
 
-        std::size_t width = 0;
-        for(std::size_t j = i * groups; j < (i + 1) * groups; ++j){
+        size_t width = 0;
+        for(size_t j = i * groups; j < (i + 1) * groups; ++j){
             width += widths[j];
         }
 
@@ -183,16 +183,16 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
 
     // Display the contents
 
-    for(std::size_t i = 0; i < contents.size(); ++i){
+    for(size_t i = 0; i < contents.size(); ++i){
         auto& row = contents[i];
 
         os << format_code(0, 0, 7);
 
-        for(std::size_t j = 0; j < row.size(); j += groups){
-            std::size_t acc_width = 0;
+        for(size_t j = 0; j < row.size(); j += groups){
+            size_t acc_width = 0;
 
             //First columns of the group
-            for(std::size_t k = 0; k < groups - 1; ++k){
+            for(size_t k = 0; k < groups - 1; ++k){
                 auto column = j + k;
 
                 std::string value = format(row[column]);

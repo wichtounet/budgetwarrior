@@ -24,11 +24,11 @@ using namespace budget;
 namespace {
 
 template<typename Values>
-std::size_t gc(Values& values){
+size_t gc(Values& values){
     std::sort(values.begin(), values.end(), 
         [](const typename Values::value_type& a, const typename Values::value_type& b){ return a.id < b.id; });
 
-    std::size_t next_id = 0;
+    size_t next_id = 0;
 
     for(auto& value : values){
         value.id = ++next_id;
@@ -38,7 +38,7 @@ std::size_t gc(Values& values){
 }
 
 template<typename Values>
-void adapt(Values& values, std::size_t old, std::size_t id){
+void adapt(Values& values, size_t old, size_t id){
     for(auto& value : values){
         if(value.account == old){
             value.account = id;
@@ -91,7 +91,7 @@ void gc_recurrings(){
 void gc_accounts(){
     auto& accounts = all_accounts();
 
-    std::size_t next_id = 1;
+    size_t next_id = 1;
 
     std::sort(accounts.begin(), accounts.end(), [](const account& a, const account& b){ return a.id < b.id; });
 

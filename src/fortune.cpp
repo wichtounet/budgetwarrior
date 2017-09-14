@@ -138,7 +138,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(fortunes, id)){
                 throw budget_exception("There are no fortune with id " + args[2]);
@@ -150,7 +150,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(fortunes, id)){
                 throw budget_exception("There are no fortune with id " + args[2]);
@@ -198,6 +198,6 @@ void budget::set_fortunes_changed(){
     fortunes.changed = true;
 }
 
-void budget::set_fortunes_next_id(std::size_t next_id){
+void budget::set_fortunes_next_id(size_t next_id){
     fortunes.next_id = next_id;
 }

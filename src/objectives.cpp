@@ -82,11 +82,11 @@ void print_success(std::ostream& os, const budget::status& status, const budget:
     success = std::min(success, 109);
     size_t good = success == 0 ? 0 : (success / 10) + 1;
 
-    for(std::size_t i = 0; i < good; ++i){
+    for(size_t i = 0; i < good; ++i){
         os << "\033[1;42m   \033[0m";
     }
 
-    for(std::size_t i = good; i < 11; ++i){
+    for(size_t i = good; i < 11; ++i){
         os << "\033[1;41m   \033[0m";
     }
 }
@@ -314,7 +314,7 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(objectives, id)){
                 throw budget_exception("There are no objective with id " + args[2]);
@@ -326,7 +326,7 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(objectives, id)){
                 throw budget_exception("There are no objective with id " + args[2]);
@@ -370,7 +370,7 @@ std::ostream& budget::operator<<(std::ostream& stream, const objective& objectiv
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, objective& objective){
-    objective.id = to_number<std::size_t>(parts[0]);
+    objective.id = to_number<size_t>(parts[0]);
     objective.guid = parts[1];
     objective.name = parts[2];
     objective.type = parts[3];
@@ -388,6 +388,6 @@ void budget::set_objectives_changed(){
     objectives.changed = true;
 }
 
-void budget::set_objectives_next_id(std::size_t next_id){
+void budget::set_objectives_next_id(size_t next_id){
     objectives.next_id = next_id;
 }

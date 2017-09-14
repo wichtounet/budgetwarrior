@@ -30,7 +30,7 @@ void show_earnings(budget::month month, budget::year year){
     std::vector<std::vector<std::string>> contents;
 
     money total;
-    std::size_t count = 0;
+    size_t count = 0;
 
     for(auto& earning : earnings.data){
         if(earning.date.year() == year && earning.date.month() == month){
@@ -123,7 +123,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(earnings, id)){
                 throw budget_exception("There are no earning with id ");
@@ -135,7 +135,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(earnings, id)){
                 throw budget_exception("There are no earning with id " + args[2]);
@@ -174,9 +174,9 @@ std::ostream& budget::operator<<(std::ostream& stream, const earning& earning){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, earning& earning){
-    earning.id = to_number<std::size_t>(parts[0]);
+    earning.id = to_number<size_t>(parts[0]);
     earning.guid = parts[1];
-    earning.account = to_number<std::size_t>(parts[2]);
+    earning.account = to_number<size_t>(parts[2]);
     earning.name = parts[3];
     earning.amount = parse_money(parts[4]);
     earning.date = from_string(parts[5]);
@@ -190,7 +190,7 @@ void budget::set_earnings_changed(){
     earnings.changed = true;
 }
 
-void budget::set_earnings_next_id(std::size_t next_id){
+void budget::set_earnings_next_id(size_t next_id){
     earnings.next_id = next_id;
 }
 

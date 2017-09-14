@@ -30,7 +30,7 @@ void show_expenses(budget::month month, budget::year year){
     std::vector<std::vector<std::string>> contents;
 
     money total;
-    std::size_t count = 0;
+    size_t count = 0;
 
     for(auto& expense : expenses.data){
         if(expense.date.year() == year && expense.date.month() == month){
@@ -54,7 +54,7 @@ void show_templates(){
     std::vector<std::string> columns = {"ID", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
-    std::size_t count = 0;
+    size_t count = 0;
 
     for(auto& expense : expenses.data){
         if(expense.date == TEMPLATE_DATE){
@@ -131,7 +131,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 std::string template_name;
                 std::string space;
 
-                for(std::size_t i = 2; i < args.size(); ++i){
+                for(size_t i = 2; i < args.size(); ++i){
                     template_name += space;
                     template_name += args[i];
                     space = " ";
@@ -193,7 +193,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(expenses, id)){
                 throw budget_exception("There are no expense with id ");
@@ -205,7 +205,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(expenses, id)){
                 throw budget_exception("There are no expense with id " + args[2]);
@@ -248,9 +248,9 @@ std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, expense& expense){
-    expense.id = to_number<std::size_t>(parts[0]);
+    expense.id = to_number<size_t>(parts[0]);
     expense.guid = parts[1];
-    expense.account = to_number<std::size_t>(parts[2]);
+    expense.account = to_number<size_t>(parts[2]);
     expense.name = parts[3];
     expense.amount = parse_money(parts[4]);
     expense.date = from_string(parts[5]);
@@ -264,6 +264,6 @@ void budget::set_expenses_changed(){
     expenses.changed = true;
 }
 
-void budget::set_expenses_next_id(std::size_t next_id){
+void budget::set_expenses_next_id(size_t next_id){
     expenses.next_id = next_id;
 }

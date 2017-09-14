@@ -14,7 +14,7 @@
 using namespace budget;
 
 money budget::parse_money(const std::string& money_string){
-    std::size_t dot_pos = money_string.find(".");
+    size_t dot_pos = money_string.find(".");
 
     int dollars = 0;
     int cents = 0;

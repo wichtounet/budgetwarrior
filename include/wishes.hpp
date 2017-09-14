@@ -30,15 +30,15 @@ struct module_traits<wishes_module> {
 };
 
 struct wish {
-    std::size_t id;
+    size_t id;
     std::string guid;
     budget::date date;
     std::string name;
     money amount;
     bool paid;
     money paid_amount;
-    std::size_t importance;
-    std::size_t urgency;
+    size_t importance;
+    size_t urgency;
 };
 
 std::ostream& operator<<(std::ostream& stream, const wish& expense);
@@ -51,7 +51,7 @@ std::vector<wish>& all_wishes();
 void add_wish(wish&& objective);
 
 void set_wishes_changed();
-void set_wishes_next_id(std::size_t next_id);
+void set_wishes_next_id(size_t next_id);
 
 void migrate_wishes_2_to_3();
 void migrate_wishes_3_to_4();

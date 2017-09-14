@@ -118,7 +118,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "paid"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(debts, id)){
                 throw budget_exception("There are no debt with id " + args[2]);
@@ -133,7 +133,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(debts, id)){
                 throw budget_exception("There are no debt with id " + args[2]);
@@ -145,7 +145,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            std::size_t id = to_number<std::size_t>(args[2]);
+            size_t id = to_number<size_t>(args[2]);
 
             if(!exists(debts, id)){
                 throw budget_exception("There are no debt with id " + args[2]);
@@ -217,6 +217,6 @@ void budget::set_debts_changed(){
     debts.changed = true;
 }
 
-void budget::set_debts_next_id(std::size_t next_id){
+void budget::set_debts_next_id(size_t next_id){
     debts.next_id = next_id;
 }

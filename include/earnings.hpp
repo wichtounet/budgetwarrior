@@ -30,11 +30,11 @@ struct module_traits<earnings_module> {
 };
 
 struct earning {
-    std::size_t id;
+    size_t id;
     std::string guid;
     budget::date date;
     std::string name;
-    std::size_t account;
+    size_t account;
     money amount;
 };
 
@@ -48,7 +48,7 @@ std::vector<earning>& all_earnings();
 void add_earning(earning&& earning);
 
 void set_earnings_changed();
-void set_earnings_next_id(std::size_t next_id);
+void set_earnings_next_id(size_t next_id);
 
 } //end of namespace budget
 

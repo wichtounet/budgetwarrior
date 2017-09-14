@@ -30,7 +30,7 @@ struct module_traits<debt_module> {
 };
 
 struct debt {
-    std::size_t id;
+    size_t id;
     int state;
     std::string guid;
     budget::date creation_date;
@@ -51,7 +51,7 @@ void migrate_debts_3_to_4();
 std::vector<debt>& all_debts();
 
 void set_debts_changed();
-void set_debts_next_id(std::size_t next_id);
+void set_debts_next_id(size_t next_id);
 
 } //end of namespace budget
 

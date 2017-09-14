@@ -32,7 +32,7 @@ void render(graph_type& graph){
 }
 
 void write(graph_type& graph, int row, int col, const std::string& value){
-    for(std::size_t i = 0; i < value.size(); ++i){
+    for(size_t i = 0; i < value.size(); ++i){
         graph[row][col + i] = value[i];
     }
 }
@@ -177,7 +177,7 @@ void report(budget::year year, Predicate predicate){
         auto month_str = month.as_short_string();
         write(graph, 1, col_start + 2, month_str);
 
-        for (std::size_t j = 0; j < expenses[month - 1] / precision; ++j) {
+        for (size_t j = 0; j < expenses[month - 1] / precision; ++j) {
             for (size_t x = 0; x < col_width; ++x) {
                 graph[zero_index + j][col_start + x] = "\033[1;41m \033[0m";
             }
@@ -185,7 +185,7 @@ void report(budget::year year, Predicate predicate){
 
         col_start += col_width + 1;
 
-        for (std::size_t j = 0; j < earnings[month - 1] / precision; ++j) {
+        for (size_t j = 0; j < earnings[month - 1] / precision; ++j) {
             for (size_t x = 0; x < col_width; ++x) {
                 graph[zero_index + j][col_start + x] = "\033[1;42m \033[0m";
             }
@@ -194,13 +194,13 @@ void report(budget::year year, Predicate predicate){
         col_start += col_width + 1;
 
         if (balances[month - 1] >= 0) {
-            for (std::size_t j = 0; j < balances[month - 1] / precision; ++j) {
+            for (size_t j = 0; j < balances[month - 1] / precision; ++j) {
                 for (size_t x = 0; x < col_width; ++x) {
                     graph[zero_index + j][col_start + x] = "\033[1;44m \033[0m";
                 }
             }
         } else {
-            for (std::size_t j = 0; j < std::abs(balances[month - 1]) / precision; ++j) {
+            for (size_t j = 0; j < std::abs(balances[month - 1]) / precision; ++j) {
                 for (size_t x = 0; x < col_width; ++x) {
                     graph[zero_index - 1 - j][col_start + x] = "\033[1;44m \033[0m";
                 }
