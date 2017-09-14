@@ -97,12 +97,12 @@ void report(budget::year year, Predicate predicate){
         std::max(std::abs(min_balance.dollars()), std::abs(min_earnings.dollars())));
 
     auto height = terminal_height() - 9;
-    //auto width = terminal_width() - 6;
+    auto width = terminal_width() - 6;
 
-    unsigned int scale_width = 5;
+    size_t scale_width = 5;
 
     // Compute the scale based on the data
-    unsigned int scale = 1;
+    size_t scale = 1;
     if (max_number < 600) {
         scale = 100;
     } else if (max_number < 1500) {
@@ -114,6 +114,8 @@ void report(budget::year year, Predicate predicate){
     } else {
         scale = 2000;
     }
+
+    size_t col_width = 2;
 
     int min = 0;
     if(min_expenses.negative() || min_earnings.negative() || min_balance.negative()){
@@ -130,7 +132,7 @@ void report(budget::year year, Predicate predicate){
     unsigned int precision = scale / step_height;
 
     auto graph_height = 9 + step_height * levels;
-    auto graph_width = 6 + (13 - sm) * 8 + (13 - sm - 1) * 2;
+    auto graph_width = 6 + (13 - sm) * (3 * col_width + 2) + (13 - sm - 1) * 2;
 
     graph_type graph(graph_height, std::vector<std::string>(graph_width, " "));
 
@@ -151,49 +153,53 @@ void report(budget::year year, Predicate predicate){
     unsigned int min_index = 3;
     unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
 
-    auto first_bar = scale_width + 2;
+    const auto first_bar = scale_width + 2;
 
     //TODO Choose bar width based on the terminal width
 
     for(auto i = sm; i <= today.month(); ++i){
         budget::month month = i;
 
-        auto col_start = first_bar + 10 * (i - sm);
+        auto col_start = first_bar + (3 * col_width + 4) * (i - sm);
 
         //Display month legend
         auto month_str = month.as_short_string();
         write(graph, 1, col_start + 2, month_str);
 
-        for(std::size_t j = 0; j < expenses[month-1] / precision; ++j){
-           graph[zero_index + j][col_start] = "\033[1;41m \033[0m";
-           graph[zero_index + j][col_start + 1] = "\033[1;41m \033[0m";
+        for (std::size_t j = 0; j < expenses[month - 1] / precision; ++j) {
+            for (size_t x = 0; x < col_width; ++x) {
+                graph[zero_index + j][col_start + x] = "\033[1;41m \033[0m";
+            }
         }
 
-        col_start += 3;
+        col_start += col_width + 1;
 
-        for(std::size_t j = 0; j < earnings[month-1] / precision; ++j){
-           graph[zero_index + j][col_start] = "\033[1;42m \033[0m";
-           graph[zero_index + j][col_start + 1] = "\033[1;42m \033[0m";
+        for (std::size_t j = 0; j < earnings[month - 1] / precision; ++j) {
+            for (size_t x = 0; x < col_width; ++x) {
+                graph[zero_index + j][col_start + x] = "\033[1;42m \033[0m";
+            }
         }
 
-        col_start += 3;
+        col_start += col_width + 1;
 
-        if(balances[month-1] >= 0){
-            for(std::size_t j = 0; j < balances[month-1] / precision; ++j){
-                graph[zero_index + j][col_start] = "\033[1;44m \033[0m";
-                graph[zero_index + j][col_start + 1] = "\033[1;44m \033[0m";
+        if (balances[month - 1] >= 0) {
+            for (std::size_t j = 0; j < balances[month - 1] / precision; ++j) {
+                for (size_t x = 0; x < col_width; ++x) {
+                    graph[zero_index + j][col_start + x] = "\033[1;44m \033[0m";
+                }
             }
         } else {
-            for(std::size_t j = 0; j < std::abs(balances[month-1]) / precision; ++j){
-                graph[zero_index - 1 - j][col_start] = "\033[1;44m \033[0m";
-                graph[zero_index - 1 - j][col_start + 1] = "\033[1;44m \033[0m";
+            for (std::size_t j = 0; j < std::abs(balances[month - 1]) / precision; ++j) {
+                for (size_t x = 0; x < col_width; ++x) {
+                    graph[zero_index - 1 - j][col_start + x] = "\033[1;44m \033[0m";
+                }
             }
         }
     }
 
     //Display legend
 
-    int start_legend = first_bar + 10 * (today.month() - sm + 1) + 4;
+    int start_legend = first_bar + (3 * col_width + 4) * (today.month() - sm + 1) + 4;
 
     graph[4][start_legend - 2] = "|";
     graph[3][start_legend - 2] = "|";
