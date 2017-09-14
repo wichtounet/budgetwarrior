@@ -37,7 +37,8 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget earning delete (id)                      Remove completely the earning with the given id\n";
     std::cout << "       budget earning edit (id)                        Modify the earning with the given id\n\n";
 
-    std::cout << "       budget summary [month] (month)                  Display a complete summary of the current month and the state of the current year\n";
+    std::cout << "       budget summary [month]                          Display a complete summary of the current month and the state of the current year\n";
+    std::cout << "       budget summary [month] (month)                  Display a complete summary of the given month and the state of the given year\n\n";
 
     std::cout << "       budget overview [month]                         Display the overvew of the current month\n";
     std::cout << "       budget overview month (month) (year)            Display the overvew of the specified month of the current year\n";
