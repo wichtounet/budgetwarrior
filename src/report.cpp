@@ -96,8 +96,8 @@ void report(budget::year year, Predicate predicate){
         std::max(std::abs(max_balance.dollars()), std::abs(min_expenses.dollars()))),
         std::max(std::abs(min_balance.dollars()), std::abs(min_earnings.dollars())));
 
-    auto height = terminal_height() - 9;
-    auto width = terminal_width() - 6;
+    size_t height = terminal_height() - 9;
+    size_t width = terminal_width() - 6;
 
     size_t scale_width = 5;
 
@@ -115,7 +115,20 @@ void report(budget::year year, Predicate predicate){
         scale = 2000;
     }
 
-    size_t col_width = 2;
+    auto graph_width_func = [sm](size_t col_width){
+        return 6 + (13 - sm) * (3 * col_width + 2) + (13 - sm - 1) * 2;
+    };
+
+    // Compute the best column width
+
+    size_t col_width = 1;
+    if(width > graph_width_func(4)){
+        col_width = 4;
+    } else if(width > graph_width_func(3)){
+        col_width = 3;
+    } else if(width > graph_width_func(2)){
+        col_width = 2;
+    }
 
     int min = 0;
     if(min_expenses.negative() || min_earnings.negative() || min_balance.negative()){
@@ -132,7 +145,7 @@ void report(budget::year year, Predicate predicate){
     unsigned int precision = scale / step_height;
 
     auto graph_height = 9 + step_height * levels;
-    auto graph_width = 6 + (13 - sm) * (3 * col_width + 2) + (13 - sm - 1) * 2;
+    auto graph_width = graph_width_func(col_width);
 
     graph_type graph(graph_height, std::vector<std::string>(graph_width, " "));
 
@@ -154,8 +167,6 @@ void report(budget::year year, Predicate predicate){
     unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
 
     const auto first_bar = scale_width + 2;
-
-    //TODO Choose bar width based on the terminal width
 
     for(auto i = sm; i <= today.month(); ++i){
         budget::month month = i;
