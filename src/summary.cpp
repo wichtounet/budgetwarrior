@@ -17,6 +17,7 @@
 #include "compute.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
+#include "fortune.hpp"
 #include "objectives.hpp"
 #include "budget_exception.hpp"
 #include "config.hpp"
@@ -121,6 +122,12 @@ std::string objectives_summary(){
     return ss.str();
 }
 
+std::string fortune_summary(){
+    std::stringstream ss;
+    budget::status_fortunes(ss, true);
+    return ss.str();
+}
+
 void print_columns(const std::vector<std::string>& columns){
     std::vector<std::vector<std::string>> split_columns;
 
@@ -173,9 +180,12 @@ void month_overview(budget::month month, budget::year year) {
     auto m_summary = account_summary(month, year);
 
     // Second display a summary of the objectives
-    auto y_objectives_summary = objectives_summary();
+    auto m_objectives_summary = objectives_summary();
 
-    print_columns({m_summary, y_objectives_summary});
+    // Third display a summary of the fortune
+    auto m_fortune_summary = fortune_summary();
+
+    print_columns({m_summary, m_objectives_summary, m_fortune_summary});
 }
 
 void month_overview(budget::month m) {
@@ -195,6 +205,7 @@ void budget::summary_module::load() {
     load_expenses();
     load_earnings();
     load_objectives();
+    load_fortunes();
 }
 
 void budget::summary_module::handle(std::vector<std::string>& args) {
