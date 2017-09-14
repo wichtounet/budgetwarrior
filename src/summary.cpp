@@ -137,6 +137,10 @@ void print_columns(const std::vector<std::string>& columns){
 
     std::vector<std::string> composed_columns;
 
+    // Compute the total width
+
+    size_t total_max_width = composed_columns.size() * 2;
+
     for(auto& column : split_columns){
         size_t max_width = 0;
 
@@ -144,34 +148,59 @@ void print_columns(const std::vector<std::string>& columns){
             max_width = std::max(max_width, rsize_after(row));
         }
 
-        for(size_t i = 0; i < column.size(); ++i){
-            auto& row = column[i];
-
-            if(i >= composed_columns.size()){
-                composed_columns.emplace_back();
-            }
-
-            composed_columns[i] += row;
-
-            auto length = rsize_after(row);
-
-            if(length < max_width){
-                composed_columns[i] += std::string(max_width - length, ' ');
-            }
-        }
-
-        for(size_t i = column.size(); i < composed_columns.size(); ++i){
-            composed_columns[i] += std::string(max_width, ' ');
-        }
-
-        // Add some spacing from previous column
-        for(auto& row : composed_columns){
-            row += " ";
-        }
+        total_max_width += max_width;
     }
 
-    for(auto& row : composed_columns){
-        std::cout << row << std::endl;
+    if (terminal_width() > total_max_width) {
+        // By default, print the columns side by side
+
+        for (auto& column : split_columns) {
+            size_t max_width = 0;
+
+            for (auto& row : column) {
+                max_width = std::max(max_width, rsize_after(row));
+            }
+
+            for (size_t i = 0; i < column.size(); ++i) {
+                auto& row = column[i];
+
+                if (i >= composed_columns.size()) {
+                    composed_columns.emplace_back();
+                }
+
+                composed_columns[i] += row;
+
+                auto length = rsize_after(row);
+
+                if (length < max_width) {
+                    composed_columns[i] += std::string(max_width - length, ' ');
+                }
+            }
+
+            for (size_t i = column.size(); i < composed_columns.size(); ++i) {
+                composed_columns[i] += std::string(max_width, ' ');
+            }
+
+            // Add some spacing from previous column
+            for (auto& row : composed_columns) {
+                row += " ";
+            }
+        }
+
+        for (auto& row : composed_columns) {
+            std::cout << row << std::endl;
+        }
+    } else {
+        // If the columns cannot be printed side by side
+        // print them one after another
+
+        for (auto& column : split_columns) {
+            for(auto& row : column){
+                std::cout << row << std::endl;
+            }
+
+            std::cout << std::endl;
+        }
     }
 }
 
