@@ -55,6 +55,11 @@ void budget::recurring_module::preload(){
     load_accounts();
     load_expenses();
 
+    // In random mode, we do not try to create recurrings
+    if(config_contains("random")){
+        return;
+    }
+
     auto now = budget::local_day();
 
     bool changed = false;
@@ -221,12 +226,19 @@ void budget::migrate_recurring_1_to_2(){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, recurring& recurring){
+    bool random = config_contains("random");
+
     recurring.id = to_number<size_t>(parts[0]);
     recurring.guid = parts[1];
     recurring.account = parts[2];
     recurring.name = parts[3];
-    recurring.amount = parse_money(parts[4]);
     recurring.recurs = parts[5];
+
+    if(random){
+        recurring.amount = budget::random_money(100, 1000);
+    } else {
+        recurring.amount = parse_money(parts[4]);
+    }
 }
 
 budget::year budget::first_year(const budget::recurring& recurring){

@@ -174,12 +174,19 @@ std::ostream& budget::operator<<(std::ostream& stream, const earning& earning){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, earning& earning){
+    bool random = config_contains("random");
+
     earning.id = to_number<size_t>(parts[0]);
     earning.guid = parts[1];
     earning.account = to_number<size_t>(parts[2]);
     earning.name = parts[3];
-    earning.amount = parse_money(parts[4]);
     earning.date = from_string(parts[5]);
+
+    if(random){
+        earning.amount = budget::random_money(10, 5000);
+    } else {
+        earning.amount = parse_money(parts[4]);
+    }
 }
 
 std::vector<earning>& budget::all_earnings(){

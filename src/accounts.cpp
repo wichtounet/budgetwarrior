@@ -423,12 +423,19 @@ std::ostream& budget::operator<<(std::ostream& stream, const account& account){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, account& account){
+    bool random = config_contains("random");
+
     account.id = to_number<size_t>(parts[0]);
     account.guid = parts[1];
     account.name = parts[2];
-    account.amount = parse_money(parts[3]);
     account.since = from_string(parts[4]);
     account.until = from_string(parts[5]);
+
+    if(random){
+        account.amount = budget::random_money(1000, 10000);
+    } else {
+        account.amount = parse_money(parts[3]);
+    }
 }
 
 bool budget::account_exists(const std::string& name){

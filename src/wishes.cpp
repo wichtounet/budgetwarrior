@@ -513,15 +513,23 @@ std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
+    bool random = config_contains("random");
+
     wish.id = to_number<size_t>(parts[0]);
     wish.guid = parts[1];
     wish.name = parts[2];
-    wish.amount = parse_money(parts[3]);
     wish.date = from_string(parts[4]);
     wish.paid = to_number<size_t>(parts[5]) == 1;
-    wish.paid_amount = parse_money(parts[6]);
     wish.importance = to_number<size_t>(parts[7]);
     wish.urgency = to_number<size_t>(parts[8]);
+
+    if(random){
+        wish.amount = budget::random_money(100, 1000);
+        wish.paid_amount = budget::random_money(100, 1000);
+    } else {
+        wish.amount = parse_money(parts[3]);
+        wish.paid_amount = parse_money(parts[6]);
+    }
 }
 
 std::vector<wish>& budget::all_wishes(){

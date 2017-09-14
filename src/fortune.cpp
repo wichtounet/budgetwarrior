@@ -208,10 +208,17 @@ std::ostream& budget::operator<<(std::ostream& stream, const fortune& fortune){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, fortune& fortune){
+    bool random = config_contains("random");
+
     fortune.id = to_number<int>(parts[0]);
     fortune.guid = parts[1];
     fortune.check_date = from_string(parts[2]);
-    fortune.amount = parse_money(parts[3]);
+
+    if(random){
+        fortune.amount = budget::random_money(1000, 100000);
+    } else {
+        fortune.amount = parse_money(parts[3]);
+    }
 }
 
 void budget::set_fortunes_changed(){

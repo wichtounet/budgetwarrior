@@ -370,14 +370,21 @@ std::ostream& budget::operator<<(std::ostream& stream, const objective& objectiv
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, objective& objective){
+    bool random = config_contains("random");
+
     objective.id = to_number<size_t>(parts[0]);
     objective.guid = parts[1];
     objective.name = parts[2];
     objective.type = parts[3];
     objective.source = parts[4];
     objective.op = parts[5];
-    objective.amount = parse_money(parts[6]);
     objective.date = from_string(parts[7]);
+
+    if(random){
+        objective.amount = budget::random_money(1000, 10000);
+    } else {
+        objective.amount = parse_money(parts[6]);
+    }
 }
 
 std::vector<objective>& budget::all_objectives(){

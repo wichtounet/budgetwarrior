@@ -171,25 +171,32 @@ void budget::save_debts(){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const debt& debt){
-    return stream << debt.id  
-        << ':' << debt.state 
-        << ':' << debt.guid 
-        << ':' << to_string(debt.creation_date) 
-        << ':' << debt.direction 
-        << ':' << debt.name 
-        << ':' << debt.amount 
+    return stream << debt.id
+        << ':' << debt.state
+        << ':' << debt.guid
+        << ':' << to_string(debt.creation_date)
+        << ':' << debt.direction
+        << ':' << debt.name
+        << ':' << debt.amount
         << ':' << debt.title;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, debt& debt){
+    bool random = config_contains("random");
+
     debt.id = to_number<int>(parts[0]);
     debt.state = to_number<int>(parts[1]);
     debt.guid = parts[2];
     debt.creation_date = from_string(parts[3]);
     debt.direction = to_number<bool>(parts[4]);
     debt.name = parts[5];
-    debt.amount = parse_money(parts[6]);
     debt.title = parts[7];
+
+    if(random){
+        debt.amount = budget::random_money(10, 1000);
+    } else {
+        debt.amount = parse_money(parts[6]);
+    }
 }
 
 void budget::migrate_debts_3_to_4(){
