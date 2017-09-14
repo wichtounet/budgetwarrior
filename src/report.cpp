@@ -91,12 +91,29 @@ void report(budget::year year, Predicate predicate){
         min_balance = std::min(min_balance, total_balance);
     }
 
+    auto max_number = std::max(std::max(
+        std::max(std::abs(max_expenses.dollars()), std::abs(max_earnings.dollars())),
+        std::max(std::abs(max_balance.dollars()), std::abs(min_expenses.dollars()))),
+        std::max(std::abs(min_balance.dollars()), std::abs(min_earnings.dollars())));
+
     auto height = terminal_height() - 9;
     //auto width = terminal_width() - 6;
 
-    //TODO compute the scale based on the data
-    unsigned int scale = 1000;
     unsigned int scale_width = 5;
+
+    // Compute the scale based on the data
+    unsigned int scale = 1;
+    if (max_number < 600) {
+        scale = 100;
+    } else if (max_number < 1500) {
+        scale = 200;
+    } else if (max_number < 3000) {
+        scale = 500;
+    } else if (max_number < 6000) {
+        scale = 1000;
+    } else {
+        scale = 2000;
+    }
 
     int min = 0;
     if(min_expenses.negative() || min_earnings.negative() || min_balance.negative()){
