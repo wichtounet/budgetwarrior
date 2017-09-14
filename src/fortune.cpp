@@ -35,8 +35,10 @@ void list_fortunes(){
     display_table(columns, contents);
 }
 
-void status_fortunes(){
-    std::vector<std::string> columns = {"ID", "Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot."};
+} //end of anonymous namespace
+
+void budget::status_fortunes(std::ostream& os, bool last_only){
+    std::vector<std::string> columns = {"Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot."};
     std::vector<std::vector<std::string>> contents;
 
     std::vector<budget::fortune> sorted_values = fortunes.data;
@@ -49,39 +51,39 @@ void status_fortunes(){
     budget::date previous_date;
     budget::date first_date = sorted_values.front().check_date;
 
-    size_t index = 0;
+    for(std::size_t i = 0; i < sorted_values.size(); ++i){
+        auto& fortune = sorted_values[i];
 
-    for(auto& fortune : sorted_values){
-        if(index == 0){
-            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", ""});
-        } else if(index == 1){
-            auto diff = fortune.amount - previous;
-            auto d = fortune.check_date - previous_date;
-            auto avg = diff / float(d);
-            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount),
-                format_money(diff), to_string(d), to_string(avg), "", ""});
-        } else {
-            auto diff = fortune.amount - previous;
-            auto d = fortune.check_date - previous_date;
-            auto avg = diff / float(d);
+        if (!last_only || i > sorted_values.size() - 3) {
+            if (i == 0) {
+                contents.push_back({to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", ""});
+            } else if (i == 1) {
+                auto diff = fortune.amount - previous;
+                auto d    = fortune.check_date - previous_date;
+                auto avg  = diff / float(d);
+                contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
+                                    format_money(diff), to_string(d), to_string(avg), "", ""});
+            } else {
+                auto diff = fortune.amount - previous;
+                auto d    = fortune.check_date - previous_date;
+                auto avg  = diff / float(d);
 
-            auto tot_diff = fortune.amount - first;
-            auto tot_d = fortune.check_date - first_date;
-            auto tot_avg = tot_diff / float(tot_d);
+                auto tot_diff = fortune.amount - first;
+                auto tot_d    = fortune.check_date - first_date;
+                auto tot_avg  = tot_diff / float(tot_d);
 
-            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount),
-                format_money(diff), to_string(d), to_string(avg), format_money(tot_diff), to_string(tot_avg)});
+                contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
+                                    format_money(diff), to_string(d), to_string(avg), format_money(tot_diff), to_string(tot_avg)});
+            }
         }
 
         previous = fortune.amount;
         previous_date = fortune.check_date;
-        ++index;
     }
 
-    display_table(columns, contents);
+    display_table(os, columns, contents);
 }
 
-} //end of anonymous namespace
 
 budget::money budget::current_fortune(){
     auto& all = all_fortunes();
@@ -112,14 +114,14 @@ void budget::fortune_module::unload(){
 
 void budget::fortune_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
-        status_fortunes();
+        status_fortunes(std::cout, false);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "list"){
             list_fortunes();
         } else if(subcommand == "status"){
-            status_fortunes();
+            status_fortunes(std::cout, false);
         } else if(subcommand == "check"){
             fortune fortune;
             fortune.guid = generate_guid();
