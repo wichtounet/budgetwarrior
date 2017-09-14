@@ -299,6 +299,10 @@ struct date {
         return false;
     }
 
+    bool operator<=(const date& rhs) const {
+        return (*this == rhs) || (*this < rhs);
+    }
+
     bool operator>(const date& rhs) const {
         if(_year > rhs._year){
             return true;
@@ -311,6 +315,10 @@ struct date {
         }
 
         return false;
+    }
+
+    bool operator>=(const date& rhs) const {
+        return (*this == rhs) || (*this > rhs);
     }
 
     date_type operator-(const date& rhs) const {
