@@ -184,6 +184,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             std::size_t id = 0;
 
+            auto today = budget::local_day();
+
             if(args.size() >= 3){
                 enough_args(args, 3);
 
@@ -196,17 +198,25 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 std::string name;
                 edit_string(name, "Account", not_empty_checker(), account_checker());
 
-                auto today = budget::local_day();
                 id = get_account(name, today.year(), today.month()).id;
             }
 
             auto& account = get(accounts, id);
 
             edit_string(account.name, "Name", not_empty_checker());
-            edit_money(account.amount, "Amount", not_negative_checker());
 
-            //TODO Verify that there are no OTHER account with this name
+            //Verify that there are no OTHER account with this name
             //in the current set of accounts (taking archiving into account)
+
+            for(auto& other_account : all_accounts()){
+                if(other_account.id != id && other_account.until >= today && other_account.since <= today){
+                    if(other_account.name == account.name){
+                        throw budget_exception("There is already an account with the name " + account.name);
+                    }
+                }
+            }
+
+            edit_money(account.amount, "Amount", not_negative_checker());
 
             std::cout << "Account " << id << " has been modified" << std::endl;
 
