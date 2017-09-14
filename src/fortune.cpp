@@ -53,7 +53,7 @@ void status_fortunes(){
 
     for(auto& fortune : sorted_values){
         if(index == 0){
-            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), "", "", "", ""});
+            contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", ""});
         } else if(index == 1){
             auto diff = fortune.amount - previous;
             auto d = fortune.check_date - previous_date;
