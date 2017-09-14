@@ -37,7 +37,7 @@ void list_fortunes(){
 
 } //end of anonymous namespace
 
-void budget::status_fortunes(std::ostream& os, bool last_only){
+void budget::status_fortunes(std::ostream& os, bool short_view){
     std::vector<std::string> columns = {"Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot."};
     std::vector<std::vector<std::string>> contents;
 
@@ -54,7 +54,7 @@ void budget::status_fortunes(std::ostream& os, bool last_only){
     for(std::size_t i = 0; i < sorted_values.size(); ++i){
         auto& fortune = sorted_values[i];
 
-        if (!last_only || i > sorted_values.size() - 3) {
+        if (!short_view || i > sorted_values.size() - 3) {
             if (i == 0) {
                 contents.push_back({to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", ""});
             } else if (i == 1) {

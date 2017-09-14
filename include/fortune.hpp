@@ -46,7 +46,7 @@ void save_fortunes();
 
 std::vector<fortune>& all_fortunes();
 
-void status_fortunes(std::ostream& os, bool last_only);
+void status_fortunes(std::ostream& os, bool short_view);
 
 void set_fortunes_changed();
 void set_fortunes_next_id(size_t next_id);
