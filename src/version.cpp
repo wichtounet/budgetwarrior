@@ -15,6 +15,6 @@ void budget::version_module::handle(const std::vector<std::string>& args){
         throw budget_exception("Too many arguments to version");
     }
 
-    std::cout << "budgetwarrior 0.4.2" << std::endl;
+    std::cout << "budgetwarrior 0.4.3" << std::endl;
     std::cout << "Copyright 2013-2017 Baptiste Wicht" << std::endl;
 }
