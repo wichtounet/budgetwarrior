@@ -11,10 +11,11 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <algorithm> 
-#include <functional> 
+#include <algorithm>
+#include <functional>
 #include <cctype>
 #include <locale>
+#include <iomanip>
 
 namespace budget {
 
@@ -44,6 +45,13 @@ inline std::string to_string(std::string value){
 template<>
 inline std::string to_string(const char* value){
     return value;
+}
+
+template<typename T>
+inline std::string to_string_precision(T value, int precision){
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(precision) << value;
+    return ss.str();
 }
 
 void one_of(const std::string& value, const std::string& message, std::vector<std::string> values);
