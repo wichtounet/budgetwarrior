@@ -795,6 +795,37 @@ void budget::display_local_balance(budget::year year, bool current, bool relaxed
             contents.back().push_back(format_money(total));
             contents.back().push_back(format_money(total / 12));
         }
+
+        contents.push_back({"Savings Rate"});
+
+        double total_savings_rate = 0.0;
+        double current_total_savings_rate = 0.0;
+
+        for(unsigned short i = sm; i < 13; ++i){
+            budget::month m = i;
+
+            auto status = compute_month_status(year, m);
+
+            double savings_rate = 0.0;
+
+            if(status.balance.dollars() > 0){
+                savings_rate = 100.0 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+            }
+
+            contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
+
+            if(i < current_months){
+                current_total_savings_rate += savings_rate;
+            }
+
+            total_savings_rate += savings_rate;
+        }
+
+        contents.back().push_back("");
+        contents.back().push_back(to_string_precision(total_savings_rate / 12, 2) + "%");
+
+        contents.back().push_back("");
+        contents.back().push_back(to_string_precision(current_total_savings_rate / current_months, 2) + "%");
     }
 
     display_table(columns, contents);
