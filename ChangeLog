@@ -1,3 +1,6 @@
+budgetwarrior 0.4.3 - in development
+ * Compute the savings rate
+
 budgetwarrior 0.4.2 - 14.09.2017
  * New command: summary for a global view
  * Improved fortune reports
