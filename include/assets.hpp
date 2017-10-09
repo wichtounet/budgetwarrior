@@ -40,8 +40,19 @@ struct asset {
     std::string currency;
 };
 
+struct asset_value {
+    size_t id;
+    std::string guid;
+    size_t asset_id;
+    budget::money amount;
+    budget::date set_date;
+};
+
 std::ostream& operator<<(std::ostream& stream, const asset& asset);
 void operator>>(const std::vector<std::string>& parts, asset& asset);
+
+std::ostream& operator<<(std::ostream& stream, const asset_value& asset);
+void operator>>(const std::vector<std::string>& parts, asset_value& asset);
 
 void load_assets();
 void save_assets();
@@ -51,10 +62,14 @@ bool asset_exists(const std::string& asset);
 budget::asset& get_asset(size_t id);
 budget::asset& get_asset(std::string name);
 
+budget::asset_value& get_asset_value(size_t id);
+
 std::vector<budget::asset>& all_assets();
+std::vector<budget::asset_value>& all_asset_values();
 
 void set_assets_changed();
 void set_assets_next_id(size_t next_id);
+void set_asset_values_next_id(size_t next_id);
 
 } //end of namespace budget
 
