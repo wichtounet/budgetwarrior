@@ -196,9 +196,13 @@ void month_overview(budget::month month, budget::year year){
     std::vector<budget::money> balances;
     std::vector<budget::money> local_balances;
 
+    budget::money income;
+
     for(size_t i = 0; i < accounts.size(); ++i){
         balances.push_back(total_budgets[i] - total_expenses[i] + total_earnings[i]);
         local_balances.push_back(accounts[i].amount - total_expenses[i] + total_earnings[i]);
+
+        income += accounts[i].amount + total_earnings[i];
     }
 
     add_recap_line(contents, "Balance", balances, [](const budget::money& m){ return format_money(m);});
@@ -213,6 +217,12 @@ void month_overview(budget::month month, budget::year year){
     auto total_balance = std::accumulate(balances.begin(), balances.end(), budget::money());
     auto total_local_balance = std::accumulate(local_balances.begin(), local_balances.end(), budget::money());
 
+    double savings_rate = 0.0;
+
+    if(total_local_balance.value > 0){
+        savings_rate = 100 * (total_local_balance.dollars() / double(income.dollars()));
+    }
+
     auto avg_status = budget::compute_avg_month_status(year, month);
 
     std::cout << std::string(accounts.size() * 9, ' ')         << "Total expenses: " << format_money_no_color(total_all_expenses);
@@ -223,6 +233,8 @@ void month_overview(budget::month month, budget::year year){
     std::cout << std::string(accounts.size() * 9 + 7, ' ')     <<        "Balance: " << format(format_money(total_balance)) << std::endl;
     std::cout << std::string(accounts.size() * 9 + 1, ' ')     <<  "Local Balance: " << format(format_money(total_local_balance));
     std::cout << std::string(12 - rsize(format_money(total_local_balance)), ' ') << "Avg: " << format(format_money(avg_status.balance)) << std::endl;
+
+    std::cout << std::string(accounts.size() * 9 + 1, ' ')     <<  " Savings Rate: " << savings_rate << "%" << std::endl;
 }
 
 void month_overview(budget::month month){
