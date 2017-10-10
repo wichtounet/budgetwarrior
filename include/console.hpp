@@ -61,6 +61,23 @@ void print_minimum(const T& value, size_t min_width){
     print_minimum(std::cout, value, min_width);
 }
 
+template<typename T>
+void print_minimum_left(std::ostream& os, const T& value, size_t min_width){
+    auto str = to_string(value);
+
+    if(rsize(str) >= min_width){
+        os << str;
+    } else {
+        os << std::string(min_width - rsize(str), ' ');
+        os << str;
+    }
+}
+
+template<typename T>
+void print_minimum_left(const T& value, size_t min_width){
+    print_minimum_left(std::cout, value, min_width);
+}
+
 /**
  * Indicate if the given option was present in the list. If present, the option
  * is removed from the list.
