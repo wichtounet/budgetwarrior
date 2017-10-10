@@ -31,25 +31,6 @@ namespace {
 static data_handler<asset> assets;
 static data_handler<asset_value> asset_values;
 
-void show_assets(){
-    if (!assets.data.size()) {
-        std::cout << "No assets" << std::endl;
-        return;
-    }
-
-    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency"};
-    std::vector<std::vector<std::string>> contents;
-
-    // Display the assets
-
-    for(auto& asset : assets.data){
-        contents.push_back({to_string(asset.id), asset.name, to_string(asset.int_stocks),
-            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency)});
-    }
-
-    display_table(columns, contents);
-}
-
 size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
     ((std::string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
@@ -98,6 +79,25 @@ double exchange_rate(std::string from, std::string to){
 
         return exchanges[key];
     }
+}
+
+void show_assets(){
+    if (!assets.data.size()) {
+        std::cout << "No assets" << std::endl;
+        return;
+    }
+
+    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency"};
+    std::vector<std::vector<std::string>> contents;
+
+    // Display the assets
+
+    for(auto& asset : assets.data){
+        contents.push_back({to_string(asset.id), asset.name, to_string(asset.int_stocks),
+            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency)});
+    }
+
+    display_table(columns, contents);
 }
 
 void show_asset_values(){
@@ -173,7 +173,37 @@ void show_asset_values(){
                         to_string(100),
                         ""});
 
-    display_table(columns, contents);
+    decltype(auto) desired = get_desired_allocation();
+
+    if (desired.total_allocation()) {
+        contents.push_back({"Desired Distribution",
+                            to_string(desired.int_stocks),
+                            to_string(desired.dom_stocks),
+                            to_string(desired.bonds),
+                            to_string(desired.cash),
+                            to_string(100),
+                            ""});
+
+        contents.push_back({"Desired Total",
+                            to_string(total * (desired.int_stocks / 100.0)),
+                            to_string(total * (desired.dom_stocks / 100.0)),
+                            to_string(total * (desired.bonds / 100.0)),
+                            to_string(total * (desired.cash / 100.0)),
+                            to_string(total),
+                            get_default_currency()});
+
+        contents.push_back({"Difference (need)",
+                            to_string(total * (desired.int_stocks / 100.0) - int_stocks),
+                            to_string(total * (desired.dom_stocks / 100.0) - dom_stocks),
+                            to_string(total * (desired.bonds / 100.0) - bonds),
+                            to_string(total * (desired.cash / 100.0) - cash),
+                            to_string(budget::money{}),
+                            get_default_currency()});
+
+        display_table(columns, contents, 1, {contents.size() - 5, contents.size() - 1});
+    } else {
+        display_table(columns, contents);
+    }
 
     std::cout << std::endl << "       Net worth: " << total << get_default_currency() << std::endl;
 }
@@ -330,6 +360,21 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
                 }
             }
+        } else if(subcommand == "distribution"){
+            auto& desired = get_desired_allocation();
+
+            do {
+                edit_number(desired.int_stocks, "Int. Stocks");
+                edit_number(desired.dom_stocks, "Dom. Stocks");
+                edit_number(desired.bonds, "Bonds");
+                edit_number(desired.cash, "Cash");
+
+                if(desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != 100){
+                    std::cout << "The distribution must account to 100%" << std::endl;
+                }
+            } while (desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != 100);
+
+            assets.changed = true;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -358,6 +403,26 @@ budget::asset& budget::get_asset(std::string name){
     }
 
     cpp_unreachable("The asset does not exist");
+}
+
+budget::asset& budget::get_desired_allocation(){
+    for(auto& asset : assets.data){
+        if(asset.name == "DESIRED" && asset.currency == "DESIRED"){
+            return asset;
+        }
+    }
+
+    asset asset;
+    asset.guid       = generate_guid();
+    asset.name       = "DESIRED";
+    asset.currency   = "DESIRED";
+    asset.int_stocks = 0;
+    asset.dom_stocks = 0;
+    asset.bonds      = 0;
+    asset.cash       = 0;
+
+    auto id = add_data(assets, std::move(asset));
+    return get_asset(id);
 }
 
 budget::asset_value& budget::get_asset_value(size_t id){

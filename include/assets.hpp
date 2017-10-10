@@ -38,6 +38,10 @@ struct asset {
     size_t bonds;
     size_t cash;
     std::string currency;
+
+    size_t total_allocation(){
+        return int_stocks + dom_stocks + bonds + cash;
+    }
 };
 
 struct asset_value {
@@ -61,6 +65,8 @@ bool asset_exists(const std::string& asset);
 
 budget::asset& get_asset(size_t id);
 budget::asset& get_asset(std::string name);
+
+budget::asset& get_desired_allocation();
 
 budget::asset_value& get_asset_value(size_t id);
 
