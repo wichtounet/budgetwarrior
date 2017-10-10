@@ -24,6 +24,10 @@ struct money {
         //Nothing to init
     }
 
+    explicit money(int dollars) : value(dollars * SCALE) {
+        //Nothing to init
+    }
+
     money(int dollars, int cents) : value(dollars * SCALE + cents) {
         //Nothing to init
     }
