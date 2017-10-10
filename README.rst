@@ -65,8 +65,7 @@ The tool is made for Linux. If there is some interest on using it on Windows, it
 should not take too much work to port it to Windows. Just le met me know (or
 make a Pull Request with the changes ;) ). .
 
-You need Boost 1.47.0 or superior and libuuid installed on your computer
-to build this project.
+You need libcurl and libuuid installed on your computer to build this project.
 
 You just have to use make to build it::
 
