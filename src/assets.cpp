@@ -34,14 +34,14 @@ void show_assets(){
         return;
     }
 
-    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Swiss Stocks", "Bonds", "Cash", "Currency"};
+    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency"};
     std::vector<std::vector<std::string>> contents;
 
     // Display the assets
 
     for(auto& asset : assets.data){
         contents.push_back({to_string(asset.id), asset.name, to_string(asset.int_stocks),
-            to_string(asset.swiss_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency)});
+            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency)});
     }
 
     display_table(columns, contents);
@@ -53,11 +53,11 @@ void show_asset_values(){
         return;
     }
 
-    std::vector<std::string> columns = {"Name", "Int. Stocks", "Swiss Stocks", "Bonds", "Cash", "Total", "Currency"};
+    std::vector<std::string> columns = {"Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Total", "Currency"};
     std::vector<std::vector<std::string>> contents;
 
     budget::money int_stocks;
-    budget::money swiss_stocks;
+    budget::money dom_stocks;
     budget::money bonds;
     budget::money cash;
     budget::money total;
@@ -85,14 +85,14 @@ void show_asset_values(){
 
             contents.push_back({asset.name,
                                 to_string(amount * (asset.int_stocks / 100.0)),
-                                to_string(amount * (asset.swiss_stocks / 100.0)),
+                                to_string(amount * (asset.dom_stocks / 100.0)),
                                 to_string(amount * (asset.bonds / 100.0)),
                                 to_string(amount * (asset.cash / 100.0)),
                                 to_string(amount),
                                 asset.currency});
 
             int_stocks += amount * (asset.int_stocks / 100.0);
-            swiss_stocks += amount * (asset.swiss_stocks / 100.0);
+            dom_stocks += amount * (asset.dom_stocks / 100.0);
             bonds += amount * (asset.bonds / 100.0);
             cash += amount * (asset.cash / 100.0);
             total += amount;
@@ -101,7 +101,7 @@ void show_asset_values(){
 
     contents.push_back({"Total",
                         to_string(int_stocks),
-                        to_string(swiss_stocks),
+                        to_string(dom_stocks),
                         to_string(bonds),
                         to_string(cash),
                         to_string(total),
@@ -109,7 +109,7 @@ void show_asset_values(){
 
     contents.push_back({"Distribution",
                         to_string_precision(100 * int_stocks.dollars() / (double)total.dollars(), 2),
-                        to_string_precision(100 * swiss_stocks.dollars() / (double)total.dollars(), 2),
+                        to_string_precision(100 * dom_stocks.dollars() / (double)total.dollars(), 2),
                         to_string_precision(100 * bonds.dollars() / (double)total.dollars(), 2),
                         to_string_precision(100 * cash.dollars() / (double)total.dollars(), 2),
                         to_string(100),
@@ -147,20 +147,20 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             }
 
             asset.int_stocks = 0;
-            asset.swiss_stocks = 0;
+            asset.dom_stocks = 0;
             asset.bonds = 0;
             asset.cash = 0;
 
             do {
                 edit_number(asset.int_stocks, "Int. Stocks");
-                edit_number(asset.swiss_stocks, "Swiss Stocks");
+                edit_number(asset.dom_stocks, "Dom. Stocks");
                 edit_number(asset.bonds, "Bonds");
                 edit_number(asset.cash, "Cash");
 
-                if(asset.int_stocks + asset.swiss_stocks + asset.bonds + asset.cash != 100){
+                if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100){
                     std::cout << "The distribution must account to 100%" << std::endl;
                 }
-            } while (asset.int_stocks + asset.swiss_stocks + asset.bonds + asset.cash != 100);
+            } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100);
 
             asset.currency = "CHF";
             edit_string(asset.currency, "Currency", not_empty_checker());
@@ -225,14 +225,14 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
             do {
                 edit_number(asset.int_stocks, "Int. Stocks");
-                edit_number(asset.swiss_stocks, "Swiss Stocks");
+                edit_number(asset.dom_stocks, "Dom. Stocks");
                 edit_number(asset.bonds, "Bonds");
                 edit_number(asset.cash, "Cash");
 
-                if(asset.int_stocks + asset.swiss_stocks + asset.bonds + asset.cash != 100){
+                if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100){
                     std::cout << "The distribution must asset to 100%" << std::endl;
                 }
-            } while (asset.int_stocks + asset.swiss_stocks + asset.bonds + asset.cash != 100);
+            } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100);
 
             edit_string(asset.currency, "Currency", not_empty_checker());
 
@@ -305,7 +305,7 @@ budget::asset_value& budget::get_asset_value(size_t id){
 
 std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
     return stream << asset.id << ':' << asset.guid << ':' << asset.name << ':'
-        << asset.int_stocks << ':' << asset.swiss_stocks << ":" << asset.bonds << ":" << asset.cash << ":" << asset.currency;
+        << asset.int_stocks << ':' << asset.dom_stocks << ":" << asset.bonds << ":" << asset.cash << ":" << asset.currency;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
@@ -313,7 +313,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
     asset.guid         = parts[1];
     asset.name         = parts[2];
     asset.int_stocks   = to_number<size_t>(parts[3]);
-    asset.swiss_stocks = to_number<size_t>(parts[4]);
+    asset.dom_stocks   = to_number<size_t>(parts[4]);
     asset.bonds        = to_number<size_t>(parts[5]);
     asset.cash         = to_number<size_t>(parts[6]);
     asset.currency     = parts[7];

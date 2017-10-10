@@ -34,7 +34,7 @@ struct asset {
     std::string guid;
     std::string name;
     size_t int_stocks;
-    size_t swiss_stocks;
+    size_t dom_stocks;
     size_t bonds;
     size_t cash;
     std::string currency;
