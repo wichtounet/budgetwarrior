@@ -134,6 +134,8 @@ money parse_money(const std::string& money_string);
 
 money random_money(size_t min, size_t max);
 
+std::string random_name(size_t length);
+
 template<>
 inline std::string to_string(money amount){
     std::stringstream stream;

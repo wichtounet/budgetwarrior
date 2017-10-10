@@ -63,3 +63,18 @@ budget::money budget::random_money(size_t min, size_t max){
 
     return budget::money(dollars_dist(engine), cents_dist(engine));
 }
+
+std::string budget::random_name(size_t length){
+    static std::random_device rd;
+    static std::mt19937_64 engine(rd());
+
+    std::uniform_int_distribution<int> letters_dist(0, 25);
+
+    std::string name;
+
+    for(size_t i = 0; i < length; ++i){
+        name += 'A' + letters_dist(engine);
+    }
+
+    return name;
+}
