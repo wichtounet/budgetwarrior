@@ -435,14 +435,25 @@ std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
+    bool random = config_contains("random");
+
     asset.id           = to_number<size_t>(parts[0]);
     asset.guid         = parts[1];
-    asset.name         = parts[2];
     asset.int_stocks   = to_number<size_t>(parts[3]);
     asset.dom_stocks   = to_number<size_t>(parts[4]);
     asset.bonds        = to_number<size_t>(parts[5]);
     asset.cash         = to_number<size_t>(parts[6]);
     asset.currency     = parts[7];
+
+    if (random) {
+        asset.name = parts[2];
+
+        if (!(asset.name == "DESIRED" && asset.currency == "DESIRED")) {
+            asset.name = budget::random_name(5);
+        }
+    } else {
+        asset.name = parts[2];
+    }
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const asset_value& asset_value){
@@ -450,11 +461,18 @@ std::ostream& budget::operator<<(std::ostream& stream, const asset_value& asset_
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, asset_value& asset_value){
+    bool random = config_contains("random");
+
     asset_value.id       = to_number<size_t>(parts[0]);
     asset_value.guid     = parts[1];
     asset_value.asset_id = to_number<size_t>(parts[2]);
-    asset_value.amount   = parse_money(parts[3]);
     asset_value.set_date = from_string(parts[4]);
+
+    if (random) {
+        asset_value.amount = budget::random_money(1000, 50000);
+    } else {
+        asset_value.amount = parse_money(parts[3]);
+    }
 }
 
 bool budget::asset_exists(const std::string& name){
