@@ -8,7 +8,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <unordered_map>
+#include <utility>
+#include <map>
 
 #include "assets.hpp"
 #include "budget_exception.hpp"
@@ -20,6 +21,8 @@
 #include "console.hpp"
 #include "earnings.hpp"
 #include "expenses.hpp"
+
+#include <curl/curl.h>
 
 using namespace budget;
 
@@ -45,6 +48,56 @@ void show_assets(){
     }
 
     display_table(columns, contents);
+}
+
+size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
+std::map<std::pair<std::string, std::string>, double> exchanges;
+
+double exchange_rate(std::string from, std::string to){
+    if(from == to){
+        return 1.0;
+    } else {
+        auto key = std::make_pair(from, to);
+
+        if (!exchanges.count(key)) {
+            auto url = "http://free.currencyconverterapi.com/api/v3/convert?q=" + from + "_" + to + "&compact=ultra";
+            CURL* curl;
+            CURLcode res;
+            std::string buffer;
+
+            curl = curl_easy_init();
+            if (curl) {
+                curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+                res = curl_easy_perform(curl);
+                curl_easy_cleanup(curl);
+
+                if (res) {
+                    std::cout << "Error accessing exchange rates, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
+
+                    exchanges[key] = 1.0;
+                } else {
+                    if (buffer.find(':') == std::string::npos || buffer.find('}') == std::string::npos) {
+                        std::cout << "Error parsing exchange rates, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
+
+                        exchanges[key] = 1.0;
+                    } else {
+                        std::string ratio_result(buffer.begin() + buffer.find(':') + 1, buffer.begin() + buffer.find('}'));
+
+                        exchanges[key] = atof(ratio_result.c_str());
+                    }
+                }
+            }
+        }
+
+        return exchanges[key];
+    }
 }
 
 void show_asset_values(){
@@ -91,11 +144,16 @@ void show_asset_values(){
                                 to_string(amount),
                                 asset.currency});
 
-            int_stocks += amount * (asset.int_stocks / 100.0);
-            dom_stocks += amount * (asset.dom_stocks / 100.0);
-            bonds += amount * (asset.bonds / 100.0);
-            cash += amount * (asset.cash / 100.0);
-            total += amount;
+            auto int_stocks_amount = amount * (asset.int_stocks / 100.0);
+            auto dom_stocks_amount = amount * (asset.dom_stocks / 100.0);
+            auto bonds_amount      = amount * (asset.bonds / 100.0);
+            auto cash_amount       = amount * (asset.cash / 100.0);
+
+            int_stocks += int_stocks_amount * exchange_rate(asset.currency, get_default_currency());
+            dom_stocks += dom_stocks_amount * exchange_rate(asset.currency, get_default_currency());
+            bonds += bonds_amount * exchange_rate(asset.currency, get_default_currency());
+            cash += cash_amount * exchange_rate(asset.currency, get_default_currency());
+            total += amount * exchange_rate(asset.currency, get_default_currency());
         }
     }
 

@@ -9,7 +9,7 @@ ifneq (,$(findstring clang,$(CXX)))
 	CXX_FLAGS += -stdlib=libc++
 endif
 
-LD_FLAGS += -luuid
+LD_FLAGS += -luuid -lcurl
 
 $(eval $(call auto_folder_compile,src))
 $(eval $(call auto_add_executable,budget))
