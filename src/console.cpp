@@ -228,22 +228,31 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
 
             auto value = format(row[last_column]);
 
+            auto missing = width - rsize(row[last_column]);
+
+            std::string fill_string;
+            if (missing > 1){
+                fill_string = std::string(missing - 1, ' ');
+            }
+
             if (underline) {
                 os << format_code(4, 0, 7);
                 os << value;
-                os << std::string(width - rsize(row[last_column]) - 1, ' ');
+                os << fill_string;
                 os << format_code(0, 0, 7);
             } else {
                 os << value;
-                os << std::string(width - rsize(row[last_column]) - 1, ' ');
+                os << fill_string;
             }
 
-            if(j == row.size() - 1 && underline){
-                os << format_code(4, 0, 7);
-                os << ' ';
-                os << format_code(0, 0, 7);
-            } else {
-                os << ' ';
+            if (missing > 0) {
+                if (j == row.size() - 1 && underline) {
+                    os << format_code(4, 0, 7);
+                    os << ' ';
+                    os << format_code(0, 0, 7);
+                } else {
+                    os << ' ';
+                }
             }
         }
 
