@@ -105,7 +105,7 @@ void show_asset_values(){
                         to_string(bonds),
                         to_string(cash),
                         to_string(total),
-                        "CHF"});
+                        budget::get_default_currency()});
 
     contents.push_back({"Distribution",
                         to_string_precision(100 * int_stocks.dollars() / (double)total.dollars(), 2),
@@ -359,4 +359,12 @@ void budget::set_assets_next_id(size_t next_id){
 
 void budget::set_asset_values_next_id(size_t next_id){
     asset_values.next_id = next_id;
+}
+
+std::string budget::get_default_currency(){
+    if(budget::config_contains("default_currency")){
+        return budget::config_value("default_currency");
+    }
+
+    return "CHF";
 }

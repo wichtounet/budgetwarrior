@@ -71,6 +71,8 @@ void set_assets_changed();
 void set_assets_next_id(size_t next_id);
 void set_asset_values_next_id(size_t next_id);
 
+std::string get_default_currency();
+
 } //end of namespace budget
 
 #endif
