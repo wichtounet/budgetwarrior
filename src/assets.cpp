@@ -116,6 +116,8 @@ void show_asset_values(){
                         ""});
 
     display_table(columns, contents);
+
+    std::cout << std::endl << "       Net worth: " << total << get_default_currency() << std::endl;
 }
 
 } //end of anonymous namespace
@@ -162,7 +164,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 }
             } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100);
 
-            asset.currency = "CHF";
+            asset.currency = budget::get_default_currency();
             edit_string(asset.currency, "Currency", not_empty_checker());
 
             auto id = add_data(assets, std::move(asset));
@@ -266,9 +268,10 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                 } else if(subsubcommand == "delete"){
 
+                } else {
+                    throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
                 }
             }
-
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
