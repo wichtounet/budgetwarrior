@@ -116,9 +116,9 @@ std::string account_summary(budget::month month, budget::year year){
 
 std::string objectives_summary(){
     std::stringstream ss;
-    budget::yearly_objective_status(ss, false);
+    budget::yearly_objective_status(ss, false, true);
     ss << std::endl;
-    budget::current_monthly_objective_status(ss);
+    budget::current_monthly_objective_status(ss, true);
     return ss.str();
 }
 

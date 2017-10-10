@@ -121,7 +121,7 @@ void status_objectives(){
         }
 
         if(yearly){
-            budget::yearly_objective_status(std::cout, true);
+            budget::yearly_objective_status(std::cout, true, false);
 
             if(monthly){
                 std::cout << std::endl;
@@ -144,7 +144,7 @@ void edit(budget::objective& objective){
 
 } //end of anonymous namespace
 
-void budget::yearly_objective_status(std::ostream& os, bool lines){
+void budget::yearly_objective_status(std::ostream& os, bool lines, bool full_align){
     size_t yearly = 0;
 
     for (auto& objective : objectives.data) {
@@ -161,9 +161,15 @@ void budget::yearly_objective_status(std::ostream& os, bool lines){
         }
 
         size_t width = 0;
-        for (auto& objective : objectives.data) {
-            if (objective.type == "yearly") {
+        if (full_align) {
+            for (auto& objective : objectives.data) {
                 width = std::max(rsize(objective.name), width);
+            }
+        } else {
+            for (auto& objective : objectives.data) {
+                if (objective.type == "yearly") {
+                    width = std::max(rsize(objective.name), width);
+                }
             }
         }
 
@@ -226,14 +232,28 @@ void budget::monthly_objective_status(std::ostream& os){
     }
 }
 
-void budget::current_monthly_objective_status(std::ostream& os){
+void budget::current_monthly_objective_status(std::ostream& os, bool full_align){
     os << "Month objectives" << std::endl;
 
     auto today         = budget::local_day();
 
+    size_t width = 0;
+    if (full_align) {
+        for (auto& objective : objectives.data) {
+            width = std::max(rsize(objective.name), width);
+        }
+    } else {
+        for (auto& objective : objectives.data) {
+            if (objective.type == "monthly") {
+                width = std::max(rsize(objective.name), width);
+            }
+        }
+    }
+
     for (auto& objective : objectives.data) {
         if (objective.type == "monthly") {
-            os << "  " << objective.name << " ";
+            os << "  ";
+            print_minimum_left(os, objective.name, width);
 
             // Compute the month status
             auto status = budget::compute_month_status(today.year(), today.month());
