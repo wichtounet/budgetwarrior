@@ -120,11 +120,11 @@ std::string budget::format(const std::string& v){
     return v;
 }
 
-void budget::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups){
-    display_table(std::cout, columns, contents, groups);
+void budget::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines){
+    display_table(std::cout, columns, contents, groups, lines);
 }
 
-void budget::display_table(std::ostream& os, std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups){
+void budget::display_table(std::ostream& os, std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines){
     cpp_assert(groups > 0, "There must be at least 1 group");
 
     for(auto& row : contents){
@@ -186,7 +186,7 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
     for(size_t i = 0; i < contents.size(); ++i){
         auto& row = contents[i];
 
-        os << format_code(0, 0, 7);
+        bool underline = std::find(lines.begin(), lines.end(), i) != lines.end();
 
         for(size_t j = 0; j < row.size(); j += groups){
             size_t acc_width = 0;
@@ -198,9 +198,18 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
                 std::string value = format(row[column]);
 
                 acc_width += widths[column];
-                os << value;
 
-                os << std::string(widths[column] - rsize(value), ' ');
+                if (underline) {
+                    os << format_code(4, 0, 7);
+                    os << value;
+                    os << std::string(widths[column] - rsize(value) - 1, ' ');
+                    os << format_code(0, 0, 7);
+                } else {
+                    os << value;
+                    os << std::string(widths[column] - rsize(value) - 1, ' ');
+                }
+
+                os << ' ';
             }
 
             //The last column of the group
@@ -218,11 +227,26 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
             }
 
             auto value = format(row[last_column]);
-            os << value;
 
-            os << std::string(width - rsize(row[last_column]), ' ');
+            if (underline) {
+                os << format_code(4, 0, 7);
+                os << value;
+                os << std::string(width - rsize(row[last_column]) - 1, ' ');
+                os << format_code(0, 0, 7);
+            } else {
+                os << value;
+                os << std::string(width - rsize(row[last_column]) - 1, ' ');
+            }
+
+            if(j == row.size() - 1 && underline){
+                os << format_code(4, 0, 7);
+                os << ' ';
+                os << format_code(0, 0, 7);
+            } else {
+                os << ' ';
+            }
         }
 
-        os << std::endl;
+        os << format_code(0, 0, 7) << std::endl;
     }
 }
