@@ -52,6 +52,14 @@ void print_status(std::ostream& os, const budget::status& status, const budget::
         basis = status.expenses;
     } else if (objective.source == "earnings") {
         basis = status.earnings;
+    } else if (objective.source == "savings_rate") {
+        double savings_rate = 0.0;
+
+        if(status.balance.dollars() > 0){
+            savings_rate = 100 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+        }
+
+        basis = budget::money(int(savings_rate));
     } else {
         basis = status.balance;
     }
@@ -129,7 +137,7 @@ void status_objectives(){
 void edit(budget::objective& objective){
     edit_string(objective.name, "Name", not_empty_checker());
     edit_string(objective.type, "Type", not_empty_checker(), one_of_checker({"monthly","yearly"}));
-    edit_string(objective.source, "Source", not_empty_checker(), one_of_checker({"balance", "earnings", "expenses"}));
+    edit_string(objective.source, "Source", not_empty_checker(), one_of_checker({"balance", "earnings", "expenses", "savings_rate"}));
     edit_string(objective.op, "Operator", not_empty_checker(), one_of_checker({"min", "max"}));
     edit_money(objective.amount, "Amount");
 }
@@ -190,21 +198,10 @@ void budget::monthly_objective_status(std::ostream& os){
     auto current_year  = today.year();
     auto sm            = start_month(current_year);
 
-    size_t width = 0;
-    for (unsigned short i = sm; i <= current_month; ++i) {
-        budget::month month = i;
-
-        std::stringstream stream;
-        stream << month;
-
-        width = std::max(width, stream.str().size());
-    }
-
     for (auto& objective : objectives.data) {
         if (objective.type == "monthly") {
             os << std::endl << objective.name << std::endl;
 
-            size_t width = 0;
             for (unsigned short i = sm; i <= current_month; ++i) {
                 budget::month month = i;
 
@@ -213,7 +210,7 @@ void budget::monthly_objective_status(std::ostream& os){
 
                 //1. Print month
                 os << "  ";
-                print_minimum(os, month, width);
+                print_minimum_left(os, month, 2);
 
                 //2. Print status
                 os << "  ";
@@ -263,7 +260,13 @@ int budget::compute_success(const budget::status& status, const budget::objectiv
     } else if (objective.source == "earnings") {
         basis = status.earnings;
     } else {
-        basis = status.balance;
+        double savings_rate = 0.0;
+
+        if(status.balance.dollars() > 0){
+            savings_rate = 100 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+        }
+
+        basis = budget::money(int(savings_rate));
     }
 
     int success = 0;
