@@ -57,7 +57,19 @@ void budget::status_fortunes(std::ostream& os, bool short_view){
     for(std::size_t i = 0; i < sorted_values.size(); ++i){
         auto& fortune = sorted_values[i];
 
-        if (!short_view || i > sorted_values.size() - 3) {
+        bool display;
+        if(!short_view){
+            display = true;
+        } else {
+            const size_t displayed = 3;
+            if(sorted_values.size() <= displayed){
+                display = true;
+            } else {
+                display = i > sorted_values.size() - 1 - displayed;
+            }
+        }
+
+        if (display) {
             if (i == 0) {
                 if (short_view) {
                     contents.push_back({to_string(fortune.check_date), to_string(fortune.amount), "", "", ""});
