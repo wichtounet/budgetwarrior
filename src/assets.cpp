@@ -279,7 +279,17 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 id = budget::get_asset(name).id;
             }
 
-            // TODO Make sure there is no values to this asset
+            auto& asset = get_asset(id);
+
+            if(asset.name == "DESIRED" && asset.currency == "DESIRED"){
+                throw budget_exception("Cannot delete special asset " + args[2]);
+            }
+
+            for(auto& value : asset_values.data){
+                if(value.asset_id == id){
+                    throw budget_exception("There are still asset values linked to asset " + args[2]);
+                }
+            }
 
             remove(assets, id);
 
