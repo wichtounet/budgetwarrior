@@ -57,6 +57,16 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget fortune edit (id)                        Edit a fortune check\n";
     std::cout << "       budget fortune delete (id)                      Delete a fortune check\n\n";
 
+    std::cout << "       budget asset [show]                             Display the assets\n";
+    std::cout << "       budget asset add                                Add a new asset\n";
+    std::cout << "       budget asset add edit (id)                      Edit an asset\n";
+    std::cout << "       budget asset add delete (id)                    Delete an asset\n";
+    std::cout << "       budget asset value [show]                       Display the asset values (net worth)\n";
+    std::cout << "       budget asset value list                         Display a list of the asset values\n";
+    std::cout << "       budget asset value add                          Set the value of an list\n";
+    std::cout << "       budget asset value edit it                      Edits an asset value\n";
+    std::cout << "       budget asset value delete it                    Delete an asset value\n";
+
     std::cout << "       budget objective [status]                       Show the status of the objectives for the current year\n";
     std::cout << "       budget objective list                           List all the defined objectives\n";
     std::cout << "       budget objective add                            Add a new objective\n";
