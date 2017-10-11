@@ -104,6 +104,24 @@ void show_assets(){
     display_table(columns, contents);
 }
 
+void list_asset_values(){
+    if (!asset_values.data.size()) {
+        std::cout << "No asset values" << std::endl;
+        return;
+    }
+
+    std::vector<std::string> columns = {"ID", "Asset", "Amount", "Date"};
+    std::vector<std::vector<std::string>> contents;
+
+    // Display the assets
+
+    for(auto& value : asset_values.data){
+        contents.push_back({to_string(value.id), get_asset(value.id).name, to_string(value.amount), to_string(value.set_date)});
+    }
+
+    display_table(columns, contents);
+}
+
 void show_asset_values(){
     if (!asset_values.data.size()) {
         std::cout << "No asset values" << std::endl;
@@ -366,6 +384,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     std::cout << "Asset Value " << id << " has been created" << std::endl;
                 } else if(subsubcommand == "show"){
                     show_asset_values();
+                } else if(subsubcommand == "list"){
+                    list_asset_values();
                 } else if(subsubcommand == "edit"){
 
                 } else if(subsubcommand == "delete"){
