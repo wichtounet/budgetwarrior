@@ -409,8 +409,20 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     std::cout << "Asset Value " << id << " has been modified" << std::endl;
 
                     asset_values.changed = true;
-                } else if(subsubcommand == "delete"){
+                } else if (subsubcommand == "delete") {
+                    size_t id = 0;
 
+                    enough_args(args, 4);
+
+                    id = to_number<size_t>(args[3]);
+
+                    if (!exists(assets, id)) {
+                        throw budget_exception("There are no asset value with id " + args[2]);
+                    }
+
+                    remove(asset_values, id);
+
+                    std::cout << "Asset value " << id << " has been deleted" << std::endl;
                 } else {
                     throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
                 }
