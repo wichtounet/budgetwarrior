@@ -564,6 +564,10 @@ void budget::set_assets_changed(){
     assets.changed = true;
 }
 
+void budget::set_asset_values_changed(){
+    asset_values.changed = true;
+}
+
 void budget::set_assets_next_id(size_t next_id){
     assets.next_id = next_id;
 }

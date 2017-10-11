@@ -18,6 +18,7 @@
 #include "wishes.hpp"
 #include "objectives.hpp"
 #include "recurring.hpp"
+#include "assets.hpp"
 
 using namespace budget;
 
@@ -25,7 +26,7 @@ namespace {
 
 template<typename Values>
 size_t gc(Values& values){
-    std::sort(values.begin(), values.end(), 
+    std::sort(values.begin(), values.end(),
         [](const typename Values::value_type& a, const typename Values::value_type& b){ return a.id < b.id; });
 
     size_t next_id = 0;
@@ -42,6 +43,15 @@ void adapt(Values& values, size_t old, size_t id){
     for(auto& value : values){
         if(value.account == old){
             value.account = id;
+        }
+    }
+}
+
+template<typename Values>
+void adapt_assets(Values& values, size_t old, size_t id){
+    for(auto& value : values){
+        if(value.asset_id == old){
+            value.asset_id = id;
         }
     }
 }
@@ -115,6 +125,36 @@ void gc_accounts(){
     set_accounts_next_id(next_id);
 }
 
+void gc_asset_values(){
+    auto next_id = gc(all_asset_values());
+    set_asset_values_next_id(next_id);
+    set_asset_values_changed();
+}
+
+void gc_assets(){
+    auto& assets = all_assets();
+
+    size_t next_id = 1;
+
+    std::sort(assets.begin(), assets.end(), [](const asset& a, const asset& b){ return a.id < b.id; });
+
+    for(auto& asset : assets){
+        if(asset.id != next_id){
+            auto old_asset = asset.id;
+            asset.id = next_id;
+
+            adapt_assets(all_asset_values(), old_asset, asset.id);
+        }
+
+        ++next_id;
+    }
+
+    ++next_id;
+
+    set_assets_changed();
+    set_assets_next_id(next_id);
+}
+
 } //end of anonymous namespace
 
 void budget::gc_module::load(){
@@ -126,6 +166,7 @@ void budget::gc_module::load(){
     load_wishes();
     load_objectives();
     load_recurrings();
+    load_assets();
 }
 
 void budget::gc_module::unload(){
@@ -137,6 +178,7 @@ void budget::gc_module::unload(){
     save_wishes();
     save_objectives();
     save_recurrings();
+    save_assets();
 }
 
 void budget::gc_module::handle(const std::vector<std::string>& args){
@@ -153,6 +195,8 @@ void budget::gc_module::handle(const std::vector<std::string>& args){
         gc_objectives();
         gc_recurrings();
         gc_accounts();
+        gc_asset_values();
+        gc_assets();
 
         std::cout << "...done" << std::endl;
     }
