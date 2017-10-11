@@ -279,7 +279,7 @@ int budget::compute_success(const budget::status& status, const budget::objectiv
         basis = status.expenses;
     } else if (objective.source == "earnings") {
         basis = status.earnings;
-    } else {
+    } else if (objective.source == "savings_rate") {
         double savings_rate = 0.0;
 
         if(status.balance.dollars() > 0){
@@ -287,6 +287,8 @@ int budget::compute_success(const budget::status& status, const budget::objectiv
         }
 
         basis = budget::money(int(savings_rate));
+    } else {
+        basis = status.balance;
     }
 
     int success = 0;
