@@ -387,7 +387,28 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 } else if(subsubcommand == "list"){
                     list_asset_values();
                 } else if(subsubcommand == "edit"){
+                    size_t id = 0;
 
+                    enough_args(args, 4);
+
+                    id = to_number<size_t>(args[3]);
+
+                    if (!exists(assets, id)) {
+                        throw budget_exception("There are no asset values with id " + args[2]);
+                    }
+
+                    auto& value = get(asset_values, id);
+
+                    std::string asset_name = get_asset(value.asset_id).name;
+                    edit_string(asset_name, "Asset", not_empty_checker(), asset_checker());
+                    value.asset_id = get_asset(asset_name).id;
+
+                    edit_money(value.amount, "Amount", not_negative_checker());
+                    edit_date(value.set_date, "Date");
+
+                    std::cout << "Asset Value " << id << " has been modified" << std::endl;
+
+                    asset_values.changed = true;
                 } else if(subsubcommand == "delete"){
 
                 } else {
