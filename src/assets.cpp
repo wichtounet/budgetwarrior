@@ -222,9 +222,9 @@ void show_asset_values(){
                             to_string(budget::money{}),
                             get_default_currency()});
 
-        display_table(columns, contents, 1, {contents.size() - 5, contents.size() - 1});
+        display_table(columns, contents, 1, {contents.size() - 5, contents.size() - 1}, 1);
     } else {
-        display_table(columns, contents);
+        display_table(columns, contents, 1, {}, 1);
     }
 
     std::cout << std::endl << "       Net worth: " << total << get_default_currency() << std::endl;

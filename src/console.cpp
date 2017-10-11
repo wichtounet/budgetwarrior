@@ -120,11 +120,11 @@ std::string budget::format(const std::string& v){
     return v;
 }
 
-void budget::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines){
-    display_table(std::cout, columns, contents, groups, lines);
+void budget::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left){
+    display_table(std::cout, columns, contents, groups, lines, left);
 }
 
-void budget::display_table(std::ostream& os, std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines){
+void budget::display_table(std::ostream& os, std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left){
     cpp_assert(groups > 0, "There must be at least 1 group");
 
     for(auto& row : contents){
@@ -156,6 +156,10 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
 
     // Display the header
 
+    if (left) {
+        os << std::string(left, ' ');
+    }
+
     for(size_t i = 0; i < columns.size(); ++i){
         auto& column = columns[i];
 
@@ -184,6 +188,10 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
     // Display the contents
 
     for(size_t i = 0; i < contents.size(); ++i){
+        if(left){
+            os << std::string(left, ' ');
+        }
+
         auto& row = contents[i];
 
         bool underline = std::find(lines.begin(), lines.end(), i) != lines.end();

@@ -110,7 +110,7 @@ std::string account_summary(budget::month month, budget::year year){
     }
 
     std::stringstream ss;
-    display_table(ss, columns, contents);
+    display_table(ss, columns, contents, 1, {}, 1);
     return ss.str();
 }
 
