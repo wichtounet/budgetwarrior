@@ -93,6 +93,10 @@ void show_assets(){
     // Display the assets
 
     for(auto& asset : assets.data){
+        if(asset.name == "DESIRED" && asset.currency == "DESIRED"){
+            continue;
+        }
+
         contents.push_back({to_string(asset.id), asset.name, to_string(asset.int_stocks),
             to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency)});
     }
