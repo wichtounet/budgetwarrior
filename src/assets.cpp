@@ -116,7 +116,7 @@ void list_asset_values(){
     // Display the assets
 
     for(auto& value : asset_values.data){
-        contents.push_back({to_string(value.id), get_asset(value.id).name, to_string(value.amount), to_string(value.set_date)});
+        contents.push_back({to_string(value.id), get_asset(value.asset_id).name, to_string(value.amount), to_string(value.set_date)});
     }
 
     display_table(columns, contents);
