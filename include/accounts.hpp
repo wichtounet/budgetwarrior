@@ -46,6 +46,8 @@ void save_accounts();
 
 bool account_exists(const std::string& account);
 
+std::vector<std::string> all_account_names();
+
 std::vector<budget::account>& all_accounts();
 std::vector<budget::account>  all_accounts(year year, month month);
 

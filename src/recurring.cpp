@@ -115,7 +115,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             recurring.guid = generate_guid();
             recurring.recurs = "monthly";
 
-            edit_string(recurring.account, "Account", not_empty_checker(), account_checker());
+            edit_string_complete(recurring.account, "Account", all_account_names(), not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
 
@@ -163,7 +163,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             auto now = budget::local_day();
 
-            edit_string(recurring.account, "Account", not_empty_checker(), account_checker());
+            edit_string_complete(recurring.account, "Account", all_account_names(), not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
 

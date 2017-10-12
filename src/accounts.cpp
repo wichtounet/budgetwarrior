@@ -160,7 +160,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 }
             } else {
                 std::string name;
-                edit_string(name, "Account", not_empty_checker(), account_checker());
+                edit_string_complete(name, "Account", all_account_names(), not_empty_checker(), account_checker());
 
                 auto today = budget::local_day();
                 id = get_account(name, today.year(), today.month()).id;
@@ -196,7 +196,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 }
             } else {
                 std::string name;
-                edit_string(name, "Account", not_empty_checker(), account_checker());
+                edit_string_complete(name, "Account", all_account_names(), not_empty_checker(), account_checker());
 
                 id = get_account(name, today.year(), today.month()).id;
             }
@@ -223,10 +223,10 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             accounts.changed = true;
         } else if(subcommand == "transfer"){
             std::string from_name;
-            edit_string(from_name, "Transfer from", not_empty_checker(), account_checker());
+            edit_string_complete(from_name, "Transfer from", all_account_names(), not_empty_checker(), account_checker());
 
             std::string to_name;
-            edit_string(to_name, "Transfer to", not_empty_checker(), account_checker());
+            edit_string_complete(to_name, "Transfer to", all_account_names(), not_empty_checker(), account_checker());
 
             if(from_name == to_name){
                 throw budget_exception("Cannot transfer to an from the same account");
@@ -257,10 +257,10 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             add_earning(std::move(earning));
         } else if(subcommand == "migrate"){
             std::string source_account_name;
-            edit_string(source_account_name, "Source Account", not_empty_checker(), account_checker());
+            edit_string_complete(source_account_name, "Source Account", all_account_names(), not_empty_checker(), account_checker());
 
             std::string destination_account_name;
-            edit_string(destination_account_name, "Destination Account", not_empty_checker(), account_checker());
+            edit_string_complete(destination_account_name, "Destination Account", all_account_names(), not_empty_checker(), account_checker());
 
             std::cout << "This command will move all expenses and earnings from \"" << source_account_name
                 << "\" to \"" << destination_account_name <<"\" and delete \"" << source_account_name
@@ -472,4 +472,14 @@ void budget::set_accounts_changed(){
 
 void budget::set_accounts_next_id(size_t next_id){
     accounts.next_id = next_id;
+}
+
+std::vector<std::string> budget::all_account_names(){
+    std::vector<std::string> account_names;
+
+    for (auto& account : all_accounts()) {
+        account_names.push_back(account.name);
+    }
+
+    return account_names;
 }

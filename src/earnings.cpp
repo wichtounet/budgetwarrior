@@ -112,7 +112,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             edit_date(earning.date, "Date");
 
             std::string account_name;
-            edit_string(account_name, "Account", not_empty_checker(), account_checker());
+            edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
             earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
             edit_string(earning.name, "Name", not_empty_checker());
@@ -146,7 +146,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             edit_date(earning.date, "Date");
 
             auto account_name = get_account(earning.account).name;
-            edit_string(account_name, "Account", not_empty_checker(), account_checker());
+            edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
             earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
 
             edit_string(earning.name, "Name", not_empty_checker());

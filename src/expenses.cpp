@@ -165,7 +165,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                     expense.name = template_name;
 
                     std::string account_name;
-                    edit_string(account_name, "Account", not_empty_checker(), account_checker());
+                    edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
                     expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
                     edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
@@ -181,7 +181,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 edit_date(expense.date, "Date");
 
                 std::string account_name;
-                edit_string(account_name, "Account", not_empty_checker(), account_checker());
+                edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
                 expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
                 edit_string(expense.name, "Name", not_empty_checker());
@@ -216,7 +216,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             edit_date(expense.date, "Date");
 
             auto account_name = get_account(expense.account).name;
-            edit_string(account_name, "Account", not_empty_checker(), account_checker());
+            edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
             expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
             edit_string(expense.name, "Name", not_empty_checker());
