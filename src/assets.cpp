@@ -81,6 +81,18 @@ double exchange_rate(std::string from, std::string to){
     }
 }
 
+std::vector<std::string> get_asset_names(){
+    std::vector<std::string> asset_names;
+
+    for (auto& asset : all_assets()) {
+        if (asset.name != "DESIRED") {
+            asset_names.push_back(asset.name);
+        }
+    }
+
+    return asset_names;
+}
+
 void show_assets(){
     if (!assets.data.size()) {
         std::cout << "No assets" << std::endl;
@@ -292,7 +304,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 }
             } else {
                 std::string name;
-                edit_string(name, "Asset", not_empty_checker(), asset_checker());
+                edit_string_complete(name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
 
                 id = budget::get_asset(name).id;
             }
@@ -325,7 +337,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 }
             } else {
                 std::string name;
-                edit_string(name, "Asset", not_empty_checker(), asset_checker());
+                edit_string_complete(name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
 
                 id = get_asset(name).id;
             }
@@ -372,7 +384,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     asset_value.guid = generate_guid();
 
                     std::string asset_name;
-                    edit_string(asset_name, "Asset", not_empty_checker(), asset_checker());
+                    edit_string_complete(asset_name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
                     asset_value.asset_id = get_asset(asset_name).id;
 
                     edit_money(asset_value.amount, "Amount", not_negative_checker());
@@ -400,7 +412,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     auto& value = get(asset_values, id);
 
                     std::string asset_name = get_asset(value.asset_id).name;
-                    edit_string(asset_name, "Asset", not_empty_checker(), asset_checker());
+                    edit_string_complete(asset_name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
                     value.asset_id = get_asset(asset_name).id;
 
                     edit_money(value.amount, "Amount", not_negative_checker());
