@@ -136,9 +136,9 @@ void status_objectives(){
 
 void edit(budget::objective& objective){
     edit_string(objective.name, "Name", not_empty_checker());
-    edit_string(objective.type, "Type", not_empty_checker(), one_of_checker({"monthly","yearly"}));
-    edit_string(objective.source, "Source", not_empty_checker(), one_of_checker({"balance", "earnings", "expenses", "savings_rate"}));
-    edit_string(objective.op, "Operator", not_empty_checker(), one_of_checker({"min", "max"}));
+    edit_string_complete(objective.type, "Type", {"monthly","yearly"}, not_empty_checker(), one_of_checker({"monthly","yearly"}));
+    edit_string_complete(objective.source, "Source", {"balance", "earnings", "expenses", "savings_rate"}, not_empty_checker(), one_of_checker({"balance", "earnings", "expenses", "savings_rate"}));
+    edit_string_complete(objective.op, "Operator", {"min", "max"}, not_empty_checker(), one_of_checker({"min", "max"}));
     edit_money(objective.amount, "Amount");
 }
 
