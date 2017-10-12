@@ -337,7 +337,7 @@ std::string budget::get_string_complete(const std::vector<std::string>& choices)
                     std::cout << "\b \b";
                 }
 
-                index = (index + 1) % choices.size();
+                index = (index + 1) % (choices.size() + 1);
 
                 if(index > 0){
                     answer = choices[index - 1];
