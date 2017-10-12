@@ -12,6 +12,10 @@
 
 #include "console.hpp"
 
+// For getch
+#include <termios.h>
+#include <unistd.h>
+
 std::string budget::format_code(int attr, int fg, int bg){
     std::stringstream stream;
     stream << "" << '\033' << "[" << attr << ";" << (fg + 30) << (bg + 40) << "m";
@@ -266,4 +270,105 @@ void budget::display_table(std::ostream& os, std::vector<std::string>& columns, 
 
         os << format_code(0, 0, 7) << std::endl;
     }
+}
+
+namespace {
+
+char getch() {
+    char buf = 0;
+    struct termios old;
+    fflush(stdout);
+
+    if (tcgetattr(0, &old) < 0) {
+        perror("tcsetattr()");
+    }
+
+    old.c_lflag &= ~ICANON;
+    old.c_lflag &= ~ECHO;
+    old.c_cc[VMIN]  = 1;
+    old.c_cc[VTIME] = 0;
+
+    if (tcsetattr(0, TCSANOW, &old) < 0) {
+        perror("tcsetattr ICANON");
+    }
+
+    if (read(0, &buf, 1) < 0) {
+        perror("read()");
+    }
+
+    old.c_lflag |= ICANON;
+    old.c_lflag |= ECHO;
+
+    if (tcsetattr(0, TCSADRAIN, &old) < 0) {
+        perror("tcsetattr ~ICANON");
+    }
+
+    return buf;
+}
+
+} // end of anonymous namespace
+
+std::string budget::get_string_complete(const std::vector<std::string>& choices){
+    std::string answer;
+
+    if(choices.empty()){
+        std::getline(std::cin, answer);
+        return answer;
+    }
+
+    size_t index = 0;
+
+    while(true){
+        char c = getch();
+
+        if (c == '\r'){
+            std::cout << std::endl;
+            return answer;
+        } else if (c == '\n'){
+            std::cout << std::endl;
+            return answer;
+        } else if(c == '\033'){
+            getch();
+
+            char cc = getch();
+
+            if(cc == 'A'){
+                for(size_t i = 0; i < answer.size(); ++i){
+                    std::cout << "\b \b";
+                }
+
+                index = (index + 1) % choices.size();
+
+                if(index > 0){
+                    answer = choices[index - 1];
+                } else if(index == 0){
+                    answer = "";
+                }
+
+                std::cout << answer;
+            } else if(cc == 'B'){
+                for(size_t i = 0; i < answer.size(); ++i){
+                    std::cout << "\b \b";
+                }
+
+                if(index == 1){
+                    index = 0;
+                    answer = "";
+                } else if(index == 0){
+                    index = choices.size();
+                    answer = choices[index - 1];
+                } else {
+                    --index;
+                    answer = choices[index - 1];
+                }
+
+                std::cout << answer;
+            }
+        } else {
+            std::cout << c;
+            answer += c;
+        }
+    }
+
+    return answer;
 }

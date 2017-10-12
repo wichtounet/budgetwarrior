@@ -118,6 +118,24 @@ bool check(const T& value, CheckerA first, Checker... checkers){
     return check(value, checkers...);
 }
 
+std::string get_string_complete(const std::vector<std::string>& choices);
+
+template<typename ...Checker>
+void edit_string_complete(std::string& ref, const std::string& title, const std::vector<std::string>& choices, Checker... checkers){
+    bool checked;
+    do {
+        std::cout << title << " [" << ref << "]: ";
+
+        auto answer = get_string_complete(choices);
+
+        if(!answer.empty()){
+            ref = answer;
+        }
+
+        checked = check(ref, checkers...);
+    } while(!checked);
+}
+
 template<typename ...Checker>
 void edit_string(std::string& ref, const std::string& title, Checker... checkers){
     bool checked;
