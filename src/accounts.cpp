@@ -327,7 +327,25 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 }
             }
         } else if(subcommand == "archive"){
-            std::cout << "This command will create new accounts that will be used starting from the beginning of the current month. Are you sure you want to proceed ? [yes/no] ? ";
+            bool month = true;
+
+            if(args.size() == 3){
+                auto& sub_sub_command = args[2];
+
+                if(sub_sub_command == "month"){
+                    month = true;
+                } else if(sub_sub_command == "year"){
+                    month = false;
+                } else {
+                    throw budget_exception("Invalid subcommand \"" + subcommand + + " " + sub_sub_command + "\"");
+                }
+            }
+
+            if (month) {
+                std::cout << "This command will create new accounts that will be used starting from the beginning of the current month. Are you sure you want to proceed ? [yes/no] ? ";
+            } else {
+                std::cout << "This command will create new accounts that will be used starting from the beginning of the current year. Are you sure you want to proceed ? [yes/no] ? ";
+            }
 
             std::string answer;
             std::cin >> answer;
@@ -338,8 +356,17 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
                 auto today = budget::local_day();
 
-                auto tmp = budget::local_day() - months(1);
-                budget::date until_date(tmp.year(), tmp.month(), tmp.end_of_month().day());
+                budget::date until_date;
+                budget::date since_date;
+
+                if(month){
+                    auto tmp = budget::local_day() - months(1);
+                    until_date = budget::date(tmp.year(), tmp.month(), tmp.end_of_month().day());
+                    since_date = until_date + days(1);
+                } else {
+                    since_date = budget::date(today.year(), 1, 1);
+                    until_date = since_date - days(1);
+                }
 
                 for(auto& account : all_accounts()){
                     if(account.until == budget::date(2099,12,31)){
@@ -348,7 +375,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                         copy.name = account.name;
                         copy.amount = account.amount;
                         copy.until = budget::date(2099,12,31);
-                        copy.since = until_date + days(1);
+                        copy.since = since_date;
 
                         account.until = until_date;
 
@@ -369,7 +396,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 }
 
                 for(auto& expense : all_expenses()){
-                    if(expense.date.month() == today.month() && expense.date.year() == today.year()){
+                    if(expense.date >= since_date){
                         if(mapping.find(expense.account) != mapping.end()){
                             expense.account = mapping[expense.account];
                             set_expenses_changed();
@@ -378,7 +405,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 }
 
                 for(auto& earning : all_earnings()){
-                    if(earning.date.month() == today.month() && earning.date.year() == today.year()){
+                    if(earning.date >= since_date){
                         if(mapping.find(earning.account) != mapping.end()){
                             earning.account = mapping[earning.account];
                             set_earnings_changed();

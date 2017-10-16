@@ -19,7 +19,8 @@ void budget::help_module::handle(const std::vector<std::string>&){
     std::cout << "       budget account edit (id)                        Edit the given account\n";
     std::cout << "       budget account transfer                         Transfer money from one account to another\n";
     std::cout << "       budget account migrate                          Merge two accounts together\n";
-    std::cout << "       budget account archive                          Archive the current accounts to start new accounts\n\n";
+    std::cout << "       budget account archive (month)                  Archive the current accounts to start new accounts from this month\n\n";
+    std::cout << "       budget account archive (year)                   Archive the current accounts to start new accounts from this year\n\n";
 
     std::cout << "       budget expense [show]                           Display the expenses of the current month\n";
     std::cout << "       budget expense show (month) (year)              Display the expenses of the specified month of the specified year\n";

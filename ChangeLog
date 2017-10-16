@@ -3,6 +3,7 @@ budgetwarrior 0.4.3 - in development
  * Add support for savings rate objectives
  * Add support for tracking asset values
  * Auto-completion when possible with UP and DOWN
+ * Add budget account archive year to archive from beginning of year
 
 budgetwarrior 0.4.2 - 14.09.2017
  * New command: summary for a global view
