@@ -30,7 +30,12 @@ struct data_handler {
 
 template<typename T>
 void save_data(const data_handler<T>& data, const std::string& path){
-    if(data.changed){
+    if (data.changed) {
+        if (budget::config_contains("random")) {
+            std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
+            return;
+        }
+
         auto file_path = path_to_budget_file(path);
 
         std::ofstream file(file_path);
