@@ -321,7 +321,12 @@ std::string budget::get_string_complete(const std::vector<std::string>& choices)
     while(true){
         char c = getch();
 
-        if (c == '\r'){
+        if (+c == 127){
+            if(!answer.empty()){
+                std::cout << "\b \b";
+                answer.pop_back();
+            }
+        } else if (c == '\r'){
             std::cout << std::endl;
             return answer;
         } else if (c == '\n'){
