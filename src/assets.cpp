@@ -99,7 +99,7 @@ void show_assets(){
         return;
     }
 
-    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency"};
+    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency", "Portfolio", "Alloc"};
     std::vector<std::vector<std::string>> contents;
 
     // Display the assets
@@ -110,7 +110,7 @@ void show_assets(){
         }
 
         contents.push_back({to_string(asset.id), asset.name, to_string(asset.int_stocks),
-            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency)});
+            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency), asset.portfolio ? "Yes" : "No", asset.portfolio ? to_string(asset.portfolio_alloc) : ""});
     }
 
     display_table(columns, contents);
