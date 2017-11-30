@@ -170,24 +170,26 @@ void show_asset_values(){
             auto& asset_value = get_asset_value(asset_value_id);
             auto amount       = asset_value.amount;
 
-            contents.push_back({asset.name,
-                                to_string(amount * (asset.int_stocks / 100.0)),
-                                to_string(amount * (asset.dom_stocks / 100.0)),
-                                to_string(amount * (asset.bonds / 100.0)),
-                                to_string(amount * (asset.cash / 100.0)),
-                                to_string(amount),
-                                asset.currency});
+            if (amount) {
+                contents.push_back({asset.name,
+                                    to_string(amount * (asset.int_stocks / 100.0)),
+                                    to_string(amount * (asset.dom_stocks / 100.0)),
+                                    to_string(amount * (asset.bonds / 100.0)),
+                                    to_string(amount * (asset.cash / 100.0)),
+                                    to_string(amount),
+                                    asset.currency});
 
-            auto int_stocks_amount = amount * (asset.int_stocks / 100.0);
-            auto dom_stocks_amount = amount * (asset.dom_stocks / 100.0);
-            auto bonds_amount      = amount * (asset.bonds / 100.0);
-            auto cash_amount       = amount * (asset.cash / 100.0);
+                auto int_stocks_amount = amount * (asset.int_stocks / 100.0);
+                auto dom_stocks_amount = amount * (asset.dom_stocks / 100.0);
+                auto bonds_amount      = amount * (asset.bonds / 100.0);
+                auto cash_amount       = amount * (asset.cash / 100.0);
 
-            int_stocks += int_stocks_amount * exchange_rate(asset.currency, get_default_currency());
-            dom_stocks += dom_stocks_amount * exchange_rate(asset.currency, get_default_currency());
-            bonds += bonds_amount * exchange_rate(asset.currency, get_default_currency());
-            cash += cash_amount * exchange_rate(asset.currency, get_default_currency());
-            total += amount * exchange_rate(asset.currency, get_default_currency());
+                int_stocks += int_stocks_amount * exchange_rate(asset.currency, get_default_currency());
+                dom_stocks += dom_stocks_amount * exchange_rate(asset.currency, get_default_currency());
+                bonds += bonds_amount * exchange_rate(asset.currency, get_default_currency());
+                cash += cash_amount * exchange_rate(asset.currency, get_default_currency());
+                total += amount * exchange_rate(asset.currency, get_default_currency());
+            }
         }
     }
 
@@ -273,7 +275,8 @@ void show_asset_rebalance(){
 
             if (asset_value_found) {
                 auto& asset_value = get_asset_value(asset_value_id);
-                auto conv_amount  = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
+
+                auto conv_amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
 
                 total += conv_amount;
             }
@@ -301,19 +304,22 @@ void show_asset_rebalance(){
             if (asset_value_found) {
                 auto& asset_value = get_asset_value(asset_value_id);
                 auto amount       = asset_value.amount;
-                auto conv_amount  = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
-                auto desired      = total * (asset.portfolio_alloc / 100.0);
-                auto difference   = desired - conv_amount;
 
-                contents.push_back({
-                    asset.name,
-                    to_string(amount),
-                    asset.currency,
-                    to_string(conv_amount),
-                    to_string(asset.portfolio_alloc),
-                    to_string(desired),
-                    to_string(difference),
-                });
+                auto conv_amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
+                auto desired     = total * (asset.portfolio_alloc / 100.0);
+                auto difference  = desired - conv_amount;
+
+                if (amount || difference) {
+                    contents.push_back({
+                        asset.name,
+                        to_string(amount),
+                        asset.currency,
+                        to_string(conv_amount),
+                        to_string(asset.portfolio_alloc),
+                        to_string(desired),
+                        format_money(difference),
+                    });
+                }
             }
         }
     }
