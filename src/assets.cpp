@@ -160,7 +160,7 @@ void show_asset_values(){
                 if(!asset_value_found){
                     asset_value_found = true;
                     asset_value_id    = asset_value.id;
-                } else if(asset_value.set_date > get_asset_value(asset_value_id).set_date){
+                } else if(asset_value.set_date >= get_asset_value(asset_value_id).set_date){
                     asset_value_id    = asset_value.id;
                 }
             }
@@ -265,7 +265,7 @@ void show_asset_rebalance(){
                     if (!asset_value_found) {
                         asset_value_found = true;
                         asset_value_id    = asset_value.id;
-                    } else if (asset_value.set_date > get_asset_value(asset_value_id).set_date) {
+                    } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
                         asset_value_id = asset_value.id;
                     }
                 }
@@ -292,7 +292,7 @@ void show_asset_rebalance(){
                     if (!asset_value_found) {
                         asset_value_found = true;
                         asset_value_id    = asset_value.id;
-                    } else if (asset_value.set_date > get_asset_value(asset_value_id).set_date) {
+                    } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
                         asset_value_id = asset_value.id;
                     }
                 }
@@ -518,8 +518,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                     id = to_number<size_t>(args[3]);
 
-                    if (!exists(assets, id)) {
-                        throw budget_exception("There are no asset values with id " + args[2]);
+                    if (!exists(asset_values, id)) {
+                        throw budget_exception("There are no asset values with id " + args[3]);
                     }
 
                     auto& value = get(asset_values, id);
