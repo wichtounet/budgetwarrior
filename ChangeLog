@@ -2,6 +2,7 @@ budgetwarrior 0.4.3 - in development
  * Compute the savings rate
  * Add support for savings rate objectives
  * Add support for tracking asset values
+ * Add support for portfolio rebalancing
  * Auto-completion when possible with UP and DOWN
  * Add budget account archive year to archive from beginning of year
 
