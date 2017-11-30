@@ -38,8 +38,10 @@ struct asset {
     size_t bonds;
     size_t cash;
     std::string currency;
+    bool portfolio;
+    size_t portfolio_alloc;
 
-    size_t total_allocation(){
+    size_t total_allocation() const {
         return int_stocks + dom_stocks + bonds + cash;
     }
 };
