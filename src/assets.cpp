@@ -270,10 +270,12 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("An asset with this name already exists");
             }
 
-            asset.int_stocks = 0;
-            asset.dom_stocks = 0;
-            asset.bonds = 0;
-            asset.cash = 0;
+            asset.int_stocks      = 0;
+            asset.dom_stocks      = 0;
+            asset.bonds           = 0;
+            asset.cash            = 0;
+            asset.portfolio       = false;
+            asset.portfolio_alloc = 0;
 
             do {
                 edit_number(asset.int_stocks, "Int. Stocks");
@@ -288,6 +290,19 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
             asset.currency = budget::get_default_currency();
             edit_string(asset.currency, "Currency", not_empty_checker());
+
+            std::cout << "Is this part of your portfolio ? [yes/no] ? ";
+
+            std::string answer;
+            std::getline(std::cin, answer);
+
+            if (answer == "yes" || answer == "y") {
+                asset.portfolio = true;
+            }
+
+            if (asset.portfolio) {
+                edit_number(asset.portfolio_alloc, "Portfolio Allocation");
+            }
 
             auto id = add_data(assets, std::move(asset));
             std::cout << "Asset " << id << " has been created" << std::endl;
@@ -369,6 +384,23 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100);
 
             edit_string(asset.currency, "Currency", not_empty_checker());
+
+            std::cout << "Is this part of your portfolio ? [yes/no] ? ";
+
+            std::string answer;
+            std::getline(std::cin, answer);
+
+            if (answer == "yes" || answer == "y") {
+                asset.portfolio = true;
+            } else {
+                asset.portfolio = false;
+            }
+
+            if (asset.portfolio) {
+                edit_number(asset.portfolio_alloc, "Portfolio Allocation");
+            } else {
+                asset.portfolio_alloc = 0;
+            }
 
             std::cout << "Asset " << id << " has been modified" << std::endl;
 
