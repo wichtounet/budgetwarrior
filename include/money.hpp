@@ -130,6 +130,10 @@ struct money {
     bool zero() const {
         return value == 0;
     }
+
+    operator bool() const {
+        return value;
+    }
 };
 
 std::ostream& operator<<(std::ostream& stream, const money& amount);
