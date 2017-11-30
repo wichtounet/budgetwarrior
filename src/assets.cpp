@@ -740,7 +740,12 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const asset_value& asset_value){
-    return stream << asset_value.id << ':' << asset_value.guid << ':' << asset_value.asset_id << ":" << asset_value.amount << ":" << to_string(asset_value.set_date);
+    return stream
+               << asset_value.id
+        << ':' << asset_value.guid
+        << ':' << asset_value.asset_id
+        << ":" << asset_value.amount
+        << ":" << to_string(asset_value.set_date);
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, asset_value& asset_value){
