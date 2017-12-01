@@ -896,22 +896,22 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     auto avg_status = budget::compute_avg_month_status(year, month);
 
     writer << p_begin;
-    writer << std::string(accounts.size() * 9, ' ')         << "Total expenses: " << format_money_no_color(total_all_expenses);
-    writer << std::string(12 - rsize(format_money(total_all_expenses)), ' ') << "Avg: " << format_money_no_color(avg_status.expenses);
+    writer << std::string(accounts.size() * 9, ' ')         << "Total expenses: " << total_all_expenses;
+    writer << std::string(12 - rsize(format_money(total_all_expenses)), ' ') << "Avg: " << avg_status.expenses;
     writer << p_end;
 
     writer << p_begin;
-    writer << std::string(accounts.size() * 9, ' ')         << "Total earnings: " << format_money_no_color(total_all_earnings);
-    writer << std::string(12 - rsize(format_money(total_all_earnings)), ' ') << "Avg: " << format_money_no_color(avg_status.earnings);
+    writer << std::string(accounts.size() * 9, ' ')         << "Total earnings: " << total_all_earnings;
+    writer << std::string(12 - rsize(format_money(total_all_earnings)), ' ') << "Avg: " << avg_status.earnings;
     writer << p_end;
 
     writer << p_begin;
-    writer << std::string(accounts.size() * 9 + 7, ' ')     <<        "Balance: " << format(format_money(total_balance));
+    writer << std::string(accounts.size() * 9 + 7, ' ')     <<        "Balance: " << format_money(total_balance);
     writer << p_end;
 
     writer << p_begin;
-    writer << std::string(accounts.size() * 9 + 1, ' ')     <<  "Local Balance: " << format(format_money(total_local_balance));
-    writer << std::string(12 - rsize(format_money(total_local_balance)), ' ') << "Avg: " << format(format_money(avg_status.balance));
+    writer << std::string(accounts.size() * 9 + 1, ' ')     <<  "Local Balance: " << format_money(total_local_balance);
+    writer << std::string(12 - rsize(format_money(total_local_balance)), ' ') << "Avg: " << format_money(avg_status.balance);
     writer << p_end;
 
     writer << p_begin;
