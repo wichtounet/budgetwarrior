@@ -37,6 +37,10 @@ void display_balance(budget::year year, bool current = true, bool relaxed = fals
 void display_expenses(budget::year year, bool current = true, bool relaxed = false, bool last = false);
 void display_earnings(budget::year year, bool current = true, bool relaxed = false, bool last = false);
 
+void display_month_overview(budget::month month, budget::year year, std::ostream& os);
+void display_month_overview(budget::month month, std::ostream& os);
+void display_month_overview(std::ostream& os);
+
 } //end of namespace budget
 
 #endif
