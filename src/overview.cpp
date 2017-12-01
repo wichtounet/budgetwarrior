@@ -895,28 +895,19 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
 
     auto avg_status = budget::compute_avg_month_status(year, month);
 
-    writer << p_begin;
-    writer << std::string(accounts.size() * 9, ' ')         << "Total expenses: " << total_all_expenses;
-    writer << std::string(12 - rsize(format_money(total_all_expenses)), ' ') << "Avg: " << avg_status.expenses;
-    writer << p_end;
+    std::vector<std::string> second_columns;
+    std::vector<std::vector<std::string>> second_contents;
 
-    writer << p_begin;
-    writer << std::string(accounts.size() * 9, ' ')         << "Total earnings: " << total_all_earnings;
-    writer << std::string(12 - rsize(format_money(total_all_earnings)), ' ') << "Avg: " << avg_status.earnings;
-    writer << p_end;
+    second_contents.emplace_back(std::vector<std::string>{"Total expenses", budget::to_string(total_all_expenses)});
+    second_contents.emplace_back(std::vector<std::string>{"Avg expenses", budget::to_string(avg_status.expenses)});
+    second_contents.emplace_back(std::vector<std::string>{"Total earnings", budget::to_string(total_all_earnings)});
+    second_contents.emplace_back(std::vector<std::string>{"Avg earnings", budget::to_string(avg_status.earnings)});
+    second_contents.emplace_back(std::vector<std::string>{"Balance", budget::format_money(total_balance)});
+    second_contents.emplace_back(std::vector<std::string>{"Local Balance", budget::format_money(total_local_balance)});
+    second_contents.emplace_back(std::vector<std::string>{"Avg Local Balance", budget::format_money(avg_status.balance)});
+    second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(savings_rate) + "%"});
 
-    writer << p_begin;
-    writer << std::string(accounts.size() * 9 + 7, ' ')     <<        "Balance: " << format_money(total_balance);
-    writer << p_end;
-
-    writer << p_begin;
-    writer << std::string(accounts.size() * 9 + 1, ' ')     <<  "Local Balance: " << format_money(total_local_balance);
-    writer << std::string(12 - rsize(format_money(total_local_balance)), ' ') << "Avg: " << format_money(avg_status.balance);
-    writer << p_end;
-
-    writer << p_begin;
-    writer << std::string(accounts.size() * 9 + 1, ' ')     <<  " Savings Rate: " << savings_rate << "%";
-    writer << p_end;
+    writer.display_table(second_columns, second_contents, 1, {}, accounts.size() * 9 + 1);
 }
 
 void budget::display_month_overview(budget::month month, budget::writer& writer){
