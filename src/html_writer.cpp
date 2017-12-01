@@ -90,6 +90,39 @@ budget::writer& budget::html_writer::operator<<(const budget::title_end_t&) {
     return *this;
 }
 
+budget::writer& budget::html_writer::operator<<(const budget::year_month_selector& m) {
+    os << "<div class=\"selector\">";
+
+    auto previous_month = m.current_month;
+    auto previous_year = m.current_year;
+    auto next_month = m.current_month;
+    auto next_year = m.current_year;
+
+    if (m.current_month == 1) {
+        previous_month = 12;
+        previous_year  = m.current_year - 1;
+    } else {
+        previous_month = m.current_month - 1;
+        previous_year  = m.current_year;
+    }
+
+    if (m.current_month == 12) {
+        next_month = 1;
+        next_year  = m.current_year + 1;
+    } else {
+        next_month = m.current_month + 1;
+        next_year  = m.current_year;
+    }
+
+    os << "<a href=\"/" << m.page << "/" << previous_year << "/" << previous_month.value << "/\">&lt;&lt;</a>";
+    os << "&nbsp;";
+    os << "<a href=\"/" << m.page << "/" << next_year << "/" << next_month.value << "/\">&gt;&gt;</a>";
+
+    os << "</div>";
+
+    return *this;
+}
+
 void budget::html_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left){
     cpp_assert(groups > 0, "There must be at least 1 group");
     cpp_unused(left);

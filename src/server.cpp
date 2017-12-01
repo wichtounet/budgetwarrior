@@ -41,6 +41,12 @@ std::string header(const std::string& title){
                 .small-text {
                     font-size: 10pt;
                 }
+
+                .selector {
+                    float: right;
+                    font-size: xx-large;
+                    pading-top: 5px;
+                }
             </style>
     )=====";
 
@@ -75,7 +81,7 @@ std::string header(const std::string& title){
 
     // The main component
 
-    stream << R"=====(<main role="main" class="container">)=====" << new_line;
+    stream << R"=====(<main role="main" class="container-fluid">)=====" << new_line;
     stream << "<div>" << new_line;
 
     return stream.str();

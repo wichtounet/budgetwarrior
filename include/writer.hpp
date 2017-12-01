@@ -29,6 +29,15 @@ static constexpr p_end_t p_end;
 static constexpr title_begin_t title_begin;
 static constexpr title_end_t title_end;
 
+struct year_month_selector {
+    std::string page;
+    budget::year current_year;
+    budget::month current_month;
+
+    year_month_selector(std::string page, budget::year current_year, budget::month current_month)
+            : page(page), current_year(current_year), current_month(current_month) {}
+};
+
 struct writer {
     virtual writer& operator<<(const std::string& value) = 0;
     virtual writer& operator<<(const double& value) = 0;
@@ -42,6 +51,10 @@ struct writer {
     virtual writer& operator<<(const p_end_t& m) = 0;
     virtual writer& operator<<(const title_begin_t& m) = 0;
     virtual writer& operator<<(const title_end_t& m) = 0;
+
+    virtual writer& operator<<(const year_month_selector&){
+        return *this;
+    }
 
     virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0) = 0;
 };
@@ -84,6 +97,7 @@ struct html_writer : writer {
     virtual writer& operator<<(const p_end_t& m) override;
     virtual writer& operator<<(const title_begin_t& m) override;
     virtual writer& operator<<(const title_end_t& m) override;
+    virtual writer& operator<<(const year_month_selector& m) override;
 
     virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0);
 };

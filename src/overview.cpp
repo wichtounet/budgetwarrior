@@ -836,7 +836,7 @@ void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
 void budget::display_month_overview(budget::month month, budget::year year, budget::writer& writer){
     auto accounts = all_accounts(year, month);
 
-    writer << title_begin << "Overview of " << month << " " << year << title_end;
+    writer << title_begin << "Overview of " << month << " " << year << budget::year_month_selector{"overview", year, month} << title_end;
 
     std::vector<std::string> columns;
     std::unordered_map<std::string, size_t> indexes;
