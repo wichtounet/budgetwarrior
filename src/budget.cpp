@@ -33,6 +33,7 @@
 #include "version.hpp"
 #include "predict.hpp"
 #include "gc.hpp"
+#include "server.hpp"
 
 using namespace budget;
 
@@ -55,6 +56,7 @@ typedef std::tuple<
             budget::version_module,
             budget::predict_module,
             budget::gc_module,
+            budget::server_module,
             budget::help_module
     > modules_tuple;
 
