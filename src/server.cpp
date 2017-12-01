@@ -40,6 +40,10 @@ std::string header(const std::string& title){
                   padding-top: 5rem;
                 }
 
+                p {
+                    margin-bottom: 8px;
+                }
+
                 .small-text {
                     font-size: 10pt;
                 }
