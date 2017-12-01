@@ -22,6 +22,7 @@
 #include "budget_exception.hpp"
 #include "config.hpp"
 #include "utils.hpp"
+#include "writer.hpp"
 
 using namespace budget;
 
@@ -110,7 +111,8 @@ std::string account_summary(budget::month month, budget::year year){
     }
 
     std::stringstream ss;
-    display_table(ss, columns, contents, 1, {}, 1);
+    console_writer w(ss);
+    w.display_table(columns, contents, 1, {}, 1);
     return ss.str();
 }
 

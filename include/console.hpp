@@ -100,9 +100,6 @@ std::string format_code(int attr, int fg, int bg);
 std::string format_reset();
 std::string format(const std::string& value);
 
-void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0);
-void display_table(std::ostream& os, std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0);
-
 template<typename T>
 bool check(const T&){
     return true;

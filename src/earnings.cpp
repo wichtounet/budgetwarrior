@@ -17,6 +17,7 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"
+#include "writer.hpp"
 #include "budget_exception.hpp"
 
 using namespace budget;
@@ -46,7 +47,8 @@ void show_earnings(budget::month month, budget::year year){
     } else {
         contents.push_back({"", "", "", "Total", to_string(total)});
 
-        display_table(columns, contents);
+        console_writer w(std::cout);
+        w.display_table(columns, contents);
     }
 }
 
@@ -70,7 +72,8 @@ void show_all_earnings(){
         contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount)});
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 } //end of anonymous namespace

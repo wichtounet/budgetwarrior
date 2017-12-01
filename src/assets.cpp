@@ -21,6 +21,7 @@
 #include "console.hpp"
 #include "earnings.hpp"
 #include "expenses.hpp"
+#include "writer.hpp"
 
 #include <curl/curl.h>
 
@@ -113,7 +114,8 @@ void show_assets(){
             to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency), asset.portfolio ? "Yes" : "No", asset.portfolio ? to_string(asset.portfolio_alloc) : ""});
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 void list_asset_values(){
@@ -131,7 +133,8 @@ void list_asset_values(){
         contents.push_back({to_string(value.id), get_asset(value.asset_id).name, to_string(value.amount), to_string(value.set_date)});
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 void show_asset_values(){
@@ -236,9 +239,11 @@ void show_asset_values(){
                             to_string(budget::money{}),
                             get_default_currency()});
 
-        display_table(columns, contents, 1, {contents.size() - 5, contents.size() - 1}, 1);
+        console_writer w(std::cout);
+        w.display_table(columns, contents, 1, {contents.size() - 5, contents.size() - 1}, 1);
     } else {
-        display_table(columns, contents, 1, {}, 1);
+        console_writer w(std::cout);
+        w.display_table(columns, contents, 1, {}, 1);
     }
 
     std::cout << std::endl << "       Net worth: " << total << get_default_currency() << std::endl;
@@ -320,7 +325,8 @@ void show_asset_portfolio(){
         }
     }
 
-    display_table(columns, contents, 1, {}, 1);
+    console_writer w(std::cout);
+    w.display_table(columns, contents, 1, {}, 1);
 
     std::cout << std::endl << "             Total: " << total << get_default_currency() << std::endl;
 }
@@ -405,7 +411,8 @@ void show_asset_rebalance(){
         }
     }
 
-    display_table(columns, contents, 1, {}, 1);
+    console_writer w(std::cout);
+    w.display_table(columns, contents, 1, {}, 1);
 }
 
 } //end of anonymous namespace

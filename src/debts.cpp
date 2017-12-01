@@ -17,6 +17,7 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"
+#include "writer.hpp"
 
 using namespace budget;
 
@@ -32,7 +33,8 @@ void display_all_debts(){
         contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), (debt.state == 0 ? "No" : "Yes"), debt.title});
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 void list_debts(){
@@ -54,7 +56,8 @@ void list_debts(){
         }
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
     std::cout << std::endl;
 
     std::cout << std::string(7, ' ') << "Money owed: " << owed << std::endl;

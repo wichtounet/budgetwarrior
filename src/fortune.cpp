@@ -17,6 +17,7 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"
+#include "writer.hpp"
 
 using namespace budget;
 
@@ -32,7 +33,8 @@ void list_fortunes(){
         contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount)});
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 } //end of anonymous namespace
@@ -111,7 +113,8 @@ void budget::status_fortunes(std::ostream& os, bool short_view){
         previous_date = fortune.check_date;
     }
 
-    display_table(os, columns, contents);
+    console_writer w(os);
+    w.display_table(columns, contents);
 }
 
 

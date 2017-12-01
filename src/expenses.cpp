@@ -17,6 +17,7 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"
+#include "writer.hpp"
 #include "budget_exception.hpp"
 
 using namespace budget;
@@ -46,7 +47,8 @@ void show_expenses(budget::month month, budget::year year){
     } else {
         contents.push_back({"", "", "", "Total", to_string(total)});
 
-        display_table(columns, contents);
+        console_writer w(std::cout);
+        w.display_table(columns, contents);
     }
 }
 
@@ -66,7 +68,8 @@ void show_templates(){
     if(count == 0){
         std::cout << "No templates" << std::endl;
     } else {
-        display_table(columns, contents);
+        console_writer w(std::cout);
+        w.display_table(columns, contents);
     }
 }
 
@@ -90,7 +93,8 @@ void show_all_expenses(){
         contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 } //end of anonymous namespace

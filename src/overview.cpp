@@ -259,7 +259,8 @@ void aggregate_overview(bool full, bool disable_groups, const std::string& separ
         i++;
     }
 
-    display_table(columns, contents, 2);
+    console_writer w(std::cout);
+    w.display_table(columns, contents, 2);
 
     std::cout << std::endl;
 }
@@ -476,7 +477,8 @@ void display_values(budget::year year, const std::string& title, const std::vect
         }
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 } // end of anonymous namespace
@@ -745,7 +747,8 @@ void budget::display_local_balance(budget::year year, bool current, bool relaxed
         contents.back().push_back(to_string_precision(current_total_savings_rate / current_months, 2) + "%");
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
@@ -826,7 +829,8 @@ void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
         }
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 void budget::display_month_overview(budget::month month, budget::year year, budget::writer& writer){
@@ -876,9 +880,7 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     add_recap_line(contents, "Balance", balances, [](const budget::money& m){ return format_money(m);});
     add_recap_line(contents, "Local Balance", local_balances, [](const budget::money& m){ return format_money(m);});
 
-    display_table(columns, contents, 3);
-
-    writer << end_of_line;
+    writer.display_table(columns, contents, 3);
 
     auto total_all_expenses = std::accumulate(total_expenses.begin(), total_expenses.end(), budget::money());
     auto total_all_earnings = std::accumulate(total_earnings.begin(), total_earnings.end(), budget::money());

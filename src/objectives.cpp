@@ -22,6 +22,7 @@
 #include "console.hpp"
 #include "budget_exception.hpp"
 #include "compute.hpp"
+#include "writer.hpp"
 
 using namespace budget;
 
@@ -40,7 +41,8 @@ void list_objectives(){
             contents.push_back({to_string(objective.id), objective.name, objective.type, objective.source, objective.op, to_string(objective.amount)});
         }
 
-        display_table(columns, contents);
+        console_writer w(std::cout);
+        w.display_table(columns, contents);
     }
 }
 

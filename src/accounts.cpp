@@ -20,6 +20,7 @@
 #include "console.hpp"
 #include "earnings.hpp"
 #include "expenses.hpp"
+#include "writer.hpp"
 
 using namespace budget;
 
@@ -58,7 +59,8 @@ void show_accounts(){
 
     contents.push_back({"", "Total", to_string(total), ""});
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 void show_all_accounts(){
@@ -69,7 +71,8 @@ void show_all_accounts(){
         contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until)});
     }
 
-    display_table(columns, contents);
+    console_writer w(std::cout);
+    w.display_table(columns, contents);
 }
 
 budget::date find_new_since(){

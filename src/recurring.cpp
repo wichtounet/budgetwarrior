@@ -19,6 +19,7 @@
 #include "console.hpp"
 #include "budget_exception.hpp"
 #include "expenses.hpp"
+#include "writer.hpp"
 
 using namespace budget;
 
@@ -44,7 +45,8 @@ void show_recurrings(){
         contents.push_back({"", "", "", "", ""});
         contents.push_back({"", "", "", "Total", to_string(total)});
 
-        display_table(columns, contents);
+        console_writer w(std::cout);
+        w.display_table(columns, contents);
     }
 }
 

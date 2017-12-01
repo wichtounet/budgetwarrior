@@ -26,6 +26,7 @@
 #include "budget_exception.hpp"
 #include "compute.hpp"
 #include "console.hpp"
+#include "writer.hpp"
 
 using namespace budget;
 
@@ -106,7 +107,8 @@ void list_wishes(){
             contents.push_back({"", "Mean accuracy", "", "", to_string(static_cast<size_t>((acc / acc_counter) * 100.0)) + "%", ""});
         }
 
-        display_table(columns, contents);
+        console_writer w(std::cout);
+        w.display_table(columns, contents);
     }
 }
 

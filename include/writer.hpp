@@ -9,6 +9,7 @@
 #define WRITER_H
 
 #include <iostream>
+#include <vector>
 #include <string>
 
 #include "date.hpp"
@@ -39,6 +40,8 @@ struct writer {
     virtual writer& operator<<(const p_end_t& m) = 0;
     virtual writer& operator<<(const title_begin_t& m) = 0;
     virtual writer& operator<<(const title_end_t& m) = 0;
+
+    virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0) = 0;
 };
 
 struct console_writer : writer {
@@ -57,6 +60,8 @@ struct console_writer : writer {
     virtual writer& operator<<(const p_end_t& m) override;
     virtual writer& operator<<(const title_begin_t& m) override;
     virtual writer& operator<<(const title_end_t& m) override;
+
+    virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0);
 };
 
 } //end of namespace budget
