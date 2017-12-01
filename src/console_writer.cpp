@@ -71,6 +71,7 @@ budget::writer& budget::console_writer::operator<<(const budget::title_end_t&) {
 
 void budget::console_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left){
     cpp_assert(groups > 0, "There must be at least 1 group");
+    cpp_assert(contents.size() || columns.size(), "There must be at least some columns or contents");
 
     for(auto& row : contents){
         for(auto& cell : row){
@@ -105,26 +106,38 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
         os << std::string(left, ' ');
     }
 
-    for(size_t i = 0; i < columns.size(); ++i){
-        auto& column = columns[i];
+    if (columns.empty()) {
+        const size_t C = contents.front().size();
+        for (size_t i = 0; i < C; ++i) {
+            size_t width = 0;
+            for (size_t j = i * groups; j < (i + 1) * groups; ++j) {
+                width += widths[j];
+            }
 
-        size_t width = 0;
-        for(size_t j = i * groups; j < (i + 1) * groups; ++j){
-            width += widths[j];
+            header_widths.push_back(width + (i < C - 1 ? 1 : 0));
         }
+    } else {
+        for (size_t i = 0; i < columns.size(); ++i) {
+            auto& column = columns[i];
 
-        width = std::max(width, rsize(column));
-        header_widths.push_back(width + (i < columns.size() - 1 && rsize(column) >= width ? 1 : 0));
+            size_t width = 0;
+            for (size_t j = i * groups; j < (i + 1) * groups; ++j) {
+                width += widths[j];
+            }
 
-        //The last space is not underlined
-        --width;
+            width = std::max(width, rsize(column));
+            header_widths.push_back(width + (i < columns.size() - 1 && rsize(column) >= width ? 1 : 0));
 
-        os << format_code(4, 0, 7) << column << (width > rsize(column) ? std::string(width - rsize(column), ' ') : "") << format_code(0, 0, 7);
+            //The last space is not underlined
+            --width;
 
-        //The very last column has no trailing space
+            os << format_code(4, 0, 7) << column << (width > rsize(column) ? std::string(width - rsize(column), ' ') : "") << format_code(0, 0, 7);
 
-        if(i < columns.size() - 1){
-            os << " ";
+            //The very last column has no trailing space
+
+            if (i < columns.size() - 1) {
+                os << " ";
+            }
         }
     }
 
