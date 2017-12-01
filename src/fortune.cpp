@@ -79,7 +79,7 @@ void budget::status_fortunes(std::ostream& os, bool short_view){
             } else if (i == 1) {
                 auto diff = fortune.amount - previous;
                 auto d    = fortune.check_date - previous_date;
-                auto avg  = diff / float(d);
+                auto avg  = diff / d;
 
                 if (short_view) {
                     contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
@@ -91,11 +91,11 @@ void budget::status_fortunes(std::ostream& os, bool short_view){
             } else {
                 auto diff = fortune.amount - previous;
                 auto d    = fortune.check_date - previous_date;
-                auto avg  = diff / float(d);
+                auto avg  = diff / d;
 
                 auto tot_diff = fortune.amount - first;
                 auto tot_d    = fortune.check_date - first_date;
-                auto tot_avg  = tot_diff / float(tot_d);
+                auto tot_avg  = tot_diff / tot_d;
 
                 if (short_view) {
                     contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
