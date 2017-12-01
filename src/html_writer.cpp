@@ -134,27 +134,37 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         }
     }
 
+    bool small = columns.empty(); // TODO Improve this heuristic!
+
+    if(small){
+        os << "<div class=\"row\">";
+        os << "<div class=\"col-md-4\">&nbsp;</div>";
+        os << "<div class=\"col-md-4\">";
+    }
+
     os << "<table class=\"table table-sm small-text\">";
 
     cpp_assert(widths.size() == groups * columns.size(), "Widths incorrectly computed");
 
     // Display the header
 
-    os << "<thead>";
-    os << "<tr>";
+    if (columns.size()) {
+        os << "<thead>";
+        os << "<tr>";
 
-    for(size_t i = 0; i < columns.size(); ++i){
-        auto& column = columns[i];
+        for (size_t i = 0; i < columns.size(); ++i) {
+            auto& column = columns[i];
 
-        if (groups > 1) {
-            os << "<th colspan=\"" << groups << "\">" << column << "</th>";
-        } else {
-            os << "<th>" << column << "</th>";
+            if (groups > 1) {
+                os << "<th colspan=\"" << groups << "\">" << column << "</th>";
+            } else {
+                os << "<th>" << column << "</th>";
+            }
         }
-    }
 
-    os << "</tr>";
-    os << "</thead>";
+        os << "</tr>";
+        os << "</thead>";
+    }
 
     // Display the contents
 
@@ -171,7 +181,11 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
             if(value.empty()){
                 os << "<td>&nbsp;</td>";
             } else {
-                os << "<td>" << value << "</td>";
+                if(columns.empty() && j == 0){
+                    os << "<th scope=\"row\">" << value << "</th>";
+                } else {
+                    os << "<td>" << value << "</td>";
+                }
             }
         }
 
@@ -181,4 +195,10 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
     os << "</tbody>";
 
     os << "</table>";
+
+    if(small){
+        os << "</div>"; // middle column
+        os << "<div class=\"col-md-4\">&nbsp;</div>";
+        os << "</div>"; // row
+    }
 }
