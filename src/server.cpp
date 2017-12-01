@@ -150,11 +150,18 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/overview/", &overview_page);
 
     server.set_error_handler([](const auto&, auto& res) {
-        std::stringstream ss;
-        ss << "<p>Error Status: <span style='color:red;'>";
-        ss << res.status;
-        ss << "</span></p>";
-        res.set_content(ss.str(), "text/html");
+        std::stringstream content_stream;
+        content_stream.imbue(std::locale("C"));
+
+        content_stream << header("");
+
+        content_stream << "<p>Error Status: <span style='color:red;'>";
+        content_stream << res.status;
+        content_stream << "</span></p>";
+
+        content_stream << footer();
+
+        res.set_content(content_stream.str(), "text/html");
     });
 
 
