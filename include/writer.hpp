@@ -13,6 +13,7 @@
 #include <string>
 
 #include "date.hpp"
+#include "money.hpp"
 
 namespace budget {
 
@@ -32,6 +33,7 @@ struct writer {
     virtual writer& operator<<(const std::string& value) = 0;
     virtual writer& operator<<(const double& value) = 0;
 
+    virtual writer& operator<<(const budget::money& m) = 0;
     virtual writer& operator<<(const budget::month& m) = 0;
     virtual writer& operator<<(const budget::year& m) = 0;
 
@@ -52,6 +54,28 @@ struct console_writer : writer {
     virtual writer& operator<<(const std::string& value) override;
     virtual writer& operator<<(const double& value) override;
 
+    virtual writer& operator<<(const budget::money& m) override;
+    virtual writer& operator<<(const budget::month& m) override;
+    virtual writer& operator<<(const budget::year& m) override;
+
+    virtual writer& operator<<(const end_of_line_t& m) override;
+    virtual writer& operator<<(const p_begin_t& m) override;
+    virtual writer& operator<<(const p_end_t& m) override;
+    virtual writer& operator<<(const title_begin_t& m) override;
+    virtual writer& operator<<(const title_end_t& m) override;
+
+    virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0);
+};
+
+struct html_writer : writer {
+    std::ostream& os;
+
+    html_writer(std::ostream& os);
+
+    virtual writer& operator<<(const std::string& value) override;
+    virtual writer& operator<<(const double& value) override;
+
+    virtual writer& operator<<(const budget::money& m) override;
     virtual writer& operator<<(const budget::month& m) override;
     virtual writer& operator<<(const budget::year& m) override;
 

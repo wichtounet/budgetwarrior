@@ -14,13 +14,19 @@
 budget::console_writer::console_writer(std::ostream& os) : os(os) {}
 
 budget::writer& budget::console_writer::operator<<(const std::string& value){
-    os << value;
+    os << format(value);
 
     return *this;
 }
 
 budget::writer& budget::console_writer::operator<<(const double& value){
     os << value;
+
+    return *this;
+}
+
+budget::writer& budget::console_writer::operator<<(const budget::money& m) {
+    os << m;
 
     return *this;
 }
