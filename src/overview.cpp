@@ -495,22 +495,26 @@ void budget::overview_module::handle(std::vector<std::string>& args){
     }
 
     if(args.empty() || args.size() == 1){
-        display_month_overview(std::cout);
+        budget::console_writer w(std::cout);
+        display_month_overview(w);
     } else {
         auto& subcommand = args[1];
 
         auto today = budget::local_day();
 
-        if(subcommand == "month"){
-            if(args.size() == 2){
-                display_month_overview(std::cout);
-            } else if(args.size() == 3){
-                display_month_overview(budget::month(to_number<unsigned short>(args[2])), std::cout);
-            } else if(args.size() == 4){
+        if (subcommand == "month") {
+            if (args.size() == 2) {
+                budget::console_writer w(std::cout);
+                display_month_overview(w);
+            } else if (args.size() == 3) {
+                budget::console_writer w(std::cout);
+                display_month_overview(budget::month(to_number<unsigned short>(args[2])), w);
+            } else if (args.size() == 4) {
+                budget::console_writer w(std::cout);
                 display_month_overview(
                     budget::month(to_number<unsigned short>(args[2])),
                     budget::year(to_number<unsigned short>(args[3])),
-                    std::cout);
+                    w);
             } else {
                 throw budget_exception("Too many arguments to overview month");
             }
@@ -825,10 +829,10 @@ void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
     display_table(columns, contents);
 }
 
-void budget::display_month_overview(budget::month month, budget::year year, std::ostream& os){
+void budget::display_month_overview(budget::month month, budget::year year, budget::writer& writer){
     auto accounts = all_accounts(year, month);
 
-    os << "Overview of " << month << " " << year << std::endl << std::endl;
+    writer << title_begin << "Overview of " << month << " " << year << title_end;
 
     std::vector<std::string> columns;
     std::unordered_map<std::string, size_t> indexes;
@@ -874,7 +878,7 @@ void budget::display_month_overview(budget::month month, budget::year year, std:
 
     display_table(columns, contents, 3);
 
-    os << format_code(0, 0, 7) << std::endl;
+    writer << end_of_line;
 
     auto total_all_expenses = std::accumulate(total_expenses.begin(), total_expenses.end(), budget::money());
     auto total_all_earnings = std::accumulate(total_earnings.begin(), total_earnings.end(), budget::money());
@@ -889,26 +893,38 @@ void budget::display_month_overview(budget::month month, budget::year year, std:
 
     auto avg_status = budget::compute_avg_month_status(year, month);
 
-    os << std::string(accounts.size() * 9, ' ')         << "Total expenses: " << format_money_no_color(total_all_expenses);
-    os << std::string(12 - rsize(format_money(total_all_expenses)), ' ') << "Avg: " << format_money_no_color(avg_status.expenses) << std::endl;
-    os << std::string(accounts.size() * 9, ' ')         << "Total earnings: " << format_money_no_color(total_all_earnings);
-    os << std::string(12 - rsize(format_money(total_all_earnings)), ' ') << "Avg: " << format_money_no_color(avg_status.earnings) << std::endl;
+    writer << p_begin;
+    writer << std::string(accounts.size() * 9, ' ')         << "Total expenses: " << format_money_no_color(total_all_expenses);
+    writer << std::string(12 - rsize(format_money(total_all_expenses)), ' ') << "Avg: " << format_money_no_color(avg_status.expenses);
+    writer << p_end;
 
-    os << std::string(accounts.size() * 9 + 7, ' ')     <<        "Balance: " << format(format_money(total_balance)) << std::endl;
-    os << std::string(accounts.size() * 9 + 1, ' ')     <<  "Local Balance: " << format(format_money(total_local_balance));
-    os << std::string(12 - rsize(format_money(total_local_balance)), ' ') << "Avg: " << format(format_money(avg_status.balance)) << std::endl;
+    writer << p_begin;
+    writer << std::string(accounts.size() * 9, ' ')         << "Total earnings: " << format_money_no_color(total_all_earnings);
+    writer << std::string(12 - rsize(format_money(total_all_earnings)), ' ') << "Avg: " << format_money_no_color(avg_status.earnings);
+    writer << p_end;
 
-    os << std::string(accounts.size() * 9 + 1, ' ')     <<  " Savings Rate: " << savings_rate << "%" << std::endl;
+    writer << p_begin;
+    writer << std::string(accounts.size() * 9 + 7, ' ')     <<        "Balance: " << format(format_money(total_balance));
+    writer << p_end;
+
+    writer << p_begin;
+    writer << std::string(accounts.size() * 9 + 1, ' ')     <<  "Local Balance: " << format(format_money(total_local_balance));
+    writer << std::string(12 - rsize(format_money(total_local_balance)), ' ') << "Avg: " << format(format_money(avg_status.balance));
+    writer << p_end;
+
+    writer << p_begin;
+    writer << std::string(accounts.size() * 9 + 1, ' ')     <<  " Savings Rate: " << savings_rate << "%";
+    writer << p_end;
 }
 
-void budget::display_month_overview(budget::month month, std::ostream& os){
+void budget::display_month_overview(budget::month month, budget::writer& writer){
     auto today = budget::local_day();
 
-    display_month_overview(month, today.year(), os);
+    display_month_overview(month, today.year(), writer);
 }
 
-void budget::display_month_overview(std::ostream& os){
+void budget::display_month_overview(budget::writer& writer){
     auto today = budget::local_day();
 
-    display_month_overview(today.month(), today.year(), os);
+    display_month_overview(today.month(), today.year(), writer);
 }

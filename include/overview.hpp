@@ -16,6 +16,7 @@
 #include "expenses.hpp"
 #include "earnings.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -37,9 +38,9 @@ void display_balance(budget::year year, bool current = true, bool relaxed = fals
 void display_expenses(budget::year year, bool current = true, bool relaxed = false, bool last = false);
 void display_earnings(budget::year year, bool current = true, bool relaxed = false, bool last = false);
 
-void display_month_overview(budget::month month, budget::year year, std::ostream& os);
-void display_month_overview(budget::month month, std::ostream& os);
-void display_month_overview(std::ostream& os);
+void display_month_overview(budget::month month, budget::year year, budget::writer& writer);
+void display_month_overview(budget::month month, budget::writer& writer);
+void display_month_overview(budget::writer& writer);
 
 } //end of namespace budget
 
