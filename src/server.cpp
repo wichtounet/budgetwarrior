@@ -10,6 +10,8 @@
 #include "server.hpp"
 #include "writer.hpp"
 #include "overview.hpp"
+#include "expenses.hpp"
+#include "accounts.hpp"
 
 #include "httplib.h"
 
@@ -141,6 +143,12 @@ void overview_page(const httplib::Request& req, httplib::Response& res){
 }
 
 } //end of anonymous namespace
+
+void budget::server_module::load(){
+    load_accounts();
+    load_expenses();
+    load_earnings();
+}
 
 void budget::server_module::handle(const std::vector<std::string>& args){
     cpp_unused(args);

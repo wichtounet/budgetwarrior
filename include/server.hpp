@@ -16,6 +16,7 @@
 namespace budget {
 
 struct server_module {
+    void load();
     void handle(const std::vector<std::string>& args);
 };
 
