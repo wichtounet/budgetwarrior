@@ -37,6 +37,10 @@ std::string header(const std::string& title){
                 body {
                   padding-top: 5rem;
                 }
+
+                .small-text {
+                    font-size: 10pt;
+                }
             </style>
     )=====";
 
@@ -56,7 +60,10 @@ std::string header(const std::string& title){
           <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
               <li class="nav-item active">
-                <a class="nav-link" href="#">Overview <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="#">Index <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/overview/">Overview</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/portfolio/">Portfolio</a>
@@ -99,8 +106,28 @@ void index_page(const httplib::Request& req, httplib::Response& res){
 
     content_stream << header("");
 
+    // TODO
+
+    content_stream << footer();
+
+    res.set_content(content_stream.str(), "text/html");
+}
+
+void overview_page(const httplib::Request& req, httplib::Response& res){
+    cpp_unused(req);
+
+    std::stringstream content_stream;
+    content_stream.imbue(std::locale("C"));
+
+    content_stream << header("");
+
     budget::html_writer w(content_stream);
-    display_month_overview(w);
+
+    if(req.matches.size() == 3){
+        display_month_overview(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
+    } else {
+        display_month_overview(w);
+    }
 
     content_stream << footer();
 
@@ -114,11 +141,23 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     std::cout << "Starting the server" << std::endl;
 
-    httplib::Server svr;
+    httplib::Server server;
 
     // Declare all the pages
-    svr.get("/", &index_page);
+    server.get("/", &index_page);
+
+    server.get(R"(/overview/(\d+)/(\d+)/)", &overview_page);
+    server.get("/overview/", &overview_page);
+
+    server.set_error_handler([](const auto&, auto& res) {
+        std::stringstream ss;
+        ss << "<p>Error Status: <span style='color:red;'>";
+        ss << res.status;
+        ss << "</span></p>";
+        res.set_content(ss.str(), "text/html");
+    });
+
 
     // Listen
-    svr.listen("localhost", 8080);
+    server.listen("localhost", 8080);
 }

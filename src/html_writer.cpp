@@ -101,7 +101,7 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         }
     }
 
-    os << "<table class=\"table table-sm\">";
+    os << "<table class=\"table table-sm small-text\">";
 
     cpp_assert(widths.size() == groups * columns.size(), "Widths incorrectly computed");
 
