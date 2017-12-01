@@ -11,6 +11,8 @@ endif
 
 LD_FLAGS += -luuid -lcurl
 
+CXX_FLAGS += -Icpp-httplib
+
 $(eval $(call auto_folder_compile,src))
 $(eval $(call auto_add_executable,budget))
 
