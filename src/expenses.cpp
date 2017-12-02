@@ -232,10 +232,10 @@ void budget::set_expenses_next_id(size_t next_id){
 }
 
 void budget::show_all_expenses(budget::writer& w){
+    w << title_begin << "All Expenses" << title_end;
+
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
-
-    w << title_begin << "All Expenses" << title_end;
 
     for(auto& expense : expenses.data){
         contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});

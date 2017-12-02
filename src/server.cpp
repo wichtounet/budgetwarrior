@@ -98,6 +98,13 @@ std::string header(const std::string& title){
                 </div>
               </li>
               <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Earnings</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                  <a class="dropdown-item" href="/earnings/">Earnings</a>
+                  <a class="dropdown-item" href="/earnings/all/">All Earnings</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown01">
                   <a class="dropdown-item" href="/assets/">Assets</a>
@@ -217,6 +224,31 @@ void all_expenses_page(const httplib::Request&, httplib::Response& res){
     html_answer(content_stream, res);
 }
 
+void earnings_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "Earnings");
+
+    budget::html_writer w(content_stream);
+
+    if(req.matches.size() == 3){
+        show_earnings(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
+    } else {
+        show_earnings(w);
+    }
+
+    html_answer(content_stream, res);
+}
+
+void all_earnings_page(const httplib::Request&, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "All Earnings");
+
+    budget::html_writer w(content_stream);
+    budget::show_all_earnings(w);
+
+    html_answer(content_stream, res);
+}
+
 void portfolio_page(const httplib::Request&, httplib::Response& res){
     std::stringstream content_stream;
     html_stream(content_stream, "Portfolio");
@@ -285,6 +317,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
     server.get("/expenses/", &expenses_page);
     server.get("/expenses/all/", &all_expenses_page);
+
+    server.get(R"(/earnings/(\d+)/(\d+)/)", &earnings_page);
+    server.get("/earnings/", &earnings_page);
+    server.get("/earnings/all/", &all_earnings_page);
 
     server.get("/portfolio/", &portfolio_page);
     server.get("/rebalance/", &rebalance_page);

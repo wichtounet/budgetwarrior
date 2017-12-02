@@ -14,6 +14,7 @@
 #include "module_traits.hpp"
 #include "money.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -49,6 +50,11 @@ void add_earning(earning&& earning);
 
 void set_earnings_changed();
 void set_earnings_next_id(size_t next_id);
+
+void show_all_earnings(budget::writer& w);
+void show_earnings(budget::month month, budget::year year, budget::writer& w);
+void show_earnings(budget::month month, budget::writer& w);
+void show_earnings(budget::writer& w);
 
 } //end of namespace budget
 

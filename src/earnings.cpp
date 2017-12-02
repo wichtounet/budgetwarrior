@@ -26,56 +26,6 @@ namespace {
 
 static data_handler<earning> earnings;
 
-void show_earnings(budget::month month, budget::year year){
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
-
-    money total;
-    size_t count = 0;
-
-    for(auto& earning : earnings.data){
-        if(earning.date.year() == year && earning.date.month() == month){
-            contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount)});
-
-            total += earning.amount;
-            ++count;
-        }
-    }
-
-    if(count == 0){
-        std::cout << "No earnings for " << month << "-" << year << std::endl;
-    } else {
-        contents.push_back({"", "", "", "Total", to_string(total)});
-
-        console_writer w(std::cout);
-        w.display_table(columns, contents);
-    }
-}
-
-void show_earnings(budget::month month){
-    auto today = budget::local_day();
-
-    show_earnings(month, today.year());
-}
-
-void show_earnings(){
-    auto today = budget::local_day();
-
-    show_earnings(today.month(), today.year());
-}
-
-void show_all_earnings(){
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
-
-    for(auto& earning : earnings.data){
-        contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount)});
-    }
-
-    console_writer w(std::cout);
-    w.display_table(columns, contents);
-}
-
 } //end of anonymous namespace
 
 void budget::earnings_module::load(){
@@ -88,25 +38,29 @@ void budget::earnings_module::unload(){
 }
 
 void budget::earnings_module::handle(const std::vector<std::string>& args){
+    console_writer w(std::cout);
+
     if(args.size() == 1){
-        show_earnings();
+        show_earnings(w);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "show"){
             if(args.size() == 2){
-                show_earnings();
+                show_earnings(w);
             } else if(args.size() == 3){
-                show_earnings(budget::month(to_number<unsigned short>(args[2])));
+                show_earnings(budget::month(to_number<unsigned short>(args[2])),
+                    w);
             } else if(args.size() == 4){
                 show_earnings(
                     budget::month(to_number<unsigned short>(args[2])),
-                    budget::year(to_number<unsigned short>(args[3])));
+                    budget::year(to_number<unsigned short>(args[3])),
+                    w);
             } else {
                 throw budget_exception("Too many arguments to earning show");
             }
         } else if(subcommand == "all"){
-            show_all_earnings();
+            show_all_earnings(w);
         } else if(subcommand == "add"){
             earning earning;
             earning.guid = generate_guid();
@@ -207,3 +161,56 @@ void budget::set_earnings_next_id(size_t next_id){
 void budget::add_earning(budget::earning&& earning){
     add_data(earnings, std::forward<budget::earning>(earning));
 }
+
+void budget::show_all_earnings(budget::writer& w){
+    w << title_begin << "All Earnings" << title_end;
+
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& earning : earnings.data){
+        contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount)});
+    }
+
+    w.display_table(columns, contents);
+}
+
+void budget::show_earnings(budget::month month, budget::year year, budget::writer& w){
+    w << title_begin << "Earnings of " << month << " " << year << budget::year_month_selector{"earnings", year, month} << title_end;
+
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    money total;
+    size_t count = 0;
+
+    for(auto& earning : earnings.data){
+        if(earning.date.year() == year && earning.date.month() == month){
+            contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount)});
+
+            total += earning.amount;
+            ++count;
+        }
+    }
+
+    if(count == 0){
+        w << "No earnings for " << month << "-" << year << end_of_line;
+    } else {
+        contents.push_back({"", "", "", "Total", to_string(total)});
+
+        w.display_table(columns, contents);
+    }
+}
+
+void budget::show_earnings(budget::month month, budget::writer& w){
+    auto today = budget::local_day();
+
+    budget::show_earnings(month, today.year(), w);
+}
+
+void budget::show_earnings(budget::writer& w){
+    auto today = budget::local_day();
+
+    budget::show_earnings(today.month(), today.year(), w);
+}
+
