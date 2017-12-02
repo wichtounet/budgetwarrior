@@ -86,6 +86,8 @@ std::string header(const std::string& title){
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown01">
+                  <a class="dropdown-item" href="/assets/">Assets</a>
+                  <a class="dropdown-item" href="/net_worth/">Net worth</a>
                   <a class="dropdown-item" href="/portfolio/">Portfolio</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                 </div>
@@ -176,6 +178,26 @@ void rebalance_page(const httplib::Request&, httplib::Response& res){
     html_answer(content_stream, res);
 }
 
+void assets_page(const httplib::Request&, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "Assets");
+
+    budget::html_writer w(content_stream);
+    budget::show_assets(w);
+
+    html_answer(content_stream, res);
+}
+
+void asset_values_page(const httplib::Request&, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "Net Worth");
+
+    budget::html_writer w(content_stream);
+    budget::show_asset_values(w);
+
+    html_answer(content_stream, res);
+}
+
 } //end of anonymous namespace
 
 void budget::server_module::load(){
@@ -199,6 +221,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/overview/", &overview_page);
     server.get("/portfolio/", &portfolio_page);
     server.get("/rebalance/", &rebalance_page);
+    server.get("/assets/", &assets_page);
+    server.get("/net_worth/", &asset_values_page);
 
     server.set_error_handler([](const auto&, auto& res) {
         std::stringstream content_stream;

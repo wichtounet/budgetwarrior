@@ -94,30 +94,6 @@ std::vector<std::string> get_asset_names(){
     return asset_names;
 }
 
-void show_assets(){
-    if (!assets.data.size()) {
-        std::cout << "No assets" << std::endl;
-        return;
-    }
-
-    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency", "Portfolio", "Alloc"};
-    std::vector<std::vector<std::string>> contents;
-
-    // Display the assets
-
-    for(auto& asset : assets.data){
-        if(asset.name == "DESIRED" && asset.currency == "DESIRED"){
-            continue;
-        }
-
-        contents.push_back({to_string(asset.id), asset.name, to_string(asset.int_stocks),
-            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency), asset.portfolio ? "Yes" : "No", asset.portfolio ? to_string(asset.portfolio_alloc) : ""});
-    }
-
-    console_writer w(std::cout);
-    w.display_table(columns, contents);
-}
-
 void list_asset_values(){
     if (!asset_values.data.size()) {
         std::cout << "No asset values" << std::endl;
@@ -137,118 +113,6 @@ void list_asset_values(){
     w.display_table(columns, contents);
 }
 
-void show_asset_values(){
-    if (!asset_values.data.size()) {
-        std::cout << "No asset values" << std::endl;
-        return;
-    }
-
-    std::vector<std::string> columns = {"Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Total", "Currency"};
-    std::vector<std::vector<std::string>> contents;
-
-    budget::money int_stocks;
-    budget::money dom_stocks;
-    budget::money bonds;
-    budget::money cash;
-    budget::money total;
-
-    for(auto& asset : assets.data){
-        auto id = asset.id;
-
-        size_t asset_value_id = 0;
-        bool asset_value_found = false;
-
-        for (auto& asset_value : asset_values.data) {
-            if (asset_value.asset_id == id) {
-                if(!asset_value_found){
-                    asset_value_found = true;
-                    asset_value_id    = asset_value.id;
-                } else if(asset_value.set_date >= get_asset_value(asset_value_id).set_date){
-                    asset_value_id    = asset_value.id;
-                }
-            }
-        }
-
-        if(asset_value_found){
-            auto& asset_value = get_asset_value(asset_value_id);
-            auto amount       = asset_value.amount;
-
-            if (amount) {
-                contents.push_back({asset.name,
-                                    to_string(amount * (asset.int_stocks / 100.0)),
-                                    to_string(amount * (asset.dom_stocks / 100.0)),
-                                    to_string(amount * (asset.bonds / 100.0)),
-                                    to_string(amount * (asset.cash / 100.0)),
-                                    to_string(amount),
-                                    asset.currency});
-
-                auto int_stocks_amount = amount * (asset.int_stocks / 100.0);
-                auto dom_stocks_amount = amount * (asset.dom_stocks / 100.0);
-                auto bonds_amount      = amount * (asset.bonds / 100.0);
-                auto cash_amount       = amount * (asset.cash / 100.0);
-
-                int_stocks += int_stocks_amount * exchange_rate(asset.currency, get_default_currency());
-                dom_stocks += dom_stocks_amount * exchange_rate(asset.currency, get_default_currency());
-                bonds += bonds_amount * exchange_rate(asset.currency, get_default_currency());
-                cash += cash_amount * exchange_rate(asset.currency, get_default_currency());
-                total += amount * exchange_rate(asset.currency, get_default_currency());
-            }
-        }
-    }
-
-    contents.push_back({"Total",
-                        to_string(int_stocks),
-                        to_string(dom_stocks),
-                        to_string(bonds),
-                        to_string(cash),
-                        to_string(total),
-                        budget::get_default_currency()});
-
-    contents.push_back({"Distribution",
-                        to_string_precision(100 * int_stocks.dollars() / (double)total.dollars(), 2),
-                        to_string_precision(100 * dom_stocks.dollars() / (double)total.dollars(), 2),
-                        to_string_precision(100 * bonds.dollars() / (double)total.dollars(), 2),
-                        to_string_precision(100 * cash.dollars() / (double)total.dollars(), 2),
-                        to_string(100),
-                        ""});
-
-    decltype(auto) desired = get_desired_allocation();
-
-    if (desired.total_allocation()) {
-        contents.push_back({"Desired Distribution",
-                            to_string(desired.int_stocks),
-                            to_string(desired.dom_stocks),
-                            to_string(desired.bonds),
-                            to_string(desired.cash),
-                            to_string(100),
-                            ""});
-
-        contents.push_back({"Desired Total",
-                            to_string(total * (desired.int_stocks / 100.0)),
-                            to_string(total * (desired.dom_stocks / 100.0)),
-                            to_string(total * (desired.bonds / 100.0)),
-                            to_string(total * (desired.cash / 100.0)),
-                            to_string(total),
-                            get_default_currency()});
-
-        contents.push_back({"Difference (need)",
-                            to_string(total * (desired.int_stocks / 100.0) - int_stocks),
-                            to_string(total * (desired.dom_stocks / 100.0) - dom_stocks),
-                            to_string(total * (desired.bonds / 100.0) - bonds),
-                            to_string(total * (desired.cash / 100.0) - cash),
-                            to_string(budget::money{}),
-                            get_default_currency()});
-
-        console_writer w(std::cout);
-        w.display_table(columns, contents, 1, {contents.size() - 5, contents.size() - 1}, 1);
-    } else {
-        console_writer w(std::cout);
-        w.display_table(columns, contents, 1, {}, 1);
-    }
-
-    std::cout << std::endl << "       Net worth: " << total << get_default_currency() << std::endl;
-}
-
 
 } //end of anonymous namespace
 
@@ -261,18 +125,18 @@ void budget::assets_module::unload(){
 }
 
 void budget::assets_module::handle(const std::vector<std::string>& args){
+    console_writer w(std::cout);
+
     if(args.size() == 1){
-        show_assets();
+        show_assets(w);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "show"){
-            show_assets();
+            show_assets(w);
         } else if (subcommand == "rebalance") {
-            console_writer w(std::cout);
             show_asset_rebalance(w);
         } else if (subcommand == "portfolio") {
-            console_writer w(std::cout);
             budget::show_asset_portfolio(w);
         } else if(subcommand == "add"){
             asset asset;
@@ -421,7 +285,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             assets.changed = true;
         } else if(subcommand == "value"){
             if(args.size() == 2){
-                show_asset_values();
+                budget::show_asset_values(w);
             } else {
                 auto& subsubcommand = args[2];
 
@@ -441,7 +305,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     auto id = add_data(asset_values, std::move(asset_value));
                     std::cout << "Asset Value " << id << " has been created" << std::endl;
                 } else if(subsubcommand == "show"){
-                    show_asset_values();
+                    budget::show_asset_values(w);
                 } else if(subsubcommand == "list"){
                     list_asset_values();
                 } else if(subsubcommand == "edit"){
@@ -656,6 +520,31 @@ std::string to_percent(double p){
 
     return ss.str();
 }
+void budget::show_assets(budget::writer& w){
+    if (!assets.data.size()) {
+        w << "No assets" << end_of_line;
+        return;
+    }
+
+    w << title_begin << "Assets" << title_end;
+
+    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency", "Portfolio", "Alloc"};
+    std::vector<std::vector<std::string>> contents;
+
+    // Display the assets
+
+    for(auto& asset : assets.data){
+        if(asset.name == "DESIRED" && asset.currency == "DESIRED"){
+            continue;
+        }
+
+        contents.push_back({to_string(asset.id), asset.name, to_string(asset.int_stocks),
+            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency), asset.portfolio ? "Yes" : "No", asset.portfolio ? to_string(asset.portfolio_alloc) : ""});
+    }
+
+    w.display_table(columns, contents);
+}
+
 
 void budget::show_asset_portfolio(budget::writer& w){
     if (!asset_values.data.size()) {
@@ -832,3 +721,121 @@ void budget::show_asset_rebalance(budget::writer& w){
     w.display_table(columns, contents, 1, {}, 1);
 }
 
+void budget::show_asset_values(budget::writer& w){
+    if (!asset_values.data.size()) {
+        w << "No asset values" << end_of_line;
+        return;
+    }
+
+    w << title_begin << "Net Worth" << title_end;
+
+    std::vector<std::string> columns = {"Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Total", "Currency"};
+    std::vector<std::vector<std::string>> contents;
+
+    budget::money int_stocks;
+    budget::money dom_stocks;
+    budget::money bonds;
+    budget::money cash;
+    budget::money total;
+
+    for(auto& asset : assets.data){
+        auto id = asset.id;
+
+        size_t asset_value_id = 0;
+        bool asset_value_found = false;
+
+        for (auto& asset_value : asset_values.data) {
+            if (asset_value.asset_id == id) {
+                if(!asset_value_found){
+                    asset_value_found = true;
+                    asset_value_id    = asset_value.id;
+                } else if(asset_value.set_date >= get_asset_value(asset_value_id).set_date){
+                    asset_value_id    = asset_value.id;
+                }
+            }
+        }
+
+        if(asset_value_found){
+            auto& asset_value = get_asset_value(asset_value_id);
+            auto amount       = asset_value.amount;
+
+            if (amount) {
+                contents.push_back({asset.name,
+                                    to_string(amount * (asset.int_stocks / 100.0)),
+                                    to_string(amount * (asset.dom_stocks / 100.0)),
+                                    to_string(amount * (asset.bonds / 100.0)),
+                                    to_string(amount * (asset.cash / 100.0)),
+                                    to_string(amount),
+                                    asset.currency});
+
+                auto int_stocks_amount = amount * (asset.int_stocks / 100.0);
+                auto dom_stocks_amount = amount * (asset.dom_stocks / 100.0);
+                auto bonds_amount      = amount * (asset.bonds / 100.0);
+                auto cash_amount       = amount * (asset.cash / 100.0);
+
+                int_stocks += int_stocks_amount * exchange_rate(asset.currency, get_default_currency());
+                dom_stocks += dom_stocks_amount * exchange_rate(asset.currency, get_default_currency());
+                bonds += bonds_amount * exchange_rate(asset.currency, get_default_currency());
+                cash += cash_amount * exchange_rate(asset.currency, get_default_currency());
+                total += amount * exchange_rate(asset.currency, get_default_currency());
+            }
+        }
+    }
+
+    contents.emplace_back(columns.size(), "");
+
+    contents.push_back({"Total",
+                        to_string(int_stocks),
+                        to_string(dom_stocks),
+                        to_string(bonds),
+                        to_string(cash),
+                        to_string(total),
+                        budget::get_default_currency()});
+
+    contents.push_back({"Distribution",
+                        to_string_precision(100 * int_stocks.dollars() / (double)total.dollars(), 2),
+                        to_string_precision(100 * dom_stocks.dollars() / (double)total.dollars(), 2),
+                        to_string_precision(100 * bonds.dollars() / (double)total.dollars(), 2),
+                        to_string_precision(100 * cash.dollars() / (double)total.dollars(), 2),
+                        to_string(100),
+                        ""});
+
+    decltype(auto) desired = get_desired_allocation();
+
+    if (desired.total_allocation()) {
+        contents.push_back({"Desired Distribution",
+                            to_string(desired.int_stocks),
+                            to_string(desired.dom_stocks),
+                            to_string(desired.bonds),
+                            to_string(desired.cash),
+                            to_string(100),
+                            ""});
+
+        contents.push_back({"Desired Total",
+                            to_string(total * (desired.int_stocks / 100.0)),
+                            to_string(total * (desired.dom_stocks / 100.0)),
+                            to_string(total * (desired.bonds / 100.0)),
+                            to_string(total * (desired.cash / 100.0)),
+                            to_string(total),
+                            get_default_currency()});
+
+        contents.push_back({"Difference (need)",
+                            to_string(total * (desired.int_stocks / 100.0) - int_stocks),
+                            to_string(total * (desired.dom_stocks / 100.0) - dom_stocks),
+                            to_string(total * (desired.bonds / 100.0) - bonds),
+                            to_string(total * (desired.cash / 100.0) - cash),
+                            to_string(budget::money{}),
+                            get_default_currency()});
+
+        w.display_table(columns, contents, 1, {contents.size() - 5, contents.size() - 1}, 1);
+    } else {
+        w.display_table(columns, contents, 1, {}, 1);
+    }
+
+    std::vector<std::string> second_columns;
+    std::vector<std::vector<std::string>> second_contents;
+
+    second_contents.emplace_back(std::vector<std::string>{"Net Worth", budget::to_string(total) + get_default_currency()});
+
+    w.display_table(second_columns, second_contents, 1, {}, 15);
+}

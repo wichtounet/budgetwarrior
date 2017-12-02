@@ -64,6 +64,8 @@ void operator>>(const std::vector<std::string>& parts, asset_value& asset);
 void load_assets();
 void save_assets();
 
+void show_assets(budget::writer& w);
+void show_asset_values(budget::writer& w);
 void show_asset_portfolio(budget::writer& w);
 void show_asset_rebalance(budget::writer& w);
 
