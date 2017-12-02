@@ -224,4 +224,6 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 
         os << format_code(0, 0, 7) << std::endl;
     }
+
+    os << std::endl;
 }

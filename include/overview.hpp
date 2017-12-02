@@ -34,7 +34,7 @@ struct module_traits<overview_module> {
 };
 
 void display_local_balance(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
-void display_balance(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_balance(budget::writer& , budget::year year, bool relaxed = false, bool last = false);
 void display_expenses(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
 void display_earnings(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
 

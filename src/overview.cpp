@@ -685,35 +685,37 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
             contents.back().push_back(format_money(total));
             contents.back().push_back(format_money(total / 12));
         }
+    }
 
-        contents.push_back({"Savings Rate"});
+    contents.push_back({"Savings Rate"});
 
-        double total_savings_rate = 0.0;
-        double current_total_savings_rate = 0.0;
+    double total_savings_rate = 0.0;
+    double current_total_savings_rate = 0.0;
 
-        for(unsigned short i = sm; i < 13; ++i){
-            budget::month m = i;
+    for(unsigned short i = sm; i < 13; ++i){
+        budget::month m = i;
 
-            auto status = compute_month_status(year, m);
+        auto status = compute_month_status(year, m);
 
-            double savings_rate = 0.0;
+        double savings_rate = 0.0;
 
-            if(status.balance.dollars() > 0){
-                savings_rate = 100.0 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
-            }
-
-            contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
-
-            if(i < current_months){
-                current_total_savings_rate += savings_rate;
-            }
-
-            total_savings_rate += savings_rate;
+        if(status.balance.dollars() > 0){
+            savings_rate = 100.0 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
         }
 
-        contents.back().push_back("");
-        contents.back().push_back(to_string_precision(total_savings_rate / 12, 2) + "%");
+        contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
 
+        if(i < current_months){
+            current_total_savings_rate += savings_rate;
+        }
+
+        total_savings_rate += savings_rate;
+    }
+
+    contents.back().push_back("");
+    contents.back().push_back(to_string_precision(total_savings_rate / 12, 2) + "%");
+
+    if(current){
         contents.back().push_back("");
         contents.back().push_back(to_string_precision(current_total_savings_rate / current_months, 2) + "%");
     }
@@ -721,7 +723,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
     w.display_table(columns, contents);
 }
 
-void budget::display_balance(budget::writer& w, budget::year year, bool, bool relaxed, bool last){
+void budget::display_balance(budget::writer& w, budget::year year, bool relaxed, bool last){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -898,10 +900,13 @@ void budget::display_year_overview(budget::year year, budget::writer& w){
 
     w << title_begin << "Overview of " << year << budget::year_selector{"overview/year", year} << title_end;
 
-    display_local_balance(w, year, true, false, true);
-    display_balance(w, year, true, false, true);
-    display_expenses(w, year, true, false, true);
-    display_earnings(w, year, true, false, true);
+    auto today = budget::local_day();
+    bool current = year == today.year() && today.month() != 12;
+
+    display_local_balance(w, year, current, false, true);
+    display_balance(w, year, false, true);
+    display_expenses(w, year, current, false, true);
+    display_earnings(w, year, current, false, true);
 }
 
 void budget::display_year_overview(budget::writer& w){
