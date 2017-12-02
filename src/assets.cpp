@@ -732,6 +732,14 @@ std::string budget::get_default_currency(){
     return "CHF";
 }
 
+std::string to_percent(double p){
+    std::stringstream ss;
+
+    ss << std::setprecision(3) << p << "%";
+
+    return ss.str();
+}
+
 void budget::show_asset_portfolio(budget::writer& w){
     if (!asset_values.data.size()) {
         w << "No asset values" << end_of_line;
@@ -803,7 +811,7 @@ void budget::show_asset_portfolio(budget::writer& w){
                         to_string(amount),
                         asset.currency,
                         to_string(conv_amount),
-                        to_string(allocation) + "%"
+                        to_percent(allocation)
                     });
                 }
             }
