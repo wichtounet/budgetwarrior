@@ -26,32 +26,6 @@ namespace {
 
 static data_handler<expense> expenses;
 
-void show_expenses(budget::month month, budget::year year){
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
-
-    money total;
-    size_t count = 0;
-
-    for(auto& expense : expenses.data){
-        if(expense.date.year() == year && expense.date.month() == month){
-            contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
-
-            total += expense.amount;
-            ++count;
-        }
-    }
-
-    if(count == 0){
-        std::cout << "No expenses for " << month << "-" << year << std::endl;
-    } else {
-        contents.push_back({"", "", "", "Total", to_string(total)});
-
-        console_writer w(std::cout);
-        w.display_table(columns, contents);
-    }
-}
-
 void show_templates(){
     std::vector<std::string> columns = {"ID", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
@@ -73,30 +47,6 @@ void show_templates(){
     }
 }
 
-void show_expenses(budget::month month){
-    auto today = budget::local_day();
-
-    show_expenses(month, today.year());
-}
-
-void show_expenses(){
-    auto today = budget::local_day();
-
-    show_expenses(today.month(), today.year());
-}
-
-void show_all_expenses(){
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
-    std::vector<std::vector<std::string>> contents;
-
-    for(auto& expense : expenses.data){
-        contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
-    }
-
-    console_writer w(std::cout);
-    w.display_table(columns, contents);
-}
-
 } //end of anonymous namespace
 
 void budget::expenses_module::load(){
@@ -109,25 +59,27 @@ void budget::expenses_module::unload(){
 }
 
 void budget::expenses_module::handle(const std::vector<std::string>& args){
+    console_writer w(std::cout);
+
     if(args.size() == 1){
-        show_expenses();
+        show_expenses(w);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "show"){
             if(args.size() == 2){
-                show_expenses();
+                show_expenses(w);
             } else if(args.size() == 3){
-                show_expenses(budget::month(to_number<unsigned short>(args[2])));
+                show_expenses(budget::month(to_number<unsigned short>(args[2])), w);
             } else if(args.size() == 4){
                 show_expenses(
                     budget::month(to_number<unsigned short>(args[2])),
-                    budget::year(to_number<unsigned short>(args[3])));
+                    budget::year(to_number<unsigned short>(args[3])), w);
             } else {
                 throw budget_exception("Too many arguments to expense show");
             }
         } else if(subcommand == "all"){
-            show_all_expenses();
+            show_all_expenses(w);
         } else if(subcommand == "template"){
             show_templates();
         } else if(subcommand == "add"){
@@ -277,4 +229,56 @@ void budget::set_expenses_changed(){
 
 void budget::set_expenses_next_id(size_t next_id){
     expenses.next_id = next_id;
+}
+
+void budget::show_all_expenses(budget::writer& w){
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    w << title_begin << "All Expenses" << title_end;
+
+    for(auto& expense : expenses.data){
+        contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+    }
+
+    w.display_table(columns, contents);
+}
+
+void budget::show_expenses(budget::month month, budget::year year, budget::writer& w){
+    w << title_begin << "Expenses of " << month << " " << year << budget::year_month_selector{"expenses", year, month} << title_end;
+
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
+    std::vector<std::vector<std::string>> contents;
+
+    money total;
+    size_t count = 0;
+
+    for(auto& expense : expenses.data){
+        if(expense.date.year() == year && expense.date.month() == month){
+            contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+
+            total += expense.amount;
+            ++count;
+        }
+    }
+
+    if(count == 0){
+        w << "No expenses for " << month << "-" << year << end_of_line;
+    } else {
+        contents.push_back({"", "", "", "Total", to_string(total)});
+
+        w.display_table(columns, contents);
+    }
+}
+
+void budget::show_expenses(budget::month month, budget::writer& w){
+    auto today = budget::local_day();
+
+    show_expenses(month, today.year(), w);
+}
+
+void budget::show_expenses(budget::writer& w){
+    auto today = budget::local_day();
+
+    show_expenses(today.month(), today.year(), w);
 }
