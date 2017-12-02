@@ -16,6 +16,7 @@
 #include "config.hpp"
 #include "objectives.hpp"
 #include "version.hpp"
+#include "summary.hpp"
 
 #include "httplib.h"
 
@@ -180,7 +181,20 @@ void index_page(const httplib::Request&, httplib::Response& res){
     std::stringstream content_stream;
     html_stream(content_stream, "");
 
-    // TODO
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Summary" << title_end;
+
+    auto today = budget::local_day();
+
+    // First display overview of the accounts
+    budget::account_summary(w, today.month(), today.year());
+
+    // Second display a summary of the objectives
+    budget::objectives_summary(w);
+
+    // Third display a summary of the fortune
+    budget::fortune_summary(w);
 
     html_answer(content_stream, res);
 }

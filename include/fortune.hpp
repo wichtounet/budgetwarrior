@@ -14,6 +14,7 @@
 #include "module_traits.hpp"
 #include "money.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -46,7 +47,7 @@ void save_fortunes();
 
 std::vector<fortune>& all_fortunes();
 
-void status_fortunes(std::ostream& os, bool short_view);
+void status_fortunes(budget::writer& w, bool short_view);
 
 void set_fortunes_changed();
 void set_fortunes_next_id(size_t next_id);

@@ -16,6 +16,7 @@
 #include "expenses.hpp"
 #include "earnings.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -31,6 +32,10 @@ struct module_traits<summary_module> {
 
     static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"aggregate", "overview aggregate"}}};
 };
+
+void account_summary(budget::writer& w, budget::month month, budget::year year);
+void objectives_summary(budget::writer& w);
+void fortune_summary(budget::writer& w);
 
 } //end of namespace budget
 

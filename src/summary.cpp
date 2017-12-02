@@ -28,109 +28,6 @@ using namespace budget;
 
 namespace {
 
-std::string account_summary(budget::month month, budget::year year){
-    std::vector<std::string> columns;
-    std::vector<std::vector<std::string>> contents;
-
-    auto sm = start_month(year);
-
-    columns.push_back("Account");
-    columns.push_back("Expenses");
-    columns.push_back("Earnings");
-    columns.push_back("Balance");
-    columns.push_back("Local");
-
-    std::unordered_map<std::string, budget::money> account_previous;
-
-    //Fill the table
-
-    budget::money tot_expenses;
-    budget::money tot_earnings;
-    budget::money tot_balance;
-    budget::money tot_local;
-
-    budget::money prev_expenses;
-    budget::money prev_earnings;
-    budget::money prev_balance;
-    budget::money prev_local;
-
-    for (unsigned short i = sm; i <= month; ++i) {
-        budget::month m = i;
-
-        for (auto& account : all_accounts(year, m)) {
-            auto total_expenses = accumulate_amount_if(all_expenses(), [account, year, m](budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
-            auto total_earnings = accumulate_amount_if(all_earnings(), [account, year, m](budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
-
-            auto balance       = account_previous[account.name] + account.amount - total_expenses + total_earnings;
-            auto local_balance = account.amount - total_expenses + total_earnings;
-
-            if (i == month) {
-                contents.push_back({account.name});
-
-                contents.back().push_back(format_money(total_expenses));
-                contents.back().push_back(format_money(total_earnings));
-                contents.back().push_back(format_money(balance));
-                contents.back().push_back(format_money(local_balance));
-
-                tot_expenses += total_expenses;
-                tot_earnings += total_earnings;
-                tot_balance += balance;
-                tot_local += local_balance;
-            } else if(month > 1 && m == month - 1){
-                prev_expenses = total_expenses;
-                prev_earnings = total_earnings;
-                prev_balance  = balance;
-                prev_local    = local_balance;
-            }
-
-            account_previous[account.name] = balance;
-        }
-    }
-
-    contents.push_back({"Total"});
-
-    contents.back().push_back(format_money(tot_expenses));
-    contents.back().push_back(format_money(tot_earnings));
-    contents.back().push_back(format_money(tot_balance));
-    contents.back().push_back(format_money(tot_local));
-
-    if(month > 1){
-        contents.push_back({"Previous"});
-
-        contents.back().push_back(format_money(prev_expenses));
-        contents.back().push_back(format_money(prev_earnings));
-        contents.back().push_back(format_money(prev_balance));
-        contents.back().push_back(format_money(prev_local));
-
-        contents.push_back({"Average"});
-
-        contents.back().push_back(format_money(tot_expenses / month.value));
-        contents.back().push_back(format_money(tot_earnings / month.value));
-        contents.back().push_back(format_money(tot_balance / month.value));
-        contents.back().push_back(format_money(tot_local / month.value));
-    }
-
-    std::stringstream ss;
-    console_writer w(ss);
-    w.display_table(columns, contents, 1, {}, 1);
-    return ss.str();
-}
-
-std::string objectives_summary(){
-    std::stringstream ss;
-    console_writer w(ss);
-    budget::yearly_objective_status(w, false, true);
-    ss << std::endl;
-    budget::current_monthly_objective_status(w, true);
-    return ss.str();
-}
-
-std::string fortune_summary(){
-    std::stringstream ss;
-    budget::status_fortunes(ss, true);
-    return ss.str();
-}
-
 void print_columns(const std::vector<std::string>& columns){
     std::vector<std::vector<std::string>> split_columns;
 
@@ -216,14 +113,24 @@ void print_columns(const std::vector<std::string>& columns){
 
 void month_overview(budget::month month, budget::year year) {
     // First display overview of the accounts
-    auto m_summary = account_summary(month, year);
+    std::stringstream summary_ss;
+    console_writer summary_w(summary_ss);
+    budget::account_summary(summary_w, month, year);
+    std::string m_summary = summary_ss.str();
 
     // Second display a summary of the objectives
-    auto m_objectives_summary = objectives_summary();
+    std::stringstream objectives_ss;
+    console_writer objectives_w(objectives_ss);
+    budget::objectives_summary(objectives_w);
+    std::string m_objectives_summary = objectives_ss.str();
 
     // Third display a summary of the fortune
-    auto m_fortune_summary = fortune_summary();
+    std::stringstream fortune_ss;
+    console_writer fortune_w(fortune_ss);
+    budget::fortune_summary(fortune_w);
+    std::string m_fortune_summary = fortune_ss.str();
 
+    // Print each column
     print_columns({m_summary, m_objectives_summary, m_fortune_summary});
 }
 
@@ -290,4 +197,108 @@ void budget::summary_module::handle(std::vector<std::string>& args) {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
+}
+
+void budget::account_summary(budget::writer& w, budget::month month, budget::year year){
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    auto sm = start_month(year);
+
+    columns.push_back("Account");
+    columns.push_back("Expenses");
+    columns.push_back("Earnings");
+    columns.push_back("Balance");
+    columns.push_back("Local");
+
+    std::unordered_map<std::string, budget::money> account_previous;
+
+    //Fill the table
+
+    budget::money month_tot_expenses;
+    budget::money month_tot_earnings;
+    budget::money month_tot_balance;
+    budget::money month_tot_local;
+
+    budget::money tot_expenses;
+    budget::money tot_earnings;
+    budget::money tot_balance;
+    budget::money tot_local;
+
+    budget::money prev_expenses;
+    budget::money prev_earnings;
+    budget::money prev_balance;
+    budget::money prev_local;
+
+    for (unsigned short i = sm; i <= month; ++i) {
+        budget::month m = i;
+
+        for (auto& account : all_accounts(year, m)) {
+            auto total_expenses = accumulate_amount_if(all_expenses(), [account, year, m](budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
+            auto total_earnings = accumulate_amount_if(all_earnings(), [account, year, m](budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
+
+            auto balance       = account_previous[account.name] + account.amount - total_expenses + total_earnings;
+            auto local_balance = account.amount - total_expenses + total_earnings;
+
+            if (i == month) {
+                contents.push_back({account.name});
+
+                contents.back().push_back(format_money(total_expenses));
+                contents.back().push_back(format_money(total_earnings));
+                contents.back().push_back(format_money(balance));
+                contents.back().push_back(format_money(local_balance));
+
+                month_tot_expenses += total_expenses;
+                month_tot_earnings += total_earnings;
+                month_tot_balance += balance;
+                month_tot_local += local_balance;
+            } else if (month > 1 && m == month - 1) {
+                prev_expenses += total_expenses;
+                prev_earnings += total_earnings;
+                prev_balance  += balance;
+                prev_local    += local_balance;
+            }
+
+            tot_expenses += total_expenses;
+            tot_earnings += total_earnings;
+            tot_balance += balance;
+            tot_local += local_balance;
+
+            account_previous[account.name] = balance;
+        }
+    }
+
+    contents.push_back({"Total"});
+
+    contents.back().push_back(format_money(month_tot_expenses));
+    contents.back().push_back(format_money(month_tot_earnings));
+    contents.back().push_back(format_money(month_tot_balance));
+    contents.back().push_back(format_money(month_tot_local));
+
+    if(month > 1){
+        contents.push_back({"Previous"});
+
+        contents.back().push_back(format_money(prev_expenses));
+        contents.back().push_back(format_money(prev_earnings));
+        contents.back().push_back(format_money(prev_balance));
+        contents.back().push_back(format_money(prev_local));
+
+        contents.push_back({"Average"});
+
+        contents.back().push_back(format_money(tot_expenses / month.value));
+        contents.back().push_back(format_money(tot_earnings / month.value));
+        contents.back().push_back(format_money(tot_balance / month.value));
+        contents.back().push_back(format_money(tot_local / month.value));
+    }
+
+    w.display_table(columns, contents, 1, {}, 1);
+}
+
+void budget::objectives_summary(budget::writer& w){
+    budget::yearly_objective_status(w, false, true);
+    budget::current_monthly_objective_status(w, true);
+}
+
+void budget::fortune_summary(budget::writer& w){
+    budget::status_fortunes(w, true);
 }

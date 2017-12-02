@@ -25,7 +25,12 @@ namespace {
 
 static data_handler<fortune> fortunes;
 
-void list_fortunes(){
+void list_fortunes(budget::writer& w){
+    if(fortunes.data.empty()){
+        w << "No fortune set" << end_of_line;
+        return;
+    }
+
     std::vector<std::string> columns = {"ID", "Date", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
@@ -33,13 +38,17 @@ void list_fortunes(){
         contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount)});
     }
 
-    console_writer w(std::cout);
     w.display_table(columns, contents);
 }
 
 } //end of anonymous namespace
 
-void budget::status_fortunes(std::ostream& os, bool short_view){
+void budget::status_fortunes(budget::writer& w, bool short_view){
+    if(fortunes.data.empty()){
+        w << "No fortune set" << end_of_line;
+        return;
+    }
+
     std::vector<std::string> short_columns = {"Date", "Amount", "Diff.", "Avg/Day", "Avg/Day Tot."};
     std::vector<std::string> long_columns = {"Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot."};
 
@@ -113,10 +122,8 @@ void budget::status_fortunes(std::ostream& os, bool short_view){
         previous_date = fortune.check_date;
     }
 
-    console_writer w(os);
     w.display_table(columns, contents);
 }
-
 
 budget::money budget::current_fortune(){
     auto& all = all_fortunes();
@@ -146,15 +153,17 @@ void budget::fortune_module::unload(){
 }
 
 void budget::fortune_module::handle(const std::vector<std::string>& args){
+    console_writer w(std::cout);
+
     if(args.size() == 1){
-        status_fortunes(std::cout, false);
+        status_fortunes(w, false);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "list"){
-            list_fortunes();
+            list_fortunes(w);
         } else if(subcommand == "status"){
-            status_fortunes(std::cout, false);
+            status_fortunes(w, false);
         } else if(subcommand == "check"){
             fortune fortune;
             fortune.guid = generate_guid();

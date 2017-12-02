@@ -82,6 +82,12 @@ struct money {
         return new_money;
     }
 
+    money operator/(long factor) const {
+        money new_money = *this;
+        new_money.value /= factor;
+        return new_money;
+    }
+
     money& operator/=(int factor){
         value /= factor;
         return *this;
