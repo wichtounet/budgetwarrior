@@ -445,14 +445,14 @@ void budget::overview_module::load(){
     load_earnings();
 }
 
-void budget::overview_module::handle(std::vector<std::string>& args){
-    if(all_accounts().empty()){
+void budget::overview_module::handle(std::vector<std::string>& args) {
+    if (all_accounts().empty()) {
         throw budget_exception("No accounts defined, you should start by defining some of them");
     }
 
     budget::console_writer w(std::cout);
 
-    if(args.empty() || args.size() == 1){
+    if (args.empty() || args.size() == 1) {
         display_month_overview(w);
     } else {
         auto& subcommand = args[1];
@@ -472,74 +472,73 @@ void budget::overview_module::handle(std::vector<std::string>& args){
             } else {
                 throw budget_exception("Too many arguments to overview month");
             }
-        } else if(subcommand == "year"){
-            if(args.size() == 2){
+        } else if (subcommand == "year") {
+            if (args.size() == 2) {
                 display_year_overview(w);
-            } else if(args.size() == 3){
+            } else if (args.size() == 3) {
                 display_year_overview(budget::year(to_number<unsigned short>(args[2])), w);
             } else {
                 throw budget_exception("Too many arguments to overview month");
             }
-        } else if(subcommand == "aggregate"){
+        } else if (subcommand == "aggregate") {
             //Default values
-            bool full = false;
-            bool disable_groups = false;
+            bool full             = false;
+            bool disable_groups   = false;
             std::string separator = "/";
 
             //Get defaults from config
 
-            if(budget::config_contains("aggregate_full")){
-                if(budget::config_value("aggregate_full") == "true"){
+            if (budget::config_contains("aggregate_full")) {
+                if (budget::config_value("aggregate_full") == "true") {
                     full = true;
                 }
             }
 
-            if(budget::config_contains("aggregate_no_group")){
-                if(budget::config_value("aggregate_no_group") == "true"){
+            if (budget::config_contains("aggregate_no_group")) {
+                if (budget::config_value("aggregate_no_group") == "true") {
                     disable_groups = true;
                 }
             }
 
-            if(budget::config_contains("aggregate_separator")){
+            if (budget::config_contains("aggregate_separator")) {
                 separator = budget::config_value("aggregate_separator");
             }
 
             //Command-line  overrides config
 
-            if(budget::option("--full", args)){
+            if (budget::option("--full", args)) {
                 full = true;
             }
 
-            if(budget::option("--no-group", args)){
+            if (budget::option("--no-group", args)) {
                 disable_groups = true;
             }
 
             auto sep_value = budget::option_value("--separator", args, "");
-            if(!sep_value.empty()){
+            if (!sep_value.empty()) {
                 separator = sep_value;
             }
 
-            if(args.size() == 2){
+            if (args.size() == 2) {
                 aggregate_year_overview(w, full, disable_groups, separator, today.year());
-            } else if(args.size() == 3 || args.size() == 4 || args.size() == 5){
-                if(args[2] == "year"){
-                    if(args.size() == 3){
+            } else if (args.size() == 3 || args.size() == 4 || args.size() == 5) {
+                if (args[2] == "year") {
+                    if (args.size() == 3) {
                         aggregate_year_overview(w, full, disable_groups, separator, today.year());
-                    } else if(args.size() == 4){
+                    } else if (args.size() == 4) {
                         aggregate_year_overview(w, full, disable_groups, separator, budget::year(to_number<unsigned short>(args[3])));
                     }
-                } else if(args[2] == "month"){
-                    if(args.size() == 3){
+                } else if (args[2] == "month") {
+                    if (args.size() == 3) {
                         aggregate_month_overview(w, full, disable_groups, separator, today.month(), today.year());
-                    } else if(args.size() == 4){
+                    } else if (args.size() == 4) {
                         aggregate_month_overview(w, full, disable_groups, separator,
-                            budget::month(to_number<unsigned short>(args[3])),
-                            today.year());
-                    } else if(args.size() == 5){
+                                                 budget::month(to_number<unsigned short>(args[3])),
+                                                 today.year());
+                    } else if (args.size() == 5) {
                         aggregate_month_overview(w, full, disable_groups, separator,
-                            budget::month(to_number<unsigned short>(args[3])),
-                            budget::year(to_number<unsigned short>(args[4]))
-                            );
+                                                 budget::month(to_number<unsigned short>(args[3])),
+                                                 budget::year(to_number<unsigned short>(args[4])));
                     }
                 } else {
                     throw budget_exception("Invalid subcommand");
