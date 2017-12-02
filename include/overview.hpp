@@ -33,14 +33,17 @@ struct module_traits<overview_module> {
     static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"aggregate", "overview aggregate"}}};
 };
 
-void display_local_balance(budget::year year, bool current = true, bool relaxed = false, bool last = false);
-void display_balance(budget::year year, bool current = true, bool relaxed = false, bool last = false);
-void display_expenses(budget::year year, bool current = true, bool relaxed = false, bool last = false);
-void display_earnings(budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_local_balance(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_balance(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_expenses(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_earnings(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
 
-void display_month_overview(budget::month month, budget::year year, budget::writer& writer);
-void display_month_overview(budget::month month, budget::writer& writer);
-void display_month_overview(budget::writer& writer);
+void display_month_overview(budget::month month, budget::year year, budget::writer& );
+void display_month_overview(budget::month month, budget::writer& );
+void display_month_overview(budget::writer& );
+
+void display_year_overview(budget::year year, budget::writer& w);
+void display_year_overview(budget::writer& w);
 
 } //end of namespace budget
 

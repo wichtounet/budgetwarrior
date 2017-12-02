@@ -281,32 +281,6 @@ void aggregate_month_overview(bool full, bool disable_groups, const std::string&
     aggregate_overview(full, disable_groups, separator, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
 }
 
-void year_overview(budget::year year){
-    if(invalid_accounts(year)){
-        throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
-    }
-
-    std::cout << "Overview of " << year << std::endl << std::endl;
-
-    display_local_balance(year, true, false, true);
-    std::cout << std::endl;
-
-    display_balance(year, true, false, true);
-    std::cout << std::endl;
-
-    display_expenses(year, true, false, true);
-    std::cout << std::endl;
-
-    display_earnings(year, true, false, true);
-    std::cout << std::endl;
-}
-
-void year_overview(){
-    auto today = budget::local_day();
-
-    year_overview(today.year());
-}
-
 void add_month_columns(std::vector<std::string>& columns, budget::month sm){
     for(unsigned short i = sm; i < 13; ++i){
         budget::month m = i;
@@ -364,7 +338,7 @@ inline void generate_total_line(std::vector<std::vector<std::string>>& contents,
 }
 
 template<typename T>
-void display_values(budget::year year, const std::string& title, const std::vector<T>& values, bool current = true, bool relaxed = true, bool last = false){
+void display_values(budget::writer& w, budget::year year, const std::string& title, const std::vector<T>& values, bool current = true, bool relaxed = true, bool last = false){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -477,7 +451,6 @@ void display_values(budget::year year, const std::string& title, const std::vect
         }
     }
 
-    console_writer w(std::cout);
     w.display_table(columns, contents);
 }
 
@@ -496,8 +469,9 @@ void budget::overview_module::handle(std::vector<std::string>& args){
         throw budget_exception("No accounts defined, you should start by defining some of them");
     }
 
+    budget::console_writer w(std::cout);
+
     if(args.empty() || args.size() == 1){
-        budget::console_writer w(std::cout);
         display_month_overview(w);
     } else {
         auto& subcommand = args[1];
@@ -506,13 +480,10 @@ void budget::overview_module::handle(std::vector<std::string>& args){
 
         if (subcommand == "month") {
             if (args.size() == 2) {
-                budget::console_writer w(std::cout);
                 display_month_overview(w);
             } else if (args.size() == 3) {
-                budget::console_writer w(std::cout);
                 display_month_overview(budget::month(to_number<unsigned short>(args[2])), w);
             } else if (args.size() == 4) {
-                budget::console_writer w(std::cout);
                 display_month_overview(
                     budget::month(to_number<unsigned short>(args[2])),
                     budget::year(to_number<unsigned short>(args[3])),
@@ -522,9 +493,9 @@ void budget::overview_module::handle(std::vector<std::string>& args){
             }
         } else if(subcommand == "year"){
             if(args.size() == 2){
-                year_overview();
+                display_year_overview(w);
             } else if(args.size() == 3){
-                year_overview(budget::year(to_number<unsigned short>(args[2])));
+                display_year_overview(budget::year(to_number<unsigned short>(args[2])), w);
             } else {
                 throw budget_exception("Too many arguments to overview month");
             }
@@ -601,15 +572,15 @@ void budget::overview_module::handle(std::vector<std::string>& args){
     }
 }
 
-void budget::display_expenses(budget::year year, bool current, bool relaxed, bool last){
-    display_values(year, "Expenses", all_expenses(), current, relaxed, last);
+void budget::display_expenses(budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
+    display_values(w, year, "Expenses", all_expenses(), current, relaxed, last);
 }
 
-void budget::display_earnings(budget::year year, bool current, bool relaxed, bool last){
-    display_values(year, "Earnings", all_earnings(), current, relaxed, last);
+void budget::display_earnings(budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
+    display_values(w, year, "Earnings", all_earnings(), current, relaxed, last);
 }
 
-void budget::display_local_balance(budget::year year, bool current, bool relaxed, bool last){
+void budget::display_local_balance(budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -747,11 +718,10 @@ void budget::display_local_balance(budget::year year, bool current, bool relaxed
         contents.back().push_back(to_string_precision(current_total_savings_rate / current_months, 2) + "%");
     }
 
-    console_writer w(std::cout);
     w.display_table(columns, contents);
 }
 
-void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
+void budget::display_balance(budget::writer& w, budget::year year, bool, bool relaxed, bool last){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -829,7 +799,6 @@ void budget::display_balance(budget::year year, bool, bool relaxed, bool last){
         }
     }
 
-    console_writer w(std::cout);
     w.display_table(columns, contents);
 }
 
@@ -920,4 +889,23 @@ void budget::display_month_overview(budget::writer& writer){
     auto today = budget::local_day();
 
     display_month_overview(today.month(), today.year(), writer);
+}
+
+void budget::display_year_overview(budget::year year, budget::writer& w){
+    if(invalid_accounts(year)){
+        throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
+    }
+
+    w << title_begin << "Overview of " << year << budget::year_selector{"overview/year", year} << title_end;
+
+    display_local_balance(w, year, true, false, true);
+    display_balance(w, year, true, false, true);
+    display_expenses(w, year, true, false, true);
+    display_earnings(w, year, true, false, true);
+}
+
+void budget::display_year_overview(budget::writer& w){
+    auto today = budget::local_day();
+
+    display_year_overview(today.year(), w);
 }

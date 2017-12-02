@@ -78,15 +78,12 @@ void predict_overview(){
         }
     }
 
-    std::cout << std::endl;
-    display_local_balance(today.year(), false, true);
-    std::cout << std::endl;
-    display_balance(today.year(), false, true);
-    std::cout << std::endl;
-    display_expenses(today.year(), false, true);
-    std::cout << std::endl;
-    display_earnings(today.year(), false, true);
-    std::cout << std::endl;
+    console_writer w(std::cout);
+
+    display_local_balance(w, today.year(), false, true);
+    display_balance(w, today.year(), false, true);
+    display_expenses(w, today.year(), false, true);
+    display_earnings(w, today.year(), false, true);
 }
 
 } // end of anonymous namespace

@@ -123,6 +123,21 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
     return *this;
 }
 
+budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) {
+    os << "<div class=\"selector\">";
+
+    auto previous_year = m.current_year - 1;
+    auto next_year     = m.current_year + 1;
+
+    os << "<a href=\"/" << m.page << "/" << previous_year << "/\">&lt;&lt;</a>";
+    os << "&nbsp;";
+    os << "<a href=\"/" << m.page << "/" << next_year << "/\">&gt;&gt;</a>";
+
+    os << "</div>";
+
+    return *this;
+}
+
 void budget::html_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left){
     cpp_assert(groups > 0, "There must be at least 1 group");
     cpp_unused(left);

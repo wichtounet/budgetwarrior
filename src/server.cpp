@@ -80,8 +80,12 @@ std::string header(const std::string& title){
               <li class="nav-item active">
                 <a class="nav-link" href="#">Index <span class="sr-only">(current)</span></a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/overview/">Overview</a>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Overview</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                  <a class="dropdown-item" href="/overview/">Overview</a>
+                  <a class="dropdown-item" href="/overview/year/">Overview Year</a>
+                </div>
               </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Accounts</a>
@@ -199,6 +203,21 @@ void overview_page(const httplib::Request& req, httplib::Response& res){
     html_answer(content_stream, res);
 }
 
+void overview_year_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "Overview Year");
+
+    budget::html_writer w(content_stream);
+
+    if(req.matches.size() == 2){
+        display_year_overview(to_number<size_t>(req.matches[1]), w);
+    } else {
+        display_year_overview(w);
+    }
+
+    html_answer(content_stream, res);
+}
+
 void expenses_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     html_stream(content_stream, "Expenses");
@@ -307,6 +326,9 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     // Declare all the pages
     server.get("/", &index_page);
+
+    server.get("/overview/year/", &overview_year_page);
+    server.get(R"(/overview/year/(\d+)/)", &overview_year_page);
 
     server.get("/overview/", &overview_page);
     server.get(R"(/overview/(\d+)/(\d+)/)", &overview_page);
