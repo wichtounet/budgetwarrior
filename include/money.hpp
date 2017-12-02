@@ -87,6 +87,10 @@ struct money {
         return *this;
     }
 
+    double operator/(money m) const {
+        return value / double(m.value);
+    }
+
     bool operator==(const budget::money& rhs) const {
         return value == rhs.value;
     }
