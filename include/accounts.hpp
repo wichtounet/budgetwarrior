@@ -14,6 +14,7 @@
 #include "module_traits.hpp"
 #include "money.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -56,6 +57,9 @@ budget::account& get_account(std::string name, year year, month month);
 
 void set_accounts_changed();
 void set_accounts_next_id(size_t next_id);
+
+void show_all_accounts(budget::writer& w);
+void show_accounts(budget::writer& w);
 
 } //end of namespace budget
 

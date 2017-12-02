@@ -84,6 +84,13 @@ std::string header(const std::string& title){
                 <a class="nav-link" href="/overview/">Overview</a>
               </li>
               <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Accounts</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                  <a class="dropdown-item" href="/accounts/">Accounts</a>
+                  <a class="dropdown-item" href="/accounts/all/">All Accounts</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown01">
                   <a class="dropdown-item" href="/assets/">Assets</a>
@@ -139,6 +146,26 @@ void index_page(const httplib::Request&, httplib::Response& res){
     html_stream(content_stream, "");
 
     // TODO
+
+    html_answer(content_stream, res);
+}
+
+void accounts_page(const httplib::Request&, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "Accounts");
+
+    budget::html_writer w(content_stream);
+    budget::show_accounts(w);
+
+    html_answer(content_stream, res);
+}
+
+void all_accounts_page(const httplib::Request&, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "All Accounts");
+
+    budget::html_writer w(content_stream);
+    budget::show_all_accounts(w);
 
     html_answer(content_stream, res);
 }
@@ -218,6 +245,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/", &index_page);
 
     server.get(R"(/overview/(\d+)/(\d+)/)", &overview_page);
+    server.get("/accounts/", &accounts_page);
+    server.get("/accounts/all/", &all_accounts_page);
     server.get("/overview/", &overview_page);
     server.get("/portfolio/", &portfolio_page);
     server.get("/rebalance/", &rebalance_page);

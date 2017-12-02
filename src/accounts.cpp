@@ -28,53 +28,6 @@ namespace {
 
 static data_handler<account> accounts;
 
-void show_accounts(){
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "Part"};
-    std::vector<std::vector<std::string>> contents;
-
-    // Compute the total
-
-    money total;
-
-    for(auto& account : accounts.data){
-        if(account.until == budget::date(2099,12,31)){
-            total += account.amount;
-        }
-    }
-
-    // Display the accounts
-
-    for(auto& account : accounts.data){
-        if(account.until == budget::date(2099,12,31)){
-            float part = 100.0 * (account.amount.value / float(total.value));
-
-            char buffer[32];
-            snprintf(buffer, 32, "%.2f%%", part);
-
-            contents.push_back({to_string(account.id), account.name,
-                to_string(account.amount),
-                buffer});
-        }
-    }
-
-    contents.push_back({"", "Total", to_string(total), ""});
-
-    console_writer w(std::cout);
-    w.display_table(columns, contents);
-}
-
-void show_all_accounts(){
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until"};
-    std::vector<std::vector<std::string>> contents;
-
-    for(auto& account : accounts.data){
-        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until)});
-    }
-
-    console_writer w(std::cout);
-    w.display_table(columns, contents);
-}
-
 budget::date find_new_since(){
     budget::date date(1400,1,1);
 
@@ -126,15 +79,17 @@ void budget::accounts_module::unload(){
 }
 
 void budget::accounts_module::handle(const std::vector<std::string>& args){
+    console_writer w(std::cout);
+
     if(args.size() == 1){
-        show_accounts();
+        show_accounts(w);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "show"){
-            show_accounts();
+            show_accounts(w);
         } else if(subcommand == "all"){
-            show_all_accounts();
+            show_all_accounts(w);
         } else if(subcommand == "add"){
             account account;
             account.guid = generate_guid();
@@ -512,4 +467,53 @@ std::vector<std::string> budget::all_account_names(){
     }
 
     return account_names;
+}
+
+void budget::show_accounts(budget::writer& w){
+    w << title_begin << "Accounts" << title_end;
+
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Part"};
+    std::vector<std::vector<std::string>> contents;
+
+    // Compute the total
+
+    money total;
+
+    for(auto& account : accounts.data){
+        if(account.until == budget::date(2099,12,31)){
+            total += account.amount;
+        }
+    }
+
+    // Display the accounts
+
+    for(auto& account : accounts.data){
+        if(account.until == budget::date(2099,12,31)){
+            float part = 100.0 * (account.amount.value / float(total.value));
+
+            char buffer[32];
+            snprintf(buffer, 32, "%.2f%%", part);
+
+            contents.push_back({to_string(account.id), account.name,
+                to_string(account.amount),
+                buffer});
+        }
+    }
+
+    contents.push_back({"", "Total", to_string(total), ""});
+
+    w.display_table(columns, contents);
+}
+
+void budget::show_all_accounts(budget::writer& w){
+    w << title_begin << "All Accounts" << title_end;
+
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& account : accounts.data){
+        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until)});
+    }
+
+    w.display_table(columns, contents);
 }
