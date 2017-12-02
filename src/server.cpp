@@ -120,26 +120,30 @@ std::string footer(){
     return stream.str();
 }
 
-void index_page(const httplib::Request& req, httplib::Response& res){
-    cpp_unused(req);
-
-    std::stringstream content_stream;
+void html_stream(std::stringstream& content_stream, const std::string& title){
     content_stream.imbue(std::locale("C"));
 
-    content_stream << header("");
+    content_stream << header(title);
+}
 
-    // TODO
-
+void html_answer(std::stringstream& content_stream, httplib::Response& res){
     content_stream << footer();
 
     res.set_content(content_stream.str(), "text/html");
 }
 
+void index_page(const httplib::Request&, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "");
+
+    // TODO
+
+    html_answer(content_stream, res);
+}
+
 void overview_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    content_stream.imbue(std::locale("C"));
-
-    content_stream << header("");
+    html_stream(content_stream, "Overview");
 
     budget::html_writer w(content_stream);
 
@@ -149,41 +153,27 @@ void overview_page(const httplib::Request& req, httplib::Response& res){
         display_month_overview(w);
     }
 
-    content_stream << footer();
-
-    res.set_content(content_stream.str(), "text/html");
+    html_answer(content_stream, res);
 }
 
-void portfolio_page(const httplib::Request& req, httplib::Response& res){
-    cpp_unused(req);
-
+void portfolio_page(const httplib::Request&, httplib::Response& res){
     std::stringstream content_stream;
-    content_stream.imbue(std::locale("C"));
-
-    content_stream << header("Portfolio");
+    html_stream(content_stream, "Portfolio");
 
     budget::html_writer w(content_stream);
     budget::show_asset_portfolio(w);
 
-    content_stream << footer();
-
-    res.set_content(content_stream.str(), "text/html");
+    html_answer(content_stream, res);
 }
 
-void rebalance_page(const httplib::Request& req, httplib::Response& res){
-    cpp_unused(req);
-
+void rebalance_page(const httplib::Request&, httplib::Response& res){
     std::stringstream content_stream;
-    content_stream.imbue(std::locale("C"));
-
-    content_stream << header("Rebalance");
+    html_stream(content_stream, "Rebalance");
 
     budget::html_writer w(content_stream);
     budget::show_asset_rebalance(w);
 
-    content_stream << footer();
-
-    res.set_content(content_stream.str(), "text/html");
+    html_answer(content_stream, res);
 }
 
 } //end of anonymous namespace
