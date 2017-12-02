@@ -12,6 +12,7 @@
 #include "overview.hpp"
 #include "expenses.hpp"
 #include "accounts.hpp"
+#include "assets.hpp"
 
 #include "httplib.h"
 
@@ -56,7 +57,12 @@ std::string header(const std::string& title){
             </style>
     )=====";
 
-    stream << "<title>budgetwarrior" << title << "</title>" << new_line;
+    if (title.empty()) {
+        stream << "<title>budgetwarrior</title>" << new_line;
+    } else {
+        stream << "<title>budgetwarrior - " << title << "</title>" << new_line;
+    }
+
     stream << "</head>" << new_line;
     stream << "<body>" << new_line;
 
@@ -130,8 +136,6 @@ void index_page(const httplib::Request& req, httplib::Response& res){
 }
 
 void overview_page(const httplib::Request& req, httplib::Response& res){
-    cpp_unused(req);
-
     std::stringstream content_stream;
     content_stream.imbue(std::locale("C"));
 
@@ -150,12 +154,29 @@ void overview_page(const httplib::Request& req, httplib::Response& res){
     res.set_content(content_stream.str(), "text/html");
 }
 
+void portfolio_page(const httplib::Request& req, httplib::Response& res){
+    cpp_unused(req);
+
+    std::stringstream content_stream;
+    content_stream.imbue(std::locale("C"));
+
+    content_stream << header("Portfolio");
+
+    budget::html_writer w(content_stream);
+    budget::show_asset_portfolio(w);
+
+    content_stream << footer();
+
+    res.set_content(content_stream.str(), "text/html");
+}
+
 } //end of anonymous namespace
 
 void budget::server_module::load(){
     load_accounts();
     load_expenses();
     load_earnings();
+    load_assets();
 }
 
 void budget::server_module::handle(const std::vector<std::string>& args){
@@ -170,6 +191,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     server.get(R"(/overview/(\d+)/(\d+)/)", &overview_page);
     server.get("/overview/", &overview_page);
+    server.get("/portfolio/", &portfolio_page);
 
     server.set_error_handler([](const auto&, auto& res) {
         std::stringstream content_stream;

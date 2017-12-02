@@ -14,6 +14,7 @@
 #include "module_traits.hpp"
 #include "money.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -62,6 +63,8 @@ void operator>>(const std::vector<std::string>& parts, asset_value& asset);
 
 void load_assets();
 void save_assets();
+
+void show_asset_portfolio(budget::writer& w);
 
 bool asset_exists(const std::string& asset);
 
