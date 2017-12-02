@@ -249,9 +249,9 @@ void show_asset_values(){
     std::cout << std::endl << "       Net worth: " << total << get_default_currency() << std::endl;
 }
 
-void show_asset_portfolio(){
+void show_asset_portfolio(budget::writer& w){
     if (!asset_values.data.size()) {
-        std::cout << "No asset values" << std::endl;
+        w << "No asset values" << end_of_line;
         return;
     }
 
@@ -288,6 +288,8 @@ void show_asset_portfolio(){
         }
     }
 
+    std::cout << total << std::endl;
+
     for(auto& asset : assets.data){
         auto id = asset.id;
 
@@ -310,7 +312,7 @@ void show_asset_portfolio(){
                 auto& asset_value = get_asset_value(asset_value_id);
                 auto amount       = asset_value.amount;
                 auto conv_amount  = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
-                auto allocation   = conv_amount / total;
+                auto allocation   = 100.0 * (conv_amount / total);
 
                 if (amount) {
                     contents.push_back({
@@ -318,17 +320,21 @@ void show_asset_portfolio(){
                         to_string(amount),
                         asset.currency,
                         to_string(conv_amount),
-                        to_string(allocation)
+                        to_string(allocation) + "%"
                     });
                 }
             }
         }
     }
 
-    console_writer w(std::cout);
     w.display_table(columns, contents, 1, {}, 1);
 
-    std::cout << std::endl << "             Total: " << total << get_default_currency() << std::endl;
+    std::vector<std::string> second_columns;
+    std::vector<std::vector<std::string>> second_contents;
+
+    second_contents.emplace_back(std::vector<std::string>{"Total", budget::to_string(total) + get_default_currency()});
+
+    w.display_table(second_columns, second_contents, 1, {}, 15);
 }
 
 void show_asset_rebalance(){
@@ -436,7 +442,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
         } else if (subcommand == "rebalance") {
             show_asset_rebalance();
         } else if (subcommand == "portfolio") {
-            show_asset_portfolio();
+            console_writer w(std::cout);
+            show_asset_portfolio(w);
         } else if(subcommand == "add"){
             asset asset;
             asset.guid = generate_guid();
