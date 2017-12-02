@@ -13,6 +13,7 @@
 #include "expenses.hpp"
 #include "accounts.hpp"
 #include "assets.hpp"
+#include "config.hpp"
 
 #include "httplib.h"
 
@@ -83,8 +84,10 @@ std::string header(const std::string& title){
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Overview</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown01">
-                  <a class="dropdown-item" href="/overview/">Overview</a>
+                  <a class="dropdown-item" href="/overview/">Overvie Month</a>
                   <a class="dropdown-item" href="/overview/year/">Overview Year</a>
+                  <a class="dropdown-item" href="/overview/aggregate/year/">Aggregate Year</a>
+                  <a class="dropdown-item" href="/overview/aggregate/month/">Aggregate Month</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -198,6 +201,84 @@ void overview_page(const httplib::Request& req, httplib::Response& res){
         display_month_overview(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
     } else {
         display_month_overview(w);
+    }
+
+    html_answer(content_stream, res);
+}
+
+void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "Overview Aggregate");
+
+    budget::html_writer w(content_stream);
+
+    //Default values
+    bool full = false;
+    bool disable_groups = false;
+    std::string separator = "/";
+
+    //Get defaults from config
+
+    if(budget::config_contains("aggregate_full")){
+        if(budget::config_value("aggregate_full") == "true"){
+            full = true;
+        }
+    }
+
+    if(budget::config_contains("aggregate_no_group")){
+        if(budget::config_value("aggregate_no_group") == "true"){
+            disable_groups = true;
+        }
+    }
+
+    if(budget::config_contains("aggregate_separator")){
+        separator = budget::config_value("aggregate_separator");
+    }
+
+    if(req.matches.size() == 2){
+        aggregate_year_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[1]));
+    } else {
+        auto today = budget::local_day();
+        aggregate_year_overview(w, full, disable_groups, separator, today.year());
+    }
+
+    html_answer(content_stream, res);
+}
+
+void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "Overview Aggregate");
+
+    budget::html_writer w(content_stream);
+
+    //Default values
+    bool full = false;
+    bool disable_groups = false;
+    std::string separator = "/";
+
+    //Get defaults from config
+
+    if(budget::config_contains("aggregate_full")){
+        if(budget::config_value("aggregate_full") == "true"){
+            full = true;
+        }
+    }
+
+    if(budget::config_contains("aggregate_no_group")){
+        if(budget::config_value("aggregate_no_group") == "true"){
+            disable_groups = true;
+        }
+    }
+
+    if(budget::config_contains("aggregate_separator")){
+        separator = budget::config_value("aggregate_separator");
+    }
+
+    if(req.matches.size() == 3){
+        aggregate_month_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]));
+    } else {
+        auto today = budget::local_day();
+        aggregate_month_overview(w, full, disable_groups, separator, today.month(), today.year());
     }
 
     html_answer(content_stream, res);
@@ -332,6 +413,12 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     server.get("/overview/", &overview_page);
     server.get(R"(/overview/(\d+)/(\d+)/)", &overview_page);
+
+    server.get("/overview/aggregate/year/", &overview_aggregate_year_page);
+    server.get(R"(/overview/aggregate/year/(\d+)/)", &overview_aggregate_year_page);
+
+    server.get("/overview/aggregate/month/", &overview_aggregate_month_page);
+    server.get(R"(/overview/aggregate/month/(\d+)/(\d+)/)", &overview_aggregate_month_page);
 
     server.get("/accounts/", &accounts_page);
     server.get("/accounts/all/", &all_accounts_page);

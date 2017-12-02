@@ -162,7 +162,7 @@ void add_values_column(budget::month month, budget::year year, const std::string
 }
 
 template<typename Functor>
-void aggregate_overview(bool full, bool disable_groups, const std::string& separator, Functor&& func){
+void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
     std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
 
     //Accumulate all the expenses
@@ -259,26 +259,7 @@ void aggregate_overview(bool full, bool disable_groups, const std::string& separ
         i++;
     }
 
-    console_writer w(std::cout);
     w.display_table(columns, contents, 2);
-
-    std::cout << std::endl;
-}
-
-void aggregate_year_overview(bool full, bool disable_groups, const std::string& separator, budget::year year){
-    if(invalid_accounts(year)){
-        throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
-    }
-
-    std::cout << "Aggregate overview of " << year << std::endl << std::endl;
-
-    aggregate_overview(full, disable_groups, separator, [year](const budget::expense& expense){ return expense.date.year() == year; });
-}
-
-void aggregate_month_overview(bool full, bool disable_groups, const std::string& separator, budget::month month, budget::year year){
-    std::cout << "Aggregate overview of " << month << " " << year << std::endl << std::endl;
-
-    aggregate_overview(full, disable_groups, separator, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
 }
 
 void add_month_columns(std::vector<std::string>& columns, budget::month sm){
@@ -539,23 +520,23 @@ void budget::overview_module::handle(std::vector<std::string>& args){
             }
 
             if(args.size() == 2){
-                aggregate_year_overview(full, disable_groups, separator, today.year());
+                aggregate_year_overview(w, full, disable_groups, separator, today.year());
             } else if(args.size() == 3 || args.size() == 4 || args.size() == 5){
                 if(args[2] == "year"){
                     if(args.size() == 3){
-                        aggregate_year_overview(full, disable_groups, separator, today.year());
+                        aggregate_year_overview(w, full, disable_groups, separator, today.year());
                     } else if(args.size() == 4){
-                        aggregate_year_overview(full, disable_groups, separator, budget::year(to_number<unsigned short>(args[3])));
+                        aggregate_year_overview(w, full, disable_groups, separator, budget::year(to_number<unsigned short>(args[3])));
                     }
                 } else if(args[2] == "month"){
                     if(args.size() == 3){
-                        aggregate_month_overview(full, disable_groups, separator, today.month(), today.year());
+                        aggregate_month_overview(w, full, disable_groups, separator, today.month(), today.year());
                     } else if(args.size() == 4){
-                        aggregate_month_overview(full, disable_groups, separator,
+                        aggregate_month_overview(w, full, disable_groups, separator,
                             budget::month(to_number<unsigned short>(args[3])),
                             today.year());
                     } else if(args.size() == 5){
-                        aggregate_month_overview(full, disable_groups, separator,
+                        aggregate_month_overview(w, full, disable_groups, separator,
                             budget::month(to_number<unsigned short>(args[3])),
                             budget::year(to_number<unsigned short>(args[4]))
                             );
@@ -913,4 +894,20 @@ void budget::display_year_overview(budget::writer& w){
     auto today = budget::local_day();
 
     display_year_overview(today.year(), w);
+}
+
+void budget::aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year){
+    if(invalid_accounts(year)){
+        throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
+    }
+
+    w << title_begin << "Aggregate overview of " << year << year_selector{"overview/aggregate/year", year} << title_end;
+
+    aggregate_overview(w, full, disable_groups, separator, [year](const budget::expense& expense){ return expense.date.year() == year; });
+}
+
+void budget::aggregate_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::month month, budget::year year){
+    w << title_begin << "Aggregate overview of " << month << " " << year << year_month_selector{"overview/aggregate/month", year, month} << title_end;
+
+    aggregate_overview(w, full, disable_groups, separator, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
 }
