@@ -10,11 +10,15 @@
 #include "version.hpp"
 #include "budget_exception.hpp"
 
+std::string budget::get_version(){
+    return "budgetwarrior 0.4.3";
+}
+
 void budget::version_module::handle(const std::vector<std::string>& args){
     if(args.size() > 1){
         throw budget_exception("Too many arguments to version");
     }
 
-    std::cout << "budgetwarrior 0.4.3" << std::endl;
+    std::cout << get_version() << std::endl;
     std::cout << "Copyright 2013-2017 Baptiste Wicht" << std::endl;
 }

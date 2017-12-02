@@ -25,6 +25,8 @@ struct module_traits<version_module> {
     static constexpr const char* command = "version";
 };
 
+std::string get_version();
+
 } //end of namespace budget
 
 #endif
