@@ -77,8 +77,12 @@ std::string header(const std::string& title){
               <li class="nav-item">
                 <a class="nav-link" href="/overview/">Overview</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/portfolio/">Portfolio</a>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                  <a class="dropdown-item" href="/portfolio/">Portfolio</a>
+                  <a class="dropdown-item" href="/rebalance/">Rebalance</a>
+                </div>
               </li>
             </ul>
           </div>
