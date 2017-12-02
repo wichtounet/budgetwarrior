@@ -98,7 +98,6 @@ std::string option_value(const std::string& option, std::vector<std::string>& ar
 
 std::string format_code(int attr, int fg, int bg);
 std::string format_reset();
-std::string format(const std::string& value);
 
 template<typename T>
 bool check(const T&){

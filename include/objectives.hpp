@@ -15,6 +15,7 @@
 #include "money.hpp"
 #include "compute.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -44,9 +45,9 @@ struct objective {
 std::ostream& operator<<(std::ostream& stream, const objective& expense);
 void operator>>(const std::vector<std::string>& parts, objective& expense);
 
-void yearly_objective_status(std::ostream& os, bool lines, bool full_align);
-void monthly_objective_status(std::ostream& os);
-void current_monthly_objective_status(std::ostream& os, bool full_align);
+void yearly_objective_status(budget::writer& w, bool lines, bool full_align);
+void monthly_objective_status(budget::writer& w);
+void current_monthly_objective_status(budget::writer& w, bool full_align);
 
 void load_objectives();
 void save_objectives();
@@ -58,6 +59,9 @@ void set_objectives_changed();
 void set_objectives_next_id(size_t next_id);
 
 int compute_success(const budget::status& status, const objective& objective);
+
+void list_objectives(budget::writer& w);
+void status_objectives(budget::writer& w);
 
 } //end of namespace budget
 

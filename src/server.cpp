@@ -14,6 +14,7 @@
 #include "accounts.hpp"
 #include "assets.hpp"
 #include "config.hpp"
+#include "objectives.hpp"
 
 #include "httplib.h"
 
@@ -91,33 +92,40 @@ std::string header(const std::string& title){
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Accounts</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Accounts</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown02">
                   <a class="dropdown-item" href="/accounts/">Accounts</a>
                   <a class="dropdown-item" href="/accounts/all/">All Accounts</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Expenses</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Expenses</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown03">
                   <a class="dropdown-item" href="/expenses/">Expenses</a>
                   <a class="dropdown-item" href="/expenses/all/">All Expenses</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Earnings</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Earnings</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown04">
                   <a class="dropdown-item" href="/earnings/">Earnings</a>
                   <a class="dropdown-item" href="/earnings/all/">All Earnings</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown05">
                   <a class="dropdown-item" href="/assets/">Assets</a>
                   <a class="dropdown-item" href="/net_worth/">Net worth</a>
                   <a class="dropdown-item" href="/portfolio/">Portfolio</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Objectives</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown06">
+                  <a class="dropdown-item" href="/objectives/status/">Status</a>
+                  <a class="dropdown-item" href="/objectives/list/">List</a>
                 </div>
               </li>
             </ul>
@@ -389,6 +397,26 @@ void asset_values_page(const httplib::Request&, httplib::Response& res){
     html_answer(content_stream, res);
 }
 
+void objectives_list_page(const httplib::Request&, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "Objectives List");
+
+    budget::html_writer w(content_stream);
+    budget::list_objectives(w);
+
+    html_answer(content_stream, res);
+}
+
+void objectives_status_page(const httplib::Request&, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(content_stream, "Objectives List");
+
+    budget::html_writer w(content_stream);
+    budget::list_objectives(w);
+
+    html_answer(content_stream, res);
+}
+
 } //end of anonymous namespace
 
 void budget::server_module::load(){
@@ -396,6 +424,7 @@ void budget::server_module::load(){
     load_expenses();
     load_earnings();
     load_assets();
+    load_objectives();
 }
 
 void budget::server_module::handle(const std::vector<std::string>& args){
@@ -435,6 +464,9 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/rebalance/", &rebalance_page);
     server.get("/assets/", &assets_page);
     server.get("/net_worth/", &asset_values_page);
+
+    server.get("/objectives/list/", &objectives_list_page);
+    server.get("/objectives/status/", &objectives_status_page);
 
     server.set_error_handler([](const auto&, auto& res) {
         std::stringstream content_stream;

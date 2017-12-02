@@ -30,23 +30,7 @@ namespace {
 
 static data_handler<objective> objectives;
 
-void list_objectives(){
-    if(objectives.data.size() == 0){
-        std::cout << "No objectives" << std::endl;
-    } else {
-        std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount"};
-        std::vector<std::vector<std::string>> contents;
-
-        for(auto& objective : objectives.data){
-            contents.push_back({to_string(objective.id), objective.name, objective.type, objective.source, objective.op, to_string(objective.amount)});
-        }
-
-        console_writer w(std::cout);
-        w.display_table(columns, contents);
-    }
-}
-
-void print_status(std::ostream& os, const budget::status& status, const budget::objective& objective){
+std::string get_status(const budget::status& status, const budget::objective& objective){
     std::string result;
 
     budget::money basis;
@@ -70,70 +54,13 @@ void print_status(std::ostream& os, const budget::status& status, const budget::
     result += "/";
     result += to_string(objective.amount.dollars());
 
-    print_minimum(os, result, 10);
+    return result;
 }
 
-void print_success(std::ostream& os, const budget::status& status, const budget::objective& objective){
+std::string get_success(const budget::status& status, const budget::objective& objective){
     auto success = compute_success(status, objective);
 
-    if(success < 25){
-        os << "\033[0;31m";
-    } else if(success < 75){
-        os << "\033[0;33m";
-    } else if(success < 100){
-        os << "\033[0;32m";
-    } else if(success >= 100){
-        os << "\033[1;32m";
-    }
-
-    print_minimum(os, success, 5);
-    os << "%\033[0m  ";
-
-    success = std::min(success, 109);
-    size_t good = success == 0 ? 0 : (success / 10) + 1;
-
-    for(size_t i = 0; i < good; ++i){
-        os << "\033[1;42m   \033[0m";
-    }
-
-    for(size_t i = good; i < 11; ++i){
-        os << "\033[1;41m   \033[0m";
-    }
-}
-
-void status_objectives(){
-    if(objectives.data.size() == 0){
-        std::cout << "No objectives" << std::endl;
-    } else {
-        auto today = budget::local_day();
-
-        if(today.day() < 12){
-            std::cout << "WARNING: It is early in the month, no one can know what may happen ;)" << std::endl << std::endl;
-        }
-
-        size_t monthly = 0;
-        size_t yearly = 0;
-
-        for(auto& objective : objectives.data){
-            if(objective.type == "yearly"){
-                ++yearly;
-            } else if(objective.type == "monthly"){
-                ++monthly;
-            }
-        }
-
-        if(yearly){
-            budget::yearly_objective_status(std::cout, true, false);
-
-            if(monthly){
-                std::cout << std::endl;
-            }
-        }
-
-        if(monthly){
-            budget::monthly_objective_status(std::cout);
-        }
-    }
+    return "::success" + std::to_string(success);
 }
 
 void edit(budget::objective& objective){
@@ -146,7 +73,7 @@ void edit(budget::objective& objective){
 
 } //end of anonymous namespace
 
-void budget::yearly_objective_status(std::ostream& os, bool lines, bool full_align){
+void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_align){
     size_t yearly = 0;
 
     for (auto& objective : objectives.data) {
@@ -156,10 +83,10 @@ void budget::yearly_objective_status(std::ostream& os, bool lines, bool full_ali
     }
 
     if (yearly) {
-        os << "Year objectives" << std::endl;
+        w << title_begin << "Year objectives" << title_end;
 
         if (lines) {
-            os << std::endl;
+            w << end_of_line;
         }
 
         size_t width = 0;
@@ -180,26 +107,19 @@ void budget::yearly_objective_status(std::ostream& os, bool lines, bool full_ali
 
         for (auto& objective : objectives.data) {
             if (objective.type == "yearly") {
-                //1. Print Objective name
-                os << "  ";
-                print_minimum(os, objective.name, width);
+                std::vector<std::string> columns = {objective.name, "Status", "Progress"};
+                std::vector<std::vector<std::string>> contents;
 
-                //2. PrintStatus
-                os << "  ";
-                print_status(os, year_status, objective);
+                contents.push_back({to_string(local_day().year()), get_status(year_status, objective), get_success(year_status, objective)});
 
-                //3. Print success indicator
-                os << "  ";
-                print_success(os, year_status, objective);
-
-                os << std::endl;
+                w.display_table(columns, contents);
             }
         }
     }
 }
 
-void budget::monthly_objective_status(std::ostream& os){
-    os << "Month objectives" << std::endl;
+void budget::monthly_objective_status(budget::writer& w){
+    w << "Month objectives" << end_of_line;
 
     auto today         = budget::local_day();
     auto current_month = today.month();
@@ -208,7 +128,8 @@ void budget::monthly_objective_status(std::ostream& os){
 
     for (auto& objective : objectives.data) {
         if (objective.type == "monthly") {
-            os << std::endl << objective.name << std::endl;
+            std::vector<std::string> columns = {objective.name, "Status", "Progress"};
+            std::vector<std::vector<std::string>> contents;
 
             for (unsigned short i = sm; i <= current_month; ++i) {
                 budget::month month = i;
@@ -216,28 +137,18 @@ void budget::monthly_objective_status(std::ostream& os){
                 // Compute the month status
                 auto status = budget::compute_month_status(current_year, month);
 
-                //1. Print month
-                os << "  ";
-                print_minimum_left(os, month, 2);
-
-                //2. Print status
-                os << "  ";
-                print_status(os, status, objective);
-
-                //3. Print success indicator
-                os << "  ";
-                print_success(os, status, objective);
-
-                os << std::endl;
+                contents.push_back({to_string(month), get_status(status, objective), get_success(status, objective)});
             }
+
+            w.display_table(columns, contents);
         }
     }
 }
 
-void budget::current_monthly_objective_status(std::ostream& os, bool full_align){
-    os << "Month objectives" << std::endl;
+void budget::current_monthly_objective_status(budget::writer& w, bool full_align){
+    w << title_begin << "Month objectives" << title_end;
 
-    auto today         = budget::local_day();
+    auto today = budget::local_day();
 
     size_t width = 0;
     if (full_align) {
@@ -254,21 +165,15 @@ void budget::current_monthly_objective_status(std::ostream& os, bool full_align)
 
     for (auto& objective : objectives.data) {
         if (objective.type == "monthly") {
-            os << "  ";
-            print_minimum_left(os, objective.name, width);
+            std::vector<std::string> columns = {objective.name, "Status", "Progress"};
+            std::vector<std::vector<std::string>> contents;
 
             // Compute the month status
             auto status = budget::compute_month_status(today.year(), today.month());
 
-            //1. Print status
-            os << "  ";
-            print_status(os, status, objective);
+            contents.push_back({to_string(today.month()), get_status(status, objective), get_success(status, objective)});
 
-            //2. Print success indicator
-            os << "  ";
-            print_success(os, status, objective);
-
-            os << std::endl;
+            w.display_table(columns, contents);
         }
     }
 }
@@ -321,14 +226,17 @@ void budget::objectives_module::unload(){
 
 void budget::objectives_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
-        status_objectives();
+        console_writer w(std::cout);
+        status_objectives(w);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "list"){
-            list_objectives();
+            console_writer w(std::cout);
+            budget::list_objectives(w);
         } else if(subcommand == "status"){
-            status_objectives();
+            console_writer w(std::cout);
+            status_objectives(w);
         } else if(subcommand == "add"){
             objective objective;
             objective.guid = generate_guid();
@@ -425,3 +333,58 @@ void budget::set_objectives_changed(){
 void budget::set_objectives_next_id(size_t next_id){
     objectives.next_id = next_id;
 }
+
+void budget::list_objectives(budget::writer& w){
+    w << title_begin << "Objectives" << end_of_line;
+
+    if (objectives.data.size() == 0) {
+        w << "No objectives" << end_of_line;
+    } else {
+        std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount"};
+        std::vector<std::vector<std::string>> contents;
+
+        for (auto& objective : objectives.data) {
+            contents.push_back({to_string(objective.id), objective.name, objective.type, objective.source, objective.op, to_string(objective.amount)});
+        }
+
+        w.display_table(columns, contents);
+    }
+}
+
+void budget::status_objectives(budget::writer& w){
+    w << title_begin << "Objectives" << end_of_line;
+
+    if(objectives.data.size() == 0){
+        w << "No objectives" << end_of_line;
+    } else {
+        auto today = budget::local_day();
+
+        if(today.day() < 12){
+            w << p_begin << "WARNING: It is early in the month, no one can know what may happen ;)" << p_end;
+        }
+
+        size_t monthly = 0;
+        size_t yearly = 0;
+
+        for(auto& objective : objectives.data){
+            if(objective.type == "yearly"){
+                ++yearly;
+            } else if(objective.type == "monthly"){
+                ++monthly;
+            }
+        }
+
+        if(yearly){
+            budget::yearly_objective_status(w, true, false);
+
+            if(monthly){
+                w << end_of_line;
+            }
+        }
+
+        if(monthly){
+            budget::monthly_objective_status(w);
+        }
+    }
+}
+

@@ -11,6 +11,59 @@
 #include "writer.hpp"
 #include "console.hpp"
 
+namespace {
+
+std::string success_to_string(int success) {
+    std::stringstream ss;
+
+    if(success < 25){
+        ss << "\033[0;31m";
+    } else if(success < 75){
+        ss << "\033[0;33m";
+    } else if(success < 100){
+        ss << "\033[0;32m";
+    } else if(success >= 100){
+        ss << "\033[1;32m";
+    }
+
+    budget::print_minimum(ss, success, 5);
+    ss << "%\033[0m  ";
+
+    success = std::min(success, 109);
+    size_t good = success == 0 ? 0 : (success / 10) + 1;
+
+    for(size_t i = 0; i < good; ++i){
+        ss << "\033[1;42m   \033[0m";
+    }
+
+    for(size_t i = good; i < 11; ++i){
+        ss << "\033[1;41m   \033[0m";
+    }
+
+    return ss.str();
+}
+
+std::string format(const std::string& v){
+    if(v.substr(0, 5) == "::red"){
+        auto value = v.substr(5);
+
+        return "\033[0;31m" + value + budget::format_reset();
+    } else if(v.substr(0, 7) == "::green"){
+        auto value = v.substr(7);
+
+        return "\033[0;32m" + value + budget::format_reset();
+    } else if(v.substr(0, 9) == "::success"){
+        auto value = v.substr(9);
+        auto success = budget::to_number<unsigned long>(value);
+        return success_to_string(success);
+    }
+
+    return v;
+}
+
+
+} // end of anonymous namespace
+
 budget::console_writer::console_writer(std::ostream& os) : os(os) {}
 
 budget::writer& budget::console_writer::operator<<(const std::string& value){

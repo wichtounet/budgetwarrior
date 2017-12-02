@@ -110,20 +110,6 @@ std::string budget::option_value(const std::string& option, std::vector<std::str
     return value;
 }
 
-std::string budget::format(const std::string& v){
-    if(v.substr(0, 5) == "::red"){
-        auto value = v.substr(5);
-
-        return "\033[0;31m" + value + format_reset();
-    } else if(v.substr(0, 7) == "::green"){
-        auto value = v.substr(7);
-
-        return "\033[0;32m" + value + format_reset();
-    }
-
-    return v;
-}
-
 namespace {
 
 char getch() {
