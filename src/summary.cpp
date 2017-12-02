@@ -143,6 +143,7 @@ void print_columns(const std::vector<std::string>& columns){
     // Compute the total width
 
     size_t total_max_width = composed_columns.size() * 2;
+    size_t max_length = 0;
 
     for(auto& column : split_columns){
         size_t max_width = 0;
@@ -152,6 +153,8 @@ void print_columns(const std::vector<std::string>& columns){
         }
 
         total_max_width += max_width;
+
+        max_length = std::max(max_length, column.size());
     }
 
     if (terminal_width() - 3 > total_max_width) {
@@ -180,7 +183,11 @@ void print_columns(const std::vector<std::string>& columns){
                 }
             }
 
-            for (size_t i = column.size(); i < composed_columns.size(); ++i) {
+            for (size_t i = column.size(); i < max_length; ++i) {
+                if (i >= composed_columns.size()) {
+                    composed_columns.emplace_back();
+                }
+
                 composed_columns[i] += std::string(max_width, ' ');
             }
 
