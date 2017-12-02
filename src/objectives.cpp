@@ -119,7 +119,7 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
 }
 
 void budget::monthly_objective_status(budget::writer& w){
-    w << "Month objectives" << end_of_line;
+    w << title_begin << "Month objectives" << title_end;
 
     auto today         = budget::local_day();
     auto current_month = today.month();
@@ -352,7 +352,7 @@ void budget::list_objectives(budget::writer& w){
 }
 
 void budget::status_objectives(budget::writer& w){
-    w << title_begin << "Objectives" << end_of_line;
+    w << title_begin << "Objectives" << title_end;
 
     if(objectives.data.size() == 0){
         w << "No objectives" << end_of_line;

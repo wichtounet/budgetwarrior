@@ -51,6 +51,10 @@ std::string header(const std::string& title){
                     font-size: 10pt;
                 }
 
+                .extend-only {
+                    width: 75%;
+                }
+
                 .selector {
                     float: right;
                     font-size: xx-large;
@@ -409,10 +413,10 @@ void objectives_list_page(const httplib::Request&, httplib::Response& res){
 
 void objectives_status_page(const httplib::Request&, httplib::Response& res){
     std::stringstream content_stream;
-    html_stream(content_stream, "Objectives List");
+    html_stream(content_stream, "Objectives Status");
 
     budget::html_writer w(content_stream);
-    budget::list_objectives(w);
+    budget::status_objectives(w);
 
     html_answer(content_stream, res);
 }

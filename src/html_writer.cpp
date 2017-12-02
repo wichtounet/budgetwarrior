@@ -13,6 +13,19 @@
 
 namespace {
 
+std::string success_to_string(int success) {
+    success = std::min(success, 100);
+    success = std::max(success, 0);
+
+    std::stringstream ss;
+
+    ss << R"=====(<div class="progress">)=====";
+    ss << R"=====(<div class="progress-bar" role="progressbar" style="width:)=====" << success << R"=====(%;" aria-valuenow=")=====" << success << R"=====(" aria-valuemin="0" aria-valuemax="100">)=====" << success << R"=====(%</div>)=====";
+    ss << R"=====(</div>)=====";
+
+    return ss.str();
+}
+
 std::string html_format(const std::string& v){
     if(v.substr(0, 5) == "::red"){
         auto value = v.substr(5);
@@ -22,6 +35,10 @@ std::string html_format(const std::string& v){
         auto value = v.substr(7);
 
         return "<span style=\"color:green;\">" + value + "</span>";
+    } else if(v.substr(0, 9) == "::success"){
+        auto value = v.substr(9);
+        auto success = budget::to_number<unsigned long>(value);
+        return success_to_string(success);
     }
 
     return v;
@@ -149,6 +166,21 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         }
     }
 
+    size_t extend = columns.size();
+
+    for (size_t i = 0; i < columns.size(); ++i) {
+        for (auto& row : contents) {
+            if (row[i].substr(0, 9) == "::success") {
+                extend = i;
+                break;
+            }
+        }
+
+        if(extend == i){
+            break;
+        }
+    }
+
     bool small = columns.empty(); // TODO Improve this heuristic!
 
     if(small){
@@ -170,10 +202,17 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         for (size_t i = 0; i < columns.size(); ++i) {
             auto& column = columns[i];
 
+            std::string style;
+
+            // TODO: This is only a bad hack, at best
+            if(i == extend){
+                style = " class=\"extend-only\"";
+            }
+
             if (groups > 1) {
-                os << "<th colspan=\"" << groups << "\">" << column << "</th>";
+                os << "<th colspan=\"" << groups << "\"" << style << ">" << column << "</th>";
             } else {
-                os << "<th>" << column << "</th>";
+                os << "<th" << style << ">" << column << "</th>";
             }
         }
 
