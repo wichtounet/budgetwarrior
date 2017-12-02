@@ -65,6 +65,7 @@ void load_assets();
 void save_assets();
 
 void show_asset_portfolio(budget::writer& w);
+void show_asset_rebalance(budget::writer& w);
 
 bool asset_exists(const std::string& asset);
 

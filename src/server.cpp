@@ -170,6 +170,22 @@ void portfolio_page(const httplib::Request& req, httplib::Response& res){
     res.set_content(content_stream.str(), "text/html");
 }
 
+void rebalance_page(const httplib::Request& req, httplib::Response& res){
+    cpp_unused(req);
+
+    std::stringstream content_stream;
+    content_stream.imbue(std::locale("C"));
+
+    content_stream << header("Rebalance");
+
+    budget::html_writer w(content_stream);
+    budget::show_asset_rebalance(w);
+
+    content_stream << footer();
+
+    res.set_content(content_stream.str(), "text/html");
+}
+
 } //end of anonymous namespace
 
 void budget::server_module::load(){
@@ -192,6 +208,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get(R"(/overview/(\d+)/(\d+)/)", &overview_page);
     server.get("/overview/", &overview_page);
     server.get("/portfolio/", &portfolio_page);
+    server.get("/rebalance/", &rebalance_page);
 
     server.set_error_handler([](const auto&, auto& res) {
         std::stringstream content_stream;

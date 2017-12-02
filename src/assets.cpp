@@ -250,90 +250,6 @@ void show_asset_values(){
 }
 
 
-void show_asset_rebalance(){
-    if (!asset_values.data.size()) {
-        std::cout << "No asset values" << std::endl;
-        return;
-    }
-
-    std::vector<std::string> columns = {"Name", "Total", "Currency", "Converted", "Desired Allocation", "Desired Total", "Difference"};
-    std::vector<std::vector<std::string>> contents;
-
-    budget::money total;
-
-    for(auto& asset : assets.data){
-        auto id = asset.id;
-
-        if (asset.portfolio) {
-            size_t asset_value_id  = 0;
-            bool asset_value_found = false;
-
-            for (auto& asset_value : asset_values.data) {
-                if (asset_value.asset_id == id) {
-                    if (!asset_value_found) {
-                        asset_value_found = true;
-                        asset_value_id    = asset_value.id;
-                    } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
-                        asset_value_id = asset_value.id;
-                    }
-                }
-            }
-
-            if (asset_value_found) {
-                auto& asset_value = get_asset_value(asset_value_id);
-
-                auto conv_amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
-
-                total += conv_amount;
-            }
-        }
-    }
-
-    for(auto& asset : assets.data){
-        auto id = asset.id;
-
-        if (asset.portfolio) {
-            size_t asset_value_id  = 0;
-            bool asset_value_found = false;
-
-            for (auto& asset_value : asset_values.data) {
-                if (asset_value.asset_id == id) {
-                    if (!asset_value_found) {
-                        asset_value_found = true;
-                        asset_value_id    = asset_value.id;
-                    } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
-                        asset_value_id = asset_value.id;
-                    }
-                }
-            }
-
-            if (asset_value_found) {
-                auto& asset_value = get_asset_value(asset_value_id);
-                auto amount       = asset_value.amount;
-
-                auto conv_amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
-                auto desired     = total * (asset.portfolio_alloc / 100.0);
-                auto difference  = desired - conv_amount;
-
-                if (amount || difference) {
-                    contents.push_back({
-                        asset.name,
-                        to_string(amount),
-                        asset.currency,
-                        to_string(conv_amount),
-                        to_string(asset.portfolio_alloc),
-                        to_string(desired),
-                        format_money(difference),
-                    });
-                }
-            }
-        }
-    }
-
-    console_writer w(std::cout);
-    w.display_table(columns, contents, 1, {}, 1);
-}
-
 } //end of anonymous namespace
 
 void budget::assets_module::load(){
@@ -353,7 +269,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
         if(subcommand == "show"){
             show_assets();
         } else if (subcommand == "rebalance") {
-            show_asset_rebalance();
+            console_writer w(std::cout);
+            show_asset_rebalance(w);
         } else if (subcommand == "portfolio") {
             console_writer w(std::cout);
             budget::show_asset_portfolio(w);
@@ -827,3 +744,89 @@ void budget::show_asset_portfolio(budget::writer& w){
 
     w.display_table(second_columns, second_contents, 1, {}, 15);
 }
+
+void budget::show_asset_rebalance(budget::writer& w){
+    if (!asset_values.data.size()) {
+        w << "No asset values" << end_of_line;
+        return;
+    }
+
+    w << title_begin << "Rebalancing" << title_end;
+
+    std::vector<std::string> columns = {"Name", "Total", "Currency", "Converted", "Desired Allocation", "Desired Total", "Difference"};
+    std::vector<std::vector<std::string>> contents;
+
+    budget::money total;
+
+    for(auto& asset : assets.data){
+        auto id = asset.id;
+
+        if (asset.portfolio) {
+            size_t asset_value_id  = 0;
+            bool asset_value_found = false;
+
+            for (auto& asset_value : asset_values.data) {
+                if (asset_value.asset_id == id) {
+                    if (!asset_value_found) {
+                        asset_value_found = true;
+                        asset_value_id    = asset_value.id;
+                    } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
+                        asset_value_id = asset_value.id;
+                    }
+                }
+            }
+
+            if (asset_value_found) {
+                auto& asset_value = get_asset_value(asset_value_id);
+
+                auto conv_amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
+
+                total += conv_amount;
+            }
+        }
+    }
+
+    for(auto& asset : assets.data){
+        auto id = asset.id;
+
+        if (asset.portfolio) {
+            size_t asset_value_id  = 0;
+            bool asset_value_found = false;
+
+            for (auto& asset_value : asset_values.data) {
+                if (asset_value.asset_id == id) {
+                    if (!asset_value_found) {
+                        asset_value_found = true;
+                        asset_value_id    = asset_value.id;
+                    } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
+                        asset_value_id = asset_value.id;
+                    }
+                }
+            }
+
+            if (asset_value_found) {
+                auto& asset_value = get_asset_value(asset_value_id);
+                auto amount       = asset_value.amount;
+
+                auto conv_amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
+                auto desired     = total * (asset.portfolio_alloc / 100.0);
+                auto difference  = desired - conv_amount;
+
+                if (amount || difference) {
+                    contents.push_back({
+                        asset.name,
+                        to_string(amount),
+                        asset.currency,
+                        to_string(conv_amount),
+                        to_string(asset.portfolio_alloc),
+                        to_string(desired),
+                        format_money(difference),
+                    });
+                }
+            }
+        }
+    }
+
+    w.display_table(columns, contents, 1, {}, 1);
+}
+
