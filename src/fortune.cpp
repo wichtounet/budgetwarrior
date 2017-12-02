@@ -26,7 +26,7 @@ namespace {
 static data_handler<fortune> fortunes;
 
 void list_fortunes(budget::writer& w){
-    if(fortunes.data.empty()){
+    if (fortunes.data.empty()) {
         w << "No fortune set" << end_of_line;
         return;
     }
@@ -34,7 +34,7 @@ void list_fortunes(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Date", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& fortune : fortunes.data){
+    for (auto& fortune : fortunes.data) {
         contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount)});
     }
 

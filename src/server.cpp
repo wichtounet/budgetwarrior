@@ -17,6 +17,7 @@
 #include "objectives.hpp"
 #include "version.hpp"
 #include "summary.hpp"
+#include "fortune.hpp"
 
 #include "httplib.h"
 
@@ -445,6 +446,7 @@ void budget::server_module::load(){
     load_earnings();
     load_assets();
     load_objectives();
+    load_fortunes();
 }
 
 void budget::server_module::handle(const std::vector<std::string>& args){
