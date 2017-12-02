@@ -652,7 +652,7 @@ std::string budget::get_default_currency(){
 std::string to_percent(double p){
     std::stringstream ss;
 
-    ss << std::setprecision(3) << p << "%";
+    ss << std::setprecision(4) << p << "%";
 
     return ss.str();
 }
@@ -753,7 +753,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     w << title_begin << "Rebalancing" << title_end;
 
-    std::vector<std::string> columns = {"Name", "Total", "Currency", "Converted", "Desired Allocation", "Desired Total", "Difference"};
+    std::vector<std::string> columns = {"Name", "Total", "Currency", "Converted", "Allocation", "Desired Allocation", "Desired Total", "Difference"};
     std::vector<std::vector<std::string>> contents;
 
     budget::money total;
@@ -809,6 +809,7 @@ void budget::show_asset_rebalance(budget::writer& w){
                 auto amount       = asset_value.amount;
 
                 auto conv_amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
+                auto allocation  = 100.0 * (conv_amount / total);
                 auto desired     = total * (asset.portfolio_alloc / 100.0);
                 auto difference  = desired - conv_amount;
 
@@ -818,6 +819,7 @@ void budget::show_asset_rebalance(budget::writer& w){
                         to_string(amount),
                         asset.currency,
                         to_string(conv_amount),
+                        to_percent(allocation),
                         to_string(asset.portfolio_alloc),
                         to_string(desired),
                         format_money(difference),
