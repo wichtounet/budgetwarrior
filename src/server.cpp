@@ -173,6 +173,12 @@ std::string footer(){
     return stream.str();
 }
 
+void display_error_message(budget::writer& w, const std::string& message){
+    w << R"=====(<div class="alert alert-danger" role="alert">)=====";
+    w << message;
+    w << R"=====(</div>)=====";
+}
+
 void display_message(budget::writer& w, const httplib::Request& req){
     if (req.has_param("message")) {
         if (req.has_param("error")) {
@@ -395,7 +401,7 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res){
     html_answer(content_stream, req, res);
 }
 
-void add_date_picker(budget::writer& w) {
+void add_date_picker(budget::writer& w, const std::string& default_value = "") {
     auto today = budget::local_day();
 
     w << R"=====(
@@ -403,18 +409,22 @@ void add_date_picker(budget::writer& w) {
             <label for="input_date">Date</label>
             <input type="date" class="form-control" id="input_date" name="input_date" value=")=====";
 
-    w << today.year() << "-";
+    if (default_value.empty()) {
+        w << today.year() << "-";
 
-    if (today.month() < 10) {
-        w << "0" << today.month().value << "-";
-    } else {
-        w << today.month().value << "-";
-    }
+        if (today.month() < 10) {
+            w << "0" << today.month().value << "-";
+        } else {
+            w << today.month().value << "-";
+        }
 
-    if (today.day() < 10) {
-        w << "0" << today.day();
+        if (today.day() < 10) {
+            w << "0" << today.day();
+        } else {
+            w << today.day();
+        }
     } else {
-        w << today.day();
+        w << default_value;
     }
 
     w << R"=====(">
@@ -422,25 +432,45 @@ void add_date_picker(budget::writer& w) {
     )=====";
 }
 
-void add_name_picker(budget::writer& w) {
+void add_name_picker(budget::writer& w, const std::string& default_value = "") {
     w << R"=====(
         <div class="form-group">
             <label for="input_name">Name</label>
-            <input type="text" class="form-control" id="input_name" name="input_name" placeholder="Enter name">
+            <input type="text" class="form-control" id="input_name" name="input_name"
+    )=====";
+
+    if (default_value.empty()) {
+        w << " placeholder=\"Enter Name\" ";
+    } else {
+        w << " value=\"" << default_value << "\" ";
+    }
+
+    w << R"=====(
+            >
          </div>
     )=====";
 }
 
-void add_amount_picker(budget::writer& w) {
+void add_amount_picker(budget::writer& w, const std::string& default_value = "") {
     w << R"=====(
         <div class="form-group">
             <label for="input_amount">Amount</label>
-            <input type="text" class="form-control" id="input_amount" name="input_amount" placeholder="Enter amount">
+            <input type="text" class="form-control" id="input_amount" name="input_amount"
+    )=====";
+
+    if (default_value.empty()) {
+        w << " placeholder=\"Enter amount\" ";
+    } else {
+        w << " value=\"" << default_value << "\" ";
+    }
+
+    w << R"=====(
+            >
          </div>
     )=====";
 }
 
-void add_account_picker(budget::writer& w) {
+void add_account_picker(budget::writer& w, const std::string& default_value = "") {
     auto today = budget::local_day();
 
     w << R"=====(
@@ -450,7 +480,11 @@ void add_account_picker(budget::writer& w) {
     )=====";
 
     for(auto& account : all_accounts(today.year(), today.month())){
-        w << "<option value=\"" << account.id << "\">" << account.name << "</option>";
+        if (budget::to_string(account.id) == default_value) {
+            w << "<option selected value=\"" << account.id << "\">" << account.name << "</option>";
+        } else {
+            w << "<option value=\"" << account.id << "\">" << account.name << "</option>";
+        }
     }
 
     w << R"=====(
@@ -478,6 +512,48 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
     w << "</form>";
+
+    html_answer(content_stream, req, res);
+}
+
+void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New Expense");
+
+    budget::html_writer w(content_stream);
+
+    if(!req.has_param("input_id") || !req.has_param("back_page")){
+        display_error_message(w, "Invalid parameter for the request");
+    } else {
+        auto input_id  = req.params.at("input_id");
+
+        if(!expense_exists(budget::to_number<size_t>(input_id))){
+            display_error_message(w, "The expense " + input_id + " does not exist");
+        } else {
+            auto back_page = req.params.at("back_page");
+
+            w << title_begin << "Edit Expense " << input_id << title_end;
+
+            w << R"=====(<form method="POST" action="/api/expenses/edit/">)=====";
+            w << R"=====(<input type="hidden" name="server" value="yes">)=====";
+            w << R"=====(<input type="hidden" name="back_page" value=")=====";
+            w << back_page;
+            w << R"=====(">)=====";
+            w << R"=====(<input type="hidden" name="input_id" value=")=====";
+            w << input_id;
+            w << R"=====(">)=====";
+
+            auto& expense = expense_get(budget::to_number<size_t>(input_id));
+
+            add_date_picker(w, budget::to_string(expense.date));
+            add_name_picker(w, expense.name);
+            add_amount_picker(w, budget::to_string(expense.amount));
+            add_account_picker(w, budget::to_string(expense.account));
+
+            w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
+            w << "</form>";
+        }
+    }
 
     html_answer(content_stream, req, res);
 }
@@ -608,6 +684,35 @@ void add_expenses_api(const httplib::Request& req, httplib::Response& res){
     api_success(req, res, "Expense " + to_string(expense.id) + " has been created");
 }
 
+void edit_expenses_api(const httplib::Request& req, httplib::Response& res){
+    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_date") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::expense_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "Expense " + id + " does not exist");
+        return;
+    }
+
+    auto name    = req.params.at("input_name");
+    auto date    = req.params.at("input_date");
+    auto amount  = req.params.at("input_amount");
+    auto account = req.params.at("input_account");
+
+    expense& expense = expense_get(budget::to_number<size_t>(id));
+    expense.date     = budget::from_string(date);
+    expense.account  = budget::to_number<size_t>(account);
+    expense.name     = name;
+    expense.amount   = budget::parse_money(amount);
+
+    set_expenses_changed();
+
+    api_success(req, res, "Expense " + to_string(expense.id) + " has been modified");
+}
+
 void delete_expenses_api(const httplib::Request& req, httplib::Response& res){
     if (!req.has_param("input_id")) {
         api_error(req, res, "Invalid parameters");
@@ -666,6 +771,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/expenses/", &expenses_page);
     server.get("/expenses/all/", &all_expenses_page);
     server.get("/expenses/add/", &add_expenses_page);
+    server.post("/expenses/edit/", &edit_expenses_page);
 
     server.get(R"(/earnings/(\d+)/(\d+)/)", &earnings_page);
     server.get("/earnings/", &earnings_page);
@@ -682,6 +788,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     // The API
 
     server.post("/api/expenses/add/", &add_expenses_api);
+    server.post("/api/expenses/edit/", &edit_expenses_api);
     server.post("/api/expenses/delete/", &delete_expenses_api);
 
     server.set_error_handler([](const auto&, auto& res) {

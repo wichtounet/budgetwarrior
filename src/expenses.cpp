@@ -294,3 +294,11 @@ void budget::expense_delete(size_t id) {
 
     remove(expenses, id);
 }
+
+expense& budget::expense_get(size_t id) {
+    if (!exists(expenses, id)) {
+        throw budget_exception("There are no expense with id ");
+    }
+
+    return get(expenses, id);
+}
