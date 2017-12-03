@@ -26,6 +26,36 @@ std::string success_to_string(int success) {
     return ss.str();
 }
 
+std::string edit_to_string(const std::string& module, const std::string& id){
+    std::stringstream ss;
+
+    // Add the delete button
+    ss << R"=====(<form class="small-form-inline" method="POST" action="/api/)=====";
+    ss << module;
+    ss << R"=====(/delete/">)=====";
+    ss << R"=====(<input type="hidden" name="server" value="yes">)=====";
+    ss << R"=====(<input type="hidden" name="back_page" value="__budget_this_page__">)=====";
+    ss << R"=====(<input type="hidden" name="input_id" value=")=====";
+    ss << id;
+    ss << R"=====(">)=====";
+    ss << R"=====(<button type="submit" class="btn btn-sm btn-danger">Delete</button>)=====";
+    ss << R"=====(</form>)=====";
+
+    // Add the edit button
+    ss << R"=====(<form class="small-form-inline" method="POST" action="/)=====";
+    ss << module;
+    ss << R"=====(/edit/">)=====";
+    ss << R"=====(<input type="hidden" name="server" value="yes">)=====";
+    ss << R"=====(<input type="hidden" name="back_page" value="__budget_this_page__">)=====";
+    ss << R"=====(<input type="hidden" name="input_id" value=")=====";
+    ss << id;
+    ss << R"=====(">)=====";
+    ss << R"=====(<button type="submit" class="btn btn-sm btn-warning">Edit</button>)=====";
+    ss << R"=====(</form>)=====";
+
+    return ss.str();
+}
+
 std::string html_format(const std::string& v){
     if(v.substr(0, 5) == "::red"){
         auto value = v.substr(5);
@@ -39,6 +69,17 @@ std::string html_format(const std::string& v){
         auto value = v.substr(9);
         auto success = budget::to_number<unsigned long>(value);
         return success_to_string(success);
+    } else if(v.substr(0, 8) == "::edit::"){
+        auto value = v.substr(8);
+
+        if(value.find("::") == std::string::npos){
+            return v;
+        }
+
+        auto module = value.substr(0, value.find("::"));
+        auto id     = value.substr(value.find("::") + 2, value.size());
+
+        return edit_to_string(module, id);
     }
 
     return v;

@@ -126,8 +126,17 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
     cpp_assert(groups > 0, "There must be at least 1 group");
     cpp_assert(contents.size() || columns.size(), "There must be at least some columns or contents");
 
-    for(auto& row : contents){
-        for(auto& cell : row){
+    // Remove the Edit column, if necessary
+    if (columns.back() == "Edit") {
+        columns.pop_back();
+
+        for (auto& row : contents) {
+            row.pop_back();
+        }
+    }
+
+    for (auto& row : contents) {
+        for (auto& cell : row) {
             cpp::trim(cell);
         }
     }
@@ -135,8 +144,8 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
     std::vector<size_t> widths;
     std::vector<size_t> header_widths;
 
-    if(!contents.size()){
-        for(auto& column : columns){
+    if (!contents.size()) {
+        for (auto& column : columns) {
             widths.push_back(rsize(column));
         }
     } else {
@@ -144,8 +153,8 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 
         widths.assign(first.size(), 0);
 
-        for(auto& row : contents){
-            for(size_t i = 0; i < row.size(); ++i){
+        for (auto& row : contents) {
+            for (size_t i = 0; i < row.size(); ++i) {
                 widths[i] = std::max(widths[i], rsize(row[i]) + 1);
             }
         }

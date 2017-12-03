@@ -247,7 +247,7 @@ void budget::show_all_expenses(budget::writer& w){
 void budget::show_expenses(budget::month month, budget::year year, budget::writer& w){
     w << title_begin << "Expenses of " << month << " " << year << budget::year_month_selector{"expenses", year, month} << title_end;
 
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     money total;
@@ -255,7 +255,7 @@ void budget::show_expenses(budget::month month, budget::year year, budget::write
 
     for(auto& expense : expenses.data){
         if(expense.date.year() == year && expense.date.month() == month){
-            contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+            contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount), "::edit::expenses::" + to_string(expense.id)});
 
             total += expense.amount;
             ++count;
@@ -265,7 +265,7 @@ void budget::show_expenses(budget::month month, budget::year year, budget::write
     if(count == 0){
         w << "No expenses for " << month << "-" << year << end_of_line;
     } else {
-        contents.push_back({"", "", "", "Total", to_string(total)});
+        contents.push_back({"", "", "", "Total", to_string(total), ""});
 
         w.display_table(columns, contents);
     }
