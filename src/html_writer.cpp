@@ -102,7 +102,7 @@ budget::writer& budget::html_writer::operator<<(const budget::title_begin_t&) {
 }
 
 budget::writer& budget::html_writer::operator<<(const budget::title_end_t&) {
-    os << "</h2>";
+    os << "</h1>";
 
     return *this;
 }
