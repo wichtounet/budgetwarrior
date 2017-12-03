@@ -53,6 +53,9 @@ void add_expense(expense&& expense);
 void set_expenses_changed();
 void set_expenses_next_id(size_t next_id);
 
+bool expense_exists(size_t id);
+void expense_delete(size_t id);
+
 void show_all_expenses(budget::writer& w);
 void show_expenses(budget::month month, budget::year year, budget::writer& w);
 void show_expenses(budget::month month, budget::writer& w);

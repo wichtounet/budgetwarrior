@@ -282,3 +282,15 @@ void budget::show_expenses(budget::writer& w){
 
     show_expenses(today.month(), today.year(), w);
 }
+
+bool budget::expense_exists(size_t id){
+    return exists(expenses, id);
+}
+
+void budget::expense_delete(size_t id) {
+    if (!exists(expenses, id)) {
+        throw budget_exception("There are no expense with id ");
+    }
+
+    remove(expenses, id);
+}
