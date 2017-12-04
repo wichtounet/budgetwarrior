@@ -494,6 +494,29 @@ void add_account_picker(budget::writer& w, const std::string& default_value = ""
     )=====";
 }
 
+void form_begin(budget::writer& w, const std::string& action, const std::string& back_page){
+    w << R"=====(<form method="POST" action=")=====";
+    w << action;
+    w << R"=====(">)=====";
+    w << R"=====(<input type="hidden" name="server" value="yes">)=====";
+    w << R"=====(<input type="hidden" name="back_page" value=")=====";
+    w << back_page;
+    w << R"=====(">)=====";
+}
+
+void form_begin_edit(budget::writer& w, const std::string& action, const std::string& back_page, const std::string& input_id){
+    form_begin(w, action, back_page);
+
+    w << R"=====(<input type="hidden" name="input_id" value=")=====";
+    w << input_id;
+    w << R"=====(">)=====";
+}
+
+void form_end(budget::writer& w){
+    w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
+    w << "</form>";
+}
+
 void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     html_stream(req, content_stream, "New Expense");
@@ -502,17 +525,14 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     w << title_begin << "New Expense" << title_end;
 
-    w << R"=====(<form method="POST" action="/api/expenses/add/">)=====";
-    w << R"=====(<input type="hidden" name="server" value="yes">)=====";
-    w << R"=====(<input type="hidden" name="back_page" value="/expenses/add/">)=====";
+    form_begin(w, "/api/expenses/add/", "/expenses/add/");
 
     add_date_picker(w);
     add_name_picker(w);
     add_amount_picker(w);
     add_account_picker(w);
 
-    w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
-    w << "</form>";
+    form_end(w);
 
     html_answer(content_stream, req, res);
 }
@@ -535,14 +555,7 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
             w << title_begin << "Edit Expense " << input_id << title_end;
 
-            w << R"=====(<form method="POST" action="/api/expenses/edit/">)=====";
-            w << R"=====(<input type="hidden" name="server" value="yes">)=====";
-            w << R"=====(<input type="hidden" name="back_page" value=")=====";
-            w << back_page;
-            w << R"=====(">)=====";
-            w << R"=====(<input type="hidden" name="input_id" value=")=====";
-            w << input_id;
-            w << R"=====(">)=====";
+            form_begin_edit(w, "/api/expenses/edit/", back_page, input_id);
 
             auto& expense = expense_get(budget::to_number<size_t>(input_id));
 
@@ -551,8 +564,7 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
             add_amount_picker(w, budget::to_string(expense.amount));
             add_account_picker(w, budget::to_string(expense.account));
 
-            w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
-            w << "</form>";
+            form_end(w);
         }
     }
 
@@ -567,17 +579,14 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     w << title_begin << "New earning" << title_end;
 
-    w << R"=====(<form method="POST" action="/api/earnings/add/">)=====";
-    w << R"=====(<input type="hidden" name="server" value="yes">)=====";
-    w << R"=====(<input type="hidden" name="back_page" value="/earnings/add/">)=====";
+    form_begin(w, "/api/earnings/add/", "/earnings/add");
 
     add_date_picker(w);
     add_name_picker(w);
     add_amount_picker(w);
     add_account_picker(w);
 
-    w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
-    w << "</form>";
+    form_end(w);
 
     html_answer(content_stream, req, res);
 }
@@ -600,14 +609,7 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
             w << title_begin << "Edit earning " << input_id << title_end;
 
-            w << R"=====(<form method="POST" action="/api/earnings/edit/">)=====";
-            w << R"=====(<input type="hidden" name="server" value="yes">)=====";
-            w << R"=====(<input type="hidden" name="back_page" value=")=====";
-            w << back_page;
-            w << R"=====(">)=====";
-            w << R"=====(<input type="hidden" name="input_id" value=")=====";
-            w << input_id;
-            w << R"=====(">)=====";
+            form_begin_edit(w, "/api/earnings/edit/", back_page, input_id);
 
             auto& earning = earning_get(budget::to_number<size_t>(input_id));
 
@@ -616,8 +618,7 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
             add_amount_picker(w, budget::to_string(earning.amount));
             add_account_picker(w, budget::to_string(earning.account));
 
-            w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
-            w << "</form>";
+            form_end(w);
         }
     }
 
