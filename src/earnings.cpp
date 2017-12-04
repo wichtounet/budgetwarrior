@@ -178,7 +178,7 @@ void budget::show_all_earnings(budget::writer& w){
 void budget::show_earnings(budget::month month, budget::year year, budget::writer& w){
     w << title_begin << "Earnings of " << month << " " << year << budget::year_month_selector{"earnings", year, month} << title_end;
 
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     money total;
@@ -186,7 +186,7 @@ void budget::show_earnings(budget::month month, budget::year year, budget::write
 
     for(auto& earning : earnings.data){
         if(earning.date.year() == year && earning.date.month() == month){
-            contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount)});
+            contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount), "::edit::earnings::" + to_string(earning.id)});
 
             total += earning.amount;
             ++count;
@@ -196,7 +196,7 @@ void budget::show_earnings(budget::month month, budget::year year, budget::write
     if(count == 0){
         w << "No earnings for " << month << "-" << year << end_of_line;
     } else {
-        contents.push_back({"", "", "", "Total", to_string(total)});
+        contents.push_back({"", "", "", "Total", to_string(total), ""});
 
         w.display_table(columns, contents);
     }
@@ -214,3 +214,22 @@ void budget::show_earnings(budget::writer& w){
     budget::show_earnings(today.month(), today.year(), w);
 }
 
+bool budget::earning_exists(size_t id){
+    return exists(earnings, id);
+}
+
+void budget::earning_delete(size_t id) {
+    if (!exists(earnings, id)) {
+        throw budget_exception("There are no earning with id ");
+    }
+
+    remove(earnings, id);
+}
+
+earning& budget::earning_get(size_t id) {
+    if (!exists(earnings, id)) {
+        throw budget_exception("There are no earning with id ");
+    }
+
+    return get(earnings, id);
+}

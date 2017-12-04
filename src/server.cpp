@@ -115,7 +115,7 @@ std::string header(const std::string& title){
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Expenses</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown03">
-                  <a class="dropdown-item" href="/expenses/add/">Add Expenses</a>
+                  <a class="dropdown-item" href="/expenses/add/">Add Expense</a>
                   <a class="dropdown-item" href="/expenses/">Expenses</a>
                   <a class="dropdown-item" href="/expenses/all/">All Expenses</a>
                 </div>
@@ -123,6 +123,7 @@ std::string header(const std::string& title){
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Earnings</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown04">
+                  <a class="dropdown-item" href="/earnings/add/">Add Earning</a>
                   <a class="dropdown-item" href="/earnings/">Earnings</a>
                   <a class="dropdown-item" href="/earnings/all/">All Earnings</a>
                 </div>
@@ -558,6 +559,71 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
     html_answer(content_stream, req, res);
 }
 
+void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New earning");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New earning" << title_end;
+
+    w << R"=====(<form method="POST" action="/api/earnings/add/">)=====";
+    w << R"=====(<input type="hidden" name="server" value="yes">)=====";
+    w << R"=====(<input type="hidden" name="back_page" value="/earnings/add/">)=====";
+
+    add_date_picker(w);
+    add_name_picker(w);
+    add_amount_picker(w);
+    add_account_picker(w);
+
+    w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
+    w << "</form>";
+
+    html_answer(content_stream, req, res);
+}
+
+void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New earning");
+
+    budget::html_writer w(content_stream);
+
+    if(!req.has_param("input_id") || !req.has_param("back_page")){
+        display_error_message(w, "Invalid parameter for the request");
+    } else {
+        auto input_id  = req.params.at("input_id");
+
+        if(!earning_exists(budget::to_number<size_t>(input_id))){
+            display_error_message(w, "The earning " + input_id + " does not exist");
+        } else {
+            auto back_page = req.params.at("back_page");
+
+            w << title_begin << "Edit earning " << input_id << title_end;
+
+            w << R"=====(<form method="POST" action="/api/earnings/edit/">)=====";
+            w << R"=====(<input type="hidden" name="server" value="yes">)=====";
+            w << R"=====(<input type="hidden" name="back_page" value=")=====";
+            w << back_page;
+            w << R"=====(">)=====";
+            w << R"=====(<input type="hidden" name="input_id" value=")=====";
+            w << input_id;
+            w << R"=====(">)=====";
+
+            auto& earning = earning_get(budget::to_number<size_t>(input_id));
+
+            add_date_picker(w, budget::to_string(earning.date));
+            add_name_picker(w, earning.name);
+            add_amount_picker(w, budget::to_string(earning.amount));
+            add_account_picker(w, budget::to_string(earning.account));
+
+            w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
+            w << "</form>";
+        }
+    }
+
+    html_answer(content_stream, req, res);
+}
+
 void earnings_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     html_stream(req, content_stream, "Earnings");
@@ -661,30 +727,25 @@ void api_error(const httplib::Request& req, httplib::Response& res, const std::s
     }
 }
 
-void add_expenses_api(const httplib::Request& req, httplib::Response& res){
+void add_expenses_api(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_name") || !req.has_param("input_date") || !req.has_param("input_amount") || !req.has_param("input_account")) {
         api_error(req, res, "Invalid parameters");
         return;
     }
 
-    auto name    = req.params.at("input_name");
-    auto date    = req.params.at("input_date");
-    auto amount  = req.params.at("input_amount");
-    auto account = req.params.at("input_account");
-
     expense expense;
     expense.guid    = budget::generate_guid();
-    expense.date    = budget::from_string(date);
-    expense.account = budget::to_number<size_t>(account);
-    expense.name    = name;
-    expense.amount  = budget::parse_money(amount);
+    expense.date    = budget::from_string(req.params.at("input_date"));
+    expense.account = budget::to_number<size_t>(req.params.at("input_account"));
+    expense.name    = req.params.at("input_name");
+    expense.amount  = budget::parse_money(req.params.at("input_amount"));
 
     add_expense(std::move(expense));
 
     api_success(req, res, "Expense " + to_string(expense.id) + " has been created");
 }
 
-void edit_expenses_api(const httplib::Request& req, httplib::Response& res){
+void edit_expenses_api(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_date") || !req.has_param("input_amount") || !req.has_param("input_account")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -697,31 +758,26 @@ void edit_expenses_api(const httplib::Request& req, httplib::Response& res){
         return;
     }
 
-    auto name    = req.params.at("input_name");
-    auto date    = req.params.at("input_date");
-    auto amount  = req.params.at("input_amount");
-    auto account = req.params.at("input_account");
-
     expense& expense = expense_get(budget::to_number<size_t>(id));
-    expense.date     = budget::from_string(date);
-    expense.account  = budget::to_number<size_t>(account);
-    expense.name     = name;
-    expense.amount   = budget::parse_money(amount);
+    expense.date     = budget::from_string(req.params.at("input_date"));
+    expense.account  = budget::to_number<size_t>(req.params.at("input_account"));
+    expense.name     = req.params.at("input_name");
+    expense.amount   = budget::parse_money(req.params.at("input_amount"));
 
     set_expenses_changed();
 
     api_success(req, res, "Expense " + to_string(expense.id) + " has been modified");
 }
 
-void delete_expenses_api(const httplib::Request& req, httplib::Response& res){
+void delete_expenses_api(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id")) {
         api_error(req, res, "Invalid parameters");
         return;
     }
 
-    auto id    = req.params.at("input_id");
+    auto id = req.params.at("input_id");
 
-    if(!budget::expense_exists(budget::to_number<size_t>(id))){
+    if (!budget::expense_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The expense " + id + " does not exit");
         return;
     }
@@ -729,6 +785,66 @@ void delete_expenses_api(const httplib::Request& req, httplib::Response& res){
     budget::expense_delete(budget::to_number<size_t>(id));
 
     api_success(req, res, "Expense " + id + " has been deleted");
+}
+
+void add_earnings_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_name") || !req.has_param("input_date") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    earning earning;
+    earning.guid    = budget::generate_guid();
+    earning.date    = budget::from_string(req.params.at("input_date"));
+    earning.account = budget::to_number<size_t>(req.params.at("input_account"));
+    earning.name    = req.params.at("input_name");
+    earning.amount  = budget::parse_money(req.params.at("input_amount"));
+
+    add_earning(std::move(earning));
+
+    api_success(req, res, "Earning " + to_string(earning.id) + " has been created");
+}
+
+void edit_earnings_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_date") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::earning_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "Earning " + id + " does not exist");
+        return;
+    }
+
+    earning& earning = earning_get(budget::to_number<size_t>(id));
+    earning.date     = budget::from_string(req.params.at("input_date"));
+    earning.account  = budget::to_number<size_t>(req.params.at("input_account"));
+    earning.name     = req.params.at("input_name");
+    earning.amount   = budget::parse_money(req.params.at("input_amount"));
+
+    set_earnings_changed();
+
+    api_success(req, res, "Earning " + to_string(earning.id) + " has been modified");
+}
+
+void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_id")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::earning_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The earning " + id + " does not exit");
+        return;
+    }
+
+    budget::earning_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "Earning " + id + " has been deleted");
 }
 
 } //end of anonymous namespace
@@ -776,6 +892,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get(R"(/earnings/(\d+)/(\d+)/)", &earnings_page);
     server.get("/earnings/", &earnings_page);
     server.get("/earnings/all/", &all_earnings_page);
+    server.get("/earnings/add/", &add_earnings_page);
+    server.post("/earnings/edit/", &edit_earnings_page);
 
     server.get("/portfolio/", &portfolio_page);
     server.get("/rebalance/", &rebalance_page);
@@ -790,6 +908,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/expenses/add/", &add_expenses_api);
     server.post("/api/expenses/edit/", &edit_expenses_api);
     server.post("/api/expenses/delete/", &delete_expenses_api);
+
+    server.post("/api/earnings/add/", &add_earnings_api);
+    server.post("/api/earnings/edit/", &edit_earnings_api);
+    server.post("/api/earnings/delete/", &delete_earnings_api);
 
     server.set_error_handler([](const auto&, auto& res) {
         std::stringstream content_stream;
