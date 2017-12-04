@@ -127,7 +127,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
     cpp_assert(contents.size() || columns.size(), "There must be at least some columns or contents");
 
     // Remove the Edit column, if necessary
-    if (columns.back() == "Edit") {
+    if (columns.size() && columns.back() == "Edit") {
         columns.pop_back();
 
         for (auto& row : contents) {
