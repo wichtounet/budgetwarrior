@@ -293,3 +293,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 
     os << std::endl;
 }
+
+bool budget::console_writer::is_web(){
+    return false;
+}

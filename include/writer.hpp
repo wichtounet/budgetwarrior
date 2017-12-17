@@ -60,6 +60,8 @@ struct writer {
     virtual writer& operator<<(const title_begin_t& m) = 0;
     virtual writer& operator<<(const title_end_t& m) = 0;
 
+    virtual bool is_web() = 0;
+
     virtual writer& operator<<(const year_month_selector&){
         return *this;
     }
@@ -89,6 +91,8 @@ struct console_writer : writer {
     virtual writer& operator<<(const title_begin_t& m) override;
     virtual writer& operator<<(const title_end_t& m) override;
 
+    virtual bool is_web() override;
+
     virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0);
 };
 
@@ -111,6 +115,8 @@ struct html_writer : writer {
     virtual writer& operator<<(const title_end_t& m) override;
     virtual writer& operator<<(const year_month_selector& m) override;
     virtual writer& operator<<(const year_selector& m) override;
+
+    virtual bool is_web() override;
 
     virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0);
 };

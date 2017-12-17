@@ -306,3 +306,7 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         os << "</div>"; // row
     }
 }
+
+bool budget::html_writer::is_web() {
+    return true;
+}
