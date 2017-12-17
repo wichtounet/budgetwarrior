@@ -108,10 +108,12 @@ std::string header(const std::string& title){
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Accounts</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown02">
-                  <a class="dropdown-item" href="/accounts/">Accounts</a>
-                  <a class="dropdown-item" href="/accounts/all/">All Accounts</a>
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown05">
+                  <a class="dropdown-item" href="/assets/">Assets</a>
+                  <a class="dropdown-item" href="/net_worth/">Net worth</a>
+                  <a class="dropdown-item" href="/portfolio/">Portfolio</a>
+                  <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -131,12 +133,10 @@ std::string header(const std::string& title){
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown05">
-                  <a class="dropdown-item" href="/assets/">Assets</a>
-                  <a class="dropdown-item" href="/net_worth/">Net worth</a>
-                  <a class="dropdown-item" href="/portfolio/">Portfolio</a>
-                  <a class="dropdown-item" href="/rebalance/">Rebalance</a>
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Accounts</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown02">
+                  <a class="dropdown-item" href="/accounts/">Accounts</a>
+                  <a class="dropdown-item" href="/accounts/all/">All Accounts</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
