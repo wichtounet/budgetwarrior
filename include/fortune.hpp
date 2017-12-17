@@ -47,6 +47,7 @@ void save_fortunes();
 
 std::vector<fortune>& all_fortunes();
 
+void list_fortunes(budget::writer& w);
 void status_fortunes(budget::writer& w, bool short_view);
 
 void set_fortunes_changed();

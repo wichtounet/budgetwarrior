@@ -140,6 +140,13 @@ std::string header(const std::string& title){
                 </div>
               </li>
               <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Fortune</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown06">
+                  <a class="dropdown-item" href="/fortune/status/">Status</a>
+                  <a class="dropdown-item" href="/fortune/list/">List</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Objectives</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown06">
                   <a class="dropdown-item" href="/objectives/status/">Status</a>
@@ -756,6 +763,26 @@ void wishes_estimate_page(const httplib::Request& req, httplib::Response& res){
     html_answer(content_stream, req, res);
 }
 
+void fortune_list_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Objectives List");
+
+    budget::html_writer w(content_stream);
+    budget::list_fortunes(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void fortune_status_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Objectives Status");
+
+    budget::html_writer w(content_stream);
+    budget::status_fortunes(w, false);
+
+    html_answer(content_stream, req, res);
+}
+
 void recurrings_list_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     html_stream(req, content_stream, "Recurrings List");
@@ -967,6 +994,9 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/wishes/estimate/", &wishes_estimate_page);
 
     server.get("/recurrings/list/", &recurrings_list_page);
+
+    server.get("/fortune/list/", &fortune_list_page);
+    server.get("/fortune/status/", &fortune_status_page);
 
     // The API
 

@@ -25,7 +25,9 @@ namespace {
 
 static data_handler<fortune> fortunes;
 
-void list_fortunes(budget::writer& w){
+} //end of anonymous namespace
+
+void budget::list_fortunes(budget::writer& w){
     if (fortunes.data.empty()) {
         w << "No fortune set" << end_of_line;
         return;
@@ -40,8 +42,6 @@ void list_fortunes(budget::writer& w){
 
     w.display_table(columns, contents);
 }
-
-} //end of anonymous namespace
 
 void budget::status_fortunes(budget::writer& w, bool short_view){
     if(fortunes.data.empty()){
