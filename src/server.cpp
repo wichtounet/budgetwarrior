@@ -19,6 +19,7 @@
 #include "version.hpp"
 #include "summary.hpp"
 #include "fortune.hpp"
+#include "recurring.hpp"
 #include "guid.hpp"
 
 #include "httplib.h"
@@ -151,6 +152,12 @@ std::string header(const std::string& title){
                   <a class="dropdown-item" href="/wishes/status/">Status</a>
                   <a class="dropdown-item" href="/wishes/list/">List</a>
                   <a class="dropdown-item" href="/wishes/estimate/">Estimate</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Recurrings</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown06">
+                  <a class="dropdown-item" href="/recurrings/list/">List</a>
                 </div>
               </li>
             </ul>
@@ -749,6 +756,16 @@ void wishes_estimate_page(const httplib::Request& req, httplib::Response& res){
     html_answer(content_stream, req, res);
 }
 
+void recurrings_list_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Recurrings List");
+
+    budget::html_writer w(content_stream);
+    budget::show_recurrings(w);
+
+    html_answer(content_stream, req, res);
+}
+
 void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message){
     if (req.has_param("server")) {
         auto url = req.params.at("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
@@ -897,6 +914,7 @@ void budget::server_module::load(){
     load_objectives();
     load_wishes();
     load_fortunes();
+    load_recurrings();
 }
 
 void budget::server_module::handle(const std::vector<std::string>& args){
@@ -947,6 +965,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/wishes/list/", &wishes_list_page);
     server.get("/wishes/status/", &wishes_status_page);
     server.get("/wishes/estimate/", &wishes_estimate_page);
+
+    server.get("/recurrings/list/", &recurrings_list_page);
 
     // The API
 

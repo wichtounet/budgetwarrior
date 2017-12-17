@@ -14,6 +14,7 @@
 #include "module_traits.hpp"
 #include "money.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -58,6 +59,8 @@ std::vector<recurring>& all_recurrings();
 
 void set_recurrings_changed();
 void set_recurrings_next_id(size_t next_id);
+
+void show_recurrings(budget::writer& w);
 
 } //end of namespace budget
 

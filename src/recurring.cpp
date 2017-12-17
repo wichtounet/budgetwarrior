@@ -27,29 +27,6 @@ namespace {
 
 static data_handler<recurring> recurrings;
 
-void show_recurrings(){
-    std::vector<std::string> columns = {"ID", "Account", "Name", "Amount", "Recurs"};
-    std::vector<std::vector<std::string>> contents;
-
-    money total;
-
-    for(auto& recurring : recurrings.data){
-        contents.push_back({to_string(recurring.id), recurring.account, recurring.name, to_string(recurring.amount), recurring.recurs});
-
-        total += recurring.amount;
-    }
-
-    if(recurrings.data.empty()){
-        std::cout << "No recurring expenses" << std::endl;
-    } else {
-        contents.push_back({"", "", "", "", ""});
-        contents.push_back({"", "", "", "Total", to_string(total)});
-
-        console_writer w(std::cout);
-        w.display_table(columns, contents);
-    }
-}
-
 } //end of anonymous namespace
 
 void budget::recurring_module::preload(){
@@ -105,13 +82,15 @@ void budget::recurring_module::unload(){
 }
 
 void budget::recurring_module::handle(const std::vector<std::string>& args){
+    budget::console_writer w(std::cout);
+
     if(args.size() == 1){
-        show_recurrings();
+        show_recurrings(w);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "show"){
-            show_recurrings();
+            show_recurrings(w);
         } else if(subcommand == "add"){
             recurring recurring;
             recurring.guid = generate_guid();
@@ -309,4 +288,28 @@ void budget::set_recurrings_changed(){
 
 void budget::set_recurrings_next_id(size_t next_id){
     recurrings.next_id = next_id;
+}
+
+void budget::show_recurrings(budget::writer& w) {
+    w << title_begin << "Recurring expenses" << title_end;
+
+    if (recurrings.data.empty()) {
+        w << "No recurring expenses" << end_of_line;
+    } else {
+        std::vector<std::string> columns = {"ID", "Account", "Name", "Amount", "Recurs"};
+        std::vector<std::vector<std::string>> contents;
+
+        money total;
+
+        for (auto& recurring : recurrings.data) {
+            contents.push_back({to_string(recurring.id), recurring.account, recurring.name, to_string(recurring.amount), recurring.recurs});
+
+            total += recurring.amount;
+        }
+
+        contents.push_back({"", "", "", "", ""});
+        contents.push_back({"", "", "Total", to_string(total), ""});
+
+        w.display_table(columns, contents);
+    }
 }
