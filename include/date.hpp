@@ -78,6 +78,12 @@ struct months {
     date_type value;
     explicit months(date_type value) : value(value) {}
     operator date_type() const { return value; }
+
+    months& operator=(date_type value){
+        this->value = value;
+
+        return *this;
+    }
 };
 
 struct years {
@@ -163,13 +169,27 @@ struct date {
     }
 
     date& operator+=(months months){
-        _month += months;
-
-        if(_month > 12){
-            *this += years(_month / 12);
-            _month %= 12;
+        // Handle the NOP addition
+        if(months == 0){
+            return *this;
         }
 
+        // First add several years if necessary
+        if (months >= 12) {
+            *this += years(months.value / 12);
+            months = months.value % 12;
+        }
+
+        // Add the remaining months
+        _month += months;
+
+        // Update the year if necessary
+        if(_month > 12){
+            *this += years((_month - 1) / 12);
+            _month = (_month) % 12;
+        }
+
+        // Update the day of month, if necessary
         _day = std::min(_day, days_month(_year, _month));
 
         return *this;
