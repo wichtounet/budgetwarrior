@@ -34,7 +34,7 @@ namespace {
 
 static data_handler<wish> wishes;
 
-std::string status(size_t v){
+std::string wish_status(size_t v){
     switch(v){
         case 1:
             return "::greenLow";
@@ -48,14 +48,14 @@ std::string status(size_t v){
     }
 }
 
-std::string status_short(size_t v){
+std::string wish_status_short(size_t v){
     switch(v){
         case 1:
-            return green("L");
+            return "::greenL";
         case 2:
             return "M";
         case 3:
-            return red("H");
+            return "::redH";
         default:
             cpp_unreachable("Invalid status value");
             return red("Invalid");
@@ -66,330 +66,6 @@ std::string accuracy(budget::money paid, budget::money estimation){
     auto a = 100.0 * (static_cast<double>(paid.dollars()) / static_cast<double>(estimation.dollars()));
 
     return to_string(static_cast<size_t>(a)) + "%";
-}
-
-void list_wishes(){
-    if(wishes.data.size() == 0){
-        std::cout << "No wishes" << std::endl;
-    } else {
-        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff", "Accuracy"};
-        std::vector<std::vector<std::string>> contents;
-
-        money total;
-        money unpaid_total;
-        double acc = 0.0;
-        double acc_counter = 0;
-
-        for(auto& wish : wishes.data){
-            contents.push_back({
-                to_string(wish.id), wish.name, status(wish.importance), status(wish.urgency),
-                to_string(wish.amount),
-                wish.paid ? to_string(wish.paid_amount) : "No",
-                wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : "",
-                wish.paid ? accuracy(wish.paid_amount, wish.amount) : ""});
-
-            total += wish.amount;
-            if(wish.paid){
-                auto a = static_cast<double>(wish.paid_amount.dollars()) / wish.amount.dollars();
-
-                acc += a;
-                acc_counter += 1;
-            } else {
-                unpaid_total += wish.amount;
-            }
-        }
-
-        contents.push_back({"", "", "", "", "", ""});
-        contents.push_back({"", "Total", "", "", to_string(total), ""});
-        contents.push_back({"", "Unpaid Total", "", "", to_string(unpaid_total), ""});
-
-        if(acc_counter > 0){
-            contents.push_back({"", "Mean accuracy", "", "", to_string(static_cast<size_t>((acc / acc_counter) * 100.0)) + "%", ""});
-        }
-
-        console_writer w(std::cout);
-        w.display_table(columns, contents);
-    }
-}
-
-void status_wishes(){
-    auto today = budget::local_day();
-
-    if(today.day() < 12){
-        std::cout << "WARNING: It is early in the month, no one can know what may happen ;)" << std::endl << std::endl;
-    }
-
-    std::cout << "Wishes" << std::endl << std::endl;
-
-    size_t width = 0;
-    for(auto& wish : wishes.data){
-        if(wish.paid){
-            continue;
-        }
-
-        auto name = to_string(wish.id) + ". " + wish.name + " (" + to_string(wish.amount) + ")";
-        cpp::trim(name);
-
-        width = std::max(rsize(name), width);
-    }
-
-    auto month_status = budget::compute_month_status(today.year(), today.month());
-    auto year_status = budget::compute_year_status(today.year(), today.month());
-
-    auto fortune_amount = budget::current_fortune();
-
-    budget::money total_amount;
-
-    for(auto& wish : wishes.data){
-        if(wish.paid){
-            continue;
-        }
-
-        auto amount = wish.amount;
-        auto name = to_string(wish.id) + ". " + wish.name + " (" + to_string(wish.amount) + ")";
-
-        cpp::trim(name);
-
-        std::cout << "  ";
-        print_minimum(name, width);
-
-        std::cout << "  ";
-        std::cout << status_short(wish.importance) << "-" << status_short(wish.urgency);
-
-        std::cout << "  ";
-
-        total_amount += amount;
-
-        size_t monthly_breaks = 0;
-        size_t yearly_breaks = 0;
-
-        bool month_objective = true;
-        bool year_objective = true;
-
-        for(auto& objective : all_objectives()){
-            if(objective.type == "monthly"){
-                auto success_before = budget::compute_success(month_status, objective);
-                auto success_after = budget::compute_success(month_status.add_expense(amount), objective);
-
-                if(success_before >= 100 && success_after < 100){
-                    ++monthly_breaks;
-                }
-
-                if(success_after < 100){
-                    month_objective = false;
-                }
-            } else if(objective.type == "yearly"){
-                auto success_before = budget::compute_success(year_status, objective);
-                auto success_after = budget::compute_success(year_status.add_expense(amount), objective);
-
-                if(success_before >= 100 && success_after < 100){
-                    ++yearly_breaks;
-                }
-
-                if(success_after < 100){
-                    year_objective = false;
-                }
-            }
-        }
-
-        if(fortune_amount < wish.amount){
-            std::cout << red("Impossible") << " (not enough fortune)";
-        } else {
-            if(month_status.balance > wish.amount){
-                if(!all_objectives().empty()){
-                    if(month_objective && year_objective){
-                        std::cout << green("Perfect") << " (On month balance, all objectives fullfilled)";
-                    } else if(month_objective){
-                        std::cout << green("Good") << " (On month balance, month objectives fullfilled)";
-                    } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << cyan("OK") << " (On month balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
-                    } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << red("Warning") << " (On month balance, objectives not fullfilled)";
-                    }
-                } else {
-                    std::cout << "OK (on month balance)";
-                }
-            } else if(year_status.balance > wish.amount){
-                if(!all_objectives().empty()){
-                    if(month_objective && year_objective){
-                        std::cout << green("Perfect") << " (On year balance, all objectives fullfilled)";
-                    } else if(month_objective){
-                        std::cout << green("Good") << " (On year balance, month objectives fullfilled)";
-                    } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        std::cout << cyan("OK") << " (On year balance, " << (yearly_breaks + monthly_breaks) << " objectives broken)";
-                    } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        std::cout << red("Warning") << " (On year balance, objectives not fullfilled)";
-                    }
-                } else {
-                    std::cout << cyan("OK") << " (on year balance)";
-                }
-            } else {
-                std::cout << red("Warning") << " (on fortune only)";
-            }
-        }
-
-        std::cout << std::endl;
-    }
-
-    std::cout << std::endl << "  ";
-    print_minimum("Total", width);
-    std::cout << "  " << total_amount << std::endl;
-}
-
-void estimate_wishes(){
-    std::cout << "Time to buy (with year objectives)" << std::endl;
-
-    size_t width = 0;
-    for(auto& wish : wishes.data){
-        if(wish.paid){
-            continue;
-        }
-
-        auto name = wish.name + " (" + to_string(wish.amount) + ")";
-
-        cpp::trim(name);
-
-        width = std::max(rsize(name), width);
-    }
-
-    auto fortune_amount = budget::current_fortune();
-    auto today = budget::local_day();
-
-    for(auto& wish : wishes.data){
-        if(wish.paid){
-            continue;
-        }
-
-        auto name = wish.name + " (" + to_string(wish.amount) + ")";
-
-        cpp::trim(name);
-
-        std::cout << "  ";
-        print_minimum(name, width);
-        std::cout << "  ";
-
-        bool ok = false;
-
-        for(size_t i = 0; i < 24 && !ok; ++i){
-            auto day = today + months(i);
-            auto month_status = budget::compute_month_status(day.year(), day.month());
-            auto year_status = budget::compute_year_status(day.year(), day.month());
-
-            size_t monthly_breaks = 0;
-            size_t yearly_breaks = 0;
-
-            bool month_objective = true;
-            bool year_objective = true;
-
-            for(auto& objective : all_objectives()){
-                if(objective.type == "monthly"){
-                    auto success_before = budget::compute_success(month_status, objective);
-                    auto success_after = budget::compute_success(month_status.add_expense(wish.amount), objective);
-
-                    if(success_before >= 100 && success_after < 100){
-                        ++monthly_breaks;
-                    }
-
-                    if(success_after < 100){
-                        month_objective = false;
-                    }
-                } else if(objective.type == "yearly"){
-                    auto success_before = budget::compute_success(year_status, objective);
-                    auto success_after = budget::compute_success(year_status.add_expense(wish.amount), objective);
-
-                    if(success_before >= 100 && success_after < 100){
-                        ++yearly_breaks;
-                    }
-
-                    if(success_after < 100){
-                        year_objective = false;
-                    }
-                }
-            }
-
-            if(fortune_amount >= wish.amount){
-                if(month_objective && year_objective){
-                    if(wish.amount >= month_status.budget){
-                        if(year_status.balance > wish.amount){
-                            std::cout << day.month() << " " << day.year() << std::endl;
-                            ok = true;
-                        }
-                    } else {
-                        if(month_status.balance > wish.amount){
-                            std::cout << day.month() << " " << day.year() << std::endl;
-                            ok = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        if(!ok){
-            std::cout << "You should wait a very long time to buy this" << std::endl;
-        }
-    }
-
-    std::cout << std::endl << "Time to buy (without year objectives)" << std::endl;
-
-    for(auto& wish : wishes.data){
-        if(wish.paid){
-            continue;
-        }
-
-        auto name = wish.name + " (" + to_string(wish.amount) + ")";
-
-        cpp::trim(name);
-
-        std::cout << "  ";
-        print_minimum(name, width);
-        std::cout << "  ";
-
-        bool ok = false;
-
-        for(size_t i = 0; i < 24 && !ok; ++i){
-            auto day = today + months(i);
-            auto month_status = budget::compute_month_status(day.year(), day.month());
-            auto year_status = budget::compute_year_status(day.year(), day.month());
-
-            size_t monthly_breaks = 0;
-            bool month_objective = true;
-
-            for(auto& objective : all_objectives()){
-                if(objective.type == "monthly"){
-                    auto success_before = budget::compute_success(month_status, objective);
-                    auto success_after = budget::compute_success(month_status.add_expense(wish.amount), objective);
-
-                    if(success_before >= 100 && success_after < 100){
-                        ++monthly_breaks;
-                    }
-
-                    if(success_after < 100){
-                        month_objective = false;
-                    }
-                }
-            }
-
-            if(fortune_amount >= wish.amount){
-                if(month_objective){
-                    if(wish.amount >= month_status.budget){
-                        if(year_status.balance > wish.amount){
-                            std::cout << day.month() << " " << day.year() << std::endl;
-                            ok = true;
-                        }
-                    } else {
-                        if(month_status.balance > wish.amount){
-                            std::cout << day.month() << " " << day.year() << std::endl;
-                            ok = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        if(!ok){
-            std::cout << "You should wait a very long time to buy this" << std::endl;
-        }
-    }
 }
 
 void edit(budget::wish& wish){
@@ -415,17 +91,19 @@ void budget::wishes_module::unload(){
 }
 
 void budget::wishes_module::handle(const std::vector<std::string>& args){
+    console_writer w(std::cout);
+
     if(args.size() == 1){
-        status_wishes();
+        status_wishes(w);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "list"){
-            list_wishes();
+            list_wishes(w);
         } else if(subcommand == "status"){
-            status_wishes();
+            status_wishes(w);
         } else if(subcommand == "estimate"){
-            estimate_wishes();
+            estimate_wishes(w);
         } else if(subcommand == "add"){
             wish wish;
             wish.guid = generate_guid();
@@ -578,4 +256,309 @@ void budget::migrate_wishes_3_to_4(){
     set_wishes_changed();
 
     save_data(wishes, "wishes.data");
+}
+
+void budget::list_wishes(budget::writer& w){
+    w << title_begin << "Wishes" << title_end;
+
+    if (wishes.data.size() == 0) {
+        w << "No wishes" << end_of_line;
+    } else {
+        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff", "Accuracy"};
+        std::vector<std::vector<std::string>> contents;
+
+        money total;
+        money unpaid_total;
+        double acc         = 0.0;
+        double acc_counter = 0;
+
+        for (auto& wish : wishes.data) {
+            contents.push_back({to_string(wish.id), wish.name, wish_status(wish.importance), wish_status(wish.urgency),
+                                to_string(wish.amount),
+                                wish.paid ? to_string(wish.paid_amount) : "No",
+                                wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : "",
+                                wish.paid ? accuracy(wish.paid_amount, wish.amount) : ""});
+
+            total += wish.amount;
+
+            if (wish.paid) {
+                auto a = static_cast<double>(wish.paid_amount.dollars()) / wish.amount.dollars();
+
+                acc += a;
+                acc_counter += 1;
+            } else {
+                unpaid_total += wish.amount;
+            }
+        }
+
+        contents.push_back({"", "", "", "", "", "", "", ""});
+        contents.push_back({"", "Total", "", "", to_string(total), "", "", ""});
+        contents.push_back({"", "Unpaid Total", "", "", to_string(unpaid_total), "", "", ""});
+
+        if (acc_counter > 0) {
+            contents.push_back({"", "Mean accuracy", "", "", to_string(static_cast<size_t>((acc / acc_counter) * 100.0)) + "%", "", "", ""});
+        }
+
+        w.display_table(columns, contents);
+    }
+}
+
+void budget::status_wishes(budget::writer& w){
+    w << title_begin << "Wishes" << title_end;
+
+    auto today = budget::local_day();
+
+    if(today.day() < 12){
+        w << "WARNING: It is early in the month, no one can know what may happen ;)" << end_of_line;
+    }
+
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "I", "U", "Status", "Details"};
+    std::vector<std::vector<std::string>> contents;
+
+    auto month_status = budget::compute_month_status(today.year(), today.month());
+    auto year_status = budget::compute_year_status(today.year(), today.month());
+
+    auto fortune_amount = budget::current_fortune();
+
+    budget::money total_amount;
+
+    for(auto& wish : wishes.data){
+        if(wish.paid){
+            continue;
+        }
+
+        total_amount += wish.amount;
+
+        size_t monthly_breaks = 0;
+        size_t yearly_breaks = 0;
+
+        bool month_objective = true;
+        bool year_objective = true;
+
+        for(auto& objective : all_objectives()){
+            if(objective.type == "monthly"){
+                auto success_before = budget::compute_success(month_status, objective);
+                auto success_after = budget::compute_success(month_status.add_expense(wish.amount), objective);
+
+                if(success_before >= 100 && success_after < 100){
+                    ++monthly_breaks;
+                }
+
+                if(success_after < 100){
+                    month_objective = false;
+                }
+            } else if(objective.type == "yearly"){
+                auto success_before = budget::compute_success(year_status, objective);
+                auto success_after = budget::compute_success(year_status.add_expense(wish.amount), objective);
+
+                if(success_before >= 100 && success_after < 100){
+                    ++yearly_breaks;
+                }
+
+                if(success_after < 100){
+                    year_objective = false;
+                }
+            }
+        }
+
+        std::string status;
+        std::string details;
+
+        if(fortune_amount < wish.amount){
+            status = std::string("::red") + "Impossible";
+            details = "(not enough fortune)";
+        } else {
+            if(month_status.balance > wish.amount){
+                if(!all_objectives().empty()){
+                    if(month_objective && year_objective){
+                        status = std::string("::green") + "Perfect";
+                        details = "(On month balance, all objectives fullfilled)";
+                    } else if(month_objective){
+                        status = std::string("::green") + "Good";
+                        details = "(On month balance, month objectives fullfilled)";
+                    } else if(yearly_breaks > 0 || monthly_breaks > 0){
+                        status = "::blueOK";
+                        details = "(On month balance, " + to_string(yearly_breaks + monthly_breaks) + " objectives broken)";
+                    } else if(yearly_breaks == 0 && monthly_breaks == 0){
+                        status = std::string("::red") + "Warning";
+                        details = "(On month balance, objectives not fullfilled)";
+                    }
+                } else {
+                    status = "OK (on month balance)";
+                    details = "(on month balance)";
+                }
+            } else if(year_status.balance > wish.amount){
+                if(!all_objectives().empty()){
+                    if(month_objective && year_objective){
+                        status = std::string("::green") + "Perfect";
+                        details = "(On year balance, all objectives fullfilled)";
+                    } else if(month_objective){
+                        status = std::string("::green") + "Good";
+                        details = "(On year balance, month objectives fullfilled)";
+                    } else if(yearly_breaks > 0 || monthly_breaks > 0){
+                        status = "::blueOK";
+                        details = "(On year balance, " + to_string(yearly_breaks + monthly_breaks) + " objectives broken)";
+                    } else if(yearly_breaks == 0 && monthly_breaks == 0){
+                        status = std::string("::red") + "Warning";
+                        details = "(On year balance, objectives not fullfilled)";
+                    }
+                } else {
+                    status = "::blueOK";
+                    details = "(on year balance)";
+                }
+            } else {
+                status = std::string("::red") + "Warning";
+                details = "(on fortune only)";
+            }
+        }
+
+        contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), wish_status_short(wish.importance), wish_status_short(wish.urgency), status, details});
+    }
+
+    contents.push_back({"", "", "", "", "", "", ""});
+    contents.push_back({"", "Total", to_string(total_amount), "", "", "", ""});
+
+    w.display_table(columns, contents);
+}
+
+void budget::estimate_wishes(budget::writer& w) {
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Status"};
+    std::vector<std::vector<std::string>> year_contents;
+    std::vector<std::vector<std::string>> month_contents;
+
+    auto fortune_amount = budget::current_fortune();
+    auto today          = budget::local_day();
+
+    for (auto& wish : wishes.data) {
+        if (wish.paid) {
+            continue;
+        }
+
+        bool ok = false;
+
+        std::string status;
+
+        for (size_t i = 0; i < 24 && !ok; ++i) {
+            auto day = today + months(i);
+
+            auto month_status = budget::compute_month_status(day.year(), day.month());
+            auto year_status  = budget::compute_year_status(day.year(), day.month());
+
+            size_t monthly_breaks = 0;
+            size_t yearly_breaks  = 0;
+
+            bool month_objective = true;
+            bool year_objective  = true;
+
+            for (auto& objective : all_objectives()) {
+                if (objective.type == "monthly") {
+                    auto success_before = budget::compute_success(month_status, objective);
+                    auto success_after  = budget::compute_success(month_status.add_expense(wish.amount), objective);
+
+                    if (success_before >= 100 && success_after < 100) {
+                        ++monthly_breaks;
+                    }
+
+                    if (success_after < 100) {
+                        month_objective = false;
+                    }
+                } else if (objective.type == "yearly") {
+                    auto success_before = budget::compute_success(year_status, objective);
+                    auto success_after  = budget::compute_success(year_status.add_expense(wish.amount), objective);
+
+                    if (success_before >= 100 && success_after < 100) {
+                        ++yearly_breaks;
+                    }
+
+                    if (success_after < 100) {
+                        year_objective = false;
+                    }
+                }
+            }
+
+            if (fortune_amount >= wish.amount) {
+                if (month_objective && year_objective) {
+                    if (wish.amount >= month_status.budget) {
+                        if (year_status.balance > wish.amount) {
+                            status = day.month().as_short_string() + " " + to_string(day.year());
+                            ok     = true;
+                        }
+                    } else {
+                        if (month_status.balance > wish.amount) {
+                            status = day.month().as_short_string() + " " + to_string(day.year());
+                            ok     = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!ok) {
+            status = "You should wait until next year to buy this";
+        }
+
+        year_contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), status});
+    }
+
+    for (auto& wish : wishes.data) {
+        if (wish.paid) {
+            continue;
+        }
+
+        bool ok = false;
+
+        std::string status;
+
+        for (size_t i = 0; i < 24 && !ok; ++i) {
+            auto day          = today + months(i);
+            auto month_status = budget::compute_month_status(day.year(), day.month());
+            auto year_status  = budget::compute_year_status(day.year(), day.month());
+
+            size_t monthly_breaks = 0;
+            bool month_objective  = true;
+
+            for (auto& objective : all_objectives()) {
+                if (objective.type == "monthly") {
+                    auto success_before = budget::compute_success(month_status, objective);
+                    auto success_after  = budget::compute_success(month_status.add_expense(wish.amount), objective);
+
+                    if (success_before >= 100 && success_after < 100) {
+                        ++monthly_breaks;
+                    }
+
+                    if (success_after < 100) {
+                        month_objective = false;
+                    }
+                }
+            }
+
+            if (fortune_amount >= wish.amount) {
+                if (month_objective) {
+                    if (wish.amount >= month_status.budget) {
+                        if (year_status.balance > wish.amount) {
+                            status = day.month().as_short_string() + " " + to_string(day.year());
+                            ok     = true;
+                        }
+                    } else {
+                        if (month_status.balance > wish.amount) {
+                            status = day.month().as_short_string() + " " + to_string(day.year());
+                            ok     = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!ok) {
+            status = "You should wait a very long time to buy this";
+        }
+
+        month_contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), status});
+    }
+
+    w << title_begin << "Time to buy (with year objectives)" << title_end;
+    w.display_table(columns, year_contents);
+
+    w << title_begin << "Time to buy (without year objectives)" << title_end;
+    w.display_table(columns, month_contents);
 }

@@ -14,6 +14,7 @@
 #include "module_traits.hpp"
 #include "money.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -55,6 +56,10 @@ void set_wishes_next_id(size_t next_id);
 
 void migrate_wishes_2_to_3();
 void migrate_wishes_3_to_4();
+
+void list_wishes(budget::writer& w);
+void status_wishes(budget::writer& w);
+void estimate_wishes(budget::writer& w);
 
 } //end of namespace budget
 
