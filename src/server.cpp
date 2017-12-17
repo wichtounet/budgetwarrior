@@ -424,7 +424,7 @@ void add_date_picker(budget::writer& w, const std::string& default_value = "") {
     w << R"=====(
         <div class="form-group">
             <label for="input_date">Date</label>
-            <input type="date" class="form-control" id="input_date" name="input_date" value=")=====";
+            <input required type="date" class="form-control" id="input_date" name="input_date" value=")=====";
 
     if (default_value.empty()) {
         w << today.year() << "-";
@@ -453,7 +453,7 @@ void add_name_picker(budget::writer& w, const std::string& default_value = "") {
     w << R"=====(
         <div class="form-group">
             <label for="input_name">Name</label>
-            <input type="text" class="form-control" id="input_name" name="input_name"
+            <input required type="text" class="form-control" id="input_name" name="input_name"
     )=====";
 
     if (default_value.empty()) {
@@ -472,7 +472,7 @@ void add_amount_picker(budget::writer& w, const std::string& default_value = "")
     w << R"=====(
         <div class="form-group">
             <label for="input_amount">Amount</label>
-            <input type="text" class="form-control" id="input_amount" name="input_amount"
+            <input required type="number" step="0.01" class="form-control" id="input_amount" name="input_amount"
     )=====";
 
     if (default_value.empty()) {
