@@ -61,6 +61,10 @@ std::string html_format(const std::string& v){
         auto value = v.substr(5);
 
         return "<span style=\"color:red;\">" + value + "</span>";
+    } else if(v.substr(0, 6) == "::blue"){
+        auto value = v.substr(6);
+
+        return "<span style=\"color:blue;\">" + value + "</span>";
     } else if(v.substr(0, 7) == "::green"){
         auto value = v.substr(7);
 
@@ -201,8 +205,13 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
     cpp_unused(left);
     cpp_unused(lines);
 
-    for(auto& row : contents){
-        for(auto& cell : row){
+    for (auto& row : contents) {
+        if (row.size() < columns.size()) {
+            std::cerr << "Invalid number of columns in row" << std::endl;
+            return;
+        }
+
+        for (auto& cell : row) {
             cpp::trim(cell);
         }
     }
@@ -211,13 +220,13 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
 
     for (size_t i = 0; i < columns.size(); ++i) {
         for (auto& row : contents) {
-            if (row[i].substr(0, 9) == "::success") {
+            if (row[i].size() >= 9 && row[i].substr(0, 9) == "::success") {
                 extend = i;
                 break;
             }
         }
 
-        if(extend == i){
+        if (extend == i) {
             break;
         }
     }

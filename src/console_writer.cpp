@@ -52,6 +52,10 @@ std::string format(const std::string& v){
         auto value = v.substr(7);
 
         return "\033[0;32m" + value + budget::format_reset();
+    } else if(v.substr(0, 6) == "::blue"){
+        auto value = v.substr(6);
+
+        return "\033[0;33m" + value + budget::format_reset();
     } else if(v.substr(0, 9) == "::success"){
         auto value = v.substr(9);
         auto success = budget::to_number<unsigned long>(value);
