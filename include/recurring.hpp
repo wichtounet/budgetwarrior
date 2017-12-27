@@ -62,6 +62,11 @@ void set_recurrings_next_id(size_t next_id);
 
 void show_recurrings(budget::writer& w);
 
+void add_recurring(recurring&& recurring);
+bool recurring_exists(size_t id);
+void recurring_delete(size_t id);
+recurring& recurring_get(size_t id);
+
 } //end of namespace budget
 
 #endif

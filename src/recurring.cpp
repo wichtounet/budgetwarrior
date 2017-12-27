@@ -296,20 +296,44 @@ void budget::show_recurrings(budget::writer& w) {
     if (recurrings.data.empty()) {
         w << "No recurring expenses" << end_of_line;
     } else {
-        std::vector<std::string> columns = {"ID", "Account", "Name", "Amount", "Recurs"};
+        std::vector<std::string> columns = {"ID", "Account", "Name", "Amount", "Recurs", "Edit"};
         std::vector<std::vector<std::string>> contents;
 
         money total;
 
         for (auto& recurring : recurrings.data) {
-            contents.push_back({to_string(recurring.id), recurring.account, recurring.name, to_string(recurring.amount), recurring.recurs});
+            contents.push_back({to_string(recurring.id), recurring.account, recurring.name, to_string(recurring.amount), recurring.recurs, "::edit::recurrings::" + to_string(recurring.id)});
 
             total += recurring.amount;
         }
 
-        contents.push_back({"", "", "", "", ""});
-        contents.push_back({"", "", "Total", to_string(total), ""});
+        contents.push_back({"", "", "", "", "", ""});
+        contents.push_back({"", "", "Total", to_string(total), "", ""});
 
         w.display_table(columns, contents);
     }
+}
+
+bool budget::recurring_exists(size_t id){
+    return exists(recurrings, id);
+}
+
+void budget::recurring_delete(size_t id) {
+    if (!exists(recurrings, id)) {
+        throw budget_exception("There are no recurring with id ");
+    }
+
+    remove(recurrings, id);
+}
+
+recurring& budget::recurring_get(size_t id) {
+    if (!exists(recurrings, id)) {
+        throw budget_exception("There are no recurring with id ");
+    }
+
+    return get(recurrings, id);
+}
+
+void budget::add_recurring(budget::recurring&& recurring){
+    add_data(recurrings, std::forward<budget::recurring>(recurring));
 }

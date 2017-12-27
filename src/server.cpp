@@ -169,6 +169,7 @@ std::string header(const std::string& title){
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Recurrings</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown06">
                   <a class="dropdown-item" href="/recurrings/list/">List</a>
+                  <a class="dropdown-item" href="/recurrings/add/">Add Recurring Expense</a>
                 </div>
               </li>
             </ul>
@@ -809,6 +810,58 @@ void recurrings_list_page(const httplib::Request& req, httplib::Response& res){
     html_answer(content_stream, req, res);
 }
 
+void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New Recurring Expense");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New Recurring Expense" << title_end;
+
+    form_begin(w, "/api/recurrings/add/", "/recurrings/add/");
+
+    add_name_picker(w);
+    add_amount_picker(w);
+    add_account_picker(w);
+
+    form_end(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Edit Recurring Expense");
+
+    budget::html_writer w(content_stream);
+
+    if(!req.has_param("input_id") || !req.has_param("back_page")){
+        display_error_message(w, "Invalid parameter for the request");
+    } else {
+        auto input_id  = req.params.at("input_id");
+
+        if(!recurring_exists(budget::to_number<size_t>(input_id))){
+            display_error_message(w, "The recurring expense " + input_id + " does not exist");
+        } else {
+            auto back_page = req.params.at("back_page");
+
+            w << title_begin << "Edit Recurring Expense " << input_id << title_end;
+
+            form_begin_edit(w, "/api/recurrings/edit/", back_page, input_id);
+
+            auto& recurring = recurring_get(budget::to_number<size_t>(input_id));
+
+            add_name_picker(w, recurring.name);
+            add_amount_picker(w, budget::to_string(recurring.amount));
+            add_account_picker(w, budget::to_string(recurring.account));
+
+            form_end(w);
+        }
+    }
+
+    html_answer(content_stream, req, res);
+}
+
 void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message){
     if (req.has_param("server")) {
         auto url = req.params.at("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
@@ -947,6 +1000,65 @@ void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "Earning " + id + " has been deleted");
 }
 
+void add_recurrings_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    recurring recurring;
+    recurring.guid    = budget::generate_guid();
+    recurring.account = budget::get_account(budget::to_number<size_t>(req.params.at("input_account"))).name;
+    recurring.name    = req.params.at("input_name");
+    recurring.amount  = budget::parse_money(req.params.at("input_amount"));
+    recurring.recurs  = "monthly";
+
+    add_recurring(std::move(recurring));
+
+    api_success(req, res, "Recurring " + to_string(recurring.id) + " has been created");
+}
+
+void edit_recurrings_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::recurring_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "recurring " + id + " does not exist");
+        return;
+    }
+
+    recurring& recurring = recurring_get(budget::to_number<size_t>(id));
+    recurring.account  = budget::get_account(budget::to_number<size_t>(req.params.at("input_account"))).name;
+    recurring.name     = req.params.at("input_name");
+    recurring.amount   = budget::parse_money(req.params.at("input_amount"));
+
+    set_recurrings_changed();
+
+    api_success(req, res, "Recurring " + to_string(recurring.id) + " has been modified");
+}
+
+void delete_recurrings_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_id")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::recurring_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The recurring " + id + " does not exit");
+        return;
+    }
+
+    budget::recurring_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "Recurring " + id + " has been deleted");
+}
+
 } //end of anonymous namespace
 
 void budget::server_module::load(){
@@ -1009,6 +1121,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/wishes/estimate/", &wishes_estimate_page);
 
     server.get("/recurrings/list/", &recurrings_list_page);
+    server.get("/recurrings/add/", &add_recurrings_page);
+    server.post("/recurrings/edit/", &edit_recurrings_page);
 
     server.get("/fortune/list/", &fortune_list_page);
     server.get("/fortune/status/", &fortune_status_page);
@@ -1022,6 +1136,12 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/earnings/add/", &add_earnings_api);
     server.post("/api/earnings/edit/", &edit_earnings_api);
     server.post("/api/earnings/delete/", &delete_earnings_api);
+
+    server.post("/api/recurrings/add/", &add_recurrings_api);
+    server.post("/api/recurrings/edit/", &edit_recurrings_api);
+    server.post("/api/recurrings/delete/", &delete_recurrings_api);
+
+    // Handle error
 
     server.set_error_handler([](const auto&, auto& res) {
         std::stringstream content_stream;
