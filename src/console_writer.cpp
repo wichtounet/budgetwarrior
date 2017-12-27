@@ -297,3 +297,12 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 bool budget::console_writer::is_web(){
     return false;
 }
+
+void budget::console_writer::display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values){
+    cpp_unused(title);
+    cpp_unused(categories);
+    cpp_unused(series_names);
+    cpp_unused(series_values);
+
+    os << "TODO: unimplemented" << std::endl;
+}

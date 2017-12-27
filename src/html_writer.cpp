@@ -310,3 +310,41 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
 bool budget::html_writer::is_web() {
     return true;
 }
+
+void budget::html_writer::display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values){
+    os << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+
+    os << R"=====(<script langage="javascript">)=====";
+
+    os << R"=====(Highcharts.chart('container', {)=====";
+    os << R"=====(chart: {type: 'column'},)=====";
+    os << R"=====(credits: {enabled: false},)=====";
+
+    os << "title: { text: '" << title << "'},";
+    os << "xAxis: { categories: [";
+
+    for (auto& category : categories) {
+        os << "'" << category << "',";
+    }
+
+    os << "]},";
+
+    os << "series: [";
+
+    for(size_t i = 0; i < series_names.size(); ++i){
+        os << "{ name: '" << series_names[i] << "',";
+        os << "data: [";
+
+        for(auto& value : series_values[i]){
+            os << value << ",";
+        }
+
+        os << "]},";
+    }
+
+    os << "]";
+
+    os << R"=====(});)=====";
+
+    os << R"=====(</script>)=====";
+}
