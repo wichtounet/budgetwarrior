@@ -579,7 +579,7 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    html_stream(req, content_stream, "New Expense");
+    html_stream(req, content_stream, "Edit Expense");
 
     budget::html_writer w(content_stream);
 
@@ -633,7 +633,7 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    html_stream(req, content_stream, "New earning");
+    html_stream(req, content_stream, "Edit earning");
 
     budget::html_writer w(content_stream);
 
