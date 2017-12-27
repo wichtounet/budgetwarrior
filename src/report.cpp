@@ -37,9 +37,95 @@ void write(graph_type& graph, int row, int col, const std::string& value) {
     }
 }
 
-template <typename Predicate>
-void report(budget::writer& w, budget::year year, Predicate predicate) {
+
+} //end of anonymous namespace
+
+void budget::report_module::load() {
+    load_accounts();
+    load_expenses();
+    load_earnings();
+}
+
+void budget::report_module::handle(const std::vector<std::string>& args) {
     auto today = budget::local_day();
+
+    budget::console_writer w(std::cout);
+
+    if (args.size() == 1) {
+        report(w, today.year(), false, "");
+    } else {
+        auto& subcommand = args[1];
+
+        if (subcommand == "monthly") {
+            report(w, today.year(), false, "");
+        } else if (subcommand == "account") {
+            std::string account_name;
+            edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
+
+            report(w, today.year(), true, account_name);
+        } else {
+            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+        }
+    }
+}
+
+void budget::report(budget::writer& w, budget::year year, bool filter, const std::string& filter_account) {
+    auto today = budget::local_day();
+
+    auto sm = start_month(year);
+
+     if (w.is_web()) {
+         w << title_begin << "Monthly report of " + to_string(year) << title_end;
+
+         std::vector<std::string> categories;
+         std::vector<std::string> series_names;
+         std::vector<std::vector<float>> series_values;
+
+         series_names.push_back("Expenses");
+         series_names.push_back("Earnings");
+         series_names.push_back("Balance");
+
+         series_values.emplace_back();
+         series_values.emplace_back();
+         series_values.emplace_back();
+
+         for (auto i = sm; i <= today.month(); ++i) {
+             budget::month month = i;
+
+             //Display month legend
+             categories.push_back(month.as_short_string());
+
+             budget::money m_balance;
+             budget::money m_expenses;
+             budget::money m_earnings;
+
+             for (auto& account : all_accounts(year, month)) {
+                 if (!filter || account.name == filter_account) {
+                     auto expenses = accumulate_amount_if(all_expenses(),
+                                                          [year, month, account](budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
+                     auto earnings = accumulate_amount_if(all_earnings(),
+                                                          [year, month, account](budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
+
+                     m_expenses += expenses;
+                     m_earnings += earnings;
+
+                     auto balance = account.amount;
+                     balance -= expenses;
+                     balance += earnings;
+
+                     m_balance += balance;
+                 }
+             }
+
+             series_values[0].push_back(static_cast<float>(m_expenses));
+             series_values[1].push_back(static_cast<float>(m_earnings));
+             series_values[2].push_back(static_cast<float>(m_balance));
+        }
+
+        w.display_graph("Monthly report of " + to_string(year), categories, series_names, series_values);
+
+        return;
+    }
 
     budget::money max_expenses;
     budget::money max_earnings;
@@ -47,8 +133,6 @@ void report(budget::writer& w, budget::year year, Predicate predicate) {
     budget::money min_expenses;
     budget::money min_earnings;
     budget::money min_balance;
-
-    auto sm = start_month(year);
 
     std::vector<int> expenses(12);
     std::vector<int> earnings(12);
@@ -62,7 +146,7 @@ void report(budget::writer& w, budget::year year, Predicate predicate) {
         budget::money total_balance;
 
         for (auto& account : all_accounts(year, month)) {
-            if (predicate(account)) {
+            if (!filter || account.name == filter_account) {
                 auto expenses = accumulate_amount_if(all_expenses(),
                                                      [year, month, account](budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
                 auto earnings = accumulate_amount_if(all_earnings(),
@@ -133,8 +217,6 @@ void report(budget::writer& w, budget::year year, Predicate predicate) {
         col_width = 2;
     }
 
-    std::cout << "col_width:" << col_width << std::endl;
-
     int min = 0;
     if (min_expenses.negative() || min_earnings.negative() || min_balance.negative()) {
         min = std::min(min_expenses, std::min(min_earnings, min_balance)).dollars();
@@ -148,8 +230,6 @@ void report(budget::writer& w, budget::year year, Predicate predicate) {
 
     unsigned int step_height = height / levels;
     unsigned int precision   = scale / step_height;
-
-    std::cout << precision << std::endl;
 
     auto graph_height = 9 + step_height * levels;
     auto graph_width  = graph_width_func(col_width);
@@ -203,10 +283,6 @@ void report(budget::writer& w, budget::year year, Predicate predicate) {
         if (balances[month - 1] >= 0) {
             for (size_t j = 0; j < balances[month - 1] / precision; ++j) {
                 for (size_t x = 0; x < col_width; ++x) {
-                    std::cout << col_start << std::endl;
-                    std::cout << col_start + x << std::endl;
-                    std::cout << graph[zero_index + j].size() << std::endl;
-
                     graph[zero_index + j][col_start + x] = "\033[1;44m \033[0m";
                 }
             }
@@ -222,8 +298,6 @@ void report(budget::writer& w, budget::year year, Predicate predicate) {
     //Display legend
 
     int start_legend = first_bar + (3 * col_width + 4) * (today.month() - sm + 1) + 4;
-
-    std::cout << start_legend << std::endl;
 
     graph[4][start_legend - 2] = "|";
     graph[3][start_legend - 2] = "|";
@@ -243,35 +317,4 @@ void report(budget::writer& w, budget::year year, Predicate predicate) {
     //Render the graph
 
     render(w, graph);
-}
-
-} //end of anonymous namespace
-
-void budget::report_module::load() {
-    load_accounts();
-    load_expenses();
-    load_earnings();
-}
-
-void budget::report_module::handle(const std::vector<std::string>& args) {
-    auto today = budget::local_day();
-
-    budget::console_writer w(std::cout);
-
-    if (args.size() == 1) {
-        report(w, today.year(), [](budget::account&) { return true; });
-    } else {
-        auto& subcommand = args[1];
-
-        if (subcommand == "monthly") {
-            report(w, today.year(), [](budget::account&) { return true; });
-        } else if (subcommand == "account") {
-            std::string account_name;
-            edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
-
-            report(w, today.year(), [&account_name](budget::account& account) { return account.name == account_name; });
-        } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
-        }
-    }
 }

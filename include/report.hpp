@@ -27,6 +27,8 @@ struct module_traits<report_module> {
     static constexpr const char* command = "report";
 };
 
+void report(budget::writer& w, budget::year year, bool filter, const std::string& filter_account);
+
 } //end of namespace budget
 
 #endif

@@ -21,6 +21,7 @@
 #include "fortune.hpp"
 #include "recurring.hpp"
 #include "guid.hpp"
+#include "report.hpp"
 
 #include "httplib.h"
 
@@ -44,6 +45,8 @@ std::string header(const std::string& title){
             <meta name="description" content="budgetwarrior">
             <meta name="author" content="Baptiste Wicht">
             <link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+            <script src="https://code.highcharts.com/highcharts.js"></script>
+            <script src="https://code.highcharts.com/modules/exporting.js"></script>
             <style>
                 body {
                   padding-top: 5rem;
@@ -101,10 +104,11 @@ std::string header(const std::string& title){
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Overview</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown01">
-                  <a class="dropdown-item" href="/overview/">Overvie Month</a>
+                  <a class="dropdown-item" href="/overview/">Overview Month</a>
                   <a class="dropdown-item" href="/overview/year/">Overview Year</a>
                   <a class="dropdown-item" href="/overview/aggregate/year/">Aggregate Year</a>
                   <a class="dropdown-item" href="/overview/aggregate/month/">Aggregate Month</a>
+                  <a class="dropdown-item" href="/report/">Report</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -396,6 +400,18 @@ void overview_year_page(const httplib::Request& req, httplib::Response& res){
     } else {
         display_year_overview(w);
     }
+
+    html_answer(content_stream, req, res);
+}
+
+void report_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Report");
+
+    budget::html_writer w(content_stream);
+
+    auto today = budget::local_day();
+    report(w, today.year(), false, "");
 
     html_answer(content_stream, req, res);
 }
@@ -956,15 +972,14 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     server.get("/overview/year/", &overview_year_page);
     server.get(R"(/overview/year/(\d+)/)", &overview_year_page);
-
     server.get("/overview/", &overview_page);
     server.get(R"(/overview/(\d+)/(\d+)/)", &overview_page);
-
     server.get("/overview/aggregate/year/", &overview_aggregate_year_page);
     server.get(R"(/overview/aggregate/year/(\d+)/)", &overview_aggregate_year_page);
-
     server.get("/overview/aggregate/month/", &overview_aggregate_month_page);
     server.get(R"(/overview/aggregate/month/(\d+)/(\d+)/)", &overview_aggregate_month_page);
+
+    server.get("/report/", &report_page);
 
     server.get("/accounts/", &accounts_page);
     server.get("/accounts/all/", &all_accounts_page);
