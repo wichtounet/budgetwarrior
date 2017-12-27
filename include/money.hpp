@@ -144,6 +144,14 @@ struct money {
     operator bool() const {
         return value;
     }
+
+    operator float() const {
+        return value / float(SCALE);
+    }
+
+    operator double() const {
+        return value / double(SCALE);
+    }
 };
 
 std::ostream& operator<<(std::ostream& stream, const money& amount);
