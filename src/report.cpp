@@ -18,27 +18,27 @@ using namespace budget;
 
 namespace {
 
-typedef std::vector<std::vector<std::string>> graph_type;
+using graph_type = std::vector<std::vector<std::string>>;
 
-void render(graph_type& graph){
+void render(graph_type& graph) {
     std::reverse(graph.begin(), graph.end());
 
-    for(auto& line : graph){
-        for(auto& col : line){
+    for (auto& line : graph) {
+        for (auto& col : line) {
             std::cout << col;
         }
         std::cout << std::endl;
     }
 }
 
-void write(graph_type& graph, int row, int col, const std::string& value){
-    for(size_t i = 0; i < value.size(); ++i){
+void write(graph_type& graph, int row, int col, const std::string& value) {
+    for (size_t i = 0; i < value.size(); ++i) {
         graph[row][col + i] = value[i];
     }
 }
 
-template<typename Predicate>
-void report(budget::year year, Predicate predicate){
+template <typename Predicate>
+void report(budget::year year, Predicate predicate) {
     auto today = budget::local_day();
 
     budget::money max_expenses;
@@ -54,19 +54,19 @@ void report(budget::year year, Predicate predicate){
     std::vector<int> earnings(12);
     std::vector<int> balances(12);
 
-    for(auto i = sm; i <= today.month(); ++i){
+    for (auto i = sm; i <= today.month(); ++i) {
         budget::month month = i;
 
         budget::money total_expenses;
         budget::money total_earnings;
         budget::money total_balance;
 
-        for(auto& account : all_accounts(year, month)){
-            if(predicate(account)){
+        for (auto& account : all_accounts(year, month)) {
+            if (predicate(account)) {
                 auto expenses = accumulate_amount_if(all_expenses(),
-                    [year,month,account](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == month;});
+                                                     [year, month, account](budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
                 auto earnings = accumulate_amount_if(all_earnings(),
-                    [year,month,account](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == month;});
+                                                     [year, month, account](budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
 
                 total_expenses += expenses;
                 total_earnings += earnings;
@@ -85,19 +85,19 @@ void report(budget::year year, Predicate predicate){
 
         max_expenses = std::max(max_expenses, total_expenses);
         max_earnings = std::max(max_earnings, total_earnings);
-        max_balance = std::max(max_balance, total_balance);
+        max_balance  = std::max(max_balance, total_balance);
         min_expenses = std::min(min_expenses, total_expenses);
         min_earnings = std::min(min_earnings, total_earnings);
-        min_balance = std::min(min_balance, total_balance);
+        min_balance  = std::min(min_balance, total_balance);
     }
 
     auto max_number = std::max(std::max(
-        std::max(std::abs(max_expenses.dollars()), std::abs(max_earnings.dollars())),
-        std::max(std::abs(max_balance.dollars()), std::abs(min_expenses.dollars()))),
-        std::max(std::abs(min_balance.dollars()), std::abs(min_earnings.dollars())));
+                                   std::max(std::abs(max_expenses.dollars()), std::abs(max_earnings.dollars())),
+                                   std::max(std::abs(max_balance.dollars()), std::abs(min_expenses.dollars()))),
+                               std::max(std::abs(min_balance.dollars()), std::abs(min_earnings.dollars())));
 
     size_t height = terminal_height() - 9;
-    size_t width = terminal_width() - 6;
+    size_t width  = terminal_width() - 6;
 
     size_t scale_width = 5;
 
@@ -115,37 +115,44 @@ void report(budget::year year, Predicate predicate){
         scale = 2000;
     }
 
-    auto graph_width_func = [sm](size_t col_width){
-        return 6 + (13 - sm) * (3 * col_width + 2) + (13 - sm - 1) * 2;
+    auto graph_width_func = [sm](size_t col_width) {
+        constexpr size_t left_space = 7;
+        constexpr size_t legend_width = 20;
+
+        return left_space + (13 - sm) * (3 * col_width + 2) + (13 - sm - 1) * 2 + legend_width;
     };
 
     // Compute the best column width
 
-    size_t col_width = 1;
-    if(width > graph_width_func(4)){
+    size_t col_width = 2;
+    if (width > graph_width_func(4)) {
         col_width = 4;
-    } else if(width > graph_width_func(3)){
+    } else if (width > graph_width_func(3)) {
         col_width = 3;
-    } else if(width > graph_width_func(2)){
+    } else if (width > graph_width_func(2)) {
         col_width = 2;
     }
 
+    std::cout << "col_width:" << col_width << std::endl;
+
     int min = 0;
-    if(min_expenses.negative() || min_earnings.negative() || min_balance.negative()){
+    if (min_expenses.negative() || min_earnings.negative() || min_balance.negative()) {
         min = std::min(min_expenses, std::min(min_earnings, min_balance)).dollars();
         min = -1 * ((std::abs(min) / scale) + 1) * scale;
     }
 
     unsigned int max = std::max(max_earnings, std::max(max_expenses, max_balance)).dollars();
-    max = ((max / scale) + 1) * scale;
+    max              = ((max / scale) + 1) * scale;
 
     unsigned int levels = max / scale + std::abs(min) / scale;
 
     unsigned int step_height = height / levels;
-    unsigned int precision = scale / step_height;
+    unsigned int precision   = scale / step_height;
+
+    std::cout << precision << std::endl;
 
     auto graph_height = 9 + step_height * levels;
-    auto graph_width = graph_width_func(col_width);
+    auto graph_width  = graph_width_func(col_width);
 
     graph_type graph(graph_height, std::vector<std::string>(graph_width, " "));
 
@@ -155,7 +162,7 @@ void report(budget::year year, Predicate predicate){
 
     //Display scale
 
-    for(size_t i = 0; i <= levels; ++i){
+    for (size_t i = 0; i <= levels; ++i) {
         int level = min + i * scale;
 
         write(graph, 4 + step_height * i, 1, to_string(level));
@@ -163,12 +170,12 @@ void report(budget::year year, Predicate predicate){
 
     //Display bar
 
-    unsigned int min_index = 3;
+    unsigned int min_index  = 3;
     unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
 
     const auto first_bar = scale_width + 2;
 
-    for(auto i = sm; i <= today.month(); ++i){
+    for (auto i = sm; i <= today.month(); ++i) {
         budget::month month = i;
 
         auto col_start = first_bar + (3 * col_width + 4) * (i - sm);
@@ -196,6 +203,10 @@ void report(budget::year year, Predicate predicate){
         if (balances[month - 1] >= 0) {
             for (size_t j = 0; j < balances[month - 1] / precision; ++j) {
                 for (size_t x = 0; x < col_width; ++x) {
+                    std::cout << col_start << std::endl;
+                    std::cout << col_start + x << std::endl;
+                    std::cout << graph[zero_index + j].size() << std::endl;
+
                     graph[zero_index + j][col_start + x] = "\033[1;44m \033[0m";
                 }
             }
@@ -211,6 +222,8 @@ void report(budget::year year, Predicate predicate){
     //Display legend
 
     int start_legend = first_bar + (3 * col_width + 4) * (today.month() - sm + 1) + 4;
+
+    std::cout << start_legend << std::endl;
 
     graph[4][start_legend - 2] = "|";
     graph[3][start_legend - 2] = "|";
@@ -234,27 +247,27 @@ void report(budget::year year, Predicate predicate){
 
 } //end of anonymous namespace
 
-void budget::report_module::load(){
+void budget::report_module::load() {
     load_accounts();
     load_expenses();
     load_earnings();
 }
 
-void budget::report_module::handle(const std::vector<std::string>& args){
+void budget::report_module::handle(const std::vector<std::string>& args) {
     auto today = budget::local_day();
 
-    if(args.size() == 1){
-        report(today.year(), [](budget::account&){ return true; });
+    if (args.size() == 1) {
+        report(today.year(), [](budget::account&) { return true; });
     } else {
         auto& subcommand = args[1];
 
-        if(subcommand == "monthly"){
-            report(today.year(), [](budget::account&){ return true; });
-        } else if(subcommand == "account"){
+        if (subcommand == "monthly") {
+            report(today.year(), [](budget::account&) { return true; });
+        } else if (subcommand == "account") {
             std::string account_name;
             edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
 
-            report(today.year(), [&account_name](budget::account& account){ return account.name == account_name; });
+            report(today.year(), [&account_name](budget::account& account) { return account.name == account_name; });
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
