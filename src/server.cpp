@@ -601,7 +601,7 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
             add_date_picker(w, budget::to_string(expense.date));
             add_name_picker(w, expense.name);
-            add_amount_picker(w, budget::to_string(expense.amount));
+            add_amount_picker(w, budget::to_flat_string(expense.amount));
             add_account_picker(w, budget::to_string(expense.account));
 
             form_end(w);
@@ -655,7 +655,7 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
             add_date_picker(w, budget::to_string(earning.date));
             add_name_picker(w, earning.name);
-            add_amount_picker(w, budget::to_string(earning.amount));
+            add_amount_picker(w, budget::to_flat_string(earning.amount));
             add_account_picker(w, budget::to_string(earning.account));
 
             form_end(w);
@@ -852,7 +852,7 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
             auto& recurring = recurring_get(budget::to_number<size_t>(input_id));
 
             add_name_picker(w, recurring.name);
-            add_amount_picker(w, budget::to_string(recurring.amount));
+            add_amount_picker(w, budget::to_flat_string(recurring.amount));
             add_account_picker(w, budget::to_string(recurring.account));
 
             form_end(w);
