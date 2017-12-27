@@ -12,6 +12,7 @@
 #include <string>
 
 #include "module_traits.hpp"
+#include "writer.hpp"
 
 namespace budget {
 

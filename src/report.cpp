@@ -17,17 +17,17 @@
 using namespace budget;
 
 namespace {
-
 using graph_type = std::vector<std::vector<std::string>>;
 
-void render(graph_type& graph) {
+void render(budget::writer& w, graph_type& graph) {
     std::reverse(graph.begin(), graph.end());
 
     for (auto& line : graph) {
         for (auto& col : line) {
-            std::cout << col;
+            w << col;
         }
-        std::cout << std::endl;
+
+        w << end_of_line;
     }
 }
 
@@ -38,7 +38,7 @@ void write(graph_type& graph, int row, int col, const std::string& value) {
 }
 
 template <typename Predicate>
-void report(budget::year year, Predicate predicate) {
+void report(budget::writer& w, budget::year year, Predicate predicate) {
     auto today = budget::local_day();
 
     budget::money max_expenses;
@@ -242,7 +242,7 @@ void report(budget::year year, Predicate predicate) {
 
     //Render the graph
 
-    render(graph);
+    render(w, graph);
 }
 
 } //end of anonymous namespace
@@ -256,18 +256,20 @@ void budget::report_module::load() {
 void budget::report_module::handle(const std::vector<std::string>& args) {
     auto today = budget::local_day();
 
+    budget::console_writer w(std::cout);
+
     if (args.size() == 1) {
-        report(today.year(), [](budget::account&) { return true; });
+        report(w, today.year(), [](budget::account&) { return true; });
     } else {
         auto& subcommand = args[1];
 
         if (subcommand == "monthly") {
-            report(today.year(), [](budget::account&) { return true; });
+            report(w, today.year(), [](budget::account&) { return true; });
         } else if (subcommand == "account") {
             std::string account_name;
             edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
 
-            report(today.year(), [&account_name](budget::account& account) { return account.name == account_name; });
+            report(w, today.year(), [&account_name](budget::account& account) { return account.name == account_name; });
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
