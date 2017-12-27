@@ -14,6 +14,7 @@
 #include "module_traits.hpp"
 #include "money.hpp"
 #include "date.hpp"
+#include "writer.hpp"
 
 namespace budget {
 
@@ -52,6 +53,9 @@ std::vector<debt>& all_debts();
 
 void set_debts_changed();
 void set_debts_next_id(size_t next_id);
+
+void display_all_debts(budget::writer& w);
+void list_debts(budget::writer& w);
 
 } //end of namespace budget
 

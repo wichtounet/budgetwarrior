@@ -22,6 +22,7 @@
 #include "recurring.hpp"
 #include "guid.hpp"
 #include "report.hpp"
+#include "debts.hpp"
 
 #include "httplib.h"
 
@@ -170,6 +171,13 @@ std::string header(const std::string& title){
                 <div class="dropdown-menu" aria-labelledby="dropdown06">
                   <a class="dropdown-item" href="/recurrings/list/">List</a>
                   <a class="dropdown-item" href="/recurrings/add/">Add Recurring Expense</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Debts</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown06">
+                  <a class="dropdown-item" href="/debts/list/">Debts</a>
+                  <a class="dropdown-item" href="/debts/all/">All Debts</a>
                 </div>
               </li>
             </ul>
@@ -862,6 +870,26 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
     html_answer(content_stream, req, res);
 }
 
+void debts_list_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Debts");
+
+    budget::html_writer w(content_stream);
+    budget::list_debts(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void debts_all_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "All Debts");
+
+    budget::html_writer w(content_stream);
+    budget::display_all_debts(w);
+
+    html_answer(content_stream, req, res);
+}
+
 void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message){
     if (req.has_param("server")) {
         auto url = req.params.at("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
@@ -1070,6 +1098,7 @@ void budget::server_module::load(){
     load_wishes();
     load_fortunes();
     load_recurrings();
+    load_debts();
 }
 
 void budget::server_module::handle(const std::vector<std::string>& args){
@@ -1123,6 +1152,9 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/recurrings/list/", &recurrings_list_page);
     server.get("/recurrings/add/", &add_recurrings_page);
     server.post("/recurrings/edit/", &edit_recurrings_page);
+
+    server.get("/debts/list/", &debts_list_page);
+    server.get("/debts/all/", &debts_all_page);
 
     server.get("/fortune/list/", &fortune_list_page);
     server.get("/fortune/status/", &fortune_status_page);
