@@ -25,7 +25,7 @@ namespace {
 
 static data_handler<debt> debts;
 
-void display_all_debts(){
+void display_all_debts(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Paid", "Title"};
     std::vector<std::vector<std::string>> contents;
 
@@ -33,11 +33,10 @@ void display_all_debts(){
         contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), (debt.state == 0 ? "No" : "Yes"), debt.title});
     }
 
-    console_writer w(std::cout);
     w.display_table(columns, contents);
 }
 
-void list_debts(){
+void list_debts(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title"};
     std::vector<std::vector<std::string>> contents;
 
@@ -56,12 +55,11 @@ void list_debts(){
         }
     }
 
-    console_writer w(std::cout);
-    w.display_table(columns, contents);
-    std::cout << std::endl;
+    contents.push_back({"", "", "", "", ""});
+    contents.push_back({"", "", "Money owed", budget::to_string(owed), ""});
+    contents.push_back({"", "", "Money deserved", budget::to_string(deserved), ""});
 
-    std::cout << std::string(7, ' ') << "Money owed: " << owed << std::endl;
-    std::cout << std::string(3, ' ') << "Money deserved: " << deserved << std::endl;
+    w.display_table(columns, contents);
 }
 
 void edit_direction(bool& ref, const std::string& title){
@@ -99,15 +97,17 @@ void budget::debt_module::unload(){
 }
 
 void budget::debt_module::handle(const std::vector<std::string>& args){
+    budget::console_writer w(std::cout);
+
     if(args.size() == 1){
-        list_debts();
+        list_debts(w);
     } else {
         auto& subcommand = args[1];
 
         if(subcommand == "list"){
-            list_debts();
+            list_debts(w);
         } else if(subcommand == "all"){
-            display_all_debts();
+            display_all_debts(w);
         } else if(subcommand == "add"){
             debt debt;
             debt.state = 0;
