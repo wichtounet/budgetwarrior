@@ -481,15 +481,15 @@ void add_date_picker(budget::writer& w, const std::string& default_value = "") {
     )=====";
 }
 
-void add_name_picker(budget::writer& w, const std::string& default_value = "") {
-    w << R"=====(
-        <div class="form-group">
-            <label for="input_name">Name</label>
-            <input required type="text" class="form-control" id="input_name" name="input_name"
-    )=====";
+void add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
+    w << R"=====(<div class="form-group">)=====";
+
+    w << "<label for=\"" << name << "\">" << title << "</label>";
+
+    w << "<input required type=\"text\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
 
     if (default_value.empty()) {
-        w << " placeholder=\"Enter Name\" ";
+        w << " placeholder=\"Enter " << title << "\"";
     } else {
         w << " value=\"" << default_value << "\" ";
     }
@@ -498,6 +498,14 @@ void add_name_picker(budget::writer& w, const std::string& default_value = "") {
             >
          </div>
     )=====";
+}
+
+void add_name_picker(budget::writer& w, const std::string& default_value = "") {
+    add_text_picker(w, "Name", "input_name", default_value);
+}
+
+void add_title_picker(budget::writer& w, const std::string& default_value = "") {
+    add_text_picker(w, "Title", "input_title", default_value);
 }
 
 void add_amount_picker(budget::writer& w, const std::string& default_value = "") {
