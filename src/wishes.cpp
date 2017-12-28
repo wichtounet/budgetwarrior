@@ -175,10 +175,6 @@ void budget::save_wishes(){
     save_data(wishes, "wishes.data");
 }
 
-void budget::add_wish(budget::wish&& wish){
-    add_data(wishes, std::forward<budget::wish>(wish));
-}
-
 std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
     return stream
         << wish.id  << ':'
@@ -264,7 +260,7 @@ void budget::list_wishes(budget::writer& w){
     if (wishes.data.size() == 0) {
         w << "No wishes" << end_of_line;
     } else {
-        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff", "Accuracy"};
+        std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff", "Accuracy", "Edit"};
         std::vector<std::vector<std::string>> contents;
 
         money total;
@@ -277,7 +273,7 @@ void budget::list_wishes(budget::writer& w){
                                 to_string(wish.amount),
                                 wish.paid ? to_string(wish.paid_amount) : "No",
                                 wish.paid ? format_money_reverse(wish.paid_amount - wish.amount) : "",
-                                wish.paid ? accuracy(wish.paid_amount, wish.amount) : ""});
+                                wish.paid ? accuracy(wish.paid_amount, wish.amount) : "", "::edit::wishes::" + to_string(wish.id)});
 
             total += wish.amount;
 
@@ -291,12 +287,12 @@ void budget::list_wishes(budget::writer& w){
             }
         }
 
-        contents.push_back({"", "", "", "", "", "", "", ""});
-        contents.push_back({"", "Total", "", "", to_string(total), "", "", ""});
-        contents.push_back({"", "Unpaid Total", "", "", to_string(unpaid_total), "", "", ""});
+        contents.push_back({"", "", "", "", "", "", "", "", ""});
+        contents.push_back({"", "Total", "", "", to_string(total), "", "", "", ""});
+        contents.push_back({"", "Unpaid Total", "", "", to_string(unpaid_total), "", "", "", ""});
 
         if (acc_counter > 0) {
-            contents.push_back({"", "Mean accuracy", "", "", to_string(static_cast<size_t>((acc / acc_counter) * 100.0)) + "%", "", "", ""});
+            contents.push_back({"", "Mean accuracy", "", "", to_string(static_cast<size_t>((acc / acc_counter) * 100.0)) + "%", "", "", "", ""});
         }
 
         w.display_table(columns, contents);
@@ -312,7 +308,7 @@ void budget::status_wishes(budget::writer& w){
         w << "WARNING: It is early in the month, no one can know what may happen ;)" << end_of_line;
     }
 
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "I", "U", "Status", "Details"};
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "I", "U", "Status", "Details", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     auto month_status = budget::compute_month_status(today.year(), today.month());
@@ -412,17 +408,17 @@ void budget::status_wishes(budget::writer& w){
             }
         }
 
-        contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), wish_status_short(wish.importance), wish_status_short(wish.urgency), status, details});
+        contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), wish_status_short(wish.importance), wish_status_short(wish.urgency), status, details, "::edit::wishes::" + to_string(wish.id)});
     }
 
-    contents.push_back({"", "", "", "", "", "", ""});
-    contents.push_back({"", "Total", to_string(total_amount), "", "", "", ""});
+    contents.push_back({"", "", "", "", "", "", "", ""});
+    contents.push_back({"", "Total", to_string(total_amount), "", "", "", "", ""});
 
     w.display_table(columns, contents);
 }
 
 void budget::estimate_wishes(budget::writer& w) {
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "Status"};
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Status", "Edit"};
     std::vector<std::vector<std::string>> year_contents;
     std::vector<std::vector<std::string>> month_contents;
 
@@ -497,7 +493,7 @@ void budget::estimate_wishes(budget::writer& w) {
             status = "You should wait until next year to buy this";
         }
 
-        year_contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), status});
+        year_contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), status, "::edit::wishes::" + to_string(wish.id)});
     }
 
     for (auto& wish : wishes.data) {
@@ -553,7 +549,7 @@ void budget::estimate_wishes(budget::writer& w) {
             status = "You should wait a very long time to buy this";
         }
 
-        month_contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), status});
+        month_contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), status, "::edit::wishes::" + to_string(wish.id)});
     }
 
     w << title_begin << "Time to buy (with year objectives)" << title_end;
@@ -561,4 +557,28 @@ void budget::estimate_wishes(budget::writer& w) {
 
     w << title_begin << "Time to buy (without year objectives)" << title_end;
     w.display_table(columns, month_contents);
+}
+
+bool budget::wish_exists(size_t id){
+    return exists(wishes, id);
+}
+
+void budget::wish_delete(size_t id) {
+    if (!exists(wishes, id)) {
+        throw budget_exception("There are no wish with id ");
+    }
+
+    remove(wishes, id);
+}
+
+wish& budget::wish_get(size_t id) {
+    if (!exists(wishes, id)) {
+        throw budget_exception("There are no wish with id ");
+    }
+
+    return get(wishes, id);
+}
+
+void budget::add_wish(budget::wish&& wish){
+    add_data(wishes, std::forward<budget::wish>(wish));
 }

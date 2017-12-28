@@ -49,7 +49,6 @@ void load_wishes();
 void save_wishes();
 
 std::vector<wish>& all_wishes();
-void add_wish(wish&& objective);
 
 void set_wishes_changed();
 void set_wishes_next_id(size_t next_id);
@@ -60,6 +59,11 @@ void migrate_wishes_3_to_4();
 void list_wishes(budget::writer& w);
 void status_wishes(budget::writer& w);
 void estimate_wishes(budget::writer& w);
+
+void add_wish(wish&& wish);
+bool wish_exists(size_t id);
+void wish_delete(size_t id);
+wish& wish_get(size_t id);
 
 } //end of namespace budget
 

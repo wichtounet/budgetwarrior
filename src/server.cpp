@@ -164,6 +164,7 @@ std::string header(const std::string& title){
                   <a class="dropdown-item" href="/wishes/status/">Status</a>
                   <a class="dropdown-item" href="/wishes/list/">List</a>
                   <a class="dropdown-item" href="/wishes/estimate/">Estimate</a>
+                  <a class="dropdown-item" href="/wishes/add/">Add Wish</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -509,15 +510,14 @@ void add_title_picker(budget::writer& w, const std::string& default_value = "") 
     add_text_picker(w, "Title", "input_title", default_value);
 }
 
-void add_amount_picker(budget::writer& w, const std::string& default_value = "") {
-    w << R"=====(
-        <div class="form-group">
-            <label for="input_amount">Amount</label>
-            <input required type="number" step="0.01" class="form-control" id="input_amount" name="input_amount"
-    )=====";
+void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
+    w << R"=====(<div class="form-group">)=====";
+
+    w << "<label for=\"" << name << "\">" << title << "</label>";
+    w << "<input required type=\"number\" step=\"0.01\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
 
     if (default_value.empty()) {
-        w << " placeholder=\"Enter amount\" ";
+        w << " placeholder=\"Enter " << title << "\" ";
     } else {
         w << " value=\"" << default_value << "\" ";
     }
@@ -526,6 +526,14 @@ void add_amount_picker(budget::writer& w, const std::string& default_value = "")
             >
          </div>
     )=====";
+}
+
+void add_amount_picker(budget::writer& w, const std::string& default_value = "") {
+    add_money_picker(w, "amount", "input_amount", default_value);
+}
+
+void add_paid_amount_picker(budget::writer& w, const std::string& default_value = "") {
+    add_money_picker(w, "paid amount", "input_paid_amount", default_value);
 }
 
 void add_account_picker(budget::writer& w, const std::string& default_value = "") {
@@ -568,6 +576,68 @@ void add_direction_picker(budget::writer& w, const std::string& default_value = 
         w << "<option selected value=\"from\">From</option>";
     } else {
         w << "<option value=\"from\">From</option>";
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
+void add_importance_picker(budget::writer& w, int importance) {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_importance">Importance</label>
+                <select class="form-control" id="input_importance" name="input_importance">
+    )=====";
+
+    if (importance == 1) {
+        w << "<option selected value=\"1\">Low</option>";
+    } else {
+        w << "<option value=\"1\">Low</option>";
+    }
+
+    if (importance == 2) {
+        w << "<option selected value=\"2\">Medium</option>";
+    } else {
+        w << "<option value=\"2\">Medium</option>";
+    }
+
+    if (importance == 3) {
+        w << "<option selected value=\"3\">High</option>";
+    } else {
+        w << "<option value=\"3\">High</option>";
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
+void add_urgency_picker(budget::writer& w, int urgency) {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_urgency">Urgency</label>
+                <select class="form-control" id="input_urgency" name="input_urgency">
+    )=====";
+
+    if (urgency == 1) {
+        w << "<option selected value=\"1\">Low</option>";
+    } else {
+        w << "<option value=\"1\">Low</option>";
+    }
+
+    if (urgency == 2) {
+        w << "<option selected value=\"2\">Medium</option>";
+    } else {
+        w << "<option value=\"2\">Medium</option>";
+    }
+
+    if (urgency == 3) {
+        w << "<option selected value=\"3\">High</option>";
+    } else {
+        w << "<option value=\"3\">High</option>";
     }
 
     w << R"=====(
@@ -842,6 +912,62 @@ void wishes_estimate_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
     budget::estimate_wishes(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New Wish");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New Wish" << title_end;
+
+    form_begin(w, "/api/wishes/add/", "/wishes/add/");
+
+    add_name_picker(w);
+    add_importance_picker(w, 2);
+    add_urgency_picker(w, 2);
+    add_amount_picker(w);
+
+    form_end(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Edit Wish");
+
+    budget::html_writer w(content_stream);
+
+    if(!req.has_param("input_id") || !req.has_param("back_page")){
+        display_error_message(w, "Invalid parameter for the request");
+    } else {
+        auto input_id  = req.params.at("input_id");
+
+        if(!wish_exists(budget::to_number<size_t>(input_id))){
+            display_error_message(w, "The wish " + input_id + " does not exist");
+        } else {
+            auto back_page = req.params.at("back_page");
+
+            w << title_begin << "Edit wish " << input_id << title_end;
+
+            form_begin_edit(w, "/api/wishes/edit/", back_page, input_id);
+
+            auto& wish = wish_get(budget::to_number<size_t>(input_id));
+
+            add_name_picker(w, wish.name);
+            add_importance_picker(w, wish.importance);
+            add_urgency_picker(w, wish.urgency);
+            add_amount_picker(w, budget::to_flat_string(wish.amount));
+            add_paid_picker(w, wish.paid);
+            add_paid_amount_picker(w, budget::to_flat_string(wish.paid_amount));
+
+            form_end(w);
+        }
+    }
 
     html_answer(content_stream, req, res);
 }
@@ -1263,6 +1389,77 @@ void delete_debts_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "Debt " + id + " has been deleted");
 }
 
+void add_wishes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_urgency") || !req.has_param("input_importance")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    wish wish;
+    wish.paid        = false;
+    wish.paid_amount = 0;
+    wish.guid        = budget::generate_guid();
+    wish.date        = budget::local_day();
+    wish.name        = req.params.at("input_name");
+    wish.importance  = budget::to_number<int>(req.params.at("input_importance"));
+    wish.urgency     = budget::to_number<int>(req.params.at("input_urgency"));
+    wish.amount      = budget::parse_money(req.params.at("input_amount"));
+
+    add_wish(std::move(wish));
+
+    api_success(req, res, "wish " + to_string(wish.id) + " has been created");
+}
+
+void edit_wishes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_urgency")
+                || !req.has_param("input_importance") || !req.has_param("input_paid") || !req.has_param("input_paid_amount")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::wish_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "wish " + id + " does not exist");
+        return;
+    }
+
+    bool paid = req.params.at("input_paid") == "yes";
+
+    wish& wish = wish_get(budget::to_number<size_t>(id));
+    wish.name       = req.params.at("input_name");
+    wish.importance = budget::to_number<int>(req.params.at("input_importance"));
+    wish.urgency    = budget::to_number<int>(req.params.at("input_urgency"));
+    wish.amount     = budget::parse_money(req.params.at("input_amount"));
+    wish.paid       = paid;
+
+    if (paid) {
+        wish.paid_amount = budget::parse_money(req.params.at("input_paid_amount"));
+    }
+
+    set_wishes_changed();
+
+    api_success(req, res, "wish " + to_string(wish.id) + " has been modified");
+}
+
+void delete_wishes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_id")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::wish_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The wish " + id + " does not exit");
+        return;
+    }
+
+    budget::wish_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "wish " + id + " has been deleted");
+}
+
 } //end of anonymous namespace
 
 void budget::server_module::load(){
@@ -1275,6 +1472,7 @@ void budget::server_module::load(){
     load_fortunes();
     load_recurrings();
     load_debts();
+    load_wishes();
 }
 
 void budget::server_module::handle(const std::vector<std::string>& args){
@@ -1324,6 +1522,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/wishes/list/", &wishes_list_page);
     server.get("/wishes/status/", &wishes_status_page);
     server.get("/wishes/estimate/", &wishes_estimate_page);
+    server.get("/wishes/add/", &add_wishes_page);
+    server.post("/wishes/edit/", &edit_wishes_page);
 
     server.get("/recurrings/list/", &recurrings_list_page);
     server.get("/recurrings/add/", &add_recurrings_page);
@@ -1354,6 +1554,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/debts/add/", &add_debts_api);
     server.post("/api/debts/edit/", &edit_debts_api);
     server.post("/api/debts/delete/", &delete_debts_api);
+
+    server.post("/api/wishes/add/", &add_wishes_api);
+    server.post("/api/wishes/edit/", &edit_wishes_api);
+    server.post("/api/wishes/delete/", &delete_wishes_api);
 
     // Handle error
 
