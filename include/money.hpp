@@ -32,6 +32,12 @@ struct money {
         //Nothing to init
     }
 
+    money& operator=(int dollars){
+        this->value = dollars * SCALE;
+
+        return *this;
+    }
+
     money operator+(const money& rhs) const {
         money new_money = *this;
         new_money.value += rhs.value;
