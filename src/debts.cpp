@@ -195,18 +195,18 @@ void budget::set_debts_next_id(size_t next_id){
 }
 
 void budget::display_all_debts(budget::writer& w){
-    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Paid", "Title"};
+    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Paid", "Title", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     for(auto& debt : debts.data){
-        contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), (debt.state == 0 ? "No" : "Yes"), debt.title});
+        contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), (debt.state == 0 ? "No" : "Yes"), debt.title, "::edit::debts::" + to_string(debt.id)});
     }
 
     w.display_table(columns, contents);
 }
 
 void budget::list_debts(budget::writer& w){
-    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title"};
+    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     money owed;
@@ -214,7 +214,7 @@ void budget::list_debts(budget::writer& w){
 
     for(auto& debt : debts.data){
         if(debt.state == 0){
-            contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), debt.title});
+            contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), debt.title, "::edit::debts::" + to_string(debt.id)});
 
             if(debt.direction){
                 owed += debt.amount;
@@ -224,10 +224,33 @@ void budget::list_debts(budget::writer& w){
         }
     }
 
-    contents.push_back({"", "", "", "", ""});
-    contents.push_back({"", "", "Money owed", budget::to_string(owed), ""});
-    contents.push_back({"", "", "Money deserved", budget::to_string(deserved), ""});
+    contents.push_back({"", "", "", "", "", ""});
+    contents.push_back({"", "", "Money owed", budget::to_string(owed), "", ""});
+    contents.push_back({"", "", "Money deserved", budget::to_string(deserved), "", ""});
 
     w.display_table(columns, contents);
 }
 
+bool budget::debt_exists(size_t id){
+    return exists(debts, id);
+}
+
+void budget::debt_delete(size_t id) {
+    if (!exists(debts, id)) {
+        throw budget_exception("There are no debt with id ");
+    }
+
+    remove(debts, id);
+}
+
+debt& budget::debt_get(size_t id) {
+    if (!exists(debts, id)) {
+        throw budget_exception("There are no debt with id ");
+    }
+
+    return get(debts, id);
+}
+
+void budget::add_debt(budget::debt&& debt){
+    add_data(debts, std::forward<budget::debt>(debt));
+}
