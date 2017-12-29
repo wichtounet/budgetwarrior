@@ -33,11 +33,11 @@ void budget::list_fortunes(budget::writer& w){
         return;
     }
 
-    std::vector<std::string> columns = {"ID", "Date", "Amount"};
+    std::vector<std::string> columns = {"ID", "Date", "Amount", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     for (auto& fortune : fortunes.data) {
-        contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount)});
+        contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), "::edit::fortunes::" + budget::to_string(fortune.id)});
     }
 
     w.display_table(columns, contents);
@@ -50,7 +50,7 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
     }
 
     std::vector<std::string> short_columns = {"Date", "Amount", "Diff.", "Avg/Day", "Avg/Day Tot."};
-    std::vector<std::string> long_columns = {"Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot."};
+    std::vector<std::string> long_columns = {"Date", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot.", "Edit"};
 
     auto columns = short_view ? short_columns : long_columns;
     std::vector<std::vector<std::string>> contents;
@@ -85,7 +85,7 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
                 if (short_view) {
                     contents.push_back({to_string(fortune.check_date), to_string(fortune.amount), "", "", ""});
                 } else {
-                    contents.push_back({to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", ""});
+                    contents.push_back({to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", "", "::edit::fortunes::" + budget::to_string(fortune.id)});
                 }
             } else if (i == 1) {
                 auto diff = fortune.amount - previous;
@@ -97,7 +97,7 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
                                         format_money(diff), to_string(avg), ""});
                 } else {
                     contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
-                                        format_money(diff), to_string(d), to_string(avg), "", ""});
+                                        format_money(diff), to_string(d), to_string(avg), "", "", "::edit::fortunes::" + budget::to_string(fortune.id)});
                 }
             } else {
                 auto diff = fortune.amount - previous;
@@ -113,7 +113,7 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
                                         format_money(diff), to_string(avg), to_string(tot_avg)});
                 } else {
                     contents.push_back({to_string(fortune.check_date), to_string(fortune.amount),
-                                        format_money(diff), to_string(d), to_string(avg), format_money(tot_diff), to_string(tot_avg)});
+                                        format_money(diff), to_string(d), to_string(avg), format_money(tot_diff), to_string(tot_avg), "::edit::fortunes::" + budget::to_string(fortune.id)});
                 }
             }
         }
@@ -251,4 +251,28 @@ void budget::set_fortunes_changed(){
 
 void budget::set_fortunes_next_id(size_t next_id){
     fortunes.next_id = next_id;
+}
+
+bool budget::fortune_exists(size_t id){
+    return exists(fortunes, id);
+}
+
+void budget::fortune_delete(size_t id) {
+    if (!exists(fortunes, id)) {
+        throw budget_exception("There are no fortune with id ");
+    }
+
+    remove(fortunes, id);
+}
+
+fortune& budget::fortune_get(size_t id) {
+    if (!exists(fortunes, id)) {
+        throw budget_exception("There are no fortune with id ");
+    }
+
+    return get(fortunes, id);
+}
+
+void budget::add_fortune(budget::fortune&& fortune){
+    add_data(fortunes, std::forward<budget::fortune>(fortune));
 }

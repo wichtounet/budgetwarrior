@@ -53,6 +53,11 @@ void status_fortunes(budget::writer& w, bool short_view);
 void set_fortunes_changed();
 void set_fortunes_next_id(size_t next_id);
 
+void add_fortune(fortune&& fortune);
+bool fortune_exists(size_t id);
+void fortune_delete(size_t id);
+fortune& fortune_get(size_t id);
+
 } //end of namespace budget
 
 #endif

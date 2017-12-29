@@ -147,8 +147,9 @@ std::string header(const std::string& title){
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Fortune</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown06">
-                  <a class="dropdown-item" href="/fortune/status/">Status</a>
-                  <a class="dropdown-item" href="/fortune/list/">List</a>
+                  <a class="dropdown-item" href="/fortunes/status/">Status</a>
+                  <a class="dropdown-item" href="/fortunes/list/">List</a>
+                  <a class="dropdown-item" href="/fortunes/add/">Set fortune</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -972,7 +973,7 @@ void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
     html_answer(content_stream, req, res);
 }
 
-void fortune_list_page(const httplib::Request& req, httplib::Response& res){
+void list_fortunes_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     html_stream(req, content_stream, "Objectives List");
 
@@ -982,12 +983,62 @@ void fortune_list_page(const httplib::Request& req, httplib::Response& res){
     html_answer(content_stream, req, res);
 }
 
-void fortune_status_page(const httplib::Request& req, httplib::Response& res){
+void status_fortunes_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     html_stream(req, content_stream, "Objectives Status");
 
     budget::html_writer w(content_stream);
     budget::status_fortunes(w, false);
+
+    html_answer(content_stream, req, res);
+}
+
+void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New fortune");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New fortune" << title_end;
+
+    form_begin(w, "/api/fortunes/add/", "/fortunes/add/");
+
+    add_date_picker(w);
+    add_amount_picker(w);
+
+    form_end(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Edit fortune");
+
+    budget::html_writer w(content_stream);
+
+    if(!req.has_param("input_id") || !req.has_param("back_page")){
+        display_error_message(w, "Invalid parameter for the request");
+    } else {
+        auto input_id  = req.params.at("input_id");
+
+        if(!fortune_exists(budget::to_number<size_t>(input_id))){
+            display_error_message(w, "The fortune " + input_id + " does not exist");
+        } else {
+            auto back_page = req.params.at("back_page");
+
+            w << title_begin << "Edit fortune " << input_id << title_end;
+
+            form_begin_edit(w, "/api/fortunes/edit/", back_page, input_id);
+
+            auto& fortune = fortune_get(budget::to_number<size_t>(input_id));
+
+            add_date_picker(w, budget::to_string(fortune.check_date));
+            add_amount_picker(w, budget::to_flat_string(fortune.amount));
+
+            form_end(w);
+        }
+    }
 
     html_answer(content_stream, req, res);
 }
@@ -1389,6 +1440,62 @@ void delete_debts_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "Debt " + id + " has been deleted");
 }
 
+void add_fortunes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_amount") || !req.has_param("input_date")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    fortune fortune;
+    fortune.guid       = budget::generate_guid();
+    fortune.check_date = budget::from_string(req.params.at("input_date"));
+    fortune.amount     = budget::parse_money(req.params.at("input_amount"));
+
+    add_fortune(std::move(fortune));
+
+    api_success(req, res, "Fortune " + to_string(fortune.id) + " has been created");
+}
+
+void edit_fortunes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_id") || !req.has_param("input_amount") || !req.has_param("input_date")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::fortune_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "Fortune " + id + " does not exist");
+        return;
+    }
+
+    fortune& fortune   = fortune_get(budget::to_number<size_t>(id));
+    fortune.check_date = budget::from_string(req.params.at("input_date"));
+    fortune.amount     = budget::parse_money(req.params.at("input_amount"));
+
+    set_fortunes_changed();
+
+    api_success(req, res, "Fortune " + to_string(fortune.id) + " has been modified");
+}
+
+void delete_fortunes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!req.has_param("input_id")) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::fortune_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The fortune " + id + " does not exit");
+        return;
+    }
+
+    budget::fortune_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "fortune " + id + " has been deleted");
+}
+
 void add_wishes_api(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_urgency") || !req.has_param("input_importance")) {
         api_error(req, res, "Invalid parameters");
@@ -1534,8 +1641,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/debts/add/", &add_debts_page);
     server.post("/debts/edit/", &edit_debts_page);
 
-    server.get("/fortune/list/", &fortune_list_page);
-    server.get("/fortune/status/", &fortune_status_page);
+    server.get("/fortunes/list/", &list_fortunes_page);
+    server.get("/fortunes/status/", &status_fortunes_page);
+    server.get("/fortunes/add/", &add_fortunes_page);
+    server.post("/fortunes/edit/", &edit_fortunes_page);
 
     // The API
 
@@ -1555,13 +1664,17 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/debts/edit/", &edit_debts_api);
     server.post("/api/debts/delete/", &delete_debts_api);
 
+    server.post("/api/fortunes/add/", &add_fortunes_api);
+    server.post("/api/fortunes/edit/", &edit_fortunes_api);
+    server.post("/api/fortunes/delete/", &delete_fortunes_api);
+
     server.post("/api/wishes/add/", &add_wishes_api);
     server.post("/api/wishes/edit/", &edit_wishes_api);
     server.post("/api/wishes/delete/", &delete_wishes_api);
 
     // Handle error
 
-    server.set_error_handler([](const auto&, auto& res) {
+    server.set_error_handler([](const auto& req, auto& res) {
         std::stringstream content_stream;
         content_stream.imbue(std::locale("C"));
 
@@ -1569,6 +1682,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
         content_stream << "<p>Error Status: <span style='color:red;'>";
         content_stream << res.status;
+        content_stream << "</span></p>";
+
+        content_stream << "<p>On Page: <span style='color:green;'>";
+        content_stream << req.path;
         content_stream << "</span></p>";
 
         content_stream << footer();
