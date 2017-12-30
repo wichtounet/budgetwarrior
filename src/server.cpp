@@ -1200,8 +1200,18 @@ void api_error(const httplib::Request& req, httplib::Response& res, const std::s
     }
 }
 
+bool parameters_present(const httplib::Request& req, std::vector<const char*> parameters){
+    for(auto& param : parameters){
+        if(!req.has_param(param)){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void add_expenses_api(const httplib::Request& req, httplib::Response& res) {
-    if (!req.has_param("input_name") || !req.has_param("input_date") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+    if (!parameters_present(req, {"input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -1219,7 +1229,7 @@ void add_expenses_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_expenses_api(const httplib::Request& req, httplib::Response& res) {
-    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_date") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+    if (!parameters_present(req, {"input_id", "input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -1243,7 +1253,7 @@ void edit_expenses_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_expenses_api(const httplib::Request& req, httplib::Response& res) {
-    if (!req.has_param("input_id")) {
+    if (!parameters_present(req, {"input_id"})){
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -1261,7 +1271,7 @@ void delete_expenses_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void add_earnings_api(const httplib::Request& req, httplib::Response& res) {
-    if (!req.has_param("input_name") || !req.has_param("input_date") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+    if (!parameters_present(req, {"input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -1279,7 +1289,7 @@ void add_earnings_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_earnings_api(const httplib::Request& req, httplib::Response& res) {
-    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_date") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+    if (!parameters_present(req, {"input_id", "input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -1303,7 +1313,7 @@ void edit_earnings_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
-    if (!req.has_param("input_id")) {
+    if (!parameters_present(req, {"input_id"})){
         api_error(req, res, "Invalid parameters");
         return;
     }
