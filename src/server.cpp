@@ -121,6 +121,7 @@ std::string header(const std::string& title){
                   <a class="dropdown-item" href="/net_worth/">Net worth</a>
                   <a class="dropdown-item" href="/portfolio/">Portfolio</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
+                  <a class="dropdown-item" href="/assets/add/">Add Asset</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -513,6 +514,22 @@ void add_title_picker(budget::writer& w, const std::string& default_value = "") 
     add_text_picker(w, "Title", "input_title", default_value);
 }
 
+void add_currency_picker(budget::writer& w, const std::string& default_value = "") {
+    add_text_picker(w, "Currency", "input_currency", default_value);
+}
+
+void add_percent_picker(budget::writer& w, const std::string& title, const std::string& name, size_t default_value = 0) {
+    w << R"=====(<div class="form-group">)=====";
+
+    w << "<label for=\"" << name << "\">" << title << "</label>";
+    w << "<input required type=\"number\" min=\"0\" max=\"100\" step=\"1\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    w << " value=\"" << default_value << "\" ";
+    w << R"=====(
+            >
+         </div>
+    )=====";
+}
+
 void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
     w << R"=====(<div class="form-group">)=====";
 
@@ -649,28 +666,43 @@ void add_urgency_picker(budget::writer& w, int urgency) {
     )=====";
 }
 
-void add_paid_picker(budget::writer& w, bool paid) {
-    w << R"=====(
-            <div class="form-group">
-                <label for="input_paid">Paid</label>
-    )=====";
+void add_yes_no_picker(budget::writer& w, const std::string& title, const std::string& name, bool default_value) {
+    w << R"=====(<div class="form-group">)=====";
 
-    if (paid) {
-        w << R"=====(<label class="radio-inline"><input type="radio" name="input_paid" value="yes" checked>Yes</label>)=====";
+    w << "<label for=\"" << name << "\">" << title << "</label>";
+
+    if (default_value) {
+        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
+        w << name;
+        w << R"=====(" value="yes" checked>Yes</label>)=====";
     } else {
-        w << R"=====(<label class="radio-inline"><input type="radio" name="input_paid" value="yes">Yes</label>)=====";
+        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
+        w << name;
+        w << R"=====(" value="yes">Yes</label>)=====";
     }
 
-    if (!paid) {
-        w << R"=====(<label class="radio-inline"><input type="radio" name="input_paid" value="no" checked>No</label>)=====";
+    if (!default_value) {
+        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
+        w << name;
+        w << R"=====(" value="no" checked>No</label>)=====";
     } else {
-        w << R"=====(<label class="radio-inline"><input type="radio" name="input_paid" value="no">No</label>)=====";
+        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
+        w << name;
+        w << R"=====(" value="no">No</label>)=====";
     }
 
     w << R"=====(
                 </select>
             </div>
     )=====";
+}
+
+void add_paid_picker(budget::writer& w, bool paid) {
+    add_yes_no_picker(w, "Paid", "input_paid", paid);
+}
+
+void add_portfolio_picker(budget::writer& w, bool portfolio) {
+    add_yes_no_picker(w, "Part of the portfolio", "input_portfolio", portfolio);
 }
 
 void form_begin(budget::writer& w, const std::string& action, const std::string& back_page){
@@ -855,6 +887,68 @@ void assets_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
     budget::show_assets(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void add_assets_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New asset");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New asset" << title_end;
+
+    form_begin(w, "/api/assets/add/", "/assets/add/");
+
+    add_name_picker(w);
+    add_percent_picker(w, "International Stocks (%)", "input_int_stocks");
+    add_percent_picker(w, "Domestic Stocks (%)", "input_dom_stocks");
+    add_percent_picker(w, "Bonds (%)", "input_bonds");
+    add_percent_picker(w, "Cash (%)", "input_cash");
+    add_currency_picker(w);
+    add_portfolio_picker(w, false);
+    add_percent_picker(w, "Percent of portfolio (%)", "input_alloc");
+
+    form_end(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Edit asset");
+
+    budget::html_writer w(content_stream);
+
+    if(!req.has_param("input_id") || !req.has_param("back_page")){
+        display_error_message(w, "Invalid parameter for the request");
+    } else {
+        auto input_id  = req.params.at("input_id");
+
+        if(!asset_exists(budget::to_number<size_t>(input_id))){
+            display_error_message(w, "The asset " + input_id + " does not exist");
+        } else {
+            auto back_page = req.params.at("back_page");
+
+            w << title_begin << "Edit asset " << input_id << title_end;
+
+            form_begin_edit(w, "/api/assets/edit/", back_page, input_id);
+
+            auto& asset = asset_get(budget::to_number<size_t>(input_id));
+
+            add_name_picker(w, asset.name);
+            add_percent_picker(w, "International Stocks (%)", "input_int_stocks", asset.int_stocks);
+            add_percent_picker(w, "Domestic Stocks (%)", "input_dom_stocks", asset.dom_stocks);
+            add_percent_picker(w, "Bonds (%)", "input_bonds", asset.bonds);
+            add_percent_picker(w, "Cash (%)", "input_cash", asset.cash);
+            add_currency_picker(w, asset.currency);
+            add_portfolio_picker(w, asset.portfolio);
+            add_percent_picker(w, "Percent of portfolio (%)", "input_alloc", asset.portfolio_alloc);
+
+            form_end(w);
+        }
+    }
 
     html_answer(content_stream, req, res);
 }
@@ -1330,6 +1424,84 @@ void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "Earning " + id + " has been deleted");
 }
 
+void add_assets_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    asset asset;
+    asset.guid            = budget::generate_guid();
+    asset.name            = req.params.at("input_name");
+    asset.int_stocks      = budget::to_number<size_t>(req.params.at("input_int_stocks"));
+    asset.dom_stocks      = budget::to_number<size_t>(req.params.at("input_dom_stocks"));
+    asset.bonds           = budget::to_number<size_t>(req.params.at("input_bonds"));
+    asset.cash            = budget::to_number<size_t>(req.params.at("input_cash"));
+    asset.portfolio       = req.params.at("input_portfolio") == "yes";
+    asset.portfolio_alloc = budget::to_number<size_t>(req.params.at("input_alloc"));
+    asset.currency        = req.params.at("input_currency");
+
+    if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100){
+        api_error(req, res, "The total allocation of the asset is not 100%");
+        return;
+    }
+
+    add_asset(std::move(asset));
+
+    api_success(req, res, "asset " + to_string(asset.id) + " has been created");
+}
+
+void edit_assets_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_id", "input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::asset_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "asset " + id + " does not exist");
+        return;
+    }
+
+    asset& asset          = asset_get(budget::to_number<size_t>(id));
+    asset.name            = req.params.at("input_name");
+    asset.int_stocks      = budget::to_number<size_t>(req.params.at("input_int_stocks"));
+    asset.dom_stocks      = budget::to_number<size_t>(req.params.at("input_dom_stocks"));
+    asset.bonds           = budget::to_number<size_t>(req.params.at("input_bonds"));
+    asset.cash            = budget::to_number<size_t>(req.params.at("input_cash"));
+    asset.portfolio       = req.params.at("input_portfolio") == "yes";
+    asset.portfolio_alloc = budget::to_number<size_t>(req.params.at("input_alloc"));
+    asset.currency        = req.params.at("input_currency");
+
+    if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100){
+        api_error(req, res, "The total allocation of the asset is not 100%");
+        return;
+    }
+
+    set_assets_changed();
+
+    api_success(req, res, "asset " + to_string(asset.id) + " has been modified");
+}
+
+void delete_assets_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_id"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::asset_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The asset " + id + " does not exit");
+        return;
+    }
+
+    budget::asset_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "asset " + id + " has been deleted");
+}
+
 void add_recurrings_api(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account")) {
         api_error(req, res, "Invalid parameters");
@@ -1634,6 +1806,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/rebalance/", &rebalance_page);
     server.get("/assets/", &assets_page);
     server.get("/net_worth/", &asset_values_page);
+    server.get("/assets/add/", &add_assets_page);
+    server.post("/assets/edit/", &edit_assets_page);
 
     server.get("/objectives/list/", &objectives_list_page);
     server.get("/objectives/status/", &objectives_status_page);
@@ -1683,6 +1857,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/wishes/add/", &add_wishes_api);
     server.post("/api/wishes/edit/", &edit_wishes_api);
     server.post("/api/wishes/delete/", &delete_wishes_api);
+
+    server.post("/api/assets/add/", &add_assets_api);
+    server.post("/api/assets/edit/", &edit_assets_api);
+    server.post("/api/assets/delete/", &delete_assets_api);
 
     // Handle error
 

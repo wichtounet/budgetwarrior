@@ -89,6 +89,16 @@ void set_asset_values_changed();
 
 std::string get_default_currency();
 
+void add_asset(asset&& asset);
+bool asset_exists(size_t id);
+void asset_delete(size_t id);
+asset& asset_get(size_t id);
+
+void add_asset_value(asset_value&& asset_value);
+bool asset_value_exists(size_t id);
+void asset_value_delete(size_t id);
+asset_value& asset_value_get(size_t id);
+
 } //end of namespace budget
 
 #endif

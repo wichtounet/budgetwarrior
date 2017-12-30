@@ -528,7 +528,7 @@ void budget::show_assets(budget::writer& w){
 
     w << title_begin << "Assets" << title_end;
 
-    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency", "Portfolio", "Alloc"};
+    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency", "Portfolio", "Alloc", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     // Display the assets
@@ -539,7 +539,8 @@ void budget::show_assets(budget::writer& w){
         }
 
         contents.push_back({to_string(asset.id), asset.name, to_string(asset.int_stocks),
-            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash), to_string(asset.currency), asset.portfolio ? "Yes" : "No", asset.portfolio ? to_string(asset.portfolio_alloc) : ""});
+            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash),
+            to_string(asset.currency), asset.portfolio ? "Yes" : "No", asset.portfolio ? to_string(asset.portfolio_alloc) : "", "::edit::assets::" + budget::to_string(asset.id)});
     }
 
     w.display_table(columns, contents);
@@ -838,4 +839,52 @@ void budget::show_asset_values(budget::writer& w){
     second_contents.emplace_back(std::vector<std::string>{"Net Worth", budget::to_string(total) + get_default_currency()});
 
     w.display_table(second_columns, second_contents, 1, {}, 15);
+}
+
+bool budget::asset_exists(size_t id){
+    return exists(assets, id);
+}
+
+void budget::asset_delete(size_t id) {
+    if (!exists(assets, id)) {
+        throw budget_exception("There are no asset with id ");
+    }
+
+    remove(assets, id);
+}
+
+asset& budget::asset_get(size_t id) {
+    if (!exists(assets, id)) {
+        throw budget_exception("There are no asset with id ");
+    }
+
+    return get(assets, id);
+}
+
+void budget::add_asset(budget::asset&& asset){
+    add_data(assets, std::forward<budget::asset>(asset));
+}
+
+bool budget::asset_value_exists(size_t id){
+    return exists(asset_values, id);
+}
+
+void budget::asset_value_delete(size_t id) {
+    if (!exists(asset_values, id)) {
+        throw budget_exception("There are no asset_value with id ");
+    }
+
+    remove(asset_values, id);
+}
+
+asset_value& budget::asset_value_get(size_t id) {
+    if (!exists(asset_values, id)) {
+        throw budget_exception("There are no asset_value with id ");
+    }
+
+    return get(asset_values, id);
+}
+
+void budget::add_asset_value(budget::asset_value&& asset_value){
+    add_data(asset_values, std::forward<budget::asset_value>(asset_value));
 }
