@@ -30,6 +30,8 @@ using namespace budget;
 
 namespace {
 
+bool server_mode = false;
+
 static constexpr const char new_line = '\n';
 
 std::string header(const std::string& title){
@@ -1693,7 +1695,13 @@ void budget::server_module::handle(const std::vector<std::string>& args){
         res.set_content(content_stream.str(), "text/html");
     });
 
+    // Indicates to the system that it's running in server mode
+    server_mode = true;
 
     // Listen
     server.listen("localhost", 8080);
+}
+
+bool budget::is_server_mode(){
+    return server_mode;
 }
