@@ -13,6 +13,8 @@
 #include "budget_exception.hpp"
 #include "accounts.hpp"
 #include "console.hpp"
+#include "writer.hpp"
+#include "date.hpp"
 
 using namespace budget;
 

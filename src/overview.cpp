@@ -19,6 +19,7 @@
 #include "earnings.hpp"
 #include "budget_exception.hpp"
 #include "config.hpp"
+#include "writer.hpp"
 
 using namespace budget;
 
