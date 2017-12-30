@@ -758,7 +758,7 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     w << title_begin << "New earning" << title_end;
 
-    form_begin(w, "/api/earnings/add/", "/earnings/add");
+    form_begin(w, "/api/earnings/add/", "/earnings/add/");
 
     add_date_picker(w);
     add_name_picker(w);
