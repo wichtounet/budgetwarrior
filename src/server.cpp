@@ -122,6 +122,7 @@ std::string header(const std::string& title){
                   <a class="dropdown-item" href="/portfolio/">Portfolio</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                   <a class="dropdown-item" href="/assets/add/">Add Asset</a>
+                  <a class="dropdown-item" href="/asset_values/list/">Asset Values</a>
                   <a class="dropdown-item" href="/asset_values/add/">Set Asset Value</a>
                 </div>
               </li>
@@ -985,6 +986,16 @@ void asset_values_page(const httplib::Request& req, httplib::Response& res){
     html_answer(content_stream, req, res);
 }
 
+void list_asset_values_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "List asset values");
+
+    budget::html_writer w(content_stream);
+    budget::list_asset_values(w);
+
+    html_answer(content_stream, req, res);
+}
+
 void add_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     html_stream(req, content_stream, "New asset value");
@@ -1000,6 +1011,39 @@ void add_asset_values_page(const httplib::Request& req, httplib::Response& res) 
     add_date_picker(w, budget::to_string(budget::local_day()));
 
     form_end(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void edit_asset_values_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Edit asset value");
+
+    budget::html_writer w(content_stream);
+
+    if(!req.has_param("input_id") || !req.has_param("back_page")){
+        display_error_message(w, "Invalid parameter for the request");
+    } else {
+        auto input_id  = req.params.at("input_id");
+
+        if(!asset_value_exists(budget::to_number<size_t>(input_id))){
+            display_error_message(w, "The asset value " + input_id + " does not exist");
+        } else {
+            auto back_page = req.params.at("back_page");
+
+            w << title_begin << "Edit asset " << input_id << title_end;
+
+            form_begin_edit(w, "/api/asset_values/edit/", back_page, input_id);
+
+            auto& asset_value = asset_value_get(budget::to_number<size_t>(input_id));
+
+            add_asset_picker(w, budget::to_string(asset_value.asset_id));
+            add_amount_picker(w, budget::to_string(asset_value.amount));
+            add_date_picker(w, budget::to_string(asset_value.set_date));
+
+            form_end(w);
+        }
+    }
 
     html_answer(content_stream, req, res);
 }
@@ -1907,7 +1951,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/net_worth/", &asset_values_page);
     server.get("/assets/add/", &add_assets_page);
     server.post("/assets/edit/", &edit_assets_page);
+
+    server.get("/asset_values/list/", &list_asset_values_page);
     server.get("/asset_values/add/", &add_asset_values_page);
+    server.post("/asset_values/edit/", &edit_asset_values_page);
 
     server.get("/objectives/list/", &objectives_list_page);
     server.get("/objectives/status/", &objectives_status_page);

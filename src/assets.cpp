@@ -94,26 +94,6 @@ std::vector<std::string> get_asset_names(){
     return asset_names;
 }
 
-void list_asset_values(){
-    if (!asset_values.data.size()) {
-        std::cout << "No asset values" << std::endl;
-        return;
-    }
-
-    std::vector<std::string> columns = {"ID", "Asset", "Amount", "Date"};
-    std::vector<std::vector<std::string>> contents;
-
-    // Display the assets
-
-    for(auto& value : asset_values.data){
-        contents.push_back({to_string(value.id), get_asset(value.asset_id).name, to_string(value.amount), to_string(value.set_date)});
-    }
-
-    console_writer w(std::cout);
-    w.display_table(columns, contents);
-}
-
-
 } //end of anonymous namespace
 
 void budget::assets_module::load(){
@@ -307,7 +287,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 } else if(subsubcommand == "show"){
                     budget::show_asset_values(w);
                 } else if(subsubcommand == "list"){
-                    list_asset_values();
+                    list_asset_values(w);
                 } else if(subsubcommand == "edit"){
                     size_t id = 0;
 
@@ -889,4 +869,22 @@ asset_value& budget::asset_value_get(size_t id) {
 
 void budget::add_asset_value(budget::asset_value&& asset_value){
     add_data(asset_values, std::forward<budget::asset_value>(asset_value));
+}
+
+void budget::list_asset_values(budget::writer& w){
+    if (!asset_values.data.size()) {
+        w << "No asset values" << end_of_line;
+        return;
+    }
+
+    std::vector<std::string> columns = {"ID", "Asset", "Amount", "Date", "Edit"};
+    std::vector<std::vector<std::string>> contents;
+
+    // Display the asset values
+
+    for(auto& value : asset_values.data){
+        contents.push_back({to_string(value.id), get_asset(value.asset_id).name, to_string(value.amount), to_string(value.set_date), "::edit::asset_values::" + budget::to_string(value.id)});
+    }
+
+    w.display_table(columns, contents);
 }
