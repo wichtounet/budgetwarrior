@@ -122,6 +122,7 @@ std::string header(const std::string& title){
                   <a class="dropdown-item" href="/portfolio/">Portfolio</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                   <a class="dropdown-item" href="/assets/add/">Add Asset</a>
+                  <a class="dropdown-item" href="/asset_values/add/">Set Asset Value</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -565,11 +566,32 @@ void add_account_picker(budget::writer& w, const std::string& default_value = ""
                 <select class="form-control" id="input_account" name="input_account">
     )=====";
 
-    for(auto& account : all_accounts(today.year(), today.month())){
+    for (auto& account : all_accounts(today.year(), today.month())) {
         if (budget::to_string(account.id) == default_value) {
             w << "<option selected value=\"" << account.id << "\">" << account.name << "</option>";
         } else {
             w << "<option value=\"" << account.id << "\">" << account.name << "</option>";
+        }
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
+void add_asset_picker(budget::writer& w, const std::string& default_value = "") {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_asset">Asset</label>
+                <select class="form-control" id="input_asset" name="input_asset">
+    )=====";
+
+    for (auto& asset : all_assets()) {
+        if (budget::to_string(asset.id) == default_value) {
+            w << "<option selected value=\"" << asset.id << "\">" << asset.name << "</option>";
+        } else {
+            w << "<option value=\"" << asset.id << "\">" << asset.name << "</option>";
         }
     }
 
@@ -959,6 +981,25 @@ void asset_values_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
     budget::show_asset_values(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void add_asset_values_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New asset value");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New asset value" << title_end;
+
+    form_begin(w, "/api/asset_values/add/", "/asset_values/add/");
+
+    add_asset_picker(w);
+    add_amount_picker(w);
+    add_date_picker(w, budget::to_string(budget::local_day()));
+
+    form_end(w);
 
     html_answer(content_stream, req, res);
 }
@@ -1502,6 +1543,64 @@ void delete_assets_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "asset " + id + " has been deleted");
 }
 
+void add_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_asset", "input_date", "input_amount"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    asset_value asset_value;
+    asset_value.guid     = budget::generate_guid();
+    asset_value.amount   = budget::parse_money(req.params.at("input_amount"));
+    asset_value.asset_id = budget::to_number<size_t>(req.params.at("input_asset"));
+    asset_value.set_date = budget::from_string(req.params.at("input_date"));
+
+    add_asset_value(std::move(asset_value));
+
+    api_success(req, res, "Asset value " + to_string(asset_value.id) + " has been created");
+}
+
+void edit_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_id", "input_asset", "input_date", "input_amount"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::asset_value_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "Asset value " + id + " does not exist");
+        return;
+    }
+
+    asset_value& asset_value = asset_value_get(budget::to_number<size_t>(id));
+    asset_value.amount       = budget::parse_money(req.params.at("input_amount"));
+    asset_value.asset_id     = budget::to_number<size_t>(req.params.at("input_asset"));
+    asset_value.set_date     = budget::from_string(req.params.at("input_date"));
+
+    set_asset_values_changed();
+
+    api_success(req, res, "Asset " + to_string(asset_value.id) + " has been modified");
+}
+
+void delete_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_id"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::asset_value_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The asset value " + id + " does not exit");
+        return;
+    }
+
+    budget::asset_value_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "The asset value " + id + " has been deleted");
+}
+
 void add_recurrings_api(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account")) {
         api_error(req, res, "Invalid parameters");
@@ -1808,6 +1907,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/net_worth/", &asset_values_page);
     server.get("/assets/add/", &add_assets_page);
     server.post("/assets/edit/", &edit_assets_page);
+    server.get("/asset_values/add/", &add_asset_values_page);
 
     server.get("/objectives/list/", &objectives_list_page);
     server.get("/objectives/status/", &objectives_status_page);
@@ -1861,6 +1961,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/assets/add/", &add_assets_api);
     server.post("/api/assets/edit/", &edit_assets_api);
     server.post("/api/assets/delete/", &delete_assets_api);
+
+    server.post("/api/asset_values/add/", &add_asset_values_api);
+    server.post("/api/asset_values/edit/", &edit_asset_values_api);
+    server.post("/api/asset_values/delete/", &delete_asset_values_api);
 
     // Handle error
 
