@@ -793,6 +793,8 @@ void budget::show_asset_values(budget::writer& w){
                         to_string(total),
                         budget::get_default_currency()});
 
+    contents.emplace_back(columns.size(), "");
+
     contents.push_back({"Distribution",
                         to_string_precision(100 * int_stocks.dollars() / (double)total.dollars(), 2),
                         to_string_precision(100 * dom_stocks.dollars() / (double)total.dollars(), 2),
@@ -827,18 +829,18 @@ void budget::show_asset_values(budget::writer& w){
                             to_string(total * (desired.cash / 100.0) - cash),
                             to_string(budget::money{}),
                             get_default_currency()});
+    }
 
-        w.display_table(columns, contents, 1, {contents.size() - 5, contents.size() - 1}, 1);
+    contents.push_back({"", "", "", "", "", "", ""});
+    contents.push_back({"Net Worth", "", "", "", "", budget::to_string(total), get_default_currency()});
+
+    // Display the table
+
+    if (desired.total_allocation()) {
+        w.display_table(columns, contents, 1, {contents.size() - 8, contents.size() - 3}, 1);
     } else {
         w.display_table(columns, contents, 1, {}, 1);
     }
-
-    std::vector<std::string> second_columns;
-    std::vector<std::vector<std::string>> second_contents;
-
-    second_contents.emplace_back(std::vector<std::string>{"Net Worth", budget::to_string(total) + get_default_currency()});
-
-    w.display_table(second_columns, second_contents, 1, {}, 15);
 }
 
 bool budget::asset_exists(size_t id){
