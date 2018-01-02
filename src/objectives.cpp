@@ -288,10 +288,6 @@ void budget::save_objectives(){
     save_data(objectives, "objectives.data");
 }
 
-void budget::add_objective(budget::objective&& objective){
-    add_data(objectives, std::forward<budget::objective>(objective));
-}
-
 std::ostream& budget::operator<<(std::ostream& stream, const objective& objective){
     return stream
         << objective.id  << ':'
@@ -340,11 +336,11 @@ void budget::list_objectives(budget::writer& w){
     if (objectives.data.size() == 0) {
         w << "No objectives" << end_of_line;
     } else {
-        std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount"};
+        std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount", "Edit"};
         std::vector<std::vector<std::string>> contents;
 
         for (auto& objective : objectives.data) {
-            contents.push_back({to_string(objective.id), objective.name, objective.type, objective.source, objective.op, to_string(objective.amount)});
+            contents.push_back({to_string(objective.id), objective.name, objective.type, objective.source, objective.op, to_string(objective.amount), "::edit::objectives::" + to_string(objective.id)});
         }
 
         w.display_table(columns, contents);
@@ -388,3 +384,26 @@ void budget::status_objectives(budget::writer& w){
     }
 }
 
+bool budget::objective_exists(size_t id){
+    return exists(objectives, id);
+}
+
+void budget::objective_delete(size_t id) {
+    if (!exists(objectives, id)) {
+        throw budget_exception("There are no objective with id ");
+    }
+
+    remove(objectives, id);
+}
+
+objective& budget::objective_get(size_t id) {
+    if (!exists(objectives, id)) {
+        throw budget_exception("There are no objective with id ");
+    }
+
+    return get(objectives, id);
+}
+
+void budget::add_objective(budget::objective&& objective){
+    add_data(objectives, std::forward<budget::objective>(objective));
+}

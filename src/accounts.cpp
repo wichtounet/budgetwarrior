@@ -28,20 +28,6 @@ namespace {
 
 static data_handler<account> accounts;
 
-budget::date find_new_since(){
-    budget::date date(1400,1,1);
-
-    for(auto& account : all_accounts()){
-        if(account.until != budget::date(2099,12,31)){
-            if(account.until - days(1) > date){
-                date = account.until - days(1);
-            }
-        }
-    }
-
-    return date;
-}
-
 size_t get_account_id(std::string name, budget::year year, budget::month month){
     budget::date date(year, month, 5);
 
@@ -472,7 +458,7 @@ std::vector<std::string> budget::all_account_names(){
 void budget::show_accounts(budget::writer& w){
     w << title_begin << "Accounts" << title_end;
 
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "Part"};
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Part", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     // Compute the total
@@ -496,11 +482,12 @@ void budget::show_accounts(budget::writer& w){
 
             contents.push_back({to_string(account.id), account.name,
                 to_string(account.amount),
-                buffer});
+                buffer,
+                "::edit::accounts::" + to_string(account.id)});
         }
     }
 
-    contents.push_back({"", "Total", to_string(total), ""});
+    contents.push_back({"", "Total", to_string(total), "", ""});
 
     w.display_table(columns, contents);
 }
@@ -508,12 +495,51 @@ void budget::show_accounts(budget::writer& w){
 void budget::show_all_accounts(budget::writer& w){
     w << title_begin << "All Accounts" << title_end;
 
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until"};
+    std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     for(auto& account : accounts.data){
-        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until)});
+        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until), "::edit::accounts::" + to_string(account.id)});
     }
 
     w.display_table(columns, contents);
 }
+
+bool budget::account_exists(size_t id){
+    return exists(accounts, id);
+}
+
+void budget::account_delete(size_t id) {
+    if (!exists(accounts, id)) {
+        throw budget_exception("There are no account with id ");
+    }
+
+    remove(accounts, id);
+}
+
+account& budget::account_get(size_t id) {
+    if (!exists(accounts, id)) {
+        throw budget_exception("There are no account with id ");
+    }
+
+    return get(accounts, id);
+}
+
+void budget::add_account(budget::account&& account){
+    add_data(accounts, std::forward<budget::account>(account));
+}
+
+budget::date budget::find_new_since(){
+    budget::date date(1400,1,1);
+
+    for(auto& account : all_accounts()){
+        if(account.until != budget::date(2099,12,31)){
+            if(account.until - days(1) > date){
+                date = account.until - days(1);
+            }
+        }
+    }
+
+    return date;
+}
+

@@ -147,6 +147,7 @@ std::string header(const std::string& title){
                 <div class="dropdown-menu" aria-labelledby="dropdown02">
                   <a class="dropdown-item" href="/accounts/">Accounts</a>
                   <a class="dropdown-item" href="/accounts/all/">All Accounts</a>
+                  <a class="dropdown-item" href="/accounts/add/">Add Account</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -162,6 +163,7 @@ std::string header(const std::string& title){
                 <div class="dropdown-menu" aria-labelledby="dropdown06">
                   <a class="dropdown-item" href="/objectives/status/">Status</a>
                   <a class="dropdown-item" href="/objectives/list/">List</a>
+                  <a class="dropdown-item" href="/objectives/add/">Add Objective</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -269,193 +271,6 @@ void html_answer(std::stringstream& content_stream, const httplib::Request& req,
     filter_html(result, req);
 
     res.set_content(result, "text/html");
-}
-
-void index_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "");
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "Summary" << title_end;
-
-    auto today = budget::local_day();
-
-    // First display overview of the accounts
-    budget::account_summary(w, today.month(), today.year());
-
-    // Second display a summary of the objectives
-    budget::objectives_summary(w);
-
-    // Third display a summary of the fortune
-    budget::fortune_summary(w);
-
-    html_answer(content_stream, req, res);
-}
-
-void accounts_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "Accounts");
-
-    budget::html_writer w(content_stream);
-    budget::show_accounts(w);
-
-    html_answer(content_stream, req, res);
-}
-
-void all_accounts_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "All Accounts");
-
-    budget::html_writer w(content_stream);
-    budget::show_all_accounts(w);
-
-    html_answer(content_stream, req, res);
-}
-
-void overview_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "Overview");
-
-    budget::html_writer w(content_stream);
-
-    if(req.matches.size() == 3){
-        display_month_overview(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
-    } else {
-        display_month_overview(w);
-    }
-
-    html_answer(content_stream, req, res);
-}
-
-void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "Overview Aggregate");
-
-    budget::html_writer w(content_stream);
-
-    //Default values
-    bool full = false;
-    bool disable_groups = false;
-    std::string separator = "/";
-
-    //Get defaults from config
-
-    if(budget::config_contains("aggregate_full")){
-        if(budget::config_value("aggregate_full") == "true"){
-            full = true;
-        }
-    }
-
-    if(budget::config_contains("aggregate_no_group")){
-        if(budget::config_value("aggregate_no_group") == "true"){
-            disable_groups = true;
-        }
-    }
-
-    if(budget::config_contains("aggregate_separator")){
-        separator = budget::config_value("aggregate_separator");
-    }
-
-    if(req.matches.size() == 2){
-        aggregate_year_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[1]));
-    } else {
-        auto today = budget::local_day();
-        aggregate_year_overview(w, full, disable_groups, separator, today.year());
-    }
-
-    html_answer(content_stream, req, res);
-}
-
-void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "Overview Aggregate");
-
-    budget::html_writer w(content_stream);
-
-    //Default values
-    bool full = false;
-    bool disable_groups = false;
-    std::string separator = "/";
-
-    //Get defaults from config
-
-    if(budget::config_contains("aggregate_full")){
-        if(budget::config_value("aggregate_full") == "true"){
-            full = true;
-        }
-    }
-
-    if(budget::config_contains("aggregate_no_group")){
-        if(budget::config_value("aggregate_no_group") == "true"){
-            disable_groups = true;
-        }
-    }
-
-    if(budget::config_contains("aggregate_separator")){
-        separator = budget::config_value("aggregate_separator");
-    }
-
-    if(req.matches.size() == 3){
-        aggregate_month_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]));
-    } else {
-        auto today = budget::local_day();
-        aggregate_month_overview(w, full, disable_groups, separator, today.month(), today.year());
-    }
-
-    html_answer(content_stream, req, res);
-}
-
-void overview_year_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "Overview Year");
-
-    budget::html_writer w(content_stream);
-
-    if(req.matches.size() == 2){
-        display_year_overview(to_number<size_t>(req.matches[1]), w);
-    } else {
-        display_year_overview(w);
-    }
-
-    html_answer(content_stream, req, res);
-}
-
-void report_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "Report");
-
-    budget::html_writer w(content_stream);
-
-    auto today = budget::local_day();
-    report(w, today.year(), false, "");
-
-    html_answer(content_stream, req, res);
-}
-
-void expenses_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "Expenses");
-
-    budget::html_writer w(content_stream);
-
-    if(req.matches.size() == 3){
-        show_expenses(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
-    } else {
-        show_expenses(w);
-    }
-
-    html_answer(content_stream, req, res);
-}
-
-void all_expenses_page(const httplib::Request& req, httplib::Response& res){
-    std::stringstream content_stream;
-    html_stream(req, content_stream, "All Expenses");
-
-    budget::html_writer w(content_stream);
-    budget::show_all_expenses(w);
-
-    html_answer(content_stream, req, res);
 }
 
 void add_date_picker(budget::writer& w, const std::string& default_value = "") {
@@ -594,6 +409,93 @@ void add_asset_picker(budget::writer& w, const std::string& default_value = "") 
         } else {
             w << "<option value=\"" << asset.id << "\">" << asset.name << "</option>";
         }
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
+void add_objective_operator_picker(budget::writer& w, const std::string& default_value = "") {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_operator">Operator</label>
+                <select class="form-control" id="input_operator" name="input_operator">
+    )=====";
+
+    if ("min" == default_value) {
+        w << "<option selected value=\"min\">Min</option>";
+    } else {
+        w << "<option value=\"min\">Min</option>";
+    }
+
+    if ("max" == default_value) {
+        w << "<option selected value=\"max\">Max</option>";
+    } else {
+        w << "<option value=\"max\">Max</option>";
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
+void add_objective_type_picker(budget::writer& w, const std::string& default_value = "") {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_type">Type</label>
+                <select class="form-control" id="input_type" name="input_type">
+    )=====";
+
+    if ("monthly" == default_value) {
+        w << "<option selected value=\"monthly\">Monthly</option>";
+    } else {
+        w << "<option value=\"monthly\">Monthly</option>";
+    }
+
+    if ("yearly" == default_value) {
+        w << "<option selected value=\"yearly\">Yearly</option>";
+    } else {
+        w << "<option value=\"yearly\">Yearly</option>";
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
+void add_objective_source_picker(budget::writer& w, const std::string& default_value = "") {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_source">Source</label>
+                <select class="form-control" id="input_source" name="input_source">
+    )=====";
+
+    if ("balance" == default_value) {
+        w << "<option selected value=\"balance\">Balance</option>";
+    } else {
+        w << "<option value=\"balance\">Balance</option>";
+    }
+
+    if ("earnings" == default_value) {
+        w << "<option selected value=\"earnings\">Earnings</option>";
+    } else {
+        w << "<option value=\"earnings\">Earnings</option>";
+    }
+
+    if ("expenses" == default_value) {
+        w << "<option selected value=\"expenses\">Expenses</option>";
+    } else {
+        w << "<option value=\"expenses\">Expenses</option>";
+    }
+
+    if ("savings_rate" == default_value) {
+        w << "<option selected value=\"savings_rate\">Savings Rate</option>";
+    } else {
+        w << "<option value=\"savings_rate\">Savings Rate</option>";
     }
 
     w << R"=====(
@@ -749,6 +651,244 @@ void form_begin_edit(budget::writer& w, const std::string& action, const std::st
 void form_end(budget::writer& w){
     w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
     w << "</form>";
+}
+
+
+void index_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Summary" << title_end;
+
+    auto today = budget::local_day();
+
+    // First display overview of the accounts
+    budget::account_summary(w, today.month(), today.year());
+
+    // Second display a summary of the objectives
+    budget::objectives_summary(w);
+
+    // Third display a summary of the fortune
+    budget::fortune_summary(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void accounts_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Accounts");
+
+    budget::html_writer w(content_stream);
+    budget::show_accounts(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void all_accounts_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "All Accounts");
+
+    budget::html_writer w(content_stream);
+    budget::show_all_accounts(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New account");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New account" << title_end;
+
+    form_begin(w, "/api/accounts/add/", "/accounts/add/");
+
+    add_name_picker(w);
+    add_amount_picker(w);
+
+    form_end(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Edit account");
+
+    budget::html_writer w(content_stream);
+
+    if(!req.has_param("input_id") || !req.has_param("back_page")){
+        display_error_message(w, "Invalid parameter for the request");
+    } else {
+        auto input_id  = req.params.at("input_id");
+
+        if(!account_exists(budget::to_number<size_t>(input_id))){
+            display_error_message(w, "The account " + input_id + " does not exist");
+        } else {
+            auto back_page = req.params.at("back_page");
+
+            w << title_begin << "Edit account " << input_id << title_end;
+
+            form_begin_edit(w, "/api/accounts/edit/", back_page, input_id);
+
+            auto& account = account_get(budget::to_number<size_t>(input_id));
+
+            add_name_picker(w, account.name);
+            add_amount_picker(w, budget::to_flat_string(account.amount));
+
+            form_end(w);
+        }
+    }
+
+    html_answer(content_stream, req, res);
+}
+
+void overview_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Overview");
+
+    budget::html_writer w(content_stream);
+
+    if(req.matches.size() == 3){
+        display_month_overview(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
+    } else {
+        display_month_overview(w);
+    }
+
+    html_answer(content_stream, req, res);
+}
+
+void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Overview Aggregate");
+
+    budget::html_writer w(content_stream);
+
+    //Default values
+    bool full = false;
+    bool disable_groups = false;
+    std::string separator = "/";
+
+    //Get defaults from config
+
+    if(budget::config_contains("aggregate_full")){
+        if(budget::config_value("aggregate_full") == "true"){
+            full = true;
+        }
+    }
+
+    if(budget::config_contains("aggregate_no_group")){
+        if(budget::config_value("aggregate_no_group") == "true"){
+            disable_groups = true;
+        }
+    }
+
+    if(budget::config_contains("aggregate_separator")){
+        separator = budget::config_value("aggregate_separator");
+    }
+
+    if(req.matches.size() == 2){
+        aggregate_year_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[1]));
+    } else {
+        auto today = budget::local_day();
+        aggregate_year_overview(w, full, disable_groups, separator, today.year());
+    }
+
+    html_answer(content_stream, req, res);
+}
+
+void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Overview Aggregate");
+
+    budget::html_writer w(content_stream);
+
+    //Default values
+    bool full = false;
+    bool disable_groups = false;
+    std::string separator = "/";
+
+    //Get defaults from config
+
+    if(budget::config_contains("aggregate_full")){
+        if(budget::config_value("aggregate_full") == "true"){
+            full = true;
+        }
+    }
+
+    if(budget::config_contains("aggregate_no_group")){
+        if(budget::config_value("aggregate_no_group") == "true"){
+            disable_groups = true;
+        }
+    }
+
+    if(budget::config_contains("aggregate_separator")){
+        separator = budget::config_value("aggregate_separator");
+    }
+
+    if(req.matches.size() == 3){
+        aggregate_month_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]));
+    } else {
+        auto today = budget::local_day();
+        aggregate_month_overview(w, full, disable_groups, separator, today.month(), today.year());
+    }
+
+    html_answer(content_stream, req, res);
+}
+
+void overview_year_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Overview Year");
+
+    budget::html_writer w(content_stream);
+
+    if(req.matches.size() == 2){
+        display_year_overview(to_number<size_t>(req.matches[1]), w);
+    } else {
+        display_year_overview(w);
+    }
+
+    html_answer(content_stream, req, res);
+}
+
+void report_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Report");
+
+    budget::html_writer w(content_stream);
+
+    auto today = budget::local_day();
+    report(w, today.year(), false, "");
+
+    html_answer(content_stream, req, res);
+}
+
+void expenses_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Expenses");
+
+    budget::html_writer w(content_stream);
+
+    if(req.matches.size() == 3){
+        show_expenses(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
+    } else {
+        show_expenses(w);
+    }
+
+    html_answer(content_stream, req, res);
+}
+
+void all_expenses_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "All Expenses");
+
+    budget::html_writer w(content_stream);
+    budget::show_all_expenses(w);
+
+    html_answer(content_stream, req, res);
 }
 
 void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1038,7 +1178,7 @@ void edit_asset_values_page(const httplib::Request& req, httplib::Response& res)
             auto& asset_value = asset_value_get(budget::to_number<size_t>(input_id));
 
             add_asset_picker(w, budget::to_string(asset_value.asset_id));
-            add_amount_picker(w, budget::to_string(asset_value.amount));
+            add_amount_picker(w, budget::to_flat_string(asset_value.amount));
             add_date_picker(w, budget::to_string(asset_value.set_date));
 
             form_end(w);
@@ -1048,7 +1188,7 @@ void edit_asset_values_page(const httplib::Request& req, httplib::Response& res)
     html_answer(content_stream, req, res);
 }
 
-void objectives_list_page(const httplib::Request& req, httplib::Response& res){
+void list_objectives_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     html_stream(req, content_stream, "Objectives List");
 
@@ -1058,12 +1198,68 @@ void objectives_list_page(const httplib::Request& req, httplib::Response& res){
     html_answer(content_stream, req, res);
 }
 
-void objectives_status_page(const httplib::Request& req, httplib::Response& res){
+void status_objectives_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     html_stream(req, content_stream, "Objectives Status");
 
     budget::html_writer w(content_stream);
     budget::status_objectives(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "New objective");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New objective" << title_end;
+
+    form_begin(w, "/api/objectives/add/", "/objectives/add/");
+
+    add_name_picker(w);
+    add_objective_type_picker(w);
+    add_objective_source_picker(w);
+    add_objective_operator_picker(w);
+    add_amount_picker(w);
+
+    form_end(w);
+
+    html_answer(content_stream, req, res);
+}
+
+void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Edit objective");
+
+    budget::html_writer w(content_stream);
+
+    if(!req.has_param("input_id") || !req.has_param("back_page")){
+        display_error_message(w, "Invalid parameter for the request");
+    } else {
+        auto input_id  = req.params.at("input_id");
+
+        if(!objective_exists(budget::to_number<size_t>(input_id))){
+            display_error_message(w, "The objective " + input_id + " does not exist");
+        } else {
+            auto back_page = req.params.at("back_page");
+
+            w << title_begin << "Edit objective " << input_id << title_end;
+
+            form_begin_edit(w, "/api/objectives/edit/", back_page, input_id);
+
+            auto& objective = objective_get(budget::to_number<size_t>(input_id));
+
+            add_name_picker(w, objective.name);
+            add_objective_type_picker(w, objective.type);
+            add_objective_source_picker(w, objective.source);
+            add_objective_operator_picker(w, objective.op);
+            add_amount_picker(w, budget::to_flat_string(objective.amount));
+
+            form_end(w);
+        }
+    }
 
     html_answer(content_stream, req, res);
 }
@@ -1389,6 +1585,64 @@ bool parameters_present(const httplib::Request& req, std::vector<const char*> pa
     return true;
 }
 
+void add_accounts_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_name", "input_amount"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    account account;
+    account.guid   = budget::generate_guid();
+    account.name   = req.params.at("input_name");
+    account.amount = budget::parse_money(req.params.at("input_amount"));
+    account.since  = find_new_since();
+    account.until  = budget::date(2099, 12, 31);
+
+    add_account(std::move(account));
+
+    api_success(req, res, "Account " + to_string(account.id) + " has been created");
+}
+
+void edit_accounts_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_id", "input_name", "input_amount"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::account_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "account " + id + " does not exist");
+        return;
+    }
+
+    account& account = account_get(budget::to_number<size_t>(id));
+    account.name     = req.params.at("input_name");
+    account.amount   = budget::parse_money(req.params.at("input_amount"));
+
+    set_accounts_changed();
+
+    api_success(req, res, "Account " + to_string(account.id) + " has been modified");
+}
+
+void delete_accounts_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_id"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::account_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The account " + id + " does not exit");
+        return;
+    }
+
+    budget::account_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "Account " + id + " has been deleted");
+}
+
 void add_expenses_api(const httplib::Request& req, httplib::Response& res) {
     if (!parameters_present(req, {"input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
@@ -1507,6 +1761,68 @@ void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
     budget::earning_delete(budget::to_number<size_t>(id));
 
     api_success(req, res, "Earning " + id + " has been deleted");
+}
+
+void add_objectives_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_name", "input_type", "input_type", "input_source", "input_operator", "input_amount"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    objective objective;
+    objective.guid   = budget::generate_guid();
+    objective.name   = req.params.at("input_name");
+    objective.type   = req.params.at("input_type");
+    objective.source = req.params.at("input_source");
+    objective.op     = req.params.at("input_operator");
+    objective.amount = budget::parse_money(req.params.at("input_amount"));
+
+    add_objective(std::move(objective));
+
+    api_success(req, res, "objective " + to_string(objective.id) + " has been created");
+}
+
+void edit_objectives_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_id", "input_name", "input_type", "input_type", "input_source", "input_operator", "input_amount"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::objective_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "objective " + id + " does not exist");
+        return;
+    }
+
+    objective& objective          = objective_get(budget::to_number<size_t>(id));
+    objective.name   = req.params.at("input_name");
+    objective.type   = req.params.at("input_type");
+    objective.source = req.params.at("input_source");
+    objective.op     = req.params.at("input_operator");
+    objective.amount = budget::parse_money(req.params.at("input_amount"));
+
+    set_objectives_changed();
+
+    api_success(req, res, "objective " + to_string(objective.id) + " has been modified");
+}
+
+void delete_objectives_api(const httplib::Request& req, httplib::Response& res) {
+    if (!parameters_present(req, {"input_id"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.params.at("input_id");
+
+    if (!budget::objective_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The objective " + id + " does not exit");
+        return;
+    }
+
+    budget::objective_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "objective " + id + " has been deleted");
 }
 
 void add_assets_api(const httplib::Request& req, httplib::Response& res) {
@@ -1932,6 +2248,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     server.get("/accounts/", &accounts_page);
     server.get("/accounts/all/", &all_accounts_page);
+    server.get("/accounts/add/", &add_accounts_page);
+    server.post("/accounts/edit/", &edit_accounts_page);
 
     server.get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
     server.get("/expenses/", &expenses_page);
@@ -1956,8 +2274,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/asset_values/add/", &add_asset_values_page);
     server.post("/asset_values/edit/", &edit_asset_values_page);
 
-    server.get("/objectives/list/", &objectives_list_page);
-    server.get("/objectives/status/", &objectives_status_page);
+    server.get("/objectives/list/", &list_objectives_page);
+    server.get("/objectives/status/", &status_objectives_page);
+    server.get("/objectives/add/", &add_objectives_page);
+    server.post("/objectives/edit/", &edit_objectives_page);
 
     server.get("/wishes/list/", &wishes_list_page);
     server.get("/wishes/status/", &wishes_status_page);
@@ -1980,6 +2300,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/fortunes/edit/", &edit_fortunes_page);
 
     // The API
+
+    server.post("/api/accounts/add/", &add_accounts_api);
+    server.post("/api/accounts/edit/", &edit_accounts_api);
+    server.post("/api/accounts/delete/", &delete_accounts_api);
 
     server.post("/api/expenses/add/", &add_expenses_api);
     server.post("/api/expenses/edit/", &edit_expenses_api);
@@ -2012,6 +2336,10 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/asset_values/add/", &add_asset_values_api);
     server.post("/api/asset_values/edit/", &edit_asset_values_api);
     server.post("/api/asset_values/delete/", &delete_asset_values_api);
+
+    server.post("/api/objectives/add/", &add_objectives_api);
+    server.post("/api/objectives/edit/", &edit_objectives_api);
+    server.post("/api/objectives/delete/", &delete_objectives_api);
 
     // Handle error
 
