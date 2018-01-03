@@ -1600,6 +1600,8 @@ void edit_debts_page(const httplib::Request& req, httplib::Response& res) {
     html_answer(content_stream, req, res);
 }
 
+// The API
+
 void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message){
     if (req.has_param("server")) {
         auto url = req.params.at("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
