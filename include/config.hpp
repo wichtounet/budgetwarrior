@@ -30,6 +30,8 @@ void internal_config_remove(const std::string& key);
 std::string get_web_user();
 std::string get_web_password();
 
+bool is_server_mode();
+
 } //end of namespace budget
 
 #endif

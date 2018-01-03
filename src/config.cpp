@@ -199,3 +199,11 @@ std::string budget::get_web_password(){
 
     return "1234";
 }
+
+bool budget::is_server_mode(){
+    if (config_contains("server_mode")) {
+        return config_value("server_mode") == "true";
+    }
+
+    return false;
+}
