@@ -148,6 +148,8 @@ std::string header(const std::string& title){
                   <a class="dropdown-item" href="/accounts/">Accounts</a>
                   <a class="dropdown-item" href="/accounts/all/">All Accounts</a>
                   <a class="dropdown-item" href="/accounts/add/">Add Account</a>
+                  <a class="dropdown-item" href="/accounts/archive/month/">Archive Account (month)</a>
+                  <a class="dropdown-item" href="/accounts/archive/year/">Archive Account (year)</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -648,8 +650,15 @@ void form_begin_edit(budget::writer& w, const std::string& action, const std::st
     w << R"=====(">)=====";
 }
 
-void form_end(budget::writer& w){
-    w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
+void form_end(budget::writer& w, const std::string& button = ""){
+    if (button.empty()) {
+        w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
+    } else {
+        w << R"=====(<button type="submit" class="btn btn-primary">)=====";
+        w << button;
+        w << R"=====(</button>)=====";
+    }
+
     w << "</form>";
 }
 
@@ -742,6 +751,40 @@ void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
             form_end(w);
         }
     }
+
+    html_answer(content_stream, req, res);
+}
+
+void archive_accounts_month_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Archive accounts from the beginning of the month");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Archive accounts from the beginning of the month" << title_end;
+
+    form_begin(w, "/api/accounts/archive/month/", "/accounts/");
+
+    w << "<p>This will create new accounts that will be used starting from the beginning of the current month. Are you sure you want to proceed ? </p>";
+
+    form_end(w, "Confirm");
+
+    html_answer(content_stream, req, res);
+}
+
+void archive_accounts_year_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    html_stream(req, content_stream, "Archive accounts from the beginning of the year");
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Archive accounts from the beginning of the year" << title_end;
+
+    form_begin(w, "/api/accounts/archive/year/", "/accounts/");
+
+    w << "<p>This will create new accounts that will be used starting from the beginning of the current year. Are you sure you want to proceed ? </p>";
+
+    form_end(w, "Confirm");
 
     html_answer(content_stream, req, res);
 }
@@ -1643,6 +1686,18 @@ void delete_accounts_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "Account " + id + " has been deleted");
 }
 
+void archive_accounts_month_api(const httplib::Request& req, httplib::Response& res) {
+    budget::archive_accounts_impl(true);
+
+    api_success(req, res, "Accounts have been migrated from the beginning of the month");
+}
+
+void archive_accounts_year_api(const httplib::Request& req, httplib::Response& res) {
+    budget::archive_accounts_impl(false);
+
+    api_success(req, res, "Accounts have been migrated from the beginning of the year");
+}
+
 void add_expenses_api(const httplib::Request& req, httplib::Response& res) {
     if (!parameters_present(req, {"input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
@@ -2250,6 +2305,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/accounts/all/", &all_accounts_page);
     server.get("/accounts/add/", &add_accounts_page);
     server.post("/accounts/edit/", &edit_accounts_page);
+    server.get("/accounts/archive/month/", &archive_accounts_month_page);
+    server.get("/accounts/archive/year/", &archive_accounts_year_page);
 
     server.get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
     server.get("/expenses/", &expenses_page);
@@ -2304,6 +2361,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/accounts/add/", &add_accounts_api);
     server.post("/api/accounts/edit/", &edit_accounts_api);
     server.post("/api/accounts/delete/", &delete_accounts_api);
+    server.post("/api/accounts/archive/month/", &archive_accounts_month_api);
+    server.post("/api/accounts/archive/year/", &archive_accounts_year_api);
 
     server.post("/api/expenses/add/", &add_expenses_api);
     server.post("/api/expenses/edit/", &edit_expenses_api);
