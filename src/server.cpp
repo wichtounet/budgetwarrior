@@ -744,7 +744,9 @@ void form_end(budget::writer& w, const std::string& button = ""){
 
 void index_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "");
+    if(!page_start(req, res, content_stream, "")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -766,7 +768,9 @@ void index_page(const httplib::Request& req, httplib::Response& res){
 
 void accounts_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Accounts");
+    if(!page_start(req, res, content_stream, "Accounts")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::show_accounts(w);
@@ -776,7 +780,9 @@ void accounts_page(const httplib::Request& req, httplib::Response& res){
 
 void all_accounts_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "All Accounts");
+    if(!page_start(req, res, content_stream, "All Accounts")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::show_all_accounts(w);
@@ -786,7 +792,9 @@ void all_accounts_page(const httplib::Request& req, httplib::Response& res){
 
 void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New account");
+    if(!page_start(req, res, content_stream, "New account")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -804,7 +812,9 @@ void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit account");
+    if(!page_start(req, res, content_stream, "Edit account")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -836,7 +846,9 @@ void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
 void archive_accounts_month_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Archive accounts from the beginning of the month");
+    if(!page_start(req, res, content_stream, "Archive accounts from the beginning of the month")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -853,7 +865,9 @@ void archive_accounts_month_page(const httplib::Request& req, httplib::Response&
 
 void archive_accounts_year_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Archive accounts from the beginning of the year");
+    if(!page_start(req, res, content_stream, "Archive accounts from the beginning of the year")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -870,7 +884,9 @@ void archive_accounts_year_page(const httplib::Request& req, httplib::Response& 
 
 void overview_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Overview");
+    if(!page_start(req, res, content_stream, "Overview")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -885,7 +901,9 @@ void overview_page(const httplib::Request& req, httplib::Response& res){
 
 void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Overview Aggregate");
+    if(!page_start(req, res, content_stream, "Overview Aggregate")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -924,7 +942,9 @@ void overview_aggregate_year_page(const httplib::Request& req, httplib::Response
 
 void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Overview Aggregate");
+    if(!page_start(req, res, content_stream, "Overview Aggregate")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -963,7 +983,9 @@ void overview_aggregate_month_page(const httplib::Request& req, httplib::Respons
 
 void overview_year_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Overview Year");
+    if(!page_start(req, res, content_stream, "Overview Year")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -978,7 +1000,9 @@ void overview_year_page(const httplib::Request& req, httplib::Response& res){
 
 void report_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Report");
+    if(!page_start(req, res, content_stream, "Report")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -990,7 +1014,9 @@ void report_page(const httplib::Request& req, httplib::Response& res){
 
 void expenses_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Expenses");
+    if(!page_start(req, res, content_stream, "Expenses")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1005,7 +1031,9 @@ void expenses_page(const httplib::Request& req, httplib::Response& res){
 
 void all_expenses_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "All Expenses");
+    if(!page_start(req, res, content_stream, "All Expenses")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::show_all_expenses(w);
@@ -1015,7 +1043,9 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res){
 
 void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New Expense");
+    if(!page_start(req, res, content_stream, "New Expense")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1035,7 +1065,9 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit Expense");
+    if(!page_start(req, res, content_stream, "Edit Expense")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1069,7 +1101,9 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
 void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New earning");
+    if(!page_start(req, res, content_stream, "New earning")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1089,7 +1123,9 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit earning");
+    if(!page_start(req, res, content_stream, "Edit earning")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1123,7 +1159,9 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
 void earnings_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Earnings");
+    if(!page_start(req, res, content_stream, "Earnings")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1138,7 +1176,9 @@ void earnings_page(const httplib::Request& req, httplib::Response& res){
 
 void all_earnings_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "All Earnings");
+    if(!page_start(req, res, content_stream, "All Earnings")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::show_all_earnings(w);
@@ -1148,7 +1188,9 @@ void all_earnings_page(const httplib::Request& req, httplib::Response& res){
 
 void portfolio_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Portfolio");
+    if(!page_start(req, res, content_stream, "Portfolio")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::show_asset_portfolio(w);
@@ -1158,7 +1200,9 @@ void portfolio_page(const httplib::Request& req, httplib::Response& res){
 
 void rebalance_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Rebalance");
+    if(!page_start(req, res, content_stream, "Rebalance")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::show_asset_rebalance(w);
@@ -1168,7 +1212,9 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
 
 void assets_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Assets");
+    if(!page_start(req, res, content_stream, "Assets")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::show_assets(w);
@@ -1178,7 +1224,9 @@ void assets_page(const httplib::Request& req, httplib::Response& res){
 
 void add_assets_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New asset");
+    if(!page_start(req, res, content_stream, "New asset")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1202,7 +1250,9 @@ void add_assets_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit asset");
+    if(!page_start(req, res, content_stream, "Edit asset")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1240,7 +1290,9 @@ void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
 
 void asset_values_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Net Worth");
+    if(!page_start(req, res, content_stream, "Net Worth")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::show_asset_values(w);
@@ -1250,7 +1302,9 @@ void asset_values_page(const httplib::Request& req, httplib::Response& res){
 
 void list_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "List asset values");
+    if(!page_start(req, res, content_stream, "List asset values")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::list_asset_values(w);
@@ -1260,7 +1314,9 @@ void list_asset_values_page(const httplib::Request& req, httplib::Response& res)
 
 void add_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New asset value");
+    if(!page_start(req, res, content_stream, "New asset value")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1279,7 +1335,9 @@ void add_asset_values_page(const httplib::Request& req, httplib::Response& res) 
 
 void edit_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit asset value");
+    if(!page_start(req, res, content_stream, "Edit asset value")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1312,7 +1370,9 @@ void edit_asset_values_page(const httplib::Request& req, httplib::Response& res)
 
 void list_objectives_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Objectives List");
+    if(!page_start(req, res, content_stream, "Objectives List")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::list_objectives(w);
@@ -1322,7 +1382,9 @@ void list_objectives_page(const httplib::Request& req, httplib::Response& res){
 
 void status_objectives_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Objectives Status");
+    if(!page_start(req, res, content_stream, "Objectives Status")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::status_objectives(w);
@@ -1332,7 +1394,9 @@ void status_objectives_page(const httplib::Request& req, httplib::Response& res)
 
 void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New objective");
+    if(!page_start(req, res, content_stream, "New objective")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1353,7 +1417,9 @@ void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit objective");
+    if(!page_start(req, res, content_stream, "Edit objective")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1388,7 +1454,9 @@ void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
 
 void wishes_list_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Objectives List");
+    if(!page_start(req, res, content_stream, "Objectives List")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::list_wishes(w);
@@ -1398,7 +1466,9 @@ void wishes_list_page(const httplib::Request& req, httplib::Response& res){
 
 void wishes_status_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Objectives Status");
+    if(!page_start(req, res, content_stream, "Objectives Status")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::status_wishes(w);
@@ -1408,7 +1478,9 @@ void wishes_status_page(const httplib::Request& req, httplib::Response& res){
 
 void wishes_estimate_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Objectives Status");
+    if(!page_start(req, res, content_stream, "Objectives Status")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::estimate_wishes(w);
@@ -1418,7 +1490,9 @@ void wishes_estimate_page(const httplib::Request& req, httplib::Response& res){
 
 void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New Wish");
+    if(!page_start(req, res, content_stream, "New Wish")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1438,7 +1512,9 @@ void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit Wish");
+    if(!page_start(req, res, content_stream, "Edit Wish")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1474,7 +1550,9 @@ void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
 
 void list_fortunes_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Objectives List");
+    if(!page_start(req, res, content_stream, "Objectives List")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::list_fortunes(w);
@@ -1484,7 +1562,9 @@ void list_fortunes_page(const httplib::Request& req, httplib::Response& res){
 
 void status_fortunes_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Objectives Status");
+    if(!page_start(req, res, content_stream, "Objectives Status")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::status_fortunes(w, false);
@@ -1494,7 +1574,9 @@ void status_fortunes_page(const httplib::Request& req, httplib::Response& res){
 
 void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New fortune");
+    if(!page_start(req, res, content_stream, "New fortune")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1512,7 +1594,9 @@ void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit fortune");
+    if(!page_start(req, res, content_stream, "Edit fortune")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1544,7 +1628,9 @@ void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
 void recurrings_list_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Recurrings List");
+    if(!page_start(req, res, content_stream, "Recurrings List")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::show_recurrings(w);
@@ -1554,7 +1640,9 @@ void recurrings_list_page(const httplib::Request& req, httplib::Response& res){
 
 void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New Recurring Expense");
+    if(!page_start(req, res, content_stream, "New Recurring Expense")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1573,7 +1661,9 @@ void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit Recurring Expense");
+    if(!page_start(req, res, content_stream, "Edit Recurring Expense")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1606,7 +1696,9 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
 
 void list_debts_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Debts");
+    if(!page_start(req, res, content_stream, "Debts")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::list_debts(w);
@@ -1616,7 +1708,9 @@ void list_debts_page(const httplib::Request& req, httplib::Response& res){
 
 void all_debts_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "All Debts");
+    if(!page_start(req, res, content_stream, "All Debts")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
     budget::display_all_debts(w);
@@ -1626,7 +1720,9 @@ void all_debts_page(const httplib::Request& req, httplib::Response& res){
 
 void add_debts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "New Debt");
+    if(!page_start(req, res, content_stream, "New Debt")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
@@ -1646,7 +1742,9 @@ void add_debts_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_debts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    page_start(req, res, content_stream, "Edit Debt");
+    if(!page_start(req, res, content_stream, "Edit Debt")){
+        return;
+    }
 
     budget::html_writer w(content_stream);
 
