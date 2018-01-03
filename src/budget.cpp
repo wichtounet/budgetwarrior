@@ -234,34 +234,40 @@ int main(int argc, const char* argv[]) {
     std::locale global_locale("");
     std::locale::global(global_locale);
 
-    if(!load_config()){
+    if (!load_config()) {
         return 0;
     }
 
-    if(!has_enough_colors()){
+    if (is_server_mode() && !config_contains("server_url")) {
+        std::cout << "error: server_mode=true needs a server_url" << std::endl;
+
+        return 0;
+    }
+
+    if (!has_enough_colors()) {
         std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
     }
 
     auto old_data_version = to_number<size_t>(internal_config_value("data_version"));
 
-    if(old_data_version > DATA_VERSION){
+    if (old_data_version > DATA_VERSION) {
         std::cout << "Unsupported database version, you should update budgetwarrior" << std::endl;
 
         return 0;
     }
 
-    if(old_data_version < DATA_VERSION){
+    if (old_data_version < DATA_VERSION) {
         std::cout << "Migrate data base..." << std::endl;
 
-        if(old_data_version == 1 && DATA_VERSION >= 2){
+        if (old_data_version == 1 && DATA_VERSION >= 2) {
             migrate_recurring_1_to_2();
         }
 
-        if(old_data_version <= 2 && DATA_VERSION >= 3){
+        if (old_data_version <= 2 && DATA_VERSION >= 3) {
             migrate_wishes_2_to_3();
         }
 
-        if(old_data_version <= 3 && DATA_VERSION >= 4){
+        if (old_data_version <= 3 && DATA_VERSION >= 4) {
             //migrate_debts_3_to_4();
             migrate_wishes_3_to_4();
         }
@@ -285,12 +291,12 @@ int main(int argc, const char* argv[]) {
         module_runner runner(std::move(args));
         cpp::for_each_tuple_t<modules_tuple>(runner);
 
-        if(!runner.handled){
+        if (!runner.handled) {
             std::cout << "Unhandled command \"" << runner.args[0] << "\"" << std::endl;
 
             code = 1;
         }
-    } catch (const budget_exception& exception){
+    } catch (const budget_exception& exception) {
         std::cout << exception.message() << std::endl;
 
         code = 2;
