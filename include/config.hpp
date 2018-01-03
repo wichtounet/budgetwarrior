@@ -27,6 +27,9 @@ bool internal_config_contains(const std::string& key);
 std::string& internal_config_value(const std::string& key);
 void internal_config_remove(const std::string& key);
 
+std::string get_web_user();
+std::string get_web_password();
+
 } //end of namespace budget
 
 #endif

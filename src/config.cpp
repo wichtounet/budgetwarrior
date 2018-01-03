@@ -28,21 +28,25 @@ typedef std::unordered_map<std::string, std::string> config_type;
 namespace {
 
 bool load_configuration(const std::string& path, config_type& configuration){
-    if(file_exists(path)){
+    if (file_exists(path)) {
         std::ifstream file(path);
 
-        if(file.is_open() && file.good()){
+        if (file.is_open() && file.good()) {
             std::string line;
-            while(file.good() && getline(file, line)){
+            while (file.good() && getline(file, line)) {
+                if (line.empty()) {
+                    continue;
+                }
+
                 auto first = line.find('=');
 
-                if(first == std::string::npos || line.rfind('=') != first){
+                if (first == std::string::npos || line.rfind('=') != first) {
                     std::cout << "The configuration file " << path << " is invalid only supports entries in form of key=value" << std::endl;
 
                     return false;
                 }
 
-                auto key = line.substr(0, first);
+                auto key   = line.substr(0, first);
                 auto value = line.substr(first + 1, line.size());
 
                 configuration[key] = value;
@@ -178,4 +182,20 @@ std::string& budget::internal_config_value(const std::string& key){
 
 void budget::internal_config_remove(const std::string& key){
     internal.erase(key);
+}
+
+std::string budget::get_web_user(){
+    if (config_contains("web_user")) {
+        return config_value("web_user");
+    }
+
+    return "admin";
+}
+
+std::string budget::get_web_password(){
+    if (config_contains("web_password")) {
+        return config_value("web_password");
+    }
+
+    return "1234";
 }
