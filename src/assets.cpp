@@ -262,7 +262,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
             std::cout << "Asset " << id << " has been modified" << std::endl;
 
-            assets.changed = true;
+            assets.set_changed();
         } else if(subcommand == "value"){
             if(args.size() == 2){
                 budget::show_asset_values(w);
@@ -310,7 +310,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                     std::cout << "Asset Value " << id << " has been modified" << std::endl;
 
-                    asset_values.changed = true;
+                    asset_values.set_changed();
                 } else if (subsubcommand == "delete") {
                     size_t id = 0;
 
@@ -343,7 +343,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 }
             } while (desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != 100);
 
-            assets.changed = true;
+            assets.set_changed();
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -470,11 +470,11 @@ std::vector<asset_value>& budget::all_asset_values(){
 }
 
 void budget::set_assets_changed(){
-    assets.changed = true;
+    assets.set_changed();
 }
 
 void budget::set_asset_values_changed(){
-    asset_values.changed = true;
+    asset_values.set_changed();
 }
 
 void budget::set_assets_next_id(size_t next_id){

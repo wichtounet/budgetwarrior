@@ -213,7 +213,7 @@ std::vector<wish>& budget::all_wishes(){
 }
 
 void budget::set_wishes_changed(){
-    wishes.changed = true;
+    wishes.set_changed();
 }
 
 void budget::set_wishes_next_id(size_t next_id){

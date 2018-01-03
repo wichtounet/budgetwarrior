@@ -127,7 +127,7 @@ void budget::archive_accounts_impl(bool month){
         }
     }
 
-    accounts.changed = true;
+    accounts.set_changed();
 }
 
 void budget::accounts_module::handle(const std::vector<std::string>& args){
@@ -230,7 +230,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
             std::cout << "Account " << id << " has been modified" << std::endl;
 
-            accounts.changed = true;
+            accounts.set_changed();
         } else if(subcommand == "transfer"){
             std::string from_name;
             edit_string_complete(from_name, "Transfer from", all_account_names(), not_empty_checker(), account_checker());
@@ -442,7 +442,7 @@ std::vector<account> budget::all_accounts(budget::year year, budget::month month
 }
 
 void budget::set_accounts_changed(){
-    accounts.changed = true;
+    accounts.set_changed();
 }
 
 void budget::set_accounts_next_id(size_t next_id){

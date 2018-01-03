@@ -164,7 +164,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
             set_expenses_changed();
             save_expenses();
 
-            recurrings.changed = true;
+            recurrings.set_changed();
 
             std::cout << "Recurring expense " << id << " has been modified" << std::endl;
         } else {
@@ -201,7 +201,7 @@ void budget::migrate_recurring_1_to_2(){
         recurring.account = get_account(recurring.old_account).name;
     }
 
-    recurrings.changed = true;
+    recurrings.set_changed();
 
     save_data(recurrings, "recurrings.data");
 }
@@ -283,7 +283,7 @@ std::vector<recurring>& budget::all_recurrings(){
 }
 
 void budget::set_recurrings_changed(){
-    recurrings.changed = true;
+    recurrings.set_changed();
 }
 
 void budget::set_recurrings_next_id(size_t next_id){

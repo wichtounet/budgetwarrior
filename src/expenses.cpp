@@ -180,7 +180,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
             std::cout << "Expense " << id << " has been modified" << std::endl;
 
-            expenses.changed = true;
+            expenses.set_changed();
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -224,7 +224,7 @@ std::vector<expense>& budget::all_expenses(){
 }
 
 void budget::set_expenses_changed(){
-    expenses.changed = true;
+    expenses.set_changed();
 }
 
 void budget::set_expenses_next_id(size_t next_id){

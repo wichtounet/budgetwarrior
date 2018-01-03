@@ -19,18 +19,28 @@ template<typename T>
 struct data_handler {
     size_t next_id;
     std::vector<T> data;
-    bool changed = false;
 
     data_handler(){};
 
     //data_handler should never be copied
     data_handler(const data_handler& rhs) = delete;
     data_handler& operator=(const data_handler& rhs) = delete;
+
+    bool is_changed() const {
+        return changed;
+    }
+
+    void set_changed(){
+        changed = true;
+    }
+
+private:
+    bool changed = false;
 };
 
 template<typename T>
 void save_data(const data_handler<T>& data, const std::string& path){
-    if (data.changed) {
+    if (data.is_changed()) {
         if (budget::config_contains("random")) {
             std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
             return;
@@ -111,7 +121,7 @@ void remove(data_handler<T>& data, size_t id){
     data.data.erase(std::remove_if(data.data.begin(), data.data.end(),
         [id](const T& entry){ return entry.id == id; }), data.data.end());
 
-    data.changed = true;
+    data.set_changed();
 }
 
 template<typename T>
@@ -131,7 +141,7 @@ size_t add_data(data_handler<T>& data, T&& entry){
 
     data.data.push_back(std::forward<T>(entry));
 
-    data.changed = true;
+    data.set_changed();
 
     return entry.id;
 }

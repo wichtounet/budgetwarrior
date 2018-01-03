@@ -208,7 +208,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
 
             std::cout << "Fortune check " << id << " has been modified" << std::endl;
 
-            fortunes.changed = true;
+            fortunes.set_changed();
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -246,7 +246,7 @@ void budget::operator>>(const std::vector<std::string>& parts, fortune& fortune)
 }
 
 void budget::set_fortunes_changed(){
-    fortunes.changed = true;
+    fortunes.set_changed();
 }
 
 void budget::set_fortunes_next_id(size_t next_id){

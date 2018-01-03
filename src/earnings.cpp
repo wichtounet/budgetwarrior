@@ -111,7 +111,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
 
             std::cout << "earning " << id << " has been modified" << std::endl;
 
-            earnings.changed = true;
+            earnings.set_changed();
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -151,7 +151,7 @@ std::vector<earning>& budget::all_earnings(){
 }
 
 void budget::set_earnings_changed(){
-    earnings.changed = true;
+    earnings.set_changed();
 }
 
 void budget::set_earnings_next_id(size_t next_id){

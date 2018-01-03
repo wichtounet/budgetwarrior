@@ -93,7 +93,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
             auto& debt = get(debts, id);
             debt.state = 1;
 
-            debts.changed = true;
+            debts.set_changed();
 
             std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
         } else if(subcommand == "delete"){
@@ -121,7 +121,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
 
             std::cout << "Debt " << id << " has been modified" << std::endl;
 
-            debts.changed = true;
+            debts.set_changed();
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -177,7 +177,7 @@ void budget::migrate_debts_3_to_4(){
             debt.title = parts[7];
         });
 
-    debts.changed = true;
+    debts.set_changed();
 
     save_data(debts, "debts.data");
 }
@@ -187,7 +187,7 @@ std::vector<debt>& budget::all_debts(){
 }
 
 void budget::set_debts_changed(){
-    debts.changed = true;
+    debts.set_changed();
 }
 
 void budget::set_debts_next_id(size_t next_id){
