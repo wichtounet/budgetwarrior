@@ -30,6 +30,13 @@ void internal_config_remove(const std::string& key);
 std::string get_web_user();
 std::string get_web_password();
 
+/*!
+ * \brief Indicates if the application is running in server mode.
+ *
+ * Server mode indicates that the application is running in console
+ * but directly sends requests to the server instead of saving to
+ * files.
+ */
 bool is_server_mode();
 
 } //end of namespace budget
