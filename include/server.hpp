@@ -26,6 +26,7 @@ struct module_traits<server_module> {
     static constexpr const char* command = "server";
 };
 
+void set_server_running();
 bool is_server_running();
 
 } //end of namespace budget

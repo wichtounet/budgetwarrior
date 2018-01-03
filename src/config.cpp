@@ -20,6 +20,7 @@
 
 #include "config.hpp"
 #include "utils.hpp"
+#include "server.hpp"
 
 using namespace budget;
 
@@ -201,6 +202,11 @@ std::string budget::get_web_password(){
 }
 
 bool budget::is_server_mode(){
+    // The server cannot run in server mode
+    if (is_server_running()) {
+        return false;
+    }
+
     if (config_contains("server_mode")) {
         return config_value("server_mode") == "true";
     }

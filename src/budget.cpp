@@ -40,6 +40,7 @@ using namespace budget;
 namespace {
 
 typedef std::tuple<
+            budget::server_module,
             budget::debt_module,
             budget::expenses_module,
             budget::overview_module,
@@ -56,7 +57,6 @@ typedef std::tuple<
             budget::version_module,
             budget::predict_module,
             budget::gc_module,
-            budget::server_module,
             budget::help_module
     > modules_tuple;
 
@@ -283,6 +283,10 @@ int main(int argc, const char* argv[]) {
 
     //Parse the command line args
     auto args = parse_args(argc, argv, collector.aliases);
+
+    if(args[0] == "server"){
+        set_server_running();
+    }
 
     int code = 0;
 
