@@ -1788,6 +1788,10 @@ void api_success(const httplib::Request& req, httplib::Response& res, const std:
     }
 }
 
+void api_success_content(const httplib::Request& /*req*/, httplib::Response& res, const std::string& content){
+    res.set_content(content, "text/plain");
+}
+
 void api_error(const httplib::Request& req, httplib::Response& res, const std::string& message){
     if (req.has_param("server")) {
         auto url = req.params.at("back_page") + "?error=true&message=" + httplib::detail::encode_url(message);
@@ -1935,6 +1939,17 @@ void delete_expenses_api(const httplib::Request& req, httplib::Response& res) {
     budget::expense_delete(budget::to_number<size_t>(id));
 
     api_success(req, res, "Expense " + id + " has been deleted");
+}
+
+void list_expenses_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& expense : all_expenses()){
+        ss << expense;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
 }
 
 void add_earnings_api(const httplib::Request& req, httplib::Response& res) {
@@ -2546,6 +2561,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/expenses/add/", &add_expenses_api);
     server.post("/api/expenses/edit/", &edit_expenses_api);
     server.post("/api/expenses/delete/", &delete_expenses_api);
+    server.get("/api/expenses/list/", &list_expenses_api);
 
     server.post("/api/earnings/add/", &add_earnings_api);
     server.post("/api/earnings/edit/", &edit_earnings_api);
