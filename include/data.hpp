@@ -43,13 +43,13 @@ struct data_handler {
     void load(Functor f){
         auto file_path = path_to_budget_file(path);
 
-        if(!file_exists(file_path)){
+        if (!file_exists(file_path)) {
             next_id = 1;
         } else {
             std::ifstream file(file_path);
 
-            if(file.is_open()){
-                if(file.good()){
+            if (file.is_open()) {
+                if (file.good()) {
                     //Make sure to clear the data first, as load_data can be called
                     //several times
                     data.clear();
@@ -62,14 +62,14 @@ struct data_handler {
                     next_id = 1;
 
                     std::string line;
-                    while(file.good() && getline(file, line)){
+                    while (file.good() && getline(file, line)) {
                         auto parts = split(line, ':');
 
                         T entry;
 
                         f(parts, entry);
 
-                        if(entry.id >= next_id){
+                        if (entry.id >= next_id) {
                             next_id = entry.id + 1;
                         }
 
