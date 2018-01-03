@@ -24,7 +24,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<expense> expenses;
+static data_handler<expense> expenses { "expenses.data" };
 
 void show_templates(){
     std::vector<std::string> columns = {"ID", "Account", "Name", "Amount"};
@@ -188,11 +188,11 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::load_expenses(){
-    load_data(expenses, "expenses.data");
+    expenses.load();
 }
 
 void budget::save_expenses(){
-    save_data(expenses, "expenses.data");
+    expenses.save();
 }
 
 void budget::add_expense(budget::expense&& expense){

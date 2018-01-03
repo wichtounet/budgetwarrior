@@ -24,7 +24,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<earning> earnings;
+static data_handler<earning> earnings { "earnings.data" };
 
 } //end of anonymous namespace
 
@@ -119,11 +119,11 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::load_earnings(){
-    load_data(earnings, "earnings.data");
+    earnings.load();
 }
 
 void budget::save_earnings(){
-    save_data(earnings, "earnings.data");
+    earnings.save();
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const earning& earning){

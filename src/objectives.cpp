@@ -28,7 +28,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<objective> objectives;
+static data_handler<objective> objectives { "objectives.data" };
 
 std::string get_status(const budget::status& status, const budget::objective& objective){
     std::string result;
@@ -281,11 +281,11 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::load_objectives(){
-    load_data(objectives, "objectives.data");
+    objectives.load();
 }
 
 void budget::save_objectives(){
-    save_data(objectives, "objectives.data");
+    objectives.save();
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const objective& objective){

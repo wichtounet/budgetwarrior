@@ -20,7 +20,7 @@ struct data_handler {
     size_t next_id;
     std::vector<T> data;
 
-    data_handler(){};
+    data_handler(const char* path) : path(path) {};
 
     //data_handler should never be copied
     data_handler(const data_handler& rhs) = delete;
@@ -34,76 +34,95 @@ struct data_handler {
         changed = true;
     }
 
-private:
-    bool changed = false;
-};
-
-template<typename T>
-void save_data(const data_handler<T>& data, const std::string& path){
-    if (data.is_changed()) {
-        if (budget::config_contains("random")) {
-            std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
-            return;
-        }
-
+    template<typename Functor>
+    void load(Functor f){
         auto file_path = path_to_budget_file(path);
 
-        std::ofstream file(file_path);
+        if(!file_exists(file_path)){
+            next_id = 1;
+        } else {
+            std::ifstream file(file_path);
 
-        // We still save the file ID so that it's still compatible with older versions for now
-        file << data.next_id << std::endl;
+            if(file.is_open()){
+                if(file.good()){
+                    //Make sure to clear the data first, as load_data can be called
+                    //several times
+                    data.clear();
 
-        for(auto& entry: data.data){
-            file << entry << std::endl;
-        }
-    }
-}
+                    // We do not use the next_id saved anymore
+                    size_t fake;
+                    file >> fake;
+                    file.get();
 
-template<typename T, typename Functor>
-void load_data(data_handler<T>& data, const std::string& path, Functor f){
-    auto file_path = path_to_budget_file(path);
+                    next_id = 1;
 
-    if(!file_exists(file_path)){
-        data.next_id = 1;
-    } else {
-        std::ifstream file(file_path);
+                    std::string line;
+                    while(file.good() && getline(file, line)){
+                        auto parts = split(line, ':');
 
-        if(file.is_open()){
-            if(file.good()){
-                //Make sure to clear the data first, as load_data can be called
-                //several times
-                data.data.clear();
+                        T entry;
 
-                // We do not use the next_id saved anymore
-                size_t fake;
-                file >> fake;
-                file.get();
+                        f(parts, entry);
 
-                data.next_id = 1;
+                        if(entry.id >= next_id){
+                            next_id = entry.id + 1;
+                        }
 
-                std::string line;
-                while(file.good() && getline(file, line)){
-                    auto parts = split(line, ':');
-
-                    T entry;
-
-                    f(parts, entry);
-
-                    if(entry.id >= data.next_id){
-                        data.next_id = entry.id + 1;
+                        data.push_back(std::move(entry));
                     }
-
-                    data.data.push_back(std::move(entry));
                 }
             }
         }
     }
-}
 
-template<typename T>
-void load_data(data_handler<T>& data, const std::string& path){
-    load_data(data, path, [](std::vector<std::string>& parts, T& entry){ parts >> entry; });
-}
+    void load(){
+        load([](std::vector<std::string>& parts, T& entry){ parts >> entry; });
+    }
+
+    void save() {
+        if (is_changed()) {
+            if (budget::config_contains("random")) {
+                std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
+                return;
+            }
+
+            auto file_path = path_to_budget_file(path);
+
+            std::ofstream file(file_path);
+
+            // We still save the file ID so that it's still compatible with older versions for now
+            file << next_id << std::endl;
+
+            for (auto& entry : data) {
+                file << entry << std::endl;
+            }
+        }
+    }
+
+    size_t size() const {
+        return data.size();
+    }
+
+    decltype(auto) begin() {
+        return data.begin();
+    }
+
+    decltype(auto) begin() const {
+        return data.begin();
+    }
+
+    decltype(auto) end() {
+        return data.end();
+    }
+
+    decltype(auto) end() const {
+        return data.end();
+    }
+
+private:
+    const char* path;
+    bool changed = false;
+};
 
 template<typename T>
 bool exists(const data_handler<T>& data, size_t id){

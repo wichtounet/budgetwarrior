@@ -23,7 +23,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<fortune> fortunes;
+static data_handler<fortune> fortunes { "fortunes.data" };
 
 } //end of anonymous namespace
 
@@ -220,11 +220,11 @@ std::vector<fortune>& budget::all_fortunes(){
 }
 
 void budget::load_fortunes(){
-    load_data(fortunes, "fortunes.data");
+    fortunes.load();
 }
 
 void budget::save_fortunes(){
-    save_data(fortunes, "fortunes.data");
+    fortunes.save();
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const fortune& fortune){

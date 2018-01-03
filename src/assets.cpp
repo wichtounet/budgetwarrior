@@ -29,8 +29,8 @@ using namespace budget;
 
 namespace {
 
-static data_handler<asset> assets;
-static data_handler<asset_value> asset_values;
+static data_handler<asset> assets { "assets.data" };
+static data_handler<asset_value> asset_values { "asset_values.data" };
 
 size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
     ((std::string*)userp)->append((char*)contents, size * nmemb);
@@ -351,13 +351,13 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::load_assets(){
-    load_data(assets, "assets.data");
-    load_data(asset_values, "asset_values.data");
+    assets.load();
+    asset_values.load();
 }
 
 void budget::save_assets(){
-    save_data(assets, "assets.data");
-    save_data(asset_values, "asset_values.data");
+    assets.save();
+    asset_values.save();
 }
 
 budget::asset& budget::get_asset(size_t id){

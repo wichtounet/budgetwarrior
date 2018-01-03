@@ -23,7 +23,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<debt> debts;
+static data_handler<debt> debts { "debts.data" };
 
 void edit_direction(bool& ref, const std::string& title){
     std::string answer;
@@ -129,11 +129,11 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::load_debts(){
-    load_data(debts, "debts.data");
+    debts.load();
 }
 
 void budget::save_debts(){
-    save_data(debts, "debts.data");
+    debts.save();
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const debt& debt){
@@ -166,7 +166,7 @@ void budget::operator>>(const std::vector<std::string>& parts, debt& debt){
 }
 
 void budget::migrate_debts_3_to_4(){
-    load_data(debts, "debts.data", [](const std::vector<std::string>& parts, debt& debt){
+    debts.load([](const std::vector<std::string>& parts, debt& debt){
             debt.id = to_number<int>(parts[0]);
             debt.state = to_number<int>(parts[1]);
             debt.guid = parts[2];
@@ -179,7 +179,7 @@ void budget::migrate_debts_3_to_4(){
 
     debts.set_changed();
 
-    save_data(debts, "debts.data");
+    debts.save();
 }
 
 std::vector<debt>& budget::all_debts(){

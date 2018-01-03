@@ -32,7 +32,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<wish> wishes;
+static data_handler<wish> wishes { "wishes.data" };
 
 std::string wish_status(size_t v){
     switch(v){
@@ -168,11 +168,11 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::load_wishes(){
-    load_data(wishes, "wishes.data");
+    wishes.load();
 }
 
 void budget::save_wishes(){
-    save_data(wishes, "wishes.data");
+    wishes.save();
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
@@ -221,7 +221,7 @@ void budget::set_wishes_next_id(size_t next_id){
 }
 
 void budget::migrate_wishes_2_to_3(){
-    load_data(wishes, "wishes.data", [](const std::vector<std::string>& parts, wish& wish){
+    wishes.load([](const std::vector<std::string>& parts, wish& wish){
         wish.id = to_number<size_t>(parts[0]);
         wish.guid = parts[1];
         wish.name = parts[2];
@@ -233,11 +233,11 @@ void budget::migrate_wishes_2_to_3(){
 
     set_wishes_changed();
 
-    save_data(wishes, "wishes.data");
+    wishes.save();
 }
 
 void budget::migrate_wishes_3_to_4(){
-    load_data(wishes, "wishes.data", [](const std::vector<std::string>& parts, wish& wish){
+    wishes.load([](const std::vector<std::string>& parts, wish& wish){
         wish.id = to_number<size_t>(parts[0]);
         wish.guid = parts[1];
         wish.name = parts[2];
@@ -251,7 +251,7 @@ void budget::migrate_wishes_3_to_4(){
 
     set_wishes_changed();
 
-    save_data(wishes, "wishes.data");
+    wishes.save();
 }
 
 void budget::list_wishes(budget::writer& w){

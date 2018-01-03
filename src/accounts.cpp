@@ -26,7 +26,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<account> accounts;
+static data_handler<account> accounts { "accounts.data" };
 
 size_t get_account_id(std::string name, budget::year year, budget::month month){
     budget::date date(year, month, 5);
@@ -370,11 +370,11 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::load_accounts(){
-    load_data(accounts, "accounts.data");
+    accounts.load();
 }
 
 void budget::save_accounts(){
-    save_data(accounts, "accounts.data");
+    accounts.save();
 }
 
 budget::account& budget::get_account(size_t id){

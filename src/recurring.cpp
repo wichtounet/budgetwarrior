@@ -25,7 +25,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<recurring> recurrings;
+static data_handler<recurring> recurrings { "recurrings.data" };
 
 } //end of anonymous namespace
 
@@ -174,11 +174,11 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::load_recurrings(){
-    load_data(recurrings, "recurrings.data");
+    recurrings.load();
 }
 
 void budget::save_recurrings(){
-    save_data(recurrings, "recurrings.data");
+    recurrings.save();
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const recurring& recurring){
@@ -188,7 +188,7 @@ std::ostream& budget::operator<<(std::ostream& stream, const recurring& recurrin
 void budget::migrate_recurring_1_to_2(){
     load_accounts();
 
-    load_data(recurrings, "recurrings.data", [](const std::vector<std::string>& parts, recurring& recurring){
+    recurrings.load([](const std::vector<std::string>& parts, recurring& recurring){
         recurring.id = to_number<size_t>(parts[0]);
         recurring.guid = parts[1];
         recurring.old_account = to_number<size_t>(parts[2]);
@@ -203,7 +203,7 @@ void budget::migrate_recurring_1_to_2(){
 
     recurrings.set_changed();
 
-    save_data(recurrings, "recurrings.data");
+    recurrings.save();
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, recurring& recurring){
