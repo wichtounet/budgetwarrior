@@ -2023,6 +2023,17 @@ void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "Earning " + id + " has been deleted");
 }
 
+void list_earnings_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& earning : all_earnings()){
+        ss << earning;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
+}
+
 void add_objectives_api(const httplib::Request& req, httplib::Response& res) {
     if (!parameters_present(req, {"input_name", "input_type", "input_type", "input_source", "input_operator", "input_amount"})){
         api_error(req, res, "Invalid parameters");
@@ -2083,6 +2094,17 @@ void delete_objectives_api(const httplib::Request& req, httplib::Response& res) 
     budget::objective_delete(budget::to_number<size_t>(id));
 
     api_success(req, res, "objective " + id + " has been deleted");
+}
+
+void list_objectives_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& objective : all_objectives()){
+        ss << objective;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
 }
 
 void add_assets_api(const httplib::Request& req, httplib::Response& res) {
@@ -2163,6 +2185,17 @@ void delete_assets_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "asset " + id + " has been deleted");
 }
 
+void list_assets_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& asset : all_assets()){
+        ss << asset;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
+}
+
 void add_asset_values_api(const httplib::Request& req, httplib::Response& res) {
     if (!parameters_present(req, {"input_asset", "input_date", "input_amount"})){
         api_error(req, res, "Invalid parameters");
@@ -2219,6 +2252,17 @@ void delete_asset_values_api(const httplib::Request& req, httplib::Response& res
     budget::asset_value_delete(budget::to_number<size_t>(id));
 
     api_success(req, res, "The asset value " + id + " has been deleted");
+}
+
+void list_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& asset_value : all_asset_values()){
+        ss << asset_value;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
 }
 
 void add_recurrings_api(const httplib::Request& req, httplib::Response& res) {
@@ -2278,6 +2322,17 @@ void delete_recurrings_api(const httplib::Request& req, httplib::Response& res) 
     budget::recurring_delete(budget::to_number<size_t>(id));
 
     api_success(req, res, "Recurring " + id + " has been deleted");
+}
+
+void list_recurrings_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& recurring : all_recurrings()){
+        ss << recurring;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
 }
 
 void add_debts_api(const httplib::Request& req, httplib::Response& res) {
@@ -2343,6 +2398,17 @@ void delete_debts_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "Debt " + id + " has been deleted");
 }
 
+void list_debts_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& debt : all_debts()){
+        ss << debt;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
+}
+
 void add_fortunes_api(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_amount") || !req.has_param("input_date")) {
         api_error(req, res, "Invalid parameters");
@@ -2397,6 +2463,17 @@ void delete_fortunes_api(const httplib::Request& req, httplib::Response& res) {
     budget::fortune_delete(budget::to_number<size_t>(id));
 
     api_success(req, res, "fortune " + id + " has been deleted");
+}
+
+void list_fortunes_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& fortune : all_fortunes()){
+        ss << fortune;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
 }
 
 void add_wishes_api(const httplib::Request& req, httplib::Response& res) {
@@ -2468,6 +2545,17 @@ void delete_wishes_api(const httplib::Request& req, httplib::Response& res) {
     budget::wish_delete(budget::to_number<size_t>(id));
 
     api_success(req, res, "wish " + id + " has been deleted");
+}
+
+void list_wishes_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& wish : all_wishes()){
+        ss << wish;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
 }
 
 } //end of anonymous namespace
@@ -2583,34 +2671,42 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/earnings/add/", &add_earnings_api);
     server.post("/api/earnings/edit/", &edit_earnings_api);
     server.post("/api/earnings/delete/", &delete_earnings_api);
+    server.get("/api/earnings/list/", &list_earnings_api);
 
     server.post("/api/recurrings/add/", &add_recurrings_api);
     server.post("/api/recurrings/edit/", &edit_recurrings_api);
     server.post("/api/recurrings/delete/", &delete_recurrings_api);
+    server.get("/api/recurrings/list/", &list_recurrings_api);
 
     server.post("/api/debts/add/", &add_debts_api);
     server.post("/api/debts/edit/", &edit_debts_api);
     server.post("/api/debts/delete/", &delete_debts_api);
+    server.get("/api/debts/list/", &list_debts_api);
 
     server.post("/api/fortunes/add/", &add_fortunes_api);
     server.post("/api/fortunes/edit/", &edit_fortunes_api);
     server.post("/api/fortunes/delete/", &delete_fortunes_api);
+    server.get("/api/fortunes/list/", &list_fortunes_api);
 
     server.post("/api/wishes/add/", &add_wishes_api);
     server.post("/api/wishes/edit/", &edit_wishes_api);
     server.post("/api/wishes/delete/", &delete_wishes_api);
+    server.get("/api/wishes/list/", &list_wishes_api);
 
     server.post("/api/assets/add/", &add_assets_api);
     server.post("/api/assets/edit/", &edit_assets_api);
     server.post("/api/assets/delete/", &delete_assets_api);
+    server.get("/api/assets/list/", &list_assets_api);
 
     server.post("/api/asset_values/add/", &add_asset_values_api);
     server.post("/api/asset_values/edit/", &edit_asset_values_api);
     server.post("/api/asset_values/delete/", &delete_asset_values_api);
+    server.get("/api/asset_values/list/", &list_asset_values_api);
 
     server.post("/api/objectives/add/", &add_objectives_api);
     server.post("/api/objectives/edit/", &edit_objectives_api);
     server.post("/api/objectives/delete/", &delete_objectives_api);
+    server.get("/api/objectives/list/", &list_objectives_api);
 
     // Handle error
 
