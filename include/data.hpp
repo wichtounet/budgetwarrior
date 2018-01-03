@@ -12,6 +12,7 @@
 
 #include "config.hpp"
 #include "utils.hpp"
+#include "server.hpp"
 
 namespace budget {
 
@@ -30,8 +31,12 @@ struct data_handler {
         return changed;
     }
 
-    void set_changed(){
-        changed = true;
+    void set_changed() {
+        if (is_server_mode()) {
+            force_save();
+        } else {
+            changed = true;
+        }
     }
 
     template<typename Functor>
@@ -79,23 +84,29 @@ struct data_handler {
         load([](std::vector<std::string>& parts, T& entry){ parts >> entry; });
     }
 
+    void force_save() {
+        if (budget::config_contains("random")) {
+            std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
+            return;
+        }
+
+        auto file_path = path_to_budget_file(path);
+
+        std::ofstream file(file_path);
+
+        // We still save the file ID so that it's still compatible with older versions for now
+        file << next_id << std::endl;
+
+        for (auto& entry : data) {
+            file << entry << std::endl;
+        }
+
+        changed = false;
+    }
+
     void save() {
         if (is_changed()) {
-            if (budget::config_contains("random")) {
-                std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
-                return;
-            }
-
-            auto file_path = path_to_budget_file(path);
-
-            std::ofstream file(file_path);
-
-            // We still save the file ID so that it's still compatible with older versions for now
-            file << next_id << std::endl;
-
-            for (auto& entry : data) {
-                file << entry << std::endl;
-            }
+            force_save();
         }
     }
 
