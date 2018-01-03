@@ -13,6 +13,7 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "server.hpp"
+#include "api.hpp"
 
 namespace budget {
 
@@ -42,40 +43,59 @@ struct data_handler {
     }
 
     template<typename Functor>
+    void parse_stream(std::istream& file, Functor f){
+        next_id = 1;
+
+        std::string line;
+        while (file.good() && getline(file, line)) {
+            if (line.empty()) {
+                continue;
+            }
+
+            auto parts = split(line, ':');
+
+            T entry;
+
+            f(parts, entry);
+
+            if (entry.id >= next_id) {
+                next_id = entry.id + 1;
+            }
+
+            data.push_back(std::move(entry));
+        }
+    }
+
+    template<typename Functor>
     void load(Functor f){
-        auto file_path = path_to_budget_file(path);
+        //Make sure to clear the data first, as load_data can be called
+        //several times
+        data.clear();
 
-        if (!file_exists(file_path)) {
-            next_id = 1;
+        if(is_server_mode()){
+            auto res = budget::api_get(std::string("/") + module + "/list/");
+
+            if(res.success){
+                std::stringstream ss(res.result);
+                parse_stream(ss, f);
+            }
         } else {
-            std::ifstream file(file_path);
+            auto file_path = path_to_budget_file(path);
 
-            if (file.is_open()) {
-                if (file.good()) {
-                    //Make sure to clear the data first, as load_data can be called
-                    //several times
-                    data.clear();
+            if (!file_exists(file_path)) {
+                next_id = 1;
+            } else {
+                std::ifstream file(file_path);
 
-                    // We do not use the next_id saved anymore
-                    size_t fake;
-                    file >> fake;
-                    file.get();
+                if (file.is_open()) {
+                    if (file.good()) {
+                        // We do not use the next_id saved anymore
+                        // Simply consume it
+                        size_t fake;
+                        file >> fake;
+                        file.get();
 
-                    next_id = 1;
-
-                    std::string line;
-                    while (file.good() && getline(file, line)) {
-                        auto parts = split(line, ':');
-
-                        T entry;
-
-                        f(parts, entry);
-
-                        if (entry.id >= next_id) {
-                            next_id = entry.id + 1;
-                        }
-
-                        data.push_back(std::move(entry));
+                        parse_stream(file, f);
                     }
                 }
             }
