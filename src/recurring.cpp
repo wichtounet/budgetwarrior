@@ -29,13 +29,19 @@ static data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
 
 } //end of anonymous namespace
 
-void budget::recurring_module::preload(){
+void budget::recurring_module::preload() {
+    // In server mode, there is no need to generate recurring expenses
+    // the server will take charge of that
+    if (is_server_mode()) {
+        return;
+    }
+
     load_recurrings();
     load_accounts();
     load_expenses();
 
     // In random mode, we do not try to create recurrings
-    if(config_contains("random")){
+    if (config_contains("random")) {
         return;
     }
 
@@ -74,7 +80,12 @@ void budget::recurring_module::preload(){
 }
 
 void budget::recurring_module::load(){
-    //No need to load anything, that have been done in the preload phase
+    // Only need to load in server mode
+    if (is_server_mode()) {
+        load_recurrings();
+        load_accounts();
+        load_expenses();
+    }
 }
 
 void budget::recurring_module::unload(){
