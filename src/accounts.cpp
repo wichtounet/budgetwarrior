@@ -113,7 +113,6 @@ void budget::archive_accounts_impl(bool month){
         if (expense.date >= since_date) {
             if (mapping.find(expense.account) != mapping.end()) {
                 expense.account = mapping[expense.account];
-                set_expenses_changed();
             }
         }
     }
@@ -122,11 +121,12 @@ void budget::archive_accounts_impl(bool month){
         if (earning.date >= since_date) {
             if (mapping.find(earning.account) != mapping.end()) {
                 earning.account = mapping[earning.account];
-                set_earnings_changed();
             }
         }
     }
 
+    set_expenses_changed();
+    set_earnings_changed();
     accounts.set_changed();
 }
 
