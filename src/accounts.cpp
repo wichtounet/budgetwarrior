@@ -64,6 +64,72 @@ void budget::accounts_module::unload(){
     save_earnings();
 }
 
+void budget::archive_accounts_impl(bool month){
+    std::vector<size_t> sources;
+    std::vector<budget::account> copies;
+
+    auto today = budget::local_day();
+
+    budget::date until_date;
+    budget::date since_date;
+
+    if (month) {
+        auto tmp   = budget::local_day() - months(1);
+        until_date = budget::date(tmp.year(), tmp.month(), tmp.end_of_month().day());
+        since_date = until_date + days(1);
+    } else {
+        since_date = budget::date(today.year(), 1, 1);
+        until_date = since_date - days(1);
+    }
+
+    for (auto& account : all_accounts()) {
+        if (account.until == budget::date(2099, 12, 31)) {
+            budget::account copy;
+            copy.guid   = generate_guid();
+            copy.name   = account.name;
+            copy.amount = account.amount;
+            copy.until  = budget::date(2099, 12, 31);
+            copy.since  = since_date;
+
+            account.until = until_date;
+
+            copies.push_back(std::move(copy));
+
+            sources.push_back(account.id);
+        }
+    }
+
+    std::unordered_map<size_t, size_t> mapping;
+
+    for (size_t i = 0; i < copies.size(); ++i) {
+        auto& copy = copies[i];
+
+        auto id = add_data(accounts, std::move(copy));
+
+        mapping[sources[i]] = id;
+    }
+
+    for (auto& expense : all_expenses()) {
+        if (expense.date >= since_date) {
+            if (mapping.find(expense.account) != mapping.end()) {
+                expense.account = mapping[expense.account];
+                set_expenses_changed();
+            }
+        }
+    }
+
+    for (auto& earning : all_earnings()) {
+        if (earning.date >= since_date) {
+            if (mapping.find(earning.account) != mapping.end()) {
+                earning.account = mapping[earning.account];
+                set_earnings_changed();
+            }
+        }
+    }
+
+    accounts.changed = true;
+}
+
 void budget::accounts_module::handle(const std::vector<std::string>& args){
     console_writer w(std::cout);
 
@@ -295,69 +361,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             std::cin >> answer;
 
             if(answer == "yes" || answer == "y"){
-                std::vector<size_t> sources;
-                std::vector<budget::account> copies;
-
-                auto today = budget::local_day();
-
-                budget::date until_date;
-                budget::date since_date;
-
-                if(month){
-                    auto tmp = budget::local_day() - months(1);
-                    until_date = budget::date(tmp.year(), tmp.month(), tmp.end_of_month().day());
-                    since_date = until_date + days(1);
-                } else {
-                    since_date = budget::date(today.year(), 1, 1);
-                    until_date = since_date - days(1);
-                }
-
-                for(auto& account : all_accounts()){
-                    if(account.until == budget::date(2099,12,31)){
-                        budget::account copy;
-                        copy.guid = generate_guid();
-                        copy.name = account.name;
-                        copy.amount = account.amount;
-                        copy.until = budget::date(2099,12,31);
-                        copy.since = since_date;
-
-                        account.until = until_date;
-
-                        copies.push_back(std::move(copy));
-
-                        sources.push_back(account.id);
-                    }
-                }
-
-                std::unordered_map<size_t, size_t> mapping;
-
-                for(size_t i = 0; i < copies.size(); ++i){
-                    auto& copy = copies[i];
-
-                    auto id = add_data(accounts, std::move(copy));
-
-                    mapping[sources[i]] = id;
-                }
-
-                for(auto& expense : all_expenses()){
-                    if(expense.date >= since_date){
-                        if(mapping.find(expense.account) != mapping.end()){
-                            expense.account = mapping[expense.account];
-                            set_expenses_changed();
-                        }
-                    }
-                }
-
-                for(auto& earning : all_earnings()){
-                    if(earning.date >= since_date){
-                        if(mapping.find(earning.account) != mapping.end()){
-                            earning.account = mapping[earning.account];
-                            set_earnings_changed();
-                        }
-                    }
-                }
-
-                accounts.changed = true;
+                archive_accounts_impl(month);
             }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");

@@ -68,6 +68,8 @@ account& account_get(size_t id);
 
 date find_new_since();
 
+void archive_accounts_impl(bool month);
+
 } //end of namespace budget
 
 #endif
