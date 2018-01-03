@@ -24,7 +24,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<earning> earnings { "earnings.data" };
+static data_handler<earning> earnings { "earnings", "earnings.data" };
 
 } //end of anonymous namespace
 

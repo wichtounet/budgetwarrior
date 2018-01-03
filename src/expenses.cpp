@@ -24,7 +24,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<expense> expenses { "expenses.data" };
+static data_handler<expense> expenses { "expenses", "expenses.data" };
 
 void show_templates(){
     std::vector<std::string> columns = {"ID", "Account", "Name", "Amount"};

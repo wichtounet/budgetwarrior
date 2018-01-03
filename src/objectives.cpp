@@ -28,7 +28,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<objective> objectives { "objectives.data" };
+static data_handler<objective> objectives { "objectives", "objectives.data" };
 
 std::string get_status(const budget::status& status, const budget::objective& objective){
     std::string result;

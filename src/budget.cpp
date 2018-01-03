@@ -238,8 +238,8 @@ int main(int argc, const char* argv[]) {
         return 0;
     }
 
-    if (is_server_mode() && !config_contains("server_url")) {
-        std::cout << "error: server_mode=true needs a server_url" << std::endl;
+    if (is_server_mode() && (!config_contains("server_url") || !config_contains("server_port"))) {
+        std::cout << "error: server_mode=true needs a server_url value and a server_port value" << std::endl;
 
         return 0;
     }

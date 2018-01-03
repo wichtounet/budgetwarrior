@@ -21,7 +21,9 @@ struct data_handler {
     size_t next_id;
     std::vector<T> data;
 
-    data_handler(const char* path) : path(path) {};
+    data_handler(const char* module, const char* path) : module(module), path(path) {
+        // Nothing else to init
+    };
 
     //data_handler should never be copied
     data_handler(const data_handler& rhs) = delete;
@@ -131,6 +133,7 @@ struct data_handler {
     }
 
 private:
+    const char* module;
     const char* path;
     bool changed = false;
 };

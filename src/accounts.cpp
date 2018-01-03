@@ -26,7 +26,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<account> accounts { "accounts.data" };
+static data_handler<account> accounts { "accounts", "accounts.data" };
 
 size_t get_account_id(std::string name, budget::year year, budget::month month){
     budget::date date(year, month, 5);

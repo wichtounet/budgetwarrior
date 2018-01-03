@@ -32,7 +32,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<wish> wishes { "wishes.data" };
+static data_handler<wish> wishes { "wishes", "wishes.data" };
 
 std::string wish_status(size_t v){
     switch(v){

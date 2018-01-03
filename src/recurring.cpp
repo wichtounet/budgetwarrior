@@ -25,7 +25,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<recurring> recurrings { "recurrings.data" };
+static data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
 
 } //end of anonymous namespace
 

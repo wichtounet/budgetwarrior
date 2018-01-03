@@ -23,7 +23,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<fortune> fortunes { "fortunes.data" };
+static data_handler<fortune> fortunes { "fortunes", "fortunes.data" };
 
 } //end of anonymous namespace
 

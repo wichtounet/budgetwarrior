@@ -29,8 +29,8 @@ using namespace budget;
 
 namespace {
 
-static data_handler<asset> assets { "assets.data" };
-static data_handler<asset_value> asset_values { "asset_values.data" };
+static data_handler<asset> assets { "assets", "assets.data" };
+static data_handler<asset_value> asset_values { "asset_values", "asset_values.data" };
 
 size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
     ((std::string*)userp)->append((char*)contents, size * nmemb);

@@ -23,7 +23,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<debt> debts { "debts.data" };
+static data_handler<debt> debts { "debts", "debts.data" };
 
 void edit_direction(bool& ref, const std::string& title){
     std::string answer;
