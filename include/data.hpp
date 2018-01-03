@@ -32,7 +32,7 @@ struct data_handler {
     }
 
     void set_changed() {
-        if (is_server_mode()) {
+        if (is_server_running()) {
             force_save();
         } else {
             changed = true;

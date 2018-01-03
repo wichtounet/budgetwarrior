@@ -30,7 +30,7 @@ using namespace budget;
 
 namespace {
 
-bool server_mode = false;
+bool server_running = false;
 
 static constexpr const char new_line = '\n';
 
@@ -2424,12 +2424,12 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     });
 
     // Indicates to the system that it's running in server mode
-    server_mode = true;
+    server_running = true;
 
     // Listen
     server.listen("localhost", 8080);
 }
 
-bool budget::is_server_mode(){
-    return server_mode;
+bool budget::is_server_running(){
+    return server_running;
 }
