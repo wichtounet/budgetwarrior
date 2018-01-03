@@ -73,6 +73,21 @@ void edit(budget::objective& objective){
 
 } //end of anonymous namespace
 
+std::map<std::string, std::string> budget::objective::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]      = budget::to_string(id);
+    params["input_guid"]    = guid;
+    params["input_date"]    = budget::to_string(date);
+    params["input_name"]    = name;
+    params["input_type"]    = type;
+    params["input_source"]  = source;
+    params["input_op"]      = op;
+    params["input_amount"]  = budget::to_string(amount);
+
+    return params;
+}
+
 void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_align){
     size_t yearly = 0;
 

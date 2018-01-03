@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "module_traits.hpp"
 #include "money.hpp"
@@ -39,6 +40,8 @@ struct recurring {
     money amount;
     std::string recurs;
     std::string account;
+
+    std::map<std::string, std::string> get_params();
 };
 
 std::ostream& operator<<(std::ostream& stream, const recurring& recurring);

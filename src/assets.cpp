@@ -96,6 +96,35 @@ std::vector<std::string> get_asset_names(){
 
 } //end of anonymous namespace
 
+std::map<std::string, std::string> budget::asset::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]              = budget::to_string(id);
+    params["input_guid"]            = guid;
+    params["input_name"]            = name;
+    params["input_int_stocks"]      = budget::to_string(int_stocks);
+    params["input_dom_stocks"]      = budget::to_string(dom_stocks);
+    params["input_bonds"]           = budget::to_string(bonds);
+    params["input_cash"]            = budget::to_string(cash);
+    params["input_currency"]        = currency;
+    params["input_portfolio"]       = portfolio ? "true" : "false";
+    params["input_portfolio_alloc"] = budget::to_string(portfolio_alloc);
+
+    return params;
+}
+
+std::map<std::string, std::string> budget::asset_value::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]       = budget::to_string(id);
+    params["input_guid"]     = guid;
+    params["input_asset_id"] = budget::to_string(asset_id);
+    params["input_amount"]   = budget::to_string(amount);
+    params["input_set_date"] = budget::to_string(set_date);
+
+    return params;
+}
+
 void budget::assets_module::load(){
     load_assets();
 }

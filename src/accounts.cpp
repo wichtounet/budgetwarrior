@@ -49,8 +49,26 @@ void adapt(Values& values, size_t old, size_t id){
     }
 }
 
-
 } //end of anonymous namespace
+
+std::map<std::string, std::string> budget::account::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]     = budget::to_string(id);
+    params["input_guid"]   = guid;
+    params["input_name"]   = name;
+    params["input_amount"] = budget::to_string(amount);
+    params["input_since"]  = budget::to_string(since);
+    params["input_until"]  = budget::to_string(until);
+
+    std::string guid;
+    std::string name;
+    money amount;
+    date since;
+    date until;
+
+    return params;
+}
 
 void budget::accounts_module::load(){
     load_accounts();

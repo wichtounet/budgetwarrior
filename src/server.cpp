@@ -1788,6 +1788,15 @@ void api_success(const httplib::Request& req, httplib::Response& res, const std:
     }
 }
 
+void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message, const std::string& content){
+    if (req.has_param("server")) {
+        auto url = req.params.at("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
+        res.set_redirect(url.c_str());
+    } else {
+        res.set_content(content, "text/plain");
+    }
+}
+
 void api_success_content(const httplib::Request& /*req*/, httplib::Response& res, const std::string& content){
     res.set_content(content, "text/plain");
 }
@@ -1826,7 +1835,7 @@ void add_accounts_api(const httplib::Request& req, httplib::Response& res) {
 
     add_account(std::move(account));
 
-    api_success(req, res, "Account " + to_string(account.id) + " has been created");
+    api_success(req, res, "Account " + to_string(account.id) + " has been created", to_string(account.id));
 }
 
 void edit_accounts_api(const httplib::Request& req, httplib::Response& res) {
@@ -1907,7 +1916,7 @@ void add_expenses_api(const httplib::Request& req, httplib::Response& res) {
 
     add_expense(std::move(expense));
 
-    api_success(req, res, "Expense " + to_string(expense.id) + " has been created");
+    api_success(req, res, "Expense " + to_string(expense.id) + " has been created", to_string(expense.id));
 }
 
 void edit_expenses_api(const httplib::Request& req, httplib::Response& res) {
@@ -1978,7 +1987,7 @@ void add_earnings_api(const httplib::Request& req, httplib::Response& res) {
 
     add_earning(std::move(earning));
 
-    api_success(req, res, "Earning " + to_string(earning.id) + " has been created");
+    api_success(req, res, "Earning " + to_string(earning.id) + " has been created", to_string(earning.id));
 }
 
 void edit_earnings_api(const httplib::Request& req, httplib::Response& res) {
@@ -2050,7 +2059,7 @@ void add_objectives_api(const httplib::Request& req, httplib::Response& res) {
 
     add_objective(std::move(objective));
 
-    api_success(req, res, "objective " + to_string(objective.id) + " has been created");
+    api_success(req, res, "objective " + to_string(objective.id) + " has been created", to_string(objective.id));
 }
 
 void edit_objectives_api(const httplib::Request& req, httplib::Response& res) {
@@ -2131,7 +2140,7 @@ void add_assets_api(const httplib::Request& req, httplib::Response& res) {
 
     add_asset(std::move(asset));
 
-    api_success(req, res, "asset " + to_string(asset.id) + " has been created");
+    api_success(req, res, "asset " + to_string(asset.id) + " has been created", to_string(asset.id));
 }
 
 void edit_assets_api(const httplib::Request& req, httplib::Response& res) {
@@ -2210,7 +2219,7 @@ void add_asset_values_api(const httplib::Request& req, httplib::Response& res) {
 
     add_asset_value(std::move(asset_value));
 
-    api_success(req, res, "Asset value " + to_string(asset_value.id) + " has been created");
+    api_success(req, res, "Asset value " + to_string(asset_value.id) + " has been created", to_string(asset_value.id));
 }
 
 void edit_asset_values_api(const httplib::Request& req, httplib::Response& res) {
@@ -2280,7 +2289,7 @@ void add_recurrings_api(const httplib::Request& req, httplib::Response& res) {
 
     add_recurring(std::move(recurring));
 
-    api_success(req, res, "Recurring " + to_string(recurring.id) + " has been created");
+    api_success(req, res, "Recurring " + to_string(recurring.id) + " has been created", to_string(recurring.id));
 }
 
 void edit_recurrings_api(const httplib::Request& req, httplib::Response& res) {
@@ -2352,7 +2361,7 @@ void add_debts_api(const httplib::Request& req, httplib::Response& res) {
 
     add_debt(std::move(debt));
 
-    api_success(req, res, "Debt " + to_string(debt.id) + " has been created");
+    api_success(req, res, "Debt " + to_string(debt.id) + " has been created", to_string(debt.id));
 }
 
 void edit_debts_api(const httplib::Request& req, httplib::Response& res) {
@@ -2422,7 +2431,7 @@ void add_fortunes_api(const httplib::Request& req, httplib::Response& res) {
 
     add_fortune(std::move(fortune));
 
-    api_success(req, res, "Fortune " + to_string(fortune.id) + " has been created");
+    api_success(req, res, "Fortune " + to_string(fortune.id) + " has been created", to_string(fortune.id));
 }
 
 void edit_fortunes_api(const httplib::Request& req, httplib::Response& res) {
@@ -2494,7 +2503,7 @@ void add_wishes_api(const httplib::Request& req, httplib::Response& res) {
 
     add_wish(std::move(wish));
 
-    api_success(req, res, "wish " + to_string(wish.id) + " has been created");
+    api_success(req, res, "wish " + to_string(wish.id) + " has been created", to_string(wish.id));
 }
 
 void edit_wishes_api(const httplib::Request& req, httplib::Response& res) {

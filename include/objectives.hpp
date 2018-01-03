@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "module_traits.hpp"
 #include "money.hpp"
@@ -40,6 +41,8 @@ struct objective {
     std::string source;
     std::string op;
     money amount;
+
+    std::map<std::string, std::string> get_params();
 };
 
 std::ostream& operator<<(std::ostream& stream, const objective& expense);

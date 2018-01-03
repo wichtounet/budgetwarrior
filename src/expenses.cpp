@@ -49,6 +49,19 @@ void show_templates(){
 
 } //end of anonymous namespace
 
+std::map<std::string, std::string> budget::expense::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]      = budget::to_string(id);
+    params["input_guid"]    = guid;
+    params["input_date"]    = budget::to_string(date);
+    params["input_name"]    = name;
+    params["input_account"] = budget::to_string(account);
+    params["input_amount"]  = budget::to_string(amount);
+
+    return params;
+}
+
 void budget::expenses_module::load(){
     load_expenses();
     load_accounts();

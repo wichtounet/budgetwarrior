@@ -29,6 +29,20 @@ static data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
 
 } //end of anonymous namespace
 
+std::map<std::string, std::string> budget::recurring::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]          = budget::to_string(id);
+    params["input_guid"]        = guid;
+    params["input_name"]        = name;
+    params["input_old_account"] = budget::to_string(old_account);
+    params["input_amount"]      = budget::to_string(amount);
+    params["input_recurs"]      = recurs;
+    params["input_account"]     = account;
+
+    return params;
+}
+
 void budget::recurring_module::preload() {
     // In server mode, there is no need to generate recurring expenses
     // the server will take charge of that

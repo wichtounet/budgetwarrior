@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "module_traits.hpp"
 #include "money.hpp"
@@ -37,6 +38,8 @@ struct account {
     money amount;
     date since;
     date until;
+
+    std::map<std::string, std::string> get_params();
 };
 
 std::ostream& operator<<(std::ostream& stream, const account& account);

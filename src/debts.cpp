@@ -51,6 +51,21 @@ void edit(budget::debt& debt){
 
 } //end of anonymous namespace
 
+std::map<std::string, std::string> budget::debt::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]            = budget::to_string(id);
+    params["input_guid"]          = guid;
+    params["input_state"]         = budget::to_string(state);
+    params["input_creation_date"] = budget::to_string(creation_date);
+    params["input_direction"]     = budget::to_string(direction);
+    params["input_name"]          = name;
+    params["input_amount"]        = budget::to_string(amount);
+    params["input_title"]         = title;
+
+    return params;
+}
+
 void budget::debt_module::load(){
     load_debts();
 }

@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "module_traits.hpp"
 #include "money.hpp"
@@ -42,6 +43,8 @@ struct asset {
     bool portfolio;
     size_t portfolio_alloc;
 
+    std::map<std::string, std::string> get_params();
+
     size_t total_allocation() const {
         return int_stocks + dom_stocks + bonds + cash;
     }
@@ -53,6 +56,8 @@ struct asset_value {
     size_t asset_id;
     budget::money amount;
     budget::date set_date;
+
+    std::map<std::string, std::string> get_params();
 };
 
 std::ostream& operator<<(std::ostream& stream, const asset& asset);

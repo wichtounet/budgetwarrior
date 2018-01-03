@@ -77,6 +77,21 @@ void edit(budget::wish& wish){
 
 } //end of anonymous namespace
 
+std::map<std::string, std::string> budget::wish::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]          = budget::to_string(id);
+    params["input_guid"]        = guid;
+    params["input_name"]        = name;
+    params["input_amount"]      = budget::to_string(amount);
+    params["input_paid"]        = paid ? "true" : "false";
+    params["input_paid_amount"] = budget::to_string(paid_amount);
+    params["input_importance"]  = budget::to_string(importance);
+    params["input_urgency"]     = budget::to_string(urgency);
+
+    return params;
+}
+
 void budget::wishes_module::load(){
     load_expenses();
     load_earnings();

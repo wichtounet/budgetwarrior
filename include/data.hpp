@@ -152,6 +152,10 @@ struct data_handler {
         return data.end();
     }
 
+    const char* get_module() const {
+        return module;
+    }
+
 private:
     const char* module;
     const char* path;
@@ -190,11 +194,27 @@ T& get(data_handler<T>& data, size_t id){
 
 template<typename T>
 size_t add_data(data_handler<T>& data, T&& entry){
-    entry.id = data.next_id++;
+    if (is_server_mode()) {
+        auto params = entry.get_params();
 
-    data.data.push_back(std::forward<T>(entry));
+        auto res = budget::api_post(std::string("/") + data.get_module() + "/add/", params);
 
-    data.set_changed();
+        if (!res.success) {
+            std::cerr << "error: Failed to add expense" << std::endl;
+
+            entry.id = 0;
+        } else {
+            entry.id = budget::to_number<size_t>(res.result);
+
+            data.data.push_back(std::forward<T>(entry));
+        }
+    } else {
+        entry.id = data.next_id++;
+
+        data.data.push_back(std::forward<T>(entry));
+
+        data.set_changed();
+    }
 
     return entry.id;
 }

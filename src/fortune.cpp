@@ -27,6 +27,17 @@ static data_handler<fortune> fortunes { "fortunes", "fortunes.data" };
 
 } //end of anonymous namespace
 
+std::map<std::string, std::string> budget::fortune::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]          = budget::to_string(id);
+    params["input_guid"]        = guid;
+    params["input_check_date"]  = budget::to_string(check_date);
+    params["input_amount"]      = budget::to_string(amount);
+
+    return params;
+}
+
 void budget::list_fortunes(budget::writer& w){
     if (fortunes.data.empty()) {
         w << "No fortune set" << end_of_line;
