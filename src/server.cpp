@@ -1869,6 +1869,17 @@ void delete_accounts_api(const httplib::Request& req, httplib::Response& res) {
     api_success(req, res, "Account " + id + " has been deleted");
 }
 
+void list_accounts_api(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream ss;
+
+    for(auto& account : all_accounts()){
+        ss << account;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
+}
+
 void archive_accounts_month_api(const httplib::Request& req, httplib::Response& res) {
     budget::archive_accounts_impl(true);
 
@@ -2461,6 +2472,11 @@ void delete_wishes_api(const httplib::Request& req, httplib::Response& res) {
 
 } //end of anonymous namespace
 
+void budget::set_server_running(){
+    // Indicates to the system that it's running in server mode
+    server_running = true;
+}
+
 void budget::server_module::load(){
     load_accounts();
     load_expenses();
@@ -2557,6 +2573,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/api/accounts/delete/", &delete_accounts_api);
     server.post("/api/accounts/archive/month/", &archive_accounts_month_api);
     server.post("/api/accounts/archive/year/", &archive_accounts_year_api);
+    server.get("/api/accounts/list/", &list_accounts_api);
 
     server.post("/api/expenses/add/", &add_expenses_api);
     server.post("/api/expenses/edit/", &edit_expenses_api);
@@ -2615,9 +2632,6 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
         res.set_content(content_stream.str(), "text/html");
     });
-
-    // Indicates to the system that it's running in server mode
-    server_running = true;
 
     // Listen
     server.listen("localhost", 8080);
