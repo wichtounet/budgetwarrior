@@ -439,13 +439,13 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
 
     asset.id              = to_number<size_t>(parts[0]);
     asset.guid            = parts[1];
-    asset.int_stocks      = to_number<size_t>(parts[3]);
-    asset.dom_stocks      = to_number<size_t>(parts[4]);
-    asset.bonds           = to_number<size_t>(parts[5]);
-    asset.cash            = to_number<size_t>(parts[6]);
+    asset.int_stocks      = parse_money(parts[3]);
+    asset.dom_stocks      = parse_money(parts[4]);
+    asset.bonds           = parse_money(parts[5]);
+    asset.cash            = parse_money(parts[6]);
     asset.currency        = parts[7];
     asset.portfolio       = to_number<size_t>(parts[8]);
-    asset.portfolio_alloc = to_number<size_t>(parts[9]);
+    asset.portfolio_alloc = parse_money(parts[9]);
 
     if (random) {
         asset.name = parts[2];
