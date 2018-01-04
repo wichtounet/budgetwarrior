@@ -687,6 +687,8 @@ void budget::show_asset_rebalance(budget::writer& w){
         }
     }
 
+    budget::money total_rebalance;
+
     for(auto& asset : assets.data){
         auto id = asset.id;
 
@@ -709,10 +711,12 @@ void budget::show_asset_rebalance(budget::writer& w){
                 auto& asset_value = get_asset_value(asset_value_id);
                 auto amount       = asset_value.amount;
 
-                auto conv_amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
+                auto conv_amount = amount * exchange_rate(asset.currency, get_default_currency());
                 auto allocation  = 100.0 * (conv_amount / total);
                 auto desired     = total * (float(asset.portfolio_alloc) / 100.0);
                 auto difference  = desired - conv_amount;
+
+                total_rebalance += difference.abs();
 
                 if (amount || difference) {
                     contents.push_back({
@@ -723,12 +727,16 @@ void budget::show_asset_rebalance(budget::writer& w){
                         to_percent(allocation),
                         to_string(asset.portfolio_alloc),
                         to_string(desired),
-                        format_money(difference),
+                        format_money(difference)
                     });
                 }
             }
         }
     }
+
+    // Display the total rebalancing effort
+    contents.push_back({"", "", "", "", "", "", "", ""});
+    contents.push_back({"Total effort", "", "", "", "", "", "", format_money(total_rebalance)});
 
     w.display_table(columns, contents, 1, {}, 1);
 }
