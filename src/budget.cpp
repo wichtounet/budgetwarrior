@@ -288,7 +288,7 @@ int main(int argc, const char* argv[]) {
     //Parse the command line args
     auto args = parse_args(argc, argv, collector.aliases);
 
-    if(args[0] == "server"){
+    if(args.size() && args[0] == "server"){
         set_server_running();
     }
 
