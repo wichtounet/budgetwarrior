@@ -24,15 +24,15 @@ struct money {
         //Nothing to init
     }
 
-    explicit money(int dollars) : value(dollars * SCALE) {
+    explicit money(long dollars) : value(dollars * SCALE) {
         //Nothing to init
     }
 
-    money(int dollars, int cents) : value(dollars * SCALE + cents) {
+    money(long dollars, int cents) : value(dollars * SCALE + cents) {
         //Nothing to init
     }
 
-    money& operator=(int dollars){
+    money& operator=(long dollars){
         this->value = dollars * SCALE;
 
         return *this;
@@ -157,6 +157,14 @@ struct money {
 
     operator double() const {
         return value / double(SCALE);
+    }
+
+    money abs() const {
+        auto a = *this;
+        if (a.value < 0) {
+            a.value = -a.value;
+        }
+        return a;
     }
 };
 
