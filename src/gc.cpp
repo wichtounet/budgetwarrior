@@ -19,6 +19,7 @@
 #include "objectives.hpp"
 #include "recurring.hpp"
 #include "assets.hpp"
+#include "config.hpp"
 
 using namespace budget;
 
@@ -182,6 +183,12 @@ void budget::gc_module::unload(){
 }
 
 void budget::gc_module::handle(const std::vector<std::string>& args){
+    // gc does not make sense in server mode
+    if(is_server_mode()){
+        std::cout << "The gc command is not available in server mode" << std::endl;
+        return;
+    }
+
     if(args.size() > 1){
         std::cout << "Too many parameters" << std::endl;
     } else {
