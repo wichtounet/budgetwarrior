@@ -164,7 +164,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
         }
     }
 
-    cpp_assert(widths.size() == groups * columns.size(), "Widths incorrectly computed");
+    cpp_assert(columns.size() == 0 || widths.size() == groups * columns.size(), "Widths incorrectly computed");
 
     // Display the header
 
