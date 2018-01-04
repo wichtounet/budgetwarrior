@@ -35,17 +35,17 @@ struct asset {
     size_t id;
     std::string guid;
     std::string name;
-    size_t int_stocks;
-    size_t dom_stocks;
-    size_t bonds;
-    size_t cash;
+    money int_stocks;
+    money dom_stocks;
+    money bonds;
+    money cash;
     std::string currency;
     bool portfolio;
-    size_t portfolio_alloc;
+    money portfolio_alloc;
 
     std::map<std::string, std::string> get_params();
 
-    size_t total_allocation() const {
+    money total_allocation() const {
         return int_stocks + dom_stocks + bonds + cash;
     }
 };

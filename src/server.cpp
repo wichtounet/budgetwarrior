@@ -1235,13 +1235,13 @@ void add_assets_page(const httplib::Request& req, httplib::Response& res) {
     form_begin(w, "/api/assets/add/", "/assets/add/");
 
     add_name_picker(w);
-    add_percent_picker(w, "International Stocks (%)", "input_int_stocks");
-    add_percent_picker(w, "Domestic Stocks (%)", "input_dom_stocks");
-    add_percent_picker(w, "Bonds (%)", "input_bonds");
-    add_percent_picker(w, "Cash (%)", "input_cash");
+    add_money_picker(w, "International Stocks (%)", "input_int_stocks", "");
+    add_money_picker(w, "Domestic Stocks (%)", "input_dom_stocks", "");
+    add_money_picker(w, "Bonds (%)", "input_bonds", "");
+    add_money_picker(w, "Cash (%)", "input_cash", "");
     add_currency_picker(w);
     add_portfolio_picker(w, false);
-    add_percent_picker(w, "Percent of portfolio (%)", "input_alloc");
+    add_money_picker(w, "Percent of portfolio (%)", "input_alloc", "");
 
     form_end(w);
 
@@ -1273,13 +1273,13 @@ void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
             auto& asset = asset_get(budget::to_number<size_t>(input_id));
 
             add_name_picker(w, asset.name);
-            add_percent_picker(w, "International Stocks (%)", "input_int_stocks", asset.int_stocks);
-            add_percent_picker(w, "Domestic Stocks (%)", "input_dom_stocks", asset.dom_stocks);
-            add_percent_picker(w, "Bonds (%)", "input_bonds", asset.bonds);
-            add_percent_picker(w, "Cash (%)", "input_cash", asset.cash);
+            add_money_picker(w, "International Stocks (%)", "input_int_stocks", budget::to_flat_string(asset.int_stocks));
+            add_money_picker(w, "Domestic Stocks (%)", "input_dom_stocks", budget::to_flat_string(asset.dom_stocks));
+            add_money_picker(w, "Bonds (%)", "input_bonds", budget::to_flat_string(asset.bonds));
+            add_money_picker(w, "Cash (%)", "input_cash", budget::to_flat_string(asset.cash));
             add_currency_picker(w, asset.currency);
             add_portfolio_picker(w, asset.portfolio);
-            add_percent_picker(w, "Percent of portfolio (%)", "input_alloc", asset.portfolio_alloc);
+            add_money_picker(w, "Percent of portfolio (%)", "input_alloc", budget::to_flat_string(asset.portfolio_alloc));
 
             form_end(w);
         }
@@ -2125,15 +2125,15 @@ void add_assets_api(const httplib::Request& req, httplib::Response& res) {
     asset asset;
     asset.guid            = budget::generate_guid();
     asset.name            = req.params.at("input_name");
-    asset.int_stocks      = budget::to_number<size_t>(req.params.at("input_int_stocks"));
-    asset.dom_stocks      = budget::to_number<size_t>(req.params.at("input_dom_stocks"));
-    asset.bonds           = budget::to_number<size_t>(req.params.at("input_bonds"));
-    asset.cash            = budget::to_number<size_t>(req.params.at("input_cash"));
+    asset.int_stocks      = budget::parse_money(req.params.at("input_int_stocks"));
+    asset.dom_stocks      = budget::parse_money(req.params.at("input_dom_stocks"));
+    asset.bonds           = budget::parse_money(req.params.at("input_bonds"));
+    asset.cash            = budget::parse_money(req.params.at("input_cash"));
     asset.portfolio       = req.params.at("input_portfolio") == "yes";
-    asset.portfolio_alloc = budget::to_number<size_t>(req.params.at("input_alloc"));
+    asset.portfolio_alloc = budget::parse_money(req.params.at("input_alloc"));
     asset.currency        = req.params.at("input_currency");
 
-    if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100){
+    if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)){
         api_error(req, res, "The total allocation of the asset is not 100%");
         return;
     }
@@ -2158,15 +2158,15 @@ void edit_assets_api(const httplib::Request& req, httplib::Response& res) {
 
     asset& asset          = asset_get(budget::to_number<size_t>(id));
     asset.name            = req.params.at("input_name");
-    asset.int_stocks      = budget::to_number<size_t>(req.params.at("input_int_stocks"));
-    asset.dom_stocks      = budget::to_number<size_t>(req.params.at("input_dom_stocks"));
-    asset.bonds           = budget::to_number<size_t>(req.params.at("input_bonds"));
-    asset.cash            = budget::to_number<size_t>(req.params.at("input_cash"));
+    asset.int_stocks      = budget::parse_money(req.params.at("input_int_stocks"));
+    asset.dom_stocks      = budget::parse_money(req.params.at("input_dom_stocks"));
+    asset.bonds           = budget::parse_money(req.params.at("input_bonds"));
+    asset.cash            = budget::parse_money(req.params.at("input_cash"));
     asset.portfolio       = req.params.at("input_portfolio") == "yes";
-    asset.portfolio_alloc = budget::to_number<size_t>(req.params.at("input_alloc"));
+    asset.portfolio_alloc = budget::parse_money(req.params.at("input_alloc"));
     asset.currency        = req.params.at("input_currency");
 
-    if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100){
+    if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)){
         api_error(req, res, "The total allocation of the asset is not 100%");
         return;
     }

@@ -165,15 +165,15 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             asset.portfolio_alloc = 0;
 
             do {
-                edit_number(asset.int_stocks, "Int. Stocks");
-                edit_number(asset.dom_stocks, "Dom. Stocks");
-                edit_number(asset.bonds, "Bonds");
-                edit_number(asset.cash, "Cash");
+                edit_money(asset.int_stocks, "Int. Stocks");
+                edit_money(asset.dom_stocks, "Dom. Stocks");
+                edit_money(asset.bonds, "Bonds");
+                edit_money(asset.cash, "Cash");
 
-                if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100){
+                if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)){
                     std::cout << "The distribution must account to 100%" << std::endl;
                 }
-            } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100);
+            } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100));
 
             asset.currency = budget::get_default_currency();
             edit_string(asset.currency, "Currency", not_empty_checker());
@@ -188,7 +188,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             }
 
             if (asset.portfolio) {
-                edit_number(asset.portfolio_alloc, "Portfolio Allocation");
+                edit_money(asset.portfolio_alloc, "Portfolio Allocation");
             }
 
             auto id = assets.add(std::move(asset));
@@ -260,15 +260,15 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             }
 
             do {
-                edit_number(asset.int_stocks, "Int. Stocks");
-                edit_number(asset.dom_stocks, "Dom. Stocks");
-                edit_number(asset.bonds, "Bonds");
-                edit_number(asset.cash, "Cash");
+                edit_money(asset.int_stocks, "Int. Stocks");
+                edit_money(asset.dom_stocks, "Dom. Stocks");
+                edit_money(asset.bonds, "Bonds");
+                edit_money(asset.cash, "Cash");
 
-                if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100){
+                if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)){
                     std::cout << "The distribution must asset to 100%" << std::endl;
                 }
-            } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != 100);
+            } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100));
 
             edit_string(asset.currency, "Currency", not_empty_checker());
 
@@ -284,7 +284,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             }
 
             if (asset.portfolio) {
-                edit_number(asset.portfolio_alloc, "Portfolio Allocation");
+                edit_money(asset.portfolio_alloc, "Portfolio Allocation");
             } else {
                 asset.portfolio_alloc = 0;
             }
@@ -362,15 +362,15 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             auto& desired = get_desired_allocation();
 
             do {
-                edit_number(desired.int_stocks, "Int. Stocks");
-                edit_number(desired.dom_stocks, "Dom. Stocks");
-                edit_number(desired.bonds, "Bonds");
-                edit_number(desired.cash, "Cash");
+                edit_money(desired.int_stocks, "Int. Stocks");
+                edit_money(desired.dom_stocks, "Dom. Stocks");
+                edit_money(desired.bonds, "Bonds");
+                edit_money(desired.cash, "Cash");
 
-                if(desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != 100){
+                if(desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != money(100)){
                     std::cout << "The distribution must account to 100%" << std::endl;
                 }
-            } while (desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != 100);
+            } while (desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != money(100));
 
             if (assets.edit(desired)) {
                 std::cout << "The distribution has been modified" << std::endl;
@@ -711,7 +711,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 
                 auto conv_amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
                 auto allocation  = 100.0 * (conv_amount / total);
-                auto desired     = total * (asset.portfolio_alloc / 100.0);
+                auto desired     = total * (float(asset.portfolio_alloc) / 100.0);
                 auto difference  = desired - conv_amount;
 
                 if (amount || difference) {
@@ -773,17 +773,17 @@ void budget::show_asset_values(budget::writer& w){
 
             if (amount) {
                 contents.push_back({asset.name,
-                                    to_string(amount * (asset.int_stocks / 100.0)),
-                                    to_string(amount * (asset.dom_stocks / 100.0)),
-                                    to_string(amount * (asset.bonds / 100.0)),
-                                    to_string(amount * (asset.cash / 100.0)),
+                                    to_string(amount * (float(asset.int_stocks) / 100.0)),
+                                    to_string(amount * (float(asset.dom_stocks) / 100.0)),
+                                    to_string(amount * (float(asset.bonds) / 100.0)),
+                                    to_string(amount * (float(asset.cash) / 100.0)),
                                     to_string(amount),
                                     asset.currency});
 
-                auto int_stocks_amount = amount * (asset.int_stocks / 100.0);
-                auto dom_stocks_amount = amount * (asset.dom_stocks / 100.0);
-                auto bonds_amount      = amount * (asset.bonds / 100.0);
-                auto cash_amount       = amount * (asset.cash / 100.0);
+                auto int_stocks_amount = amount * (float(asset.int_stocks) / 100.0);
+                auto dom_stocks_amount = amount * (float(asset.dom_stocks) / 100.0);
+                auto bonds_amount      = amount * (float(asset.bonds) / 100.0);
+                auto cash_amount       = amount * (float(asset.cash) / 100.0);
 
                 int_stocks += int_stocks_amount * exchange_rate(asset.currency, get_default_currency());
                 dom_stocks += dom_stocks_amount * exchange_rate(asset.currency, get_default_currency());
@@ -826,18 +826,18 @@ void budget::show_asset_values(budget::writer& w){
                             ""});
 
         contents.push_back({"Desired Total",
-                            to_string(total * (desired.int_stocks / 100.0)),
-                            to_string(total * (desired.dom_stocks / 100.0)),
-                            to_string(total * (desired.bonds / 100.0)),
-                            to_string(total * (desired.cash / 100.0)),
+                            to_string(total * (float(desired.int_stocks) / 100.0)),
+                            to_string(total * (float(desired.dom_stocks) / 100.0)),
+                            to_string(total * (float(desired.bonds) / 100.0)),
+                            to_string(total * (float(desired.cash) / 100.0)),
                             to_string(total),
                             get_default_currency()});
 
         contents.push_back({"Difference (need)",
-                            to_string(total * (desired.int_stocks / 100.0) - int_stocks),
-                            to_string(total * (desired.dom_stocks / 100.0) - dom_stocks),
-                            to_string(total * (desired.bonds / 100.0) - bonds),
-                            to_string(total * (desired.cash / 100.0) - cash),
+                            to_string(total * (float(desired.int_stocks) / 100.0) - int_stocks),
+                            to_string(total * (float(desired.dom_stocks) / 100.0) - dom_stocks),
+                            to_string(total * (float(desired.bonds) / 100.0) - bonds),
+                            to_string(total * (float(desired.cash) / 100.0) - cash),
                             to_string(budget::money{}),
                             get_default_currency()});
     }
