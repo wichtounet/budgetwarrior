@@ -107,6 +107,8 @@ struct data_handler {
     }
 
     void force_save() {
+        cpp_assert(!is_server_mode(), "force_save() should never be called in server mode");
+
         if (budget::config_contains("random")) {
             std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
             return;
@@ -127,6 +129,15 @@ struct data_handler {
     }
 
     void save() {
+        // In server mode, there is nothing to do
+        if (is_server_mode()) {
+            // It shoud not be changed
+            cpp_assert(!is_changed(), "in server mode, is_changed() should never be true");
+
+            return;
+        }
+
+        // In other modes, save if it's changed
         if (is_changed()) {
             force_save();
         }
