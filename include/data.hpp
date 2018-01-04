@@ -143,6 +143,26 @@ struct data_handler {
         }
     }
 
+    bool edit(T& value){
+        if(is_server_mode()){
+            auto params = value.get_params();
+
+            auto res = budget::api_post(std::string("/") + get_module() + "/edit/", params);
+
+            if (!res.success) {
+                std::cerr << "error: Failed to edit from " << get_module() << std::endl;
+
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            set_changed();
+
+            return true;
+        }
+    }
+
     size_t size() const {
         return data.size();
     }
