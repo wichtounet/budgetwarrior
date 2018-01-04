@@ -259,18 +259,18 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
 
             edit(objective);
 
-            auto id = add_data(objectives, std::move(objective));
+            auto id = objectives.add(std::move(objective));
             std::cout << "Objective " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(objectives, id)){
+            if(!objectives.exists(id)){
                 throw budget_exception("There are no objective with id " + args[2]);
             }
 
-            remove(objectives, id);
+            objectives.remove(id);
 
             std::cout << "Objective " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
@@ -278,11 +278,11 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(objectives, id)){
+            if(!objectives.exists(id)){
                 throw budget_exception("There are no objective with id " + args[2]);
             }
 
-            auto& objective = get(objectives, id);
+            auto& objective = objectives[id];
 
             edit(objective);
 
@@ -400,25 +400,25 @@ void budget::status_objectives(budget::writer& w){
 }
 
 bool budget::objective_exists(size_t id){
-    return exists(objectives, id);
+    return objectives.exists(id);
 }
 
 void budget::objective_delete(size_t id) {
-    if (!exists(objectives, id)) {
+    if (!objectives.exists(id)) {
         throw budget_exception("There are no objective with id ");
     }
 
-    remove(objectives, id);
+    objectives.remove(id);
 }
 
 objective& budget::objective_get(size_t id) {
-    if (!exists(objectives, id)) {
+    if (!objectives.exists(id)) {
         throw budget_exception("There are no objective with id ");
     }
 
-    return get(objectives, id);
+    return objectives[id];
 }
 
 void budget::add_objective(budget::objective&& objective){
-    add_data(objectives, std::forward<budget::objective>(objective));
+    objectives.add(std::forward<budget::objective>(objective));
 }

@@ -122,7 +122,7 @@ void budget::archive_accounts_impl(bool month){
     for (size_t i = 0; i < copies.size(); ++i) {
         auto& copy = copies[i];
 
-        auto id = add_data(accounts, std::move(copy));
+        auto id = accounts.add(std::move(copy));
 
         mapping[sources[i]] = id;
     }
@@ -173,7 +173,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("An account with this name already exists");
             }
 
-            auto id = add_data(accounts, std::move(account));
+            auto id = accounts.add(std::move(account));
             std::cout << "Account " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             size_t id = 0;
@@ -183,7 +183,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
                 id = to_number<size_t>(args[2]);
 
-                if(!exists(accounts, id)){
+                if(!accounts.exists(id)){
                     throw budget_exception("There are no account with id " + args[2]);
                 }
             } else {
@@ -206,7 +206,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 }
             }
 
-            remove(accounts, id);
+            accounts.remove(id);
 
             std::cout << "Account " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
@@ -219,7 +219,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
                 id = to_number<size_t>(args[2]);
 
-                if(!exists(accounts, id)){
+                if(!accounts.exists(id)){
                     throw budget_exception("There are no account with id " + args[2]);
                 }
             } else {
@@ -229,7 +229,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 id = get_account(name, today.year(), today.month()).id;
             }
 
-            auto& account = get(accounts, id);
+            auto& account = accounts[id];
 
             edit_string(account.name, "Name", not_empty_checker());
 
@@ -346,7 +346,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                     for(auto& id : deleted){
                         std::cout << "Delete account " << id << std::endl;
 
-                        remove(accounts, id);
+                        accounts.remove(id);
                     }
 
                     set_accounts_changed();
@@ -396,7 +396,7 @@ void budget::save_accounts(){
 }
 
 budget::account& budget::get_account(size_t id){
-    return get(accounts, id);
+    return accounts[id];
 }
 
 budget::account& budget::get_account(std::string name, budget::year year, budget::month month){
@@ -528,27 +528,27 @@ void budget::show_all_accounts(budget::writer& w){
 }
 
 bool budget::account_exists(size_t id){
-    return exists(accounts, id);
+    return accounts.exists(id);
 }
 
 void budget::account_delete(size_t id) {
-    if (!exists(accounts, id)) {
+    if (!accounts.exists(id)) {
         throw budget_exception("There are no account with id ");
     }
 
-    remove(accounts, id);
+    accounts.remove(id);
 }
 
 account& budget::account_get(size_t id) {
-    if (!exists(accounts, id)) {
+    if (!accounts.exists(id)) {
         throw budget_exception("There are no account with id ");
     }
 
-    return get(accounts, id);
+    return accounts[id];
 }
 
 void budget::add_account(budget::account&& account){
-    add_data(accounts, std::forward<budget::account>(account));
+    accounts.add(std::forward<budget::account>(account));
 }
 
 budget::date budget::find_new_since(){

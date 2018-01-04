@@ -88,18 +88,18 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             edit_string(earning.name, "Name", not_empty_checker());
             edit_money(earning.amount, "Amount", not_negative_checker());
 
-            auto id = add_data(earnings, std::move(earning));
+            auto id = earnings.add(std::move(earning));
             std::cout << "earning " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(earnings, id)){
+            if(!earnings.exists(id)){
                 throw budget_exception("There are no earning with id ");
             }
 
-            remove(earnings, id);
+            earnings.remove(id);
 
             std::cout << "earning " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
@@ -107,11 +107,11 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(earnings, id)){
+            if(!earnings.exists(id)){
                 throw budget_exception("There are no earning with id " + args[2]);
             }
 
-            auto& earning = get(earnings, id);
+            auto& earning = earnings[id];
 
             edit_date(earning.date, "Date");
 
@@ -172,7 +172,7 @@ void budget::set_earnings_next_id(size_t next_id){
 }
 
 void budget::add_earning(budget::earning&& earning){
-    add_data(earnings, std::forward<budget::earning>(earning));
+    earnings.add(std::forward<budget::earning>(earning));
 }
 
 void budget::show_all_earnings(budget::writer& w){
@@ -228,21 +228,21 @@ void budget::show_earnings(budget::writer& w){
 }
 
 bool budget::earning_exists(size_t id){
-    return exists(earnings, id);
+    return earnings.exists(id);
 }
 
 void budget::earning_delete(size_t id) {
-    if (!exists(earnings, id)) {
+    if (!earnings.exists(id)) {
         throw budget_exception("There are no earning with id ");
     }
 
-    remove(earnings, id);
+    earnings.remove(id);
 }
 
 earning& budget::earning_get(size_t id) {
-    if (!exists(earnings, id)) {
+    if (!earnings.exists(id)) {
         throw budget_exception("There are no earning with id ");
     }
 
-    return get(earnings, id);
+    return earnings[id];
 }

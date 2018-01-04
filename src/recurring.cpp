@@ -140,18 +140,18 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             save_expenses();
 
-            auto id = add_data(recurrings, std::move(recurring));
+            auto id = recurrings.add(std::move(recurring));
             std::cout << "Recurring expense " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(recurrings, id)){
+            if(!recurrings.exists(id)){
                 throw budget_exception("There are no recurring expense with id " + args[2]);
             }
 
-            remove(recurrings, id);
+            recurrings.remove(id);
 
             std::cout << "Recurring expense " << id << " has been deleted" << std::endl;
             std::cout << "Note: The generated expenses have not been deleted" << std::endl;
@@ -160,11 +160,11 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(recurrings, id)){
+            if(!recurrings.exists(id)){
                 throw budget_exception("There are no recurring expense with id " + args[2]);
             }
 
-            auto& recurring = get(recurrings, id);
+            auto& recurring = recurrings[id];
             auto previous_recurring = recurring; // Temporary Copy
 
             auto now = budget::local_day();
@@ -342,25 +342,25 @@ void budget::show_recurrings(budget::writer& w) {
 }
 
 bool budget::recurring_exists(size_t id){
-    return exists(recurrings, id);
+    return recurrings.exists(id);
 }
 
 void budget::recurring_delete(size_t id) {
-    if (!exists(recurrings, id)) {
+    if (!recurrings.exists(id)) {
         throw budget_exception("There are no recurring with id ");
     }
 
-    remove(recurrings, id);
+    recurrings.remove(id);
 }
 
 recurring& budget::recurring_get(size_t id) {
-    if (!exists(recurrings, id)) {
+    if (!recurrings.exists(id)) {
         throw budget_exception("There are no recurring with id ");
     }
 
-    return get(recurrings, id);
+    return recurrings[id];
 }
 
 void budget::add_recurring(budget::recurring&& recurring){
-    add_data(recurrings, std::forward<budget::recurring>(recurring));
+    recurrings.add(std::forward<budget::recurring>(recurring));
 }

@@ -94,18 +94,18 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
 
             edit(debt);
 
-            auto id = add_data(debts, std::move(debt));
+            auto id = debts.add(std::move(debt));
             std::cout << "Debt " << id << " has been created" << std::endl;
         } else if(subcommand == "paid"){
             enough_args(args, 3);
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(debts, id)){
+            if(!debts.exists(id)){
                 throw budget_exception("There are no debt with id " + args[2]);
             }
 
-            auto& debt = get(debts, id);
+            auto& debt = debts[id];
             debt.state = 1;
 
             if (debts.edit(debt)) {
@@ -116,11 +116,11 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(debts, id)){
+            if(!debts.exists(id)){
                 throw budget_exception("There are no debt with id " + args[2]);
             }
 
-            remove(debts, id);
+            debts.remove(id);
 
             std::cout << "Debt " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
@@ -128,11 +128,11 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(debts, id)){
+            if(!debts.exists(id)){
                 throw budget_exception("There are no debt with id " + args[2]);
             }
 
-            auto& debt = get(debts, id);
+            auto& debt = debts[id];
             edit(debt);
 
             if (debts.edit(debt)) {
@@ -248,25 +248,25 @@ void budget::list_debts(budget::writer& w){
 }
 
 bool budget::debt_exists(size_t id){
-    return exists(debts, id);
+    return debts.exists(id);
 }
 
 void budget::debt_delete(size_t id) {
-    if (!exists(debts, id)) {
+    if (!debts.exists(id)) {
         throw budget_exception("There are no debt with id ");
     }
 
-    remove(debts, id);
+    debts.remove(id);
 }
 
 debt& budget::debt_get(size_t id) {
-    if (!exists(debts, id)) {
+    if (!debts.exists(id)) {
         throw budget_exception("There are no debt with id ");
     }
 
-    return get(debts, id);
+    return debts[id];
 }
 
 void budget::add_debt(budget::debt&& debt){
-    add_data(debts, std::forward<budget::debt>(debt));
+    debts.add(std::forward<budget::debt>(debt));
 }

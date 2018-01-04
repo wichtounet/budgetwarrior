@@ -117,7 +117,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                         expense.amount = template_expense.amount;
                         expense.account = template_expense.account;
 
-                        auto id = add_data(expenses, std::move(expense));
+                        auto id = expenses.add(std::move(expense));
                         std::cout << "Expense " << id << " has been created" << std::endl;
 
                         template_found = true;
@@ -139,7 +139,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
                     edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
 
-                    auto id = add_data(expenses, std::move(expense));
+                    auto id = expenses.add(std::move(expense));
                     std::cout << "Template " << id << " has been created" << std::endl;
                 }
             } else {
@@ -156,7 +156,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 edit_string(expense.name, "Name", not_empty_checker());
                 edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
 
-                auto id = add_data(expenses, std::move(expense));
+                auto id = expenses.add(std::move(expense));
                 std::cout << "Expense " << id << " has been created" << std::endl;
             }
         } else if(subcommand == "delete"){
@@ -164,11 +164,11 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(expenses, id)){
+            if(!expenses.exists(id)){
                 throw budget_exception("There are no expense with id ");
             }
 
-            remove(expenses, id);
+            expenses.remove(id);
 
             std::cout << "Expense " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
@@ -176,11 +176,11 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(expenses, id)){
+            if(!expenses.exists(id)){
                 throw budget_exception("There are no expense with id " + args[2]);
             }
 
-            auto& expense = get(expenses, id);
+            auto& expense = expenses[id];
 
             edit_date(expense.date, "Date");
 
@@ -209,7 +209,7 @@ void budget::save_expenses(){
 }
 
 void budget::add_expense(budget::expense&& expense){
-    add_data(expenses, std::forward<budget::expense>(expense));
+    expenses.add(std::forward<budget::expense>(expense));
 }
 
 bool budget::edit_expense(expense& expense){
@@ -301,21 +301,21 @@ void budget::show_expenses(budget::writer& w){
 }
 
 bool budget::expense_exists(size_t id){
-    return exists(expenses, id);
+    return expenses.exists(id);
 }
 
 void budget::expense_delete(size_t id) {
-    if (!exists(expenses, id)) {
+    if (!expenses.exists(id)) {
         throw budget_exception("There are no expense with id ");
     }
 
-    remove(expenses, id);
+    expenses.remove(id);
 }
 
 expense& budget::expense_get(size_t id) {
-    if (!exists(expenses, id)) {
+    if (!expenses.exists(id)) {
         throw budget_exception("There are no expense with id ");
     }
 
-    return get(expenses, id);
+    return expenses[id];
 }

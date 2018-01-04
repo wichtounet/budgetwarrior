@@ -188,18 +188,18 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("Too many arguments to fortune check");
             }
 
-            auto id = add_data(fortunes, std::move(fortune));
+            auto id = fortunes.add(std::move(fortune));
             std::cout << "Fortune check " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(fortunes, id)){
+            if(!fortunes.exists(id)){
                 throw budget_exception("There are no fortune with id " + args[2]);
             }
 
-            remove(fortunes, id);
+            fortunes.remove(id);
 
             std::cout << "Fortune check " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
@@ -207,11 +207,11 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(fortunes, id)){
+            if(!fortunes.exists(id)){
                 throw budget_exception("There are no fortune with id " + args[2]);
             }
 
-            auto& fortune = get(fortunes, id);
+            auto& fortune = fortunes[id];
 
             edit_date(fortune.check_date, "Date");
 
@@ -265,25 +265,25 @@ void budget::set_fortunes_next_id(size_t next_id){
 }
 
 bool budget::fortune_exists(size_t id){
-    return exists(fortunes, id);
+    return fortunes.exists(id);
 }
 
 void budget::fortune_delete(size_t id) {
-    if (!exists(fortunes, id)) {
+    if (!fortunes.exists(id)) {
         throw budget_exception("There are no fortune with id ");
     }
 
-    remove(fortunes, id);
+    fortunes.remove(id);
 }
 
 fortune& budget::fortune_get(size_t id) {
-    if (!exists(fortunes, id)) {
+    if (!fortunes.exists(id)) {
         throw budget_exception("There are no fortune with id ");
     }
 
-    return get(fortunes, id);
+    return fortunes[id];
 }
 
 void budget::add_fortune(budget::fortune&& fortune){
-    add_data(fortunes, std::forward<budget::fortune>(fortune));
+    fortunes.add(std::forward<budget::fortune>(fortune));
 }

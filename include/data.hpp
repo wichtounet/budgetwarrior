@@ -163,6 +163,60 @@ struct data_handler {
         }
     }
 
+    size_t add(T&& entry) {
+        if (is_server_mode()) {
+            auto params = entry.get_params();
+
+            auto res = budget::api_post(std::string("/") + get_module() + "/add/", params);
+
+            if (!res.success) {
+                std::cerr << "error: Failed to add expense" << std::endl;
+
+                entry.id = 0;
+            } else {
+                entry.id = budget::to_number<size_t>(res.result);
+
+                data.push_back(std::forward<T>(entry));
+            }
+        } else {
+            entry.id = next_id++;
+
+            data.push_back(std::forward<T>(entry));
+
+            set_changed();
+        }
+
+        return entry.id;
+    }
+
+    void remove(size_t id) {
+        data.erase(std::remove_if(data.begin(), data.end(),
+                                  [id](const T& entry) { return entry.id == id; }),
+                   data.end());
+
+        set_changed();
+    }
+
+    bool exists(size_t id) {
+        for (auto& entry : data) {
+            if (entry.id == id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    T& operator[](size_t id) {
+        for (auto& value : data) {
+            if (value.id == id) {
+                return value;
+            }
+        }
+
+        cpp_unreachable("The data must exists");
+    }
+
     size_t size() const {
         return data.size();
     }
@@ -192,63 +246,6 @@ private:
     const char* path;
     bool changed = false;
 };
-
-template<typename T>
-bool exists(const data_handler<T>& data, size_t id){
-    for(auto& entry : data.data){
-        if(entry.id == id){
-            return true;
-        }
-    }
-
-    return false;
-}
-
-template<typename T>
-void remove(data_handler<T>& data, size_t id){
-    data.data.erase(std::remove_if(data.data.begin(), data.data.end(),
-        [id](const T& entry){ return entry.id == id; }), data.data.end());
-
-    data.set_changed();
-}
-
-template<typename T>
-T& get(data_handler<T>& data, size_t id){
-    for(auto& value : data.data){
-        if(value.id == id){
-            return value;
-        }
-    }
-
-    cpp_unreachable("The data must exists");
-}
-
-template<typename T>
-size_t add_data(data_handler<T>& data, T&& entry){
-    if (is_server_mode()) {
-        auto params = entry.get_params();
-
-        auto res = budget::api_post(std::string("/") + data.get_module() + "/add/", params);
-
-        if (!res.success) {
-            std::cerr << "error: Failed to add expense" << std::endl;
-
-            entry.id = 0;
-        } else {
-            entry.id = budget::to_number<size_t>(res.result);
-
-            data.data.push_back(std::forward<T>(entry));
-        }
-    } else {
-        entry.id = data.next_id++;
-
-        data.data.push_back(std::forward<T>(entry));
-
-        data.set_changed();
-    }
-
-    return entry.id;
-}
 
 } //end of namespace budget
 

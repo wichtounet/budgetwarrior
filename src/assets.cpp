@@ -191,7 +191,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 edit_number(asset.portfolio_alloc, "Portfolio Allocation");
             }
 
-            auto id = add_data(assets, std::move(asset));
+            auto id = assets.add(std::move(asset));
             std::cout << "Asset " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             size_t id = 0;
@@ -201,7 +201,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                 id = to_number<size_t>(args[2]);
 
-                if (!exists(assets, id)) {
+                if (!assets.exists(id)) {
                     throw budget_exception("There are no asset with id " + args[2]);
                 }
             } else {
@@ -223,7 +223,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 }
             }
 
-            remove(assets, id);
+            assets.remove(id);
 
             std::cout << "Asset " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
@@ -234,7 +234,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                 id = to_number<size_t>(args[2]);
 
-                if(!exists(assets, id)){
+                if(!assets.exists(id)){
                     throw budget_exception("There are no asset with id " + args[2]);
                 }
             } else {
@@ -244,7 +244,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 id = get_asset(name).id;
             }
 
-            auto& asset = get(assets, id);
+            auto& asset = assets[id];
 
             edit_string(asset.name, "Name", not_empty_checker());
 
@@ -311,7 +311,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     asset_value.set_date = budget::local_day();
                     edit_date(asset_value.set_date, "Date");
 
-                    auto id = add_data(asset_values, std::move(asset_value));
+                    auto id = asset_values.add(std::move(asset_value));
                     std::cout << "Asset Value " << id << " has been created" << std::endl;
                 } else if(subsubcommand == "show"){
                     budget::show_asset_values(w);
@@ -324,11 +324,11 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                     id = to_number<size_t>(args[3]);
 
-                    if (!exists(asset_values, id)) {
+                    if (!asset_values.exists(id)) {
                         throw budget_exception("There are no asset values with id " + args[3]);
                     }
 
-                    auto& value = get(asset_values, id);
+                    auto& value = asset_values[id];
 
                     std::string asset_name = get_asset(value.asset_id).name;
                     edit_string_complete(asset_name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
@@ -347,11 +347,11 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                     id = to_number<size_t>(args[3]);
 
-                    if (!exists(assets, id)) {
+                    if (!assets.exists(id)) {
                         throw budget_exception("There are no asset value with id " + args[2]);
                     }
 
-                    remove(asset_values, id);
+                    asset_values.remove(id);
 
                     std::cout << "Asset value " << id << " has been deleted" << std::endl;
                 } else {
@@ -392,7 +392,7 @@ void budget::save_assets(){
 }
 
 budget::asset& budget::get_asset(size_t id){
-    return get(assets, id);
+    return assets[id];
 }
 
 budget::asset& budget::get_asset(std::string name){
@@ -421,12 +421,12 @@ budget::asset& budget::get_desired_allocation(){
     asset.bonds      = 0;
     asset.cash       = 0;
 
-    auto id = add_data(assets, std::move(asset));
+    auto id = assets.add(std::move(asset));
     return get_asset(id);
 }
 
 budget::asset_value& budget::get_asset_value(size_t id){
-    return get(asset_values, id);
+    return asset_values[id];
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
@@ -855,51 +855,51 @@ void budget::show_asset_values(budget::writer& w){
 }
 
 bool budget::asset_exists(size_t id){
-    return exists(assets, id);
+    return assets.exists(id);
 }
 
 void budget::asset_delete(size_t id) {
-    if (!exists(assets, id)) {
+    if (!assets.exists(id)) {
         throw budget_exception("There are no asset with id ");
     }
 
-    remove(assets, id);
+    assets.remove(id);
 }
 
 asset& budget::asset_get(size_t id) {
-    if (!exists(assets, id)) {
+    if (!assets.exists(id)) {
         throw budget_exception("There are no asset with id ");
     }
 
-    return get(assets, id);
+    return assets[id];
 }
 
 void budget::add_asset(budget::asset&& asset){
-    add_data(assets, std::forward<budget::asset>(asset));
+    assets.add(std::forward<budget::asset>(asset));
 }
 
 bool budget::asset_value_exists(size_t id){
-    return exists(asset_values, id);
+    return asset_values.exists(id);
 }
 
 void budget::asset_value_delete(size_t id) {
-    if (!exists(asset_values, id)) {
+    if (!asset_values.exists(id)) {
         throw budget_exception("There are no asset_value with id ");
     }
 
-    remove(asset_values, id);
+    asset_values.remove(id);
 }
 
 asset_value& budget::asset_value_get(size_t id) {
-    if (!exists(asset_values, id)) {
+    if (!asset_values.exists(id)) {
         throw budget_exception("There are no asset_value with id ");
     }
 
-    return get(asset_values, id);
+    return asset_values[id];
 }
 
 void budget::add_asset_value(budget::asset_value&& asset_value){
-    add_data(asset_values, std::forward<budget::asset_value>(asset_value));
+    asset_values.add(std::forward<budget::asset_value>(asset_value));
 }
 
 void budget::list_asset_values(budget::writer& w){

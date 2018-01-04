@@ -128,18 +128,18 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 
             edit(wish);
 
-            auto id = add_data(wishes, std::move(wish));
+            auto id = wishes.add(std::move(wish));
             std::cout << "Wish " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(wishes, id)){
+            if(!wishes.exists(id)){
                 throw budget_exception("There are no wish with id " + args[2]);
             }
 
-            remove(wishes, id);
+            wishes.remove(id);
 
             std::cout << "wish " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
@@ -147,11 +147,11 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(wishes, id)){
+            if(!wishes.exists(id)){
                 throw budget_exception("There are no wish with id " + args[2]);
             }
 
-            auto& wish = get(wishes, id);
+            auto& wish = wishes[id];
 
             edit(wish);
 
@@ -163,11 +163,11 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!exists(wishes, id)){
+            if(!wishes.exists(id)){
                 throw budget_exception("There are no wish with id " + args[2]);
             }
 
-            auto& wish = get(wishes, id);
+            auto& wish = wishes[id];
 
             edit_money(wish.paid_amount, "Paid Amount", not_negative_checker(), not_zero_checker());
 
@@ -575,25 +575,25 @@ void budget::estimate_wishes(budget::writer& w) {
 }
 
 bool budget::wish_exists(size_t id){
-    return exists(wishes, id);
+    return wishes.exists(id);
 }
 
 void budget::wish_delete(size_t id) {
-    if (!exists(wishes, id)) {
+    if (!wishes.exists(id)) {
         throw budget_exception("There are no wish with id ");
     }
 
-    remove(wishes, id);
+    wishes.remove(id);
 }
 
 wish& budget::wish_get(size_t id) {
-    if (!exists(wishes, id)) {
+    if (!wishes.exists(id)) {
         throw budget_exception("There are no wish with id ");
     }
 
-    return get(wishes, id);
+    return wishes[id];
 }
 
 void budget::add_wish(budget::wish&& wish){
-    add_data(wishes, std::forward<budget::wish>(wish));
+    wishes.add(std::forward<budget::wish>(wish));
 }
