@@ -248,33 +248,37 @@ int main(int argc, const char* argv[]) {
         std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
     }
 
-    auto old_data_version = to_number<size_t>(internal_config_value("data_version"));
+    if (is_server_mode()) {
+        //TODO Version check with the server
+    } else {
+        auto old_data_version = to_number<size_t>(internal_config_value("data_version"));
 
-    if (old_data_version > DATA_VERSION) {
-        std::cout << "Unsupported database version, you should update budgetwarrior" << std::endl;
+        if (old_data_version > DATA_VERSION) {
+            std::cout << "Unsupported database version, you should update budgetwarrior" << std::endl;
 
-        return 0;
-    }
-
-    if (old_data_version < DATA_VERSION) {
-        std::cout << "Migrate data base..." << std::endl;
-
-        if (old_data_version == 1 && DATA_VERSION >= 2) {
-            migrate_recurring_1_to_2();
+            return 0;
         }
 
-        if (old_data_version <= 2 && DATA_VERSION >= 3) {
-            migrate_wishes_2_to_3();
+        if (old_data_version < DATA_VERSION) {
+            std::cout << "Migrate data base..." << std::endl;
+
+            if (old_data_version == 1 && DATA_VERSION >= 2) {
+                migrate_recurring_1_to_2();
+            }
+
+            if (old_data_version <= 2 && DATA_VERSION >= 3) {
+                migrate_wishes_2_to_3();
+            }
+
+            if (old_data_version <= 3 && DATA_VERSION >= 4) {
+                //migrate_debts_3_to_4();
+                migrate_wishes_3_to_4();
+            }
+
+            internal_config_value("data_version") = to_string(DATA_VERSION);
+
+            std::cout << "done" << std::endl;
         }
-
-        if (old_data_version <= 3 && DATA_VERSION >= 4) {
-            //migrate_debts_3_to_4();
-            migrate_wishes_3_to_4();
-        }
-
-        internal_config_value("data_version") = to_string(DATA_VERSION);
-
-        std::cout << "done" << std::endl;
     }
 
     //Collect all aliases
