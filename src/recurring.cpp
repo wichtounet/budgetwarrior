@@ -182,16 +182,18 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
                     expense.name    = recurring.name;
                     expense.amount  = recurring.amount;
                     expense.account = get_account(recurring.account, now.year(), now.month()).id;
+
+                    edit_expense(expense);
+
                     break;
                 }
             }
 
-            set_expenses_changed();
             save_expenses();
 
-            recurrings.set_changed();
-
-            std::cout << "Recurring expense " << id << " has been modified" << std::endl;
+            if (recurrings.edit(recurring)) {
+                std::cout << "Recurring expense " << id << " has been modified" << std::endl;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

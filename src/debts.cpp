@@ -108,9 +108,9 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
             auto& debt = get(debts, id);
             debt.state = 1;
 
-            debts.set_changed();
-
-            std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
+            if (debts.edit(debt)) {
+                std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
+            }
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
@@ -132,11 +132,12 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("There are no debt with id " + args[2]);
             }
 
-            edit(get(debts, id));
+            auto& debt = get(debts, id);
+            edit(debt);
 
-            std::cout << "Debt " << id << " has been modified" << std::endl;
-
-            debts.set_changed();
+            if (debts.edit(debt)) {
+                std::cout << "Debt " << id << " has been modified" << std::endl;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

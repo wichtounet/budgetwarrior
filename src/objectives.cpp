@@ -286,9 +286,9 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
 
             edit(objective);
 
-            set_objectives_changed();
-
-            std::cout << "Objective " << id << " has been modified" << std::endl;
+            if (objectives.edit(objective)) {
+                std::cout << "Objective " << id << " has been modified" << std::endl;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

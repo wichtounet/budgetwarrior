@@ -191,9 +191,9 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             edit_string(expense.name, "Name", not_empty_checker());
             edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
 
-            std::cout << "Expense " << id << " has been modified" << std::endl;
-
-            expenses.set_changed();
+            if (expenses.edit(expense)) {
+                std::cout << "Expense " << id << " has been modified" << std::endl;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -210,6 +210,10 @@ void budget::save_expenses(){
 
 void budget::add_expense(budget::expense&& expense){
     add_data(expenses, std::forward<budget::expense>(expense));
+}
+
+bool budget::edit_expense(expense& expense){
+    return expenses.edit(expense);
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){

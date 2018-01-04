@@ -122,9 +122,9 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             edit_string(earning.name, "Name", not_empty_checker());
             edit_money(earning.amount, "Amount", not_negative_checker());
 
-            std::cout << "earning " << id << " has been modified" << std::endl;
-
-            earnings.set_changed();
+            if (earnings.edit(earning)) {
+                std::cout << "Earning " << id << " has been modified" << std::endl;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

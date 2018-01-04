@@ -246,9 +246,9 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
             edit_money(account.amount, "Amount", not_negative_checker());
 
-            std::cout << "Account " << id << " has been modified" << std::endl;
-
-            accounts.set_changed();
+            if (accounts.edit(account)) {
+                std::cout << "Account " << id << " has been modified" << std::endl;
+            }
         } else if(subcommand == "transfer"){
             std::string from_name;
             edit_string_complete(from_name, "Transfer from", all_account_names(), not_empty_checker(), account_checker());

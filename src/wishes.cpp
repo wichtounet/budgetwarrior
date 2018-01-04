@@ -155,9 +155,9 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 
             edit(wish);
 
-            set_wishes_changed();
-
-            std::cout << "wish " << id << " has been modified" << std::endl;
+            if (wishes.edit(wish)) {
+                std::cout << "Wish " << id << " has been modified" << std::endl;
+            }
         } else if(subcommand == "paid"){
             enough_args(args, 3);
 
@@ -173,9 +173,9 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 
             wish.paid = true;
 
-            set_wishes_changed();
-
-            std::cout << "wish " << id << " has been marked as paid" << std::endl;
+            if (wishes.edit(wish)) {
+                std::cout << "Wish " << id << " has been marked as paid" << std::endl;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

@@ -217,9 +217,9 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
 
             edit_money(fortune.amount, "Amount");
 
-            std::cout << "Fortune check " << id << " has been modified" << std::endl;
-
-            fortunes.set_changed();
+            if (fortunes.edit(fortune)) {
+                std::cout << "Fortune check " << id << " has been modified" << std::endl;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }

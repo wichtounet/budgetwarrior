@@ -289,9 +289,9 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 asset.portfolio_alloc = 0;
             }
 
-            std::cout << "Asset " << id << " has been modified" << std::endl;
-
-            assets.set_changed();
+            if (assets.edit(asset)) {
+                std::cout << "Asset " << id << " has been modified" << std::endl;
+            }
         } else if(subcommand == "value"){
             if(args.size() == 2){
                 budget::show_asset_values(w);
@@ -337,9 +337,9 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     edit_money(value.amount, "Amount", not_negative_checker());
                     edit_date(value.set_date, "Date");
 
-                    std::cout << "Asset Value " << id << " has been modified" << std::endl;
-
-                    asset_values.set_changed();
+                    if (asset_values.edit(value)) {
+                        std::cout << "Asset Value " << id << " has been modified" << std::endl;
+                    }
                 } else if (subsubcommand == "delete") {
                     size_t id = 0;
 
@@ -372,7 +372,9 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 }
             } while (desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != 100);
 
-            assets.set_changed();
+            if (assets.edit(desired)) {
+                std::cout << "The distribution has been modified" << std::endl;
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
