@@ -1820,6 +1820,10 @@ bool parameters_present(const httplib::Request& req, std::vector<const char*> pa
     return true;
 }
 
+void server_up_api(const httplib::Request& req, httplib::Response& res) {
+    api_success_content(req, res, "yes");
+}
+
 void add_accounts_api(const httplib::Request& req, httplib::Response& res) {
     if (!parameters_present(req, {"input_name", "input_amount"})){
         api_error(req, res, "Invalid parameters");
@@ -2664,6 +2668,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.post("/fortunes/edit/", &edit_fortunes_page);
 
     // The API
+
+    server.get("/api/server/up/", &server_up_api);
 
     server.post("/api/accounts/add/", &add_accounts_api);
     server.post("/api/accounts/edit/", &edit_accounts_api);

@@ -14,6 +14,7 @@
 #include "config.hpp"
 #include "args.hpp"
 #include "budget_exception.hpp"
+#include "api.hpp"
 
 //The different modules
 #include "debts.hpp"
@@ -248,7 +249,27 @@ int main(int argc, const char* argv[]) {
         std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
     }
 
-    if (is_server_mode()) {
+    //Collect all aliases
+    aliases_collector collector;
+    cpp::for_each_tuple_t<modules_tuple>(collector);
+
+    //Parse the command line args
+    auto args = parse_args(argc, argv, collector.aliases);
+
+    if(args.size() && args[0] == "server"){
+        set_server_running();
+    }
+
+    if (!is_server_running() && is_server_mode()) {
+        // 1. Ensure that the server is running
+
+        auto res = budget::api_get("/server/up/", true);
+
+        if(!res.success || res.result != "yes"){
+            std::cout << "The server is not running, cannot run in server mode" << std::endl;
+            return 0;
+        }
+
         //TODO Version check with the server
     } else {
         auto old_data_version = to_number<size_t>(internal_config_value("data_version"));
@@ -279,17 +300,6 @@ int main(int argc, const char* argv[]) {
 
             std::cout << "done" << std::endl;
         }
-    }
-
-    //Collect all aliases
-    aliases_collector collector;
-    cpp::for_each_tuple_t<modules_tuple>(collector);
-
-    //Parse the command line args
-    auto args = parse_args(argc, argv, collector.aliases);
-
-    if(args.size() && args[0] == "server"){
-        set_server_running();
     }
 
     int code = 0;

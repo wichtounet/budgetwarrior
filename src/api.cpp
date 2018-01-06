@@ -17,7 +17,7 @@
 
 #include "httplib.h"
 
-budget::api_response budget::api_get(const std::string& api) {
+budget::api_response budget::api_get(const std::string& api, bool silent) {
     cpp_assert(is_server_mode(), "api_get() should only be called in server mode");
 
     auto server      = config_value("server_url");
@@ -29,11 +29,21 @@ budget::api_response budget::api_get(const std::string& api) {
 
     auto res = cli.get(api_complete.c_str());
 
-    if (res->status != 200) {
-        std::cerr << "Request to the API failed!" << std::endl;
-        std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
-        std::cerr << "  status: " << res->status << std::endl;
-        std::cerr << "  content: " << res->body << std::endl;
+    if (!res) {
+        if (!silent) {
+            std::cerr << "Request to the API failed!" << std::endl;
+            std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
+            std::cerr << "  No response from server" << std::endl;
+        }
+
+        return {false, ""};
+    } else if (res->status != 200) {
+        if (!silent) {
+            std::cerr << "Request to the API failed!" << std::endl;
+            std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
+            std::cerr << "  status: " << res->status << std::endl;
+            std::cerr << "  content: " << res->body << std::endl;
+        }
 
         return {false, ""};
     } else {
@@ -59,7 +69,13 @@ budget::api_response budget::api_post(const std::string& api, const std::map<std
 
     auto res = cli.post(api_complete.c_str(), api_params);
 
-    if (res->status != 200) {
+    if (!res) {
+        std::cerr << "Request to the API failed!" << std::endl;
+        std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
+        std::cerr << "  No response from server" << std::endl;
+
+        return {false, ""};
+    } else if (res->status != 200) {
         std::cerr << "Request to the API failed!" << std::endl;
         std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
         std::cerr << "  status: " << res->status << std::endl;
