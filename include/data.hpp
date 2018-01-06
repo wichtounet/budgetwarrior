@@ -194,7 +194,19 @@ struct data_handler {
                                   [id](const T& entry) { return entry.id == id; }),
                    data.end());
 
-        set_changed();
+        if (is_server_mode()) {
+            std::map<std::string, std::string> params;
+
+            params["input_id"] = budget::to_string(id);
+
+            auto res = budget::api_post(std::string("/") + get_module() + "/delete/", params);
+
+            if (!res.success) {
+                std::cerr << "error: Failed to delete from " << get_module() << std::endl;
+            }
+        } else {
+            set_changed();
+        }
     }
 
     bool exists(size_t id) {
