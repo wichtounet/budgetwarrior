@@ -316,7 +316,7 @@ void budget::html_writer::display_graph(const std::string& title, std::vector<st
 
     os << R"=====(Highcharts.chart('container', {)=====";
     os << R"=====(chart: {type: 'column'},)=====";
-    os << R"=====(credits: {enabled: false},)=====";
+    os << R"=====(credits: {enabled: true},)=====";
 
     os << "title: { text: '" << title << "'},";
     os << "xAxis: { categories: [";
