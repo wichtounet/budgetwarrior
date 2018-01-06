@@ -49,6 +49,7 @@ std::string header(const std::string& title){
             <meta name="author" content="Baptiste Wicht">
             <link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
             <script src="https://code.highcharts.com/highcharts.js"></script>
+            <script src="https://code.highcharts.com/modules/series-label.js"></script>
             <script src="https://code.highcharts.com/modules/exporting.js"></script>
             <style>
                 body {
@@ -155,6 +156,7 @@ std::string header(const std::string& title){
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Fortune</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown06">
+                  <a class="dropdown-item" href="/fortunes/graph/">Fortune</a>
                   <a class="dropdown-item" href="/fortunes/status/">Status</a>
                   <a class="dropdown-item" href="/fortunes/list/">List</a>
                   <a class="dropdown-item" href="/fortunes/add/">Set fortune</a>
@@ -1560,6 +1562,52 @@ void list_fortunes_page(const httplib::Request& req, httplib::Response& res){
     page_end(content_stream, req, res);
 }
 
+void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    if(!page_start(req, res, content_stream, "Fortune")){
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+
+    w << R"=====(<script langage="javascript">)=====";
+
+    w << R"=====(Highcharts.chart('container', {)=====";
+    w << R"=====(chart: {type: 'spline'},)=====";
+    w << R"=====(title: {text: 'Fortune'},)=====";
+    w << R"=====(credits: {enabled: true},)=====";
+    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    w << R"=====(yAxis: { min: 0, title: { text: 'Fortune' }},)=====";
+
+    w << "series: [";
+
+    w << "{ name: 'Fortune',";
+    w << "data: [";
+
+    auto sorted_fortunes = all_fortunes();
+
+    std::sort(sorted_fortunes.begin(), sorted_fortunes.end(),
+        [](const budget::fortune& a, const budget::fortune& b){ return a.check_date < b.check_date; });
+
+    for(auto& value : sorted_fortunes){
+        auto& date = value.check_date;
+
+        w << "[Date.UTC(" << date.year() << "," << date.month().value << "," << date.day() << ") ," << budget::to_flat_string(value.amount) << "],";
+    }
+
+    w << "]},";
+
+    w << "]";
+
+    w << R"=====(});)=====";
+
+    w << R"=====(</script>)=====";
+
+    page_end(content_stream, req, res);
+}
+
 void status_fortunes_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     if(!page_start(req, res, content_stream, "Objectives Status")){
@@ -2662,8 +2710,9 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/debts/add/", &add_debts_page);
     server.post("/debts/edit/", &edit_debts_page);
 
-    server.get("/fortunes/list/", &list_fortunes_page);
+    server.get("/fortunes/graph/", &graph_fortunes_page);
     server.get("/fortunes/status/", &status_fortunes_page);
+    server.get("/fortunes/list/", &list_fortunes_page);
     server.get("/fortunes/add/", &add_fortunes_page);
     server.post("/fortunes/edit/", &edit_fortunes_page);
 
