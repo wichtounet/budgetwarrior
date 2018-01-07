@@ -119,7 +119,8 @@ std::string header(const std::string& title){
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown05">
                   <a class="dropdown-item" href="/assets/">Assets</a>
-                  <a class="dropdown-item" href="/net_worth/">Net worth</a>
+                  <a class="dropdown-item" href="/net_worth/status/">Net worth status</a>
+                  <a class="dropdown-item" href="/net_worth/graph/">Net worth graph</a>
                   <a class="dropdown-item" href="/portfolio/">Portfolio</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                   <a class="dropdown-item" href="/assets/add/">Add Asset</a>
@@ -1290,14 +1291,78 @@ void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
     page_end(content_stream, req, res);
 }
 
-void asset_values_page(const httplib::Request& req, httplib::Response& res){
+void net_worth_status_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Net Worth")){
+    if(!page_start(req, res, content_stream, "Net Worth Status")){
         return;
     }
 
     budget::html_writer w(content_stream);
     budget::show_asset_values(w);
+
+    page_end(content_stream, req, res);
+}
+
+void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    if(!page_start(req, res, content_stream, "Net Worth Graph")){
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+
+    w << R"=====(<script langage="javascript">)=====";
+
+    w << R"=====(Highcharts.chart('container', {)=====";
+    w << R"=====(chart: {type: 'spline'},)=====";
+    w << R"=====(title: {text: 'Net Worth'},)=====";
+    w << R"=====(credits: {enabled: true},)=====";
+    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+
+    w << "series: [";
+
+    w << "{ name: 'Net Worth',";
+    w << "data: [";
+
+    std::map<size_t, budget::money> asset_amounts;
+
+    auto sorted_asset_values = all_asset_values();
+
+    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
+        [](const budget::asset_value& a, const budget::asset_value& b){ return a.set_date < b.set_date; });
+
+    auto it = sorted_asset_values.begin();
+    auto end = sorted_asset_values.end();
+
+    while(it != end){
+        auto date = it->set_date;
+
+        while(it->set_date == date){
+            asset_amounts[it->asset_id] = it->amount;
+
+            ++it;
+        }
+
+        budget::money sum;
+
+        for(auto& asset : asset_amounts){
+            sum += asset.second;
+        }
+
+        w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+    }
+
+    w << "]},";
+
+    w << "]";
+
+    w << R"=====(});)=====";
+
+    w << R"=====(</script>)=====";
+
 
     page_end(content_stream, req, res);
 }
@@ -1594,7 +1659,7 @@ void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
     for(auto& value : sorted_fortunes){
         auto& date = value.check_date;
 
-        w << "[Date.UTC(" << date.year() << "," << date.month().value << "," << date.day() << ") ," << budget::to_flat_string(value.amount) << "],";
+        w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(value.amount) << "],";
     }
 
     w << "]},";
@@ -2682,7 +2747,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/portfolio/", &portfolio_page);
     server.get("/rebalance/", &rebalance_page);
     server.get("/assets/", &assets_page);
-    server.get("/net_worth/", &asset_values_page);
+    server.get("/net_worth/status/", &net_worth_status_page);
+    server.get("/net_worth/graph/", &net_worth_graph_page);
     server.get("/assets/add/", &add_assets_page);
     server.post("/assets/edit/", &edit_assets_page);
 
