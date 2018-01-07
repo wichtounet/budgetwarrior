@@ -5,6 +5,8 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <set>
+
 #include "cpp_utils/assert.hpp"
 
 #include "server.hpp"
@@ -119,9 +121,12 @@ std::string header(const std::string& title){
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown05">
                   <a class="dropdown-item" href="/assets/">Assets</a>
-                  <a class="dropdown-item" href="/net_worth/status/">Net worth status</a>
-                  <a class="dropdown-item" href="/net_worth/graph/">Net worth graph</a>
-                  <a class="dropdown-item" href="/portfolio/">Portfolio</a>
+                  <a class="dropdown-item" href="/net_worth/status/">Net worth Status</a>
+                  <a class="dropdown-item" href="/net_worth/graph/">Net worth Graph</a>
+                  <a class="dropdown-item" href="/net_worth/currency/">Net worth Currency</a>
+                  <a class="dropdown-item" href="/portfolio/status/">Portfolio Status</a>
+                  <a class="dropdown-item" href="/portfolio/graph/">Portfolio Graph</a>
+                  <a class="dropdown-item" href="/portfolio/currency/">Portfolio Currency</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                   <a class="dropdown-item" href="/assets/add/">Add Asset</a>
                   <a class="dropdown-item" href="/asset_values/list/">Asset Values</a>
@@ -1189,7 +1194,7 @@ void all_earnings_page(const httplib::Request& req, httplib::Response& res){
     page_end(content_stream, req, res);
 }
 
-void portfolio_page(const httplib::Request& req, httplib::Response& res){
+void portfolio_status_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     if(!page_start(req, res, content_stream, "Portfolio")){
         return;
@@ -1197,6 +1202,152 @@ void portfolio_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
     budget::show_asset_portfolio(w);
+
+    page_end(content_stream, req, res);
+}
+
+void portfolio_currency_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    if(!page_start(req, res, content_stream, "Portfolio Graph")){
+        return;
+    }
+
+    std::set<std::string> currencies;
+
+    for (auto& asset : all_assets()) {
+        if (asset.name != "DESIRED" && asset.portfolio) {
+            currencies.insert(asset.currency);
+        }
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+
+    w << R"=====(<script langage="javascript">)=====";
+
+    w << R"=====(Highcharts.chart('container', {)=====";
+    w << R"=====(chart: {type: 'area'},)=====";
+    w << R"=====(title: {text: 'Portfolio by currency'},)=====";
+    w << R"=====(credits: {enabled: true},)=====";
+    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    w << R"=====(yAxis: { min: 0, title: { text: 'Sum' }},)=====";
+    w << R"=====(tooltip: {split: true},)=====";
+    w << R"=====(plotOptions: {area: {stacking: 'percent'}},)=====";
+
+    w << "series: [";
+
+    auto sorted_asset_values = all_asset_values();
+
+    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
+              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+
+    for (auto& currency : currencies) {
+        w << "{ name: '" << currency << "',";
+        w << "data: [";
+
+        std::map<size_t, budget::money> asset_amounts;
+
+        auto it  = sorted_asset_values.begin();
+        auto end = sorted_asset_values.end();
+
+        while (it != end) {
+            auto date = it->set_date;
+
+            while (it->set_date == date) {
+                auto& asset = get_asset(it->asset_id);
+
+                if (asset.currency == currency && asset.portfolio) {
+                    asset_amounts[it->asset_id] = it->amount;
+                }
+
+                ++it;
+            }
+
+            budget::money sum;
+
+            for (auto& asset : asset_amounts) {
+                sum += asset.second;
+            }
+
+            w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+        }
+
+        w << "]},";
+    }
+
+    w << "]";
+
+    w << R"=====(});)=====";
+
+    w << R"=====(</script>)=====";
+
+    page_end(content_stream, req, res);
+}
+
+void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    if(!page_start(req, res, content_stream, "Portfolio Graph")){
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+
+    w << R"=====(<script langage="javascript">)=====";
+
+    w << R"=====(Highcharts.chart('container', {)=====";
+    w << R"=====(chart: {type: 'spline'},)=====";
+    w << R"=====(title: {text: 'Portfolio'},)=====";
+    w << R"=====(credits: {enabled: true},)=====";
+    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    w << R"=====(yAxis: { min: 0, title: { text: 'Portfolio' }},)=====";
+
+    w << "series: [";
+
+    w << "{ name: 'Portfolio',";
+    w << "data: [";
+
+    std::map<size_t, budget::money> asset_amounts;
+
+    auto sorted_asset_values = all_asset_values();
+
+    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
+        [](const budget::asset_value& a, const budget::asset_value& b){ return a.set_date < b.set_date; });
+
+    auto it  = sorted_asset_values.begin();
+    auto end = sorted_asset_values.end();
+
+    while (it != end) {
+        auto date = it->set_date;
+
+        while (it->set_date == date) {
+            auto& asset = get_asset(it->asset_id);
+
+            if (asset.portfolio) {
+                asset_amounts[it->asset_id] = it->amount;
+            }
+
+            ++it;
+        }
+
+        budget::money sum;
+
+        for (auto& asset : asset_amounts) {
+            sum += asset.second;
+        }
+
+        w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+    }
+
+    w << "]},";
+
+    w << "]";
+
+    w << R"=====(});)=====";
+
+    w << R"=====(</script>)=====";
 
     page_end(content_stream, req, res);
 }
@@ -1356,6 +1507,84 @@ void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
     }
 
     w << "]},";
+
+    w << "]";
+
+    w << R"=====(});)=====";
+
+    w << R"=====(</script>)=====";
+
+    page_end(content_stream, req, res);
+}
+
+void net_worth_currency_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    if(!page_start(req, res, content_stream, "Net Worth Graph")){
+        return;
+    }
+
+    std::set<std::string> currencies;
+
+    for (auto& asset : all_assets()) {
+        if (asset.name != "DESIRED") {
+            currencies.insert(asset.currency);
+        }
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+
+    w << R"=====(<script langage="javascript">)=====";
+
+    w << R"=====(Highcharts.chart('container', {)=====";
+    w << R"=====(chart: {type: 'area'},)=====";
+    w << R"=====(title: {text: 'Net Worth by currency'},)=====";
+    w << R"=====(credits: {enabled: true},)=====";
+    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+    w << R"=====(tooltip: {split: true},)=====";
+    w << R"=====(plotOptions: {area: {stacking: 'percent'}},)=====";
+
+    w << "series: [";
+
+    auto sorted_asset_values = all_asset_values();
+
+    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
+              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+
+    for (auto& currency : currencies) {
+        w << "{ name: '" << currency << "',";
+        w << "data: [";
+
+        std::map<size_t, budget::money> asset_amounts;
+
+        auto it = sorted_asset_values.begin();
+        auto end = sorted_asset_values.end();
+
+        while(it != end){
+            auto date = it->set_date;
+
+            while(it->set_date == date){
+                if(get_asset(it->asset_id).currency == currency){
+                    asset_amounts[it->asset_id] = it->amount;
+                }
+
+                ++it;
+            }
+
+            budget::money sum;
+
+            for(auto& asset : asset_amounts){
+                sum += asset.second;
+            }
+
+            w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+        }
+
+        w << "]},";
+    }
+
 
     w << "]";
 
@@ -2744,11 +2973,14 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     server.get("/earnings/add/", &add_earnings_page);
     server.post("/earnings/edit/", &edit_earnings_page);
 
-    server.get("/portfolio/", &portfolio_page);
+    server.get("/portfolio/status/", &portfolio_status_page);
+    server.get("/portfolio/graph/", &portfolio_graph_page);
+    server.get("/portfolio/currency/", &portfolio_currency_page);
     server.get("/rebalance/", &rebalance_page);
     server.get("/assets/", &assets_page);
     server.get("/net_worth/status/", &net_worth_status_page);
     server.get("/net_worth/graph/", &net_worth_graph_page);
+    server.get("/net_worth/currency/", &net_worth_currency_page);
     server.get("/assets/add/", &add_assets_page);
     server.post("/assets/edit/", &edit_assets_page);
 
