@@ -139,6 +139,7 @@ std::string header(const std::string& title){
                   <a class="dropdown-item" href="/expenses/add/">Add Expense</a>
                   <a class="dropdown-item" href="/expenses/">Expenses</a>
                   <a class="dropdown-item" href="/expenses/all/">All Expenses</a>
+                  <a class="dropdown-item" href="/expenses/breakdown/">Expenses Breakdown</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -768,6 +769,8 @@ void index_page(const httplib::Request& req, httplib::Response& res){
     // Second display a summary of the objectives
     budget::objectives_summary(w);
 
+    w << title_begin << "Fortune" << title_end;
+
     // Third display a summary of the fortune
     budget::fortune_summary(w);
 
@@ -1045,6 +1048,68 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
     budget::show_all_expenses(w);
+
+    page_end(content_stream, req, res);
+}
+
+void breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    if(!page_start(req, res, content_stream, "Expenses Breakdown")){
+        return;
+    }
+
+    auto today = budget::local_day();
+
+    auto month = today.month();
+    auto year = today.year();
+
+    if(req.matches.size() == 3){
+        year = to_number<size_t>(req.matches[1]);
+        month = to_number<size_t>(req.matches[2]);
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Expenses Breakdown of " << month << " " << year << budget::year_month_selector{"expenses/breakdown", year, month} << title_end;
+
+    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+
+    w << R"=====(<script langage="javascript">)=====";
+
+    w << R"=====(Highcharts.chart('container', {)=====";
+    w << R"=====(chart: {type: 'pie'},)=====";
+    w << R"=====(title: {text: 'Expenses Breakdown'},)=====";
+    w << R"=====(credits: {enabled: true},)=====";
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+
+    w << "series: [";
+
+    w << "{ name: 'Expenses',";
+    w << "colorByPoint: true,";
+    w << "data: [";
+
+    std::map<size_t, budget::money> account_sum;
+
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == year && expense.date.month() == month){
+            account_sum[expense.account] += expense.amount;
+        }
+    }
+
+    for (auto& sum : account_sum) {
+        w << "{";
+        w << "name: '" << get_account(sum.first).name << "',";
+        w << "y: " << budget::to_flat_string(sum.second);
+        w << "},";
+    }
+
+    w << "]},";
+
+    w << "]";
+
+    w << R"=====(});)=====";
+
+    w << R"=====(</script>)=====";
 
     page_end(content_stream, req, res);
 }
@@ -2963,6 +3028,8 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     server.get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
     server.get("/expenses/", &expenses_page);
+    server.get(R"(/expenses/breakdown/(\d+)/(\d+)/)", &breakdown_expenses_page);
+    server.get("/expenses/breakdown/", &breakdown_expenses_page);
     server.get("/expenses/all/", &all_expenses_page);
     server.get("/expenses/add/", &add_expenses_page);
     server.post("/expenses/edit/", &edit_expenses_page);
