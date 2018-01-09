@@ -159,8 +159,8 @@ struct date {
     }
 
     date& operator+=(years years){
-        if(_year + years < _year){
-            throw date_exception("Year too high");
+        if(years >= std::numeric_limits<date_type>::max() - _year){
+            throw date_exception("Year too high (will overflow)");
         }
 
         _year += years;
