@@ -36,7 +36,7 @@ bool server_running = false;
 
 static constexpr const char new_line = '\n';
 
-std::string header(const std::string& title){
+std::string header(const std::string& title, bool menu = true){
     std::stringstream stream;
 
     // The header
@@ -98,7 +98,8 @@ std::string header(const std::string& title){
 
     stream << "<a class=\"navbar-brand\" href=\"#\">" << budget::get_version() << "</a>";
 
-    stream << R"=====(
+    if (menu) {
+        stream << R"=====(
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -204,8 +205,10 @@ std::string header(const std::string& title){
               </li>
             </ul>
           </div>
-        </nav>
     )=====";
+    }
+
+    stream << "</nav>" << new_line;
 
     // The main component
 
@@ -3209,7 +3212,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
         std::stringstream content_stream;
         content_stream.imbue(std::locale("C"));
 
-        content_stream << header("");
+        content_stream << header("", false);
 
         content_stream << "<p>Error Status: <span style='color:red;'>";
         content_stream << res.status;
