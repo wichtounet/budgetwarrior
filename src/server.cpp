@@ -139,7 +139,8 @@ std::string header(const std::string& title){
                   <a class="dropdown-item" href="/expenses/add/">Add Expense</a>
                   <a class="dropdown-item" href="/expenses/">Expenses</a>
                   <a class="dropdown-item" href="/expenses/all/">All Expenses</a>
-                  <a class="dropdown-item" href="/expenses/breakdown/">Expenses Breakdown</a>
+                  <a class="dropdown-item" href="/expenses/breakdown/month/">Expenses Breakdown Month</a>
+                  <a class="dropdown-item" href="/expenses/breakdown/year/">Expenses Breakdown Year</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -1052,7 +1053,7 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res){
     page_end(content_stream, req, res);
 }
 
-void breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
+void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     if(!page_start(req, res, content_stream, "Expenses Breakdown")){
         return;
@@ -1070,7 +1071,7 @@ void breakdown_expenses_page(const httplib::Request& req, httplib::Response& res
 
     budget::html_writer w(content_stream);
 
-    w << title_begin << "Expenses Breakdown of " << month << " " << year << budget::year_month_selector{"expenses/breakdown", year, month} << title_end;
+    w << title_begin << "Expenses Breakdown of " << month << " " << year << budget::year_month_selector{"expenses/breakdown/month", year, month} << title_end;
 
     w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
 
@@ -1092,6 +1093,66 @@ void breakdown_expenses_page(const httplib::Request& req, httplib::Response& res
 
     for(auto& expense : all_expenses()){
         if(expense.date.year() == year && expense.date.month() == month){
+            account_sum[expense.account] += expense.amount;
+        }
+    }
+
+    for (auto& sum : account_sum) {
+        w << "{";
+        w << "name: '" << get_account(sum.first).name << "',";
+        w << "y: " << budget::to_flat_string(sum.second);
+        w << "},";
+    }
+
+    w << "]},";
+
+    w << "]";
+
+    w << R"=====(});)=====";
+
+    w << R"=====(</script>)=====";
+
+    page_end(content_stream, req, res);
+}
+
+void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
+    std::stringstream content_stream;
+    if(!page_start(req, res, content_stream, "Expenses Breakdown")){
+        return;
+    }
+
+    auto today = budget::local_day();
+
+    auto year = today.year();
+
+    if (req.matches.size() == 2) {
+        year = to_number<size_t>(req.matches[1]);
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Expenses Breakdown of " << year << budget::year_selector{"expenses/breakdown/year", year} << title_end;
+
+    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+
+    w << R"=====(<script langage="javascript">)=====";
+
+    w << R"=====(Highcharts.chart('container', {)=====";
+    w << R"=====(chart: {type: 'pie'},)=====";
+    w << R"=====(title: {text: 'Expenses Breakdown'},)=====";
+    w << R"=====(credits: {enabled: true},)=====";
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+
+    w << "series: [";
+
+    w << "{ name: 'Expenses',";
+    w << "colorByPoint: true,";
+    w << "data: [";
+
+    std::map<size_t, budget::money> account_sum;
+
+    for (auto& expense : all_expenses()) {
+        if (expense.date.year() == year) {
             account_sum[expense.account] += expense.amount;
         }
     }
@@ -3028,8 +3089,13 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     server.get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
     server.get("/expenses/", &expenses_page);
-    server.get(R"(/expenses/breakdown/(\d+)/(\d+)/)", &breakdown_expenses_page);
-    server.get("/expenses/breakdown/", &breakdown_expenses_page);
+
+    server.get(R"(/expenses/breakdown/month/(\d+)/(\d+)/)", &month_breakdown_expenses_page);
+    server.get("/expenses/breakdown/month/", &month_breakdown_expenses_page);
+
+    server.get(R"(/expenses/breakdown/year/(\d+)/)", &year_breakdown_expenses_page);
+    server.get("/expenses/breakdown/year/", &year_breakdown_expenses_page);
+
     server.get("/expenses/all/", &all_expenses_page);
     server.get("/expenses/add/", &add_expenses_page);
     server.post("/expenses/edit/", &edit_expenses_page);
