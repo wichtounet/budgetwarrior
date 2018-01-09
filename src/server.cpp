@@ -1056,6 +1056,26 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res){
     page_end(content_stream, req, res);
 }
 
+void start_chart(budget::writer& w, const std::string& title, const std::string& chart_type){
+    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+
+    w << R"=====(<script langage="javascript">)=====";
+
+    w << R"=====(Highcharts.chart('container', {)=====";
+    w << R"=====(chart: {type: ')=====";
+    w << chart_type;
+    w << R"=====('},)=====";
+    w << R"=====(title: {text: ')=====";
+    w << title;
+    w << R"=====('},)=====";
+    w << R"=====(credits: {enabled: true},)=====";
+}
+
+void end_chart(budget::writer& w){
+    w << R"=====(});)=====";
+    w << R"=====(</script>)=====";
+}
+
 void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     if(!page_start(req, res, content_stream, "Expenses Breakdown")){
@@ -1076,14 +1096,8 @@ void month_breakdown_expenses_page(const httplib::Request& req, httplib::Respons
 
     w << title_begin << "Expenses Breakdown of " << month << " " << year << budget::year_month_selector{"expenses/breakdown/month", year, month} << title_end;
 
-    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+    start_chart(w, "Expenses Breakdown", "pie");
 
-    w << R"=====(<script langage="javascript">)=====";
-
-    w << R"=====(Highcharts.chart('container', {)=====";
-    w << R"=====(chart: {type: 'pie'},)=====";
-    w << R"=====(title: {text: 'Expenses Breakdown'},)=====";
-    w << R"=====(credits: {enabled: true},)=====";
     w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
 
     w << "series: [";
@@ -1111,9 +1125,7 @@ void month_breakdown_expenses_page(const httplib::Request& req, httplib::Respons
 
     w << "]";
 
-    w << R"=====(});)=====";
-
-    w << R"=====(</script>)=====";
+    end_chart(w);
 
     page_end(content_stream, req, res);
 }
@@ -1136,14 +1148,8 @@ void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response
 
     w << title_begin << "Expenses Breakdown of " << year << budget::year_selector{"expenses/breakdown/year", year} << title_end;
 
-    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+    start_chart(w, "Expenses Breakdown", "pie");
 
-    w << R"=====(<script langage="javascript">)=====";
-
-    w << R"=====(Highcharts.chart('container', {)=====";
-    w << R"=====(chart: {type: 'pie'},)=====";
-    w << R"=====(title: {text: 'Expenses Breakdown'},)=====";
-    w << R"=====(credits: {enabled: true},)=====";
     w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
 
     w << "series: [";
@@ -1171,9 +1177,7 @@ void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response
 
     w << "]";
 
-    w << R"=====(});)=====";
-
-    w << R"=====(</script>)=====";
+    end_chart(w);
 
     page_end(content_stream, req, res);
 }
@@ -1351,14 +1355,8 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     budget::html_writer w(content_stream);
 
-    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+    start_chart(w, "Portfolio by currency", "area");
 
-    w << R"=====(<script langage="javascript">)=====";
-
-    w << R"=====(Highcharts.chart('container', {)=====";
-    w << R"=====(chart: {type: 'area'},)=====";
-    w << R"=====(title: {text: 'Portfolio by currency'},)=====";
-    w << R"=====(credits: {enabled: true},)=====";
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Sum' }},)=====";
     w << R"=====(tooltip: {split: true},)=====";
@@ -1407,9 +1405,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     w << "]";
 
-    w << R"=====(});)=====";
-
-    w << R"=====(</script>)=====";
+    end_chart(w);
 
     page_end(content_stream, req, res);
 }
@@ -1422,16 +1418,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
 
-    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
-
-    w << R"=====(<script langage="javascript">)=====";
-
-    w << R"=====(Highcharts.chart('container', {)=====";
-    w << R"=====(chart: {type: 'spline'},)=====";
-    w << R"=====(title: {text: 'Portfolio'},)=====";
-    w << R"=====(credits: {enabled: true},)=====";
-    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    w << R"=====(yAxis: { min: 0, title: { text: 'Portfolio' }},)=====";
+    start_chart(w, "Portfolio", "spline");
 
     w << "series: [";
 
@@ -1474,9 +1461,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
 
     w << "]";
 
-    w << R"=====(});)=====";
-
-    w << R"=====(</script>)=====";
+    end_chart(w);
 
     page_end(content_stream, req, res);
 }
@@ -1591,14 +1576,8 @@ void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
 
-    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+    start_chart(w, "Net Worth", "spline");
 
-    w << R"=====(<script langage="javascript">)=====";
-
-    w << R"=====(Highcharts.chart('container', {)=====";
-    w << R"=====(chart: {type: 'spline'},)=====";
-    w << R"=====(title: {text: 'Net Worth'},)=====";
-    w << R"=====(credits: {enabled: true},)=====";
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
 
@@ -1639,9 +1618,7 @@ void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
 
     w << "]";
 
-    w << R"=====(});)=====";
-
-    w << R"=====(</script>)=====";
+    end_chart(w);
 
     page_end(content_stream, req, res);
 }
@@ -1662,14 +1639,8 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     budget::html_writer w(content_stream);
 
-    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+    start_chart(w, "Net worth by currency", "area");
 
-    w << R"=====(<script langage="javascript">)=====";
-
-    w << R"=====(Highcharts.chart('container', {)=====";
-    w << R"=====(chart: {type: 'area'},)=====";
-    w << R"=====(title: {text: 'Net Worth by currency'},)=====";
-    w << R"=====(credits: {enabled: true},)=====";
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
     w << R"=====(tooltip: {split: true},)=====";
@@ -1717,10 +1688,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     w << "]";
 
-    w << R"=====(});)=====";
-
-    w << R"=====(</script>)=====";
-
+    end_chart(w);
 
     page_end(content_stream, req, res);
 }
@@ -1993,14 +1961,8 @@ void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
 
-    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+    start_chart(w, "Fortune", "spline");
 
-    w << R"=====(<script langage="javascript">)=====";
-
-    w << R"=====(Highcharts.chart('container', {)=====";
-    w << R"=====(chart: {type: 'spline'},)=====";
-    w << R"=====(title: {text: 'Fortune'},)=====";
-    w << R"=====(credits: {enabled: true},)=====";
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Fortune' }},)=====";
 
@@ -2024,9 +1986,7 @@ void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
 
     w << "]";
 
-    w << R"=====(});)=====";
-
-    w << R"=====(</script>)=====";
+    end_chart(w);
 
     page_end(content_stream, req, res);
 }
