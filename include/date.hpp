@@ -47,6 +47,12 @@ struct month {
     month(date_type value) : value(value) {}
     operator date_type() const { return value; }
 
+    month& operator=(date_type value){
+        this->value = value;
+
+        return *this;
+    }
+
     std::string as_short_string() const {
         static constexpr const char* months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -66,6 +72,12 @@ struct year {
     date_type value;
     year(date_type value) : value(value) {}
     operator date_type() const { return value; }
+
+    year& operator=(date_type value){
+        this->value = value;
+
+        return *this;
+    }
 };
 
 struct days {
