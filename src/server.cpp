@@ -3212,7 +3212,11 @@ void budget::server_module::handle(const std::vector<std::string>& args){
         std::stringstream content_stream;
         content_stream.imbue(std::locale("C"));
 
-        content_stream << header("", false);
+        if(res.status == 401 || res.status == 403){
+            content_stream << header("", false);
+        } else {
+            content_stream << header("", true);
+        }
 
         content_stream << "<p>Error Status: <span style='color:red;'>";
         content_stream << res.status;
