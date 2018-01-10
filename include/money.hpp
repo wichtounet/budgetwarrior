@@ -71,6 +71,17 @@ struct money {
         return *this;
     }
 
+    money operator*(float factor) const {
+        money new_money = *this;
+        new_money.value *= factor;
+        return new_money;
+    }
+
+    money& operator*=(float factor){
+        value *= factor;
+        return *this;
+    }
+
     money operator*(int factor) const {
         money new_money = *this;
         new_money.value *= factor;
