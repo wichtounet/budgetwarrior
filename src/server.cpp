@@ -1527,8 +1527,81 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
         return;
     }
 
+    // 1. Display the rebalance table
+
     budget::html_writer w(content_stream);
     budget::show_asset_rebalance(w);
+
+    // 2. Display the current allocation
+
+    start_chart(w, "Current Allocation", "pie", "current_allocation_graph");
+
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+
+    w << "series: [";
+
+    auto sorted_asset_values = all_asset_values();
+
+    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
+              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+
+    w << "{ name: 'Assets',";
+    w << "colorByPoint: true,";
+    w << "data: [";
+
+    std::map<size_t, budget::money> asset_amounts;
+
+    for (auto& asset_value : sorted_asset_values) {
+        if (get_asset(asset_value.asset_id).portfolio) {
+            asset_amounts[asset_value.asset_id] = asset_value.amount;
+        }
+    }
+
+    budget::money sum;
+
+    for (auto& asset_amount : asset_amounts) {
+        if (!asset_amount.second.zero()) {
+            w << "{ name: '" << get_asset(asset_amount.first).name << "',";
+            w << "y: ";
+            w << budget::to_flat_string(asset_amount.second);
+            w << "},";
+
+            sum += asset_amount.second;
+        }
+    }
+
+    w << "]},";
+
+    w << "]";
+
+    end_chart(w);
+
+    // 3. Display the desired allocation
+
+    start_chart(w, "Desired Allocation", "pie", "desired_allocation_graph");
+
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+
+    w << "series: [";
+
+    w << "{ name: 'Assets',";
+    w << "colorByPoint: true,";
+    w << "data: [";
+
+    for (auto& asset : all_assets()) {
+        if(asset.portfolio && !asset.portfolio_alloc.zero()){
+            w << "{ name: '" << asset.name << "',";
+            w << "y: ";
+            w << budget::to_flat_string(sum * (static_cast<float>(asset.portfolio_alloc) / 100.0f));
+            w << "},";
+        }
+    }
+
+    w << "]},";
+
+    w << "]";
+
+    end_chart(w);
 
     page_end(content_stream, req, res);
 }
