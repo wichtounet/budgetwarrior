@@ -3361,14 +3361,19 @@ void budget::server_module::handle(const std::vector<std::string>& args){
         res.set_content(content_stream.str(), "text/html");
     });
 
+    std::string listen = "localhost";
     size_t port = 8080;
 
     if(config_contains("server_port")){
         port = to_number<size_t>(config_value("server_port"));
     }
 
+    if(config_contains("server_listen")){
+        listen = config_value("server_listen");
+    }
+
     // Listen
-    server.listen("localhost", port);
+    server.listen(listen.c_str(), port);
 }
 
 bool budget::is_server_running(){
