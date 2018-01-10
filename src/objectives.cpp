@@ -346,7 +346,7 @@ void budget::set_objectives_next_id(size_t next_id){
 }
 
 void budget::list_objectives(budget::writer& w){
-    w << title_begin << "Objectives" << end_of_line;
+    w << title_begin << "Objectives " << add_button("objectives") << title_end;
 
     if (objectives.data.size() == 0) {
         w << "No objectives" << end_of_line;
@@ -363,7 +363,7 @@ void budget::list_objectives(budget::writer& w){
 }
 
 void budget::status_objectives(budget::writer& w){
-    w << title_begin << "Objectives" << title_end;
+    w << title_begin << "Objectives " << add_button("objectives") << title_end;
 
     if(objectives.data.size() == 0){
         w << "No objectives" << end_of_line;

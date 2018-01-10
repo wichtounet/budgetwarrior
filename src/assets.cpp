@@ -537,7 +537,7 @@ void budget::show_assets(budget::writer& w){
         return;
     }
 
-    w << title_begin << "Assets" << title_end;
+    w << title_begin << "Assets " << add_button("assets") << title_end;
 
     std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency", "Portfolio", "Alloc", "Edit"};
     std::vector<std::vector<std::string>> contents;

@@ -478,7 +478,7 @@ std::vector<std::string> budget::all_account_names(){
 }
 
 void budget::show_accounts(budget::writer& w){
-    w << title_begin << "Accounts" << title_end;
+    w << title_begin << "Accounts " << add_button("accounts") << title_end;
 
     std::vector<std::string> columns = {"ID", "Name", "Amount", "Part", "Edit"};
     std::vector<std::vector<std::string>> contents;
@@ -515,7 +515,7 @@ void budget::show_accounts(budget::writer& w){
 }
 
 void budget::show_all_accounts(budget::writer& w){
-    w << title_begin << "All Accounts" << title_end;
+    w << title_begin << "All Accounts " << add_button("accounts") << title_end;
 
     std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;

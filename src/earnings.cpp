@@ -176,7 +176,7 @@ void budget::add_earning(budget::earning&& earning){
 }
 
 void budget::show_all_earnings(budget::writer& w){
-    w << title_begin << "All Earnings" << title_end;
+    w << title_begin << "All Earnings " << add_button("earnings") << title_end;
 
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
@@ -189,7 +189,9 @@ void budget::show_all_earnings(budget::writer& w){
 }
 
 void budget::show_earnings(budget::month month, budget::year year, budget::writer& w){
-    w << title_begin << "Earnings of " << month << " " << year << budget::year_month_selector{"earnings", year, month} << title_end;
+    w << title_begin << "Earnings of " << month << " " << year << " "
+      << add_button("earnings")
+      << budget::year_month_selector{"earnings", year, month} << title_end;
 
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
     std::vector<std::vector<std::string>> contents;

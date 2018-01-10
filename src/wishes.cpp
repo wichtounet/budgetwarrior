@@ -270,7 +270,7 @@ void budget::migrate_wishes_3_to_4(){
 }
 
 void budget::list_wishes(budget::writer& w){
-    w << title_begin << "Wishes" << title_end;
+    w << title_begin << "Wishes " << add_button("wishes") << title_end;
 
     if (wishes.data.size() == 0) {
         w << "No wishes" << end_of_line;
@@ -315,7 +315,7 @@ void budget::list_wishes(budget::writer& w){
 }
 
 void budget::status_wishes(budget::writer& w){
-    w << title_begin << "Wishes" << title_end;
+    w << title_begin << "Wishes " << add_button("wishes") << title_end;
 
     auto today = budget::local_day();
 

@@ -211,6 +211,8 @@ void budget::set_debts_next_id(size_t next_id){
 }
 
 void budget::display_all_debts(budget::writer& w){
+    w << title_begin << "All debts " << add_button("debts") << title_end;
+
     std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Paid", "Title", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
@@ -222,6 +224,8 @@ void budget::display_all_debts(budget::writer& w){
 }
 
 void budget::list_debts(budget::writer& w){
+    w << title_begin << "Debts " << add_button("debts") << title_end;
+
     std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title", "Edit"};
     std::vector<std::vector<std::string>> contents;
 

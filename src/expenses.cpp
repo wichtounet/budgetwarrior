@@ -249,7 +249,7 @@ void budget::set_expenses_next_id(size_t next_id){
 }
 
 void budget::show_all_expenses(budget::writer& w){
-    w << title_begin << "All Expenses" << title_end;
+    w << title_begin << "All Expenses " << add_button("expenses") << title_end;
 
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
@@ -262,7 +262,9 @@ void budget::show_all_expenses(budget::writer& w){
 }
 
 void budget::show_expenses(budget::month month, budget::year year, budget::writer& w){
-    w << title_begin << "Expenses of " << month << " " << year << budget::year_month_selector{"expenses", year, month} << title_end;
+    w << title_begin << "Expenses of " << month << " " << year << " "
+      << add_button("expenses")
+      << budget::year_month_selector{"expenses", year, month} << title_end;
 
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
     std::vector<std::vector<std::string>> contents;

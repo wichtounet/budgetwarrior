@@ -318,7 +318,7 @@ void budget::set_recurrings_next_id(size_t next_id){
 }
 
 void budget::show_recurrings(budget::writer& w) {
-    w << title_begin << "Recurring expenses" << title_end;
+    w << title_begin << "Recurring expenses " << add_button("recurrings") << title_end;
 
     if (recurrings.data.empty()) {
         w << "No recurring expenses" << end_of_line;
