@@ -1472,6 +1472,9 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
 
     start_chart(w, "Portfolio", "spline");
 
+    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    w << R"=====(yAxis: { min: 0, title: { text: 'Portfolio' }},)=====";
+
     w << "series: [";
 
     w << "{ name: 'Portfolio',";
