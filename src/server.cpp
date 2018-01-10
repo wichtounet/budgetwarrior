@@ -84,10 +84,12 @@ std::string header(const std::string& title, bool menu = true){
     )=====";
 
     if (title.empty()) {
-        stream << "<title>budgetwarrior</title>" << new_line;
+        stream << "<title>budgetwarrior</title>";
     } else {
-        stream << "<title>budgetwarrior - " << title << "</title>" << new_line;
+        stream << "<title>budgetwarrior - " << title << "</title>";
     }
+
+    stream << new_line;
 
     stream << "</head>" << new_line;
     stream << "<body>" << new_line;
@@ -1056,12 +1058,17 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res){
     page_end(content_stream, req, res);
 }
 
-void start_chart(budget::writer& w, const std::string& title, const std::string& chart_type){
-    w << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
+void start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container"){
+    w << R"=====(<div id=")=====";
+    w << id;
+    w << R"=====(" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====" << end_of_line;
 
-    w << R"=====(<script langage="javascript">)=====";
+    w << R"=====(<script langage="javascript">)=====" << end_of_line;
 
-    w << R"=====(Highcharts.chart('container', {)=====";
+    w << R"=====(Highcharts.chart(')=====";
+    w << id;
+    w << R"=====(', {)=====";
+
     w << R"=====(chart: {type: ')=====";
     w << chart_type;
     w << R"=====('},)=====";
@@ -1073,7 +1080,7 @@ void start_chart(budget::writer& w, const std::string& title, const std::string&
 
 void end_chart(budget::writer& w){
     w << R"=====(});)=====";
-    w << R"=====(</script>)=====";
+    w << R"=====(</script>)=====" << end_of_line;
 }
 
 void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
@@ -1355,7 +1362,9 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     budget::html_writer w(content_stream);
 
-    start_chart(w, "Portfolio by currency", "area");
+    // 1. Display the currency breakdown over time
+
+    start_chart(w, "Portfolio by currency", "area", "portfolio_currency_graph");
 
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Sum' }},)=====";
@@ -1402,6 +1411,49 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
         w << "]},";
     }
+
+    w << "]";
+
+    end_chart(w);
+
+    // 2. Display the current currency breakdown
+
+    start_chart(w, "Current Currency Breakdown", "pie", "currency_breakdown_graph");
+
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+
+    w << "series: [";
+
+    w << "{ name: 'Currencies',";
+    w << "colorByPoint: true,";
+    w << "data: [";
+
+    for (auto& currency : currencies) {
+        w << "{ name: '" << currency << "',";
+        w << "y: ";
+
+        std::map<size_t, budget::money> asset_amounts;
+
+        for(auto& asset_value : sorted_asset_values){
+            auto& asset = get_asset(asset_value.asset_id);
+
+            if (asset.currency == currency && asset.portfolio) {
+                asset_amounts[asset_value.asset_id] = asset_value.amount;
+            }
+        }
+
+        budget::money sum;
+
+        for(auto& asset : asset_amounts){
+            sum += asset.second;
+        }
+
+        w << budget::to_flat_string(sum);
+
+        w << "},";
+    }
+
+    w << "]},";
 
     w << "]";
 
@@ -1639,7 +1691,9 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     budget::html_writer w(content_stream);
 
-    start_chart(w, "Net worth by currency", "area");
+    // 1. Display the currency breakdown over time
+
+    start_chart(w, "Net worth by currency", "area", "currency_time_graph");
 
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
@@ -1685,6 +1739,46 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
         w << "]},";
     }
 
+    w << "]";
+
+    end_chart(w);
+
+    // 2. Display the current currency breakdown
+
+    start_chart(w, "Current Currency Breakdown", "pie", "currency_breakdown_graph");
+
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+
+    w << "series: [";
+
+    w << "{ name: 'Currencies',";
+    w << "colorByPoint: true,";
+    w << "data: [";
+
+    for (auto& currency : currencies) {
+        w << "{ name: '" << currency << "',";
+        w << "y: ";
+
+        std::map<size_t, budget::money> asset_amounts;
+
+        for(auto& asset_value : sorted_asset_values){
+            if (get_asset(asset_value.asset_id).currency == currency) {
+                asset_amounts[asset_value.asset_id] = asset_value.amount;
+            }
+        }
+
+        budget::money sum;
+
+        for(auto& asset : asset_amounts){
+            sum += asset.second;
+        }
+
+        w << budget::to_flat_string(sum);
+
+        w << "},";
+    }
+
+    w << "]},";
 
     w << "]";
 
