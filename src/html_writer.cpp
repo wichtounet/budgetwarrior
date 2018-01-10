@@ -200,6 +200,12 @@ budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) 
     return *this;
 }
 
+budget::writer& budget::html_writer::operator<<(const budget::add_button& b) {
+    os << "<a href=\"/" << b.module << "/add/\" class=\"btn btn-info\" role=\"button\">New</a>\n";
+
+    return *this;
+}
+
 void budget::html_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left){
     cpp_assert(groups > 0, "There must be at least 1 group");
     cpp_unused(left);

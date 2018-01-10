@@ -46,6 +46,13 @@ struct year_selector {
             : page(page), current_year(current_year) {}
 };
 
+struct add_button {
+    std::string module;
+
+    add_button(std::string module)
+            : module(module) {}
+};
+
 struct writer {
     virtual writer& operator<<(const std::string& value) = 0;
     virtual writer& operator<<(const double& value) = 0;
@@ -67,6 +74,10 @@ struct writer {
     }
 
     virtual writer& operator<<(const year_selector&){
+        return *this;
+    }
+
+    virtual writer& operator<<(const add_button&){
         return *this;
     }
 
@@ -117,6 +128,7 @@ struct html_writer : writer {
     virtual writer& operator<<(const title_end_t& m) override;
     virtual writer& operator<<(const year_month_selector& m) override;
     virtual writer& operator<<(const year_selector& m) override;
+    virtual writer& operator<<(const add_button& m) override;
 
     virtual bool is_web() override;
 
