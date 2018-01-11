@@ -120,16 +120,16 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
         //Compute the year status
         auto year_status = budget::compute_year_status();
 
+        std::vector<std::string> columns = {"Objective", "Status", "Progress"};
+        std::vector<std::vector<std::string>> contents;
+
         for (auto& objective : objectives.data) {
             if (objective.type == "yearly") {
-                std::vector<std::string> columns = {objective.name, "Status", "Progress"};
-                std::vector<std::vector<std::string>> contents;
-
-                contents.push_back({to_string(local_day().year()), get_status(year_status, objective), get_success(year_status, objective)});
-
-                w.display_table(columns, contents);
+                contents.push_back({objective.name, get_status(year_status, objective), get_success(year_status, objective)});
             }
         }
+
+        w.display_table(columns, contents);
     }
 }
 
@@ -161,6 +161,20 @@ void budget::monthly_objective_status(budget::writer& w){
 }
 
 void budget::current_monthly_objective_status(budget::writer& w, bool full_align){
+    if (objectives.data.empty()) {
+        w << title_begin << "No objectives" << title_end;
+        return;
+    }
+
+    auto monthly_objectives = std::count_if(objectives.data.begin(), objectives.data.end(), [](auto& objective) {
+        return objective.type == "monthly";
+    });
+
+    if (!monthly_objectives) {
+        w << title_begin << "No objectives" << title_end;
+        return;
+    }
+
     w << title_begin << "Month objectives" << title_end;
 
     auto today = budget::local_day();
@@ -178,19 +192,19 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
         }
     }
 
+    std::vector<std::string> columns = {"Objective", "Status", "Progress"};
+    std::vector<std::vector<std::string>> contents;
+
+    // Compute the month status
+    auto status = budget::compute_month_status(today.year(), today.month());
+
     for (auto& objective : objectives.data) {
         if (objective.type == "monthly") {
-            std::vector<std::string> columns = {objective.name, "Status", "Progress"};
-            std::vector<std::vector<std::string>> contents;
-
-            // Compute the month status
-            auto status = budget::compute_month_status(today.year(), today.month());
-
-            contents.push_back({to_string(today.month()), get_status(status, objective), get_success(status, objective)});
-
-            w.display_table(columns, contents);
+            contents.push_back({objective.name, get_status(status, objective), get_success(status, objective)});
         }
     }
+
+    w.display_table(columns, contents);
 }
 
 int budget::compute_success(const budget::status& status, const budget::objective& objective){
