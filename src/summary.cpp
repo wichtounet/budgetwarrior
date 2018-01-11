@@ -54,7 +54,7 @@ void print_columns(const std::vector<std::string>& columns){
         max_length = std::max(max_length, column.size());
     }
 
-    if (terminal_width() - 3 > total_max_width) {
+    if (terminal_width() > total_max_width + 3) {
         // By default, print the columns side by side
 
         for (auto& column : split_columns) {
