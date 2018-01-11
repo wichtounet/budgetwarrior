@@ -14,6 +14,10 @@ std::string budget::get_version(){
     return "budgetwarrior 1.0";
 }
 
+std::string budget::get_version_short(){
+    return "1.0";
+}
+
 void budget::version_module::handle(const std::vector<std::string>& args){
     if(args.size() > 1){
         throw budget_exception("Too many arguments to version");

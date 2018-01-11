@@ -26,6 +26,7 @@ struct module_traits<version_module> {
 };
 
 std::string get_version();
+std::string get_version_short();
 
 } //end of namespace budget
 
