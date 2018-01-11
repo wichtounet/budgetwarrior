@@ -21,6 +21,7 @@
 #include "recurring.hpp"
 #include "guid.hpp"
 #include "debts.hpp"
+#include "version.hpp"
 
 #include "server_api.hpp"
 
@@ -73,6 +74,10 @@ bool parameters_present(const httplib::Request& req, std::vector<const char*> pa
 
 void server_up_api(const httplib::Request& req, httplib::Response& res) {
     api_success_content(req, res, "yes");
+}
+
+void server_version_api(const httplib::Request& req, httplib::Response& res) {
+    api_success_content(req, res, get_version_short());
 }
 
 void add_accounts_api(const httplib::Request& req, httplib::Response& res) {
@@ -862,6 +867,7 @@ void list_wishes_api(const httplib::Request& req, httplib::Response& res) {
 
 void budget::load_api(httplib::Server& server){
     server.get("/api/server/up/", &server_up_api);
+    server.get("/api/server/version/", &server_version_api);
 
     server.post("/api/accounts/add/", &add_accounts_api);
     server.post("/api/accounts/edit/", &edit_accounts_api);
