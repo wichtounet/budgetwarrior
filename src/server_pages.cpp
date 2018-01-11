@@ -1109,7 +1109,9 @@ void start_chart(budget::writer& w, const std::string& title, const std::string&
     w << R"=====(title: {text: ')=====";
     w << title;
     w << R"=====('},)=====";
-    w << R"=====(credits: {enabled: true},)=====";
+
+    w << R"=====(credits: { enabled: false },)=====";
+    w << R"=====(exporting: { enabled: false },)=====";
 }
 
 void end_chart(budget::writer& w){
