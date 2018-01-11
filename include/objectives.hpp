@@ -70,6 +70,9 @@ bool objective_exists(size_t id);
 void objective_delete(size_t id);
 objective& objective_get(size_t id);
 
+std::string get_status(const budget::status& status, const budget::objective& objective);
+std::string get_success(const budget::status& status, const budget::objective& objective);
+
 } //end of namespace budget
 
 #endif

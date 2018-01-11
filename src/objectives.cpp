@@ -30,39 +30,6 @@ namespace {
 
 static data_handler<objective> objectives { "objectives", "objectives.data" };
 
-std::string get_status(const budget::status& status, const budget::objective& objective){
-    std::string result;
-
-    budget::money basis;
-    if(objective.source == "expenses"){
-        basis = status.expenses;
-    } else if (objective.source == "earnings") {
-        basis = status.earnings;
-    } else if (objective.source == "savings_rate") {
-        double savings_rate = 0.0;
-
-        if(status.balance.dollars() > 0){
-            savings_rate = 100 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
-        }
-
-        basis = budget::money(int(savings_rate));
-    } else {
-        basis = status.balance;
-    }
-
-    result += to_string(basis.dollars());
-    result += "/";
-    result += to_string(objective.amount.dollars());
-
-    return result;
-}
-
-std::string get_success(const budget::status& status, const budget::objective& objective){
-    auto success = compute_success(status, objective);
-
-    return "::success" + std::to_string(success);
-}
-
 void edit(budget::objective& objective){
     edit_string(objective.name, "Name", not_empty_checker());
     edit_string_complete(objective.type, "Type", {"monthly","yearly"}, not_empty_checker(), one_of_checker({"monthly","yearly"}));
@@ -435,4 +402,37 @@ objective& budget::objective_get(size_t id) {
 
 void budget::add_objective(budget::objective&& objective){
     objectives.add(std::forward<budget::objective>(objective));
+}
+
+std::string budget::get_status(const budget::status& status, const budget::objective& objective){
+    std::string result;
+
+    budget::money basis;
+    if(objective.source == "expenses"){
+        basis = status.expenses;
+    } else if (objective.source == "earnings") {
+        basis = status.earnings;
+    } else if (objective.source == "savings_rate") {
+        double savings_rate = 0.0;
+
+        if(status.balance.dollars() > 0){
+            savings_rate = 100 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+        }
+
+        basis = budget::money(int(savings_rate));
+    } else {
+        basis = status.balance;
+    }
+
+    result += to_string(basis.dollars());
+    result += "/";
+    result += to_string(objective.amount.dollars());
+
+    return result;
+}
+
+std::string budget::get_success(const budget::status& status, const budget::objective& objective){
+    auto success = compute_success(status, objective);
+
+    return "::success" + std::to_string(success);
 }
