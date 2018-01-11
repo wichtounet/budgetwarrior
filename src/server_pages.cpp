@@ -1504,7 +1504,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
 
-    start_chart(w, "Portfolio", "spline");
+    start_chart(w, "Portfolio", "area");
 
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Portfolio' }},)=====";
@@ -1750,7 +1750,7 @@ void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
 
-    start_chart(w, "Net Worth", "spline");
+    start_chart(w, "Net Worth", "area");
 
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
