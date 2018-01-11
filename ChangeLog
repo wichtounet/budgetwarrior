@@ -1,12 +1,14 @@
-budgetwarrior 0.4.3 - in development
+budgetwarrior 1.0 - in development
+
  * Compute the savings rate
  * Add support for savings rate objectives
  * Add support for tracking asset values
  * Add support for portfolio rebalancing
  * Auto-completion when possible with UP and DOWN
- * Add budget account archive year to archive from beginning of year
+ * Add command budget account archive year to archive from beginning of year
 
 budgetwarrior 0.4.2 - 14.09.2017
+
  * New command: summary for a global view
  * Improved fortune reports
  * Disable balance over years (can be changed with option)
@@ -22,12 +24,15 @@ budgetwarrior 0.4.2 - 14.09.2017
  * Improved Windows support
 
 budgetwarrior 0.4.1.2 - 24.09.2014
+
  * Fix important bug with overview
 
 budgetwarrior 0.4.1.1 - 22.09.2014
+
  * Fix makefile
 
 budgetwarrior 0.4.1 - 21.09.2014
+
  * Support for expense template to create common expenses faster
  * Support for merging accounts together
  * Simple prediction command
@@ -37,6 +42,7 @@ budgetwarrior 0.4.1 - 21.09.2014
  * Bugfix: The scale of the budget report was not displayed correctly
 
 budgetwarrior 0.4.0 - 04.07.2014
+
  * New version command to display the current version of the tool
  * New overview aggregate month command to display aggregate expenses of a month
  * Add importance and urgency fields to wish
@@ -51,6 +57,7 @@ budgetwarrior 0.4.0 - 04.07.2014
  * versioning sync now also perform save
 
 budgetwarrior 0.3.1 - 10.05.2014
+
  * Compute totals in wish list
  * Add feature to mark wishes as paid
  * Date durations can be used to compute a date from the date of the day
@@ -59,6 +66,7 @@ budgetwarrior 0.3.1 - 10.05.2014
  * New versioning module to commit and sync the budget repository with git
 
 budgetwarrior 0.3 - 03.02.2014
+
  * Change license to MIT
  * Remove support for old command types
  * Add objectives module to fix yearly/monthly objectives on balances,
@@ -66,12 +74,14 @@ budgetwarrior 0.3 - 03.02.2014
  * Add wish list and estimation of when it is a good time to buy something
 
 budgetwarrior 0.2.1 - 15.01.2014
+
  * Fix recurrings system
  * Fix archived accounts
  * The first month of the year now takes the last month of the previous year
    to compute its balance
 
 budgetwarrior 0.2 - 25.10.2013
+
  * Add more convenient system to create expenses, earnings, accounts, recurring,
    expenses and debts
  * Sort expenses and earnings by their data, not their creation date
@@ -83,6 +93,7 @@ budgetwarrior 0.2 - 25.10.2013
  * Add feature to aggregate all the expenses with the same for a year
 
 budgetwarrior 0.1 - 26.08.2013
+
  * First version of the tool
  * Manage expenses, earnings, accounts and debts
  * Creation of recurring monthly expenses

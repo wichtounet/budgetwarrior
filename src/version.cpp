@@ -11,7 +11,7 @@
 #include "budget_exception.hpp"
 
 std::string budget::get_version(){
-    return "budgetwarrior 0.4.3";
+    return "budgetwarrior 1.0";
 }
 
 void budget::version_module::handle(const std::vector<std::string>& args){
