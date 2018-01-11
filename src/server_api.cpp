@@ -10,11 +10,9 @@
 #include "cpp_utils/assert.hpp"
 
 #include "writer.hpp"
-#include "overview.hpp"
 #include "expenses.hpp"
 #include "accounts.hpp"
 #include "assets.hpp"
-#include "config.hpp"
 #include "objectives.hpp"
 #include "wishes.hpp"
 #include "version.hpp"
@@ -22,7 +20,6 @@
 #include "fortune.hpp"
 #include "recurring.hpp"
 #include "guid.hpp"
-#include "report.hpp"
 #include "debts.hpp"
 
 #include "server_api.hpp"

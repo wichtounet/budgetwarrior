@@ -21,7 +21,6 @@
 #include "summary.hpp"
 #include "fortune.hpp"
 #include "recurring.hpp"
-#include "guid.hpp"
 #include "report.hpp"
 #include "debts.hpp"
 
