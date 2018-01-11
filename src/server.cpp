@@ -49,10 +49,21 @@ std::string header(const std::string& title, bool menu = true){
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
             <meta name="description" content="budgetwarrior">
             <meta name="author" content="Baptiste Wicht">
-            <link href="https://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+
+            <!-- The CSS -->
+
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+
+            <!-- The javascript for Boostrap and JQuery -->
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+
+            <!-- Highcharts -->
             <script src="https://code.highcharts.com/highcharts.js"></script>
             <script src="https://code.highcharts.com/modules/series-label.js"></script>
             <script src="https://code.highcharts.com/modules/exporting.js"></script>
+
             <style>
                 body {
                   padding-top: 5rem;
@@ -133,7 +144,8 @@ std::string header(const std::string& title, bool menu = true){
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                   <a class="dropdown-item" href="/assets/add/">Add Asset</a>
                   <a class="dropdown-item" href="/asset_values/list/">Asset Values</a>
-                  <a class="dropdown-item" href="/asset_values/add/">Set Asset Value</a>
+                  <a class="dropdown-item" href="/asset_values/batch/">Batch Update</a>
+                  <a class="dropdown-item" href="/asset_values/add/">Set One Asset Value</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -226,10 +238,7 @@ std::string footer(){
     stream << R"=====(
         </div>
         </main>
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script>window.jQuery || document.write('<script src="https://getbootstrap.com/assets/js/vendor/jquery.min.js"><\/script>')</script>
-        <script src="https://getbootstrap.com/assets/js/vendor/popper.min.js"></script>
-        <script src="https://getbootstrap.com/dist/js/bootstrap.min.js"></script>
+
         </body>
         </html>
     )=====";
@@ -369,13 +378,22 @@ void page_end(std::stringstream& content_stream, const httplib::Request& req, ht
     res.set_content(result, "text/html");
 }
 
-void add_date_picker(budget::writer& w, const std::string& default_value = "") {
+void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false) {
+    if (one_line) {
+        w << R"=====(<div class="form-group row">)=====";
+
+        w << "<label class=\"col-sm-4 col-form-label\" for=\"input_date\">Date</label>";
+
+        w << R"=====(<div class="col-sm-4">)=====";
+    } else {
+        w << R"=====(<div class="form-group">)=====";
+
+        w << "<label for=\"input_date\">Date</label>";
+    }
+
     auto today = budget::local_day();
 
-    w << R"=====(
-        <div class="form-group">
-            <label for="input_date">Date</label>
-            <input required type="date" class="form-control" id="input_date" name="input_date" value=")=====";
+    w << R"=====(<input required type="date" class="form-control" id="input_date" name="input_date" value=")=====";
 
     if (default_value.empty()) {
         w << today.year() << "-";
@@ -395,9 +413,14 @@ void add_date_picker(budget::writer& w, const std::string& default_value = "") {
         w << default_value;
     }
 
-    w << R"=====(">
-         </div>
-    )=====";
+    w << "\">";
+
+    if (one_line) {
+        w << "</div>";
+        w << "</div>";
+    } else {
+        w << "</div>";
+    }
 }
 
 void add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
@@ -443,10 +466,19 @@ void add_percent_picker(budget::writer& w, const std::string& title, const std::
     )=====";
 }
 
-void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
-    w << R"=====(<div class="form-group">)=====";
+void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool one_line = false) {
+    if (one_line) {
+        w << R"=====(<div class="form-group row">)=====";
 
-    w << "<label for=\"" << name << "\">" << title << "</label>";
+        w << "<label class=\"col-sm-4 col-form-label\" for=\"" << name << "\">" << title << "</label>";
+
+        w << R"=====(<div class="col-sm-4">)=====";
+    } else {
+        w << R"=====(<div class="form-group">)=====";
+
+        w << "<label for=\"" << name << "\">" << title << "</label>";
+    }
+
     w << "<input required type=\"number\" step=\"0.01\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
 
     if (default_value.empty()) {
@@ -455,10 +487,14 @@ void add_money_picker(budget::writer& w, const std::string& title, const std::st
         w << " value=\"" << default_value << "\" ";
     }
 
-    w << R"=====(
-            >
-         </div>
-    )=====";
+    w << ">";
+
+    if (one_line) {
+        w << "</div>";
+        w << "</div>";
+    } else {
+        w << "</div>";
+    }
 }
 
 void add_amount_picker(budget::writer& w, const std::string& default_value = "") {
@@ -1931,6 +1967,41 @@ void edit_asset_values_page(const httplib::Request& req, httplib::Response& res)
     page_end(content_stream, req, res);
 }
 
+void batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if(!page_start(req, res, content_stream, "Batch update asset values")){
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Batch update asset values" << title_end;
+
+    form_begin(w, "/api/asset_values/batch/", "/asset_values/batch/");
+
+    add_date_picker(w, budget::to_string(budget::local_day()), true);
+
+    auto sorted_asset_values = all_asset_values();
+
+    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
+              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+
+    for(auto& asset : all_assets()){
+        budget::money amount;
+        for(auto& asset_value : sorted_asset_values){
+            if(asset_value.asset_id == asset.id){
+                amount = asset_value.amount;
+            }
+        }
+
+        add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true);
+    }
+
+    form_end(w);
+
+    page_end(content_stream, req, res);
+}
+
 void list_objectives_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     if(!page_start(req, res, content_stream, "Objectives List")){
@@ -2879,6 +2950,42 @@ void list_asset_values_api(const httplib::Request& req, httplib::Response& res) 
     api_success_content(req, res, ss.str());
 }
 
+void batch_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    auto sorted_asset_values = all_asset_values();
+
+    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
+              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+
+    for(auto& asset : all_assets()){
+        auto input_name = "input_amount_" + budget::to_string(asset.id);
+
+        if (req.has_param(input_name.c_str())) {
+            auto new_amount = budget::parse_money(req.params.at(input_name.c_str()));
+
+            budget::money current_amount;
+
+            for(auto& asset_value : sorted_asset_values){
+                if(asset_value.asset_id == asset.id){
+                    current_amount = asset_value.amount;
+                }
+            }
+
+            // If the amount changed, update it
+            if(current_amount != new_amount){
+                asset_value asset_value;
+                asset_value.guid         = budget::generate_guid();
+                asset_value.amount       = new_amount;
+                asset_value.asset_id     = asset.id;
+                asset_value.set_date     = budget::from_string(req.params.at("input_date"));
+
+                add_asset_value(std::move(asset_value));
+            }
+        }
+    }
+
+    api_success(req, res, "Asset values have been updated");
+}
+
 void add_recurrings_api(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account")) {
         api_error(req, res, "Invalid parameters");
@@ -3252,6 +3359,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     server.get("/asset_values/list/", &list_asset_values_page);
     server.get("/asset_values/add/", &add_asset_values_page);
+    server.get("/asset_values/batch/", &batch_asset_values_page);
     server.post("/asset_values/edit/", &edit_asset_values_page);
 
     server.get("/objectives/list/", &list_objectives_page);
@@ -3328,6 +3436,7 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     server.post("/api/asset_values/add/", &add_asset_values_api);
     server.post("/api/asset_values/edit/", &edit_asset_values_api);
+    server.post("/api/asset_values/batch/", &batch_asset_values_api);
     server.post("/api/asset_values/delete/", &delete_asset_values_api);
     server.get("/api/asset_values/list/", &list_asset_values_api);
 
