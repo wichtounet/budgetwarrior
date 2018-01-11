@@ -59,6 +59,8 @@ std::string header(const std::string& title, bool menu = true){
 
             <!-- Highcharts -->
             <script src="https://code.highcharts.com/highcharts.js"></script>
+            <script src="https://code.highcharts.com/highcharts-more.js"></script>
+            <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
             <script src="https://code.highcharts.com/modules/series-label.js"></script>
             <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
@@ -375,6 +377,41 @@ void page_end(std::stringstream& content_stream, const httplib::Request& req, ht
 
     res.set_content(result, "text/html");
 }
+
+void start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
+    w << R"=====(<div id=")=====";
+    w << id;
+
+    if (style.empty()) {
+        w << R"=====(" style="min-width: 300px; height: 400px; margin: 0 auto"></div>)=====" << end_of_line;
+    } else {
+        w << R"=====(" style="margin: 0 auto; )=====";
+        w << style;
+        w << R"=====(""></div>)=====" << end_of_line;
+    }
+
+    w << R"=====(<script langage="javascript">)=====" << end_of_line;
+
+    w << R"=====(Highcharts.chart(')=====";
+    w << id;
+    w << R"=====(', {)=====";
+
+    w << R"=====(chart: {type: ')=====";
+    w << chart_type;
+    w << R"=====('},)=====";
+    w << R"=====(title: {text: ')=====";
+    w << title;
+    w << R"=====('},)=====";
+
+    w << R"=====(credits: { enabled: false },)=====";
+    w << R"=====(exporting: { enabled: false },)=====";
+}
+
+void end_chart(budget::writer& w){
+    w << R"=====(});)=====";
+    w << R"=====(</script>)=====" << end_of_line;
+}
+
 
 void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false) {
     if (one_line) {
@@ -806,8 +843,73 @@ void index_page(const httplib::Request& req, httplib::Response& res){
     // First display overview of the accounts
     budget::account_summary(w, today.month(), today.year());
 
-    // Second display a summary of the objectives
-    budget::objectives_summary(w);
+    // Display the objectives status
+
+    auto& objectives = all_objectives();
+
+    if (objectives.size()) {
+        //Compute the year/month status
+        auto year_status = budget::compute_year_status();
+        auto month_status = budget::compute_month_status(today.year(), today.month());
+
+        w << R"=====(<div class="row">)=====";
+
+        for (size_t i = 0; i < objectives.size(); ++i) {
+            auto& objective = objectives[i];
+
+            w << R"=====(<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">)=====";
+
+            start_chart(w, objective.name, "solidgauge", "objective_gauge_" + budget::to_string(i), "height: 200px");
+
+            w << R"=====(tooltip: { enabled: false },)=====";
+            w << R"=====(yAxis: { min: 0, max: 100, lineWidth: 0, tickPositions: [], },)=====";
+
+            std::string status;
+            std::string success;
+            int success_int;
+
+            if (objective.type == "yearly") {
+                status      = budget::get_status(year_status, objective);
+                success_int = budget::compute_success(year_status, objective);
+            } else if (objective.type == "monthly") {
+                status      = budget::get_status(month_status, objective);
+                success_int = budget::compute_success(month_status, objective);
+            } else {
+                cpp_unreachable("Invalid objective type");
+            }
+
+            w << R"=====(plotOptions: {)=====";
+            w << R"=====(solidgauge: {)=====";
+            w << R"=====(dataLabels: {)=====";
+            w << R"=====(enabled: true, verticalAlign: "middle", borderWidth: "0px", useHTML: true, )=====";
+
+            w << R"=====(format: '<p style="color: rgb(124, 181, 236); text-align:center; "><span class="lead" style="font-weight: bold;">)=====";
+            w << success_int;
+            w << R"=====(%</span> <br /> <span>)=====";
+            w << status;
+            w << R"=====(</span></p>')=====";
+
+            w << R"=====(},)=====";
+            w << R"=====(rounded: true)=====";
+            w << R"=====(})=====";
+            w << R"=====(},)=====";
+
+            w << R"=====(series: [{)=====";
+            w << "name: '" << objective.name << "',";
+            w << R"=====(data: [{)=====";
+            w << R"=====(radius: '112%',)=====";
+            w << R"=====(innerRadius: '88%',)=====";
+            w << "y: " << success_int;
+            w << R"=====(}])=====";
+            w << R"=====(}])=====";
+
+            end_chart(w);
+
+            w << R"=====(</div>)=====";
+        }
+
+        w << R"=====(</div>)=====";
+    }
 
     w << title_begin << "Fortune" << title_end;
 
@@ -1090,33 +1192,6 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res){
     budget::show_all_expenses(w);
 
     page_end(content_stream, req, res);
-}
-
-void start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container"){
-    w << R"=====(<div id=")=====";
-    w << id;
-    w << R"=====(" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====" << end_of_line;
-
-    w << R"=====(<script langage="javascript">)=====" << end_of_line;
-
-    w << R"=====(Highcharts.chart(')=====";
-    w << id;
-    w << R"=====(', {)=====";
-
-    w << R"=====(chart: {type: ')=====";
-    w << chart_type;
-    w << R"=====('},)=====";
-    w << R"=====(title: {text: ')=====";
-    w << title;
-    w << R"=====('},)=====";
-
-    w << R"=====(credits: { enabled: false },)=====";
-    w << R"=====(exporting: { enabled: false },)=====";
-}
-
-void end_chart(budget::writer& w){
-    w << R"=====(});)=====";
-    w << R"=====(</script>)=====" << end_of_line;
 }
 
 void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
