@@ -16,46 +16,46 @@
 #include <termios.h>
 #include <unistd.h>
 
-std::string budget::format_code(int attr, int fg, int bg){
+std::string budget::format_code(int attr, int fg, int bg) {
     std::stringstream stream;
     stream << "" << '\033' << "[" << attr << ";" << (fg + 30) << (bg + 40) << "m";
     return stream.str();
 }
 
-std::string budget::format_reset(){
+std::string budget::format_reset() {
     return format_code(0, 0, 7);
 }
 
-std::string budget::format_money(const budget::money& m){
-    if(m.positive()){
+std::string budget::format_money(const budget::money& m) {
+    if (m.positive()) {
         return "::green" + budget::to_string(m);
-    } else if(m.negative()){
+    } else if (m.negative()) {
         return "::red" + budget::to_string(m);
     } else {
         return budget::to_string(m);
     }
 }
 
-std::string budget::format_money_no_color(const budget::money& m){
+std::string budget::format_money_no_color(const budget::money& m) {
     return budget::to_string(m);
 }
 
-std::string budget::format_money_reverse(const budget::money& m){
-    if(m.positive()){
+std::string budget::format_money_reverse(const budget::money& m) {
+    if (m.positive()) {
         return "::red" + budget::to_string(m);
-    } else if(m.negative()){
+    } else if (m.negative()) {
         return "::green" + budget::to_string(m);
     } else {
         return budget::to_string(m);
     }
 }
 
-size_t budget::rsize(const std::string& value){
+size_t budget::rsize(const std::string& value) {
     auto v = value;
 
-    if(v.substr(0, 5) == "::red"){
+    if (v.substr(0, 5) == "::red") {
         v = v.substr(5);
-    } else if(v.substr(0, 7) == "::green"){
+    } else if (v.substr(0, 7) == "::green") {
         v = v.substr(7);
     }
 
@@ -63,12 +63,12 @@ size_t budget::rsize(const std::string& value){
     return mbstowcs(buf, v.c_str(), 1024);
 }
 
-size_t budget::rsize_after(const std::string& value){
+size_t budget::rsize_after(const std::string& value) {
     auto v = value;
 
     auto index = v.find('\033');
 
-    while(index != std::string::npos){
+    while (index != std::string::npos) {
         if (v[index + 3] == 'm') {
             v.erase(index, 4);
         } else if (v[index + 6] == 'm') {
@@ -84,23 +84,23 @@ size_t budget::rsize_after(const std::string& value){
     return mbstowcs(buf, v.c_str(), 1024);
 }
 
-bool budget::option(const std::string& option, std::vector<std::string>& args){
+bool budget::option(const std::string& option, std::vector<std::string>& args) {
     auto before = args.size();
     args.erase(std::remove(args.begin(), args.end(), option), args.end());
     return before != args.size();
 }
 
-std::string budget::option_value(const std::string& option, std::vector<std::string>& args, const std::string& default_value){
-    auto it = args.begin();
+std::string budget::option_value(const std::string& option, std::vector<std::string>& args, const std::string& default_value) {
+    auto it  = args.begin();
     auto end = args.end();
 
     auto value = default_value;
 
-    while(it != end){
-        if (it->find(option + "=") == 0){
+    while (it != end) {
+        if (it->find(option + "=") == 0) {
             value = std::string(it->begin() + option.size() + 1, it->end());
 
-            it = args.erase(it);
+            it  = args.erase(it);
             end = args.end();
         } else {
             ++it;
@@ -146,31 +146,31 @@ char getch() {
 
 } // end of anonymous namespace
 
-std::string budget::get_string_complete(const std::vector<std::string>& choices){
+std::string budget::get_string_complete(const std::vector<std::string>& choices) {
     std::string answer;
 
-    if(choices.empty()){
+    if (choices.empty()) {
         std::getline(std::cin, answer);
         return answer;
     }
 
     size_t index = 0;
 
-    while(true){
+    while (true) {
         char c = getch();
 
-        if (+c == 127){
-            if(!answer.empty()){
+        if (+c == 127) {
+            if (!answer.empty()) {
                 std::cout << "\b \b";
                 answer.pop_back();
             }
-        } else if (c == '\r'){
+        } else if (c == '\r') {
             std::cout << std::endl;
             return answer;
-        } else if (c == '\n'){
+        } else if (c == '\n') {
             std::cout << std::endl;
             return answer;
-        } else if (c == '\t'){
+        } else if (c == '\t') {
             if (!answer.empty()) {
                 size_t count = 0;
                 std::string valid;
@@ -189,35 +189,35 @@ std::string budget::get_string_complete(const std::vector<std::string>& choices)
                     answer = valid;
                 }
             }
-        } else if(c == '\033'){
+        } else if (c == '\033') {
             getch();
 
             char cc = getch();
 
-            if(cc == 'A'){
-                for(size_t i = 0; i < answer.size(); ++i){
+            if (cc == 'A') {
+                for (size_t i = 0; i < answer.size(); ++i) {
                     std::cout << "\b \b";
                 }
 
                 index = (index + 1) % (choices.size() + 1);
 
-                if(index > 0){
+                if (index > 0) {
                     answer = choices[index - 1];
-                } else if(index == 0){
+                } else if (index == 0) {
                     answer = "";
                 }
 
                 std::cout << answer;
-            } else if(cc == 'B'){
-                for(size_t i = 0; i < answer.size(); ++i){
+            } else if (cc == 'B') {
+                for (size_t i = 0; i < answer.size(); ++i) {
                     std::cout << "\b \b";
                 }
 
-                if(index == 1){
-                    index = 0;
+                if (index == 1) {
+                    index  = 0;
                     answer = "";
-                } else if(index == 0){
-                    index = choices.size();
+                } else if (index == 0) {
+                    index  = choices.size();
                     answer = choices[index - 1];
                 } else {
                     --index;
