@@ -170,6 +170,25 @@ std::string budget::get_string_complete(const std::vector<std::string>& choices)
         } else if (c == '\n'){
             std::cout << std::endl;
             return answer;
+        } else if (c == '\t'){
+            if (!answer.empty()) {
+                size_t count = 0;
+                std::string valid;
+
+                for (auto& choice : choices) {
+                    if (choice.size() > answer.size()) {
+                        if (choice.substr(0, answer.size()) == answer) {
+                            ++count;
+                            valid = choice;
+                        }
+                    }
+                }
+
+                if (count == 1) {
+                    std::cout << valid.substr(answer.size(), valid.size());
+                    answer = valid;
+                }
+            }
         } else if(c == '\033'){
             getch();
 
