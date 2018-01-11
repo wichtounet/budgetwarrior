@@ -1498,6 +1498,52 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
     page_end(content_stream, req, res);
 }
 
+budget::money get_portfolio_value(){
+    std::map<size_t, budget::money> asset_amounts;
+
+    auto sorted_asset_values = all_asset_values();
+
+    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
+        [](const budget::asset_value& a, const budget::asset_value& b){ return a.set_date < b.set_date; });
+
+    for (auto& asset_value : sorted_asset_values) {
+        auto& asset = get_asset(asset_value.asset_id);
+
+        if (asset.portfolio) {
+            asset_amounts[asset_value.asset_id] = asset_value.amount;
+        }
+    }
+
+    budget::money total;
+
+    for (auto& asset_amount : asset_amounts) {
+        total += asset_amount.second;
+    }
+
+    return total;
+}
+
+budget::money get_net_worth(){
+    std::map<size_t, budget::money> asset_amounts;
+
+    auto sorted_asset_values = all_asset_values();
+
+    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
+        [](const budget::asset_value& a, const budget::asset_value& b){ return a.set_date < b.set_date; });
+
+    for (auto& asset_value : sorted_asset_values) {
+        asset_amounts[asset_value.asset_id] = asset_value.amount;
+    }
+
+    budget::money total;
+
+    for (auto& asset_amount : asset_amounts) {
+        total += asset_amount.second;
+    }
+
+    return total;
+}
+
 void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     if(!page_start(req, res, content_stream, "Portfolio Graph")){
@@ -1510,6 +1556,11 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
 
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Portfolio' }},)=====";
+
+    w << R"=====(subtitle: {)=====";
+    w << "text: '" << get_portfolio_value() << " " << get_default_currency() << "',";
+    w << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
+    w << R"=====(},)=====";
 
     w << "series: [";
 
@@ -1756,6 +1807,11 @@ void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
 
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+
+    w << R"=====(subtitle: {)=====";
+    w << "text: '" << get_net_worth() << " " << get_default_currency() << "',";
+    w << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
+    w << R"=====(},)=====";
 
     w << "series: [";
 
