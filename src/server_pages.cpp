@@ -1566,7 +1566,11 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::show_asset_rebalance(w);
 
+    w << R"=====(<div class="row">)=====";
+
     // 2. Display the current allocation
+
+    w << R"=====(<div class="col-lg-6 col-md-12">)=====";
 
     start_chart(w, "Current Allocation", "pie", "current_allocation_graph");
 
@@ -1610,7 +1614,11 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
 
     end_chart(w);
 
+    w << R"=====(</div>)=====";
+
     // 3. Display the desired allocation
+
+    w << R"=====(<div class="col-lg-6 col-md-12">)=====";
 
     start_chart(w, "Desired Allocation", "pie", "desired_allocation_graph");
 
@@ -1636,6 +1644,10 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
     w << "]";
 
     end_chart(w);
+
+    w << R"=====(</div>)=====";
+
+    w << R"=====(</div>)=====";
 
     page_end(content_stream, req, res);
 }
