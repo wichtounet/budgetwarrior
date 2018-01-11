@@ -243,6 +243,8 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         os << "<div class=\"row\">";
         os << "<div class=\"col-md-4\">&nbsp;</div>";
         os << "<div class=\"col-md-4\">";
+    } else {
+        os << "<div class=\"table-responsive\">";
     }
 
     os << "<table class=\"table table-sm small-text\">";
@@ -304,10 +306,12 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
 
     os << "</table>";
 
-    if(small){
+    if (small) {
         os << "</div>"; // middle column
         os << "<div class=\"col-md-4\">&nbsp;</div>";
         os << "</div>"; // row
+    } else {
+        os << "</div>"; // table-responsive
     }
 }
 
