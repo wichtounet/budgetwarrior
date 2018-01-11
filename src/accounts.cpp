@@ -470,7 +470,9 @@ void budget::set_accounts_next_id(size_t next_id){
 std::vector<std::string> budget::all_account_names(){
     std::vector<std::string> account_names;
 
-    for (auto& account : all_accounts()) {
+    auto today = budget::local_day();
+
+    for (auto& account : all_accounts(today.year(), today.month())) {
         account_names.push_back(account.name);
     }
 
