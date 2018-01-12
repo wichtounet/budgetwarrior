@@ -567,3 +567,14 @@ budget::date budget::find_new_since(){
     return date;
 }
 
+budget::money budget::get_base_income(){
+    budget::money income;
+
+    auto today = budget::local_day();
+
+    for (auto& account : all_accounts(today.year(), today.month())) {
+        income += account.amount;
+    }
+
+    return income;
+}
