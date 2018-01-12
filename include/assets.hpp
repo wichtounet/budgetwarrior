@@ -105,6 +105,9 @@ bool asset_value_exists(size_t id);
 void asset_value_delete(size_t id);
 asset_value& asset_value_get(size_t id);
 
+budget::money get_portfolio_value();
+budget::money get_net_worth();
+
 } //end of namespace budget
 
 #endif
