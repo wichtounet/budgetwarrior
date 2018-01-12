@@ -91,6 +91,12 @@ std::string header(const std::string& title, bool menu = true){
                     font-size: xx-large;
                     pading-top: 5px;
                 }
+
+                .card-header-primary {
+                    color:white !important;
+                    background-color: #007bff !important;
+                    padding: 0.5rem 0.75rem !important;
+                }
             </style>
     )=====";
 
@@ -1090,7 +1096,7 @@ void index_page(const httplib::Request& req, httplib::Response& res){
 
     w << R"=====(<div class="card">)=====";
 
-    w << R"=====(<div style="color:white;" class="card-header bg-primary">)=====";
+    w << R"=====(<div class="card-header card-header-primary">)=====";
     w << R"=====(<div class="float-left">Cash Flow</div>)=====";
     w << R"=====(<div class="float-right">)=====";
     w << monthly_income(m, y) - monthly_spending(m, y) << " __currency__";
@@ -1121,7 +1127,7 @@ void index_page(const httplib::Request& req, httplib::Response& res){
         auto month_status = budget::compute_month_status(y, m);
 
         w << R"=====(<div class="card">)=====";
-        w << R"=====(<div style="color:white; " class="card-header bg-primary">Objectives</div>)=====";
+        w << R"=====(<div class="card-header card-header-primary">Objectives</div>)=====";
 
         w << R"=====(<div class="row card-body">)=====";
 
