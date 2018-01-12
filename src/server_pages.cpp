@@ -52,18 +52,6 @@ std::string header(const std::string& title, bool menu = true){
 
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
 
-            <!-- The javascript for Boostrap and JQuery -->
-            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
-
-            <!-- Highcharts -->
-            <script src="https://code.highcharts.com/highcharts.js"></script>
-            <script src="https://code.highcharts.com/highcharts-more.js"></script>
-            <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
-            <script src="https://code.highcharts.com/modules/series-label.js"></script>
-            <script src="https://code.highcharts.com/modules/exporting.js"></script>
-
             <style>
                 body {
                   padding-top: 5rem;
@@ -238,20 +226,6 @@ std::string header(const std::string& title, bool menu = true){
     return stream.str();
 }
 
-std::string footer(){
-    std::stringstream stream;
-
-    stream << R"=====(
-        </div>
-        </main>
-
-        </body>
-        </html>
-    )=====";
-
-    return stream.str();
-}
-
 void display_error_message(budget::writer& w, const std::string& message){
     w << R"=====(<div class="alert alert-danger" role="alert">)=====";
     w << message;
@@ -375,8 +349,15 @@ void filter_html(std::string& html, const httplib::Request& req){
     replace_all(html, "__currency__", get_default_currency());
 }
 
-void page_end(std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res){
-    content_stream << footer();
+//Note: This must be synchronized with page_end
+std::string footer(){
+    return "</div></main></body></html>";
+}
+
+void page_end(budget::html_writer& w, std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res){
+    w << "</div></main>";
+    w.load_deferred_scripts();
+    w << "</body></html>";
 
     auto result = content_stream.str();
 
@@ -385,7 +366,7 @@ void page_end(std::stringstream& content_stream, const httplib::Request& req, ht
     res.set_content(result, "text/html");
 }
 
-void start_chart_base(budget::writer& w, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
+std::stringstream start_chart_base(budget::writer& w, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
     w << R"=====(<div id=")=====";
     w << id;
 
@@ -397,31 +378,37 @@ void start_chart_base(budget::writer& w, const std::string& chart_type, const st
         w << R"=====(""></div>)=====" << end_of_line;
     }
 
-    w << R"=====(<script langage="javascript">)=====" << end_of_line;
+    std::stringstream ss;
+    ss.imbue(std::locale("C"));
 
-    w << R"=====(Highcharts.chart(')=====";
-    w << id;
-    w << R"=====(', {)=====";
+    ss << R"=====(Highcharts.chart(')=====";
+    ss << id;
+    ss << R"=====(', {)=====";
 
-    w << R"=====(chart: {type: ')=====";
-    w << chart_type;
-    w << R"=====('},)=====";
+    ss << R"=====(chart: {type: ')=====";
+    ss << chart_type;
+    ss << R"=====('},)=====";
 
-    w << R"=====(credits: { enabled: false },)=====";
-    w << R"=====(exporting: { enabled: false },)=====";
+    ss << R"=====(credits: { enabled: false },)=====";
+    ss << R"=====(exporting: { enabled: false },)=====";
+
+    return ss;
 }
 
-void start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
-    start_chart_base(w, chart_type, id, style);
+std::stringstream start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
+    auto ss = start_chart_base(w, chart_type, id, style);
 
-    w << R"=====(title: {text: ')=====";
-    w << title;
-    w << R"=====('},)=====";
+    ss << R"=====(title: {text: ')=====";
+    ss << title;
+    ss << R"=====('},)=====";
+
+    return ss;
 }
 
-void end_chart(budget::writer& w){
-    w << R"=====(});)=====";
-    w << R"=====(</script>)=====" << end_of_line;
+void end_chart(budget::html_writer& w, std::stringstream& ss){
+    ss << R"=====(});)=====";
+
+    w.defer_script(ss.str());
 }
 
 void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false) {
@@ -874,34 +861,32 @@ budget::money monthly_spending(budget::month month, budget::year year){
     return total;
 }
 
-void month_breakdown_income_graph(budget::writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = ""){
+void month_breakdown_income_graph(budget::html_writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = ""){
     if(mono){
-        w << R"=====(
-            <script>
-            var breakdown_income_colors = (function () {
+        w.defer_script(R"=====(
+            breakdown_income_colors = (function () {
                 var colors = [], base = Highcharts.getOptions().colors[0], i;
                 for (i = 0; i < 10; i += 1) {
                     colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
                 }
                 return colors;
             }());
-            </script>
-        )=====";
+        )=====");
     }
 
-    start_chart_base(w, "pie", "month_breakdown_income_graph", style);
+    auto ss = start_chart_base(w, "pie", "month_breakdown_income_graph", style);
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+    ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     if(mono){
-        w << R"=====(plotOptions: { pie: { dataLabels: {enabled: false},  colors: breakdown_income_colors, innerSize: '60%' }},)=====";
+        ss << R"=====(plotOptions: { pie: { dataLabels: {enabled: false},  colors: breakdown_income_colors, innerSize: '60%' }},)=====";
     }
 
-    w << "series: [";
+    ss << "series: [";
 
-    w << "{ name: 'Income',";
-    w << "colorByPoint: true,";
-    w << "data: [";
+    ss << "{ name: 'Income',";
+    ss << "colorByPoint: true,";
+    ss << "data: [";
 
     std::map<size_t, budget::money> account_sum;
 
@@ -914,73 +899,71 @@ void month_breakdown_income_graph(budget::writer& w, const std::string& title, b
     budget::money total = get_base_income();
 
     if (!total.zero()) {
-        w << "{";
-        w << "name: 'Salary',";
-        w << "y: " << budget::to_flat_string(total);
-        w << "},";
+        ss << "{";
+        ss << "name: 'Salary',";
+        ss << "y: " << budget::to_flat_string(total);
+        ss << "},";
     }
 
     for (auto& sum : account_sum) {
-        w << "{";
-        w << "name: '" << get_account(sum.first).name << "',";
-        w << "y: " << budget::to_flat_string(sum.second);
-        w << "},";
+        ss << "{";
+        ss << "name: '" << get_account(sum.first).name << "',";
+        ss << "y: " << budget::to_flat_string(sum.second);
+        ss << "},";
 
         total += sum.second;
     }
 
-    w << "]},";
+    ss << "]},";
 
-    w << "],";
+    ss << "],";
 
     if(mono){
-        w << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
+        ss << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
 
-        w << R"=====(<span style="font-weight: bold; ">)=====";
-        w << title;
-        w << R"=====(</span><br/><hr style="margin:0px;" />)=====";
+        ss << R"=====(<span style="font-weight: bold; ">)=====";
+        ss << title;
+        ss << R"=====(</span><br/><hr style="margin:0px;" />)=====";
 
-        w << R"=====(<span style="color: green; ">)=====";
-        w << total << " __currency__";
-        w << R"=====(</span>)=====";
-        w << R"=====('},)=====";
+        ss << R"=====(<span style="color: green; ">)=====";
+        ss << total << " __currency__";
+        ss << R"=====(</span>)=====";
+        ss << R"=====('},)=====";
     } else {
-        w << R"=====(title: {text: ')=====";
-        w << title;
-        w << R"=====('},)=====";
+        ss << R"=====(title: {text: ')=====";
+        ss << title;
+        ss << R"=====('},)=====";
     }
 
-    end_chart(w);
+    end_chart(w, ss);
 }
 
-void month_breakdown_expenses_graph(budget::writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = ""){
+void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = ""){
     if(mono){
-        w << R"=====(
-            <script>
-            var breakdown_expense_colors = (function () {
+        w.defer_script(R"=====(
+            breakdown_expense_colors = (function () {
                 var colors = [], base = Highcharts.getOptions().colors[3], i;
                 for (i = 0; i < 10; i += 1) {
                     colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
                 }
                 return colors;
             }());
-            </script>
-        )=====";
+        )=====");
     }
 
-    start_chart_base(w, "pie", "month_breakdown_expenses_graph", style);
+    auto ss = start_chart_base(w, "pie", "month_breakdown_expenses_graph", style);
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+    ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     if(mono){
-        w << R"=====(plotOptions: {pie: { dataLabels: {enabled: false},  colors: breakdown_expense_colors, innerSize: '60%' }},)=====";
+        ss << R"=====(plotOptions: {pie: { dataLabels: {enabled: false},  colors: breakdown_expense_colors, innerSize: '60%' }},)=====";
     }
 
-    w << "series: [";
+    ss << "series: [";
 
-    w << "{ name: 'Expenses',";
-    w << "colorByPoint: true,";
-    w << "data: [";
+    ss << "{ name: 'Expenses',";
+    ss << "colorByPoint: true,";
+    ss << "data: [";
 
     std::map<size_t, budget::money> account_sum;
 
@@ -993,54 +976,54 @@ void month_breakdown_expenses_graph(budget::writer& w, const std::string& title,
     budget::money total;
 
     for (auto& sum : account_sum) {
-        w << "{";
-        w << "name: '" << get_account(sum.first).name << "',";
-        w << "y: " << budget::to_flat_string(sum.second);
-        w << "},";
+        ss << "{";
+        ss << "name: '" << get_account(sum.first).name << "',";
+        ss << "y: " << budget::to_flat_string(sum.second);
+        ss << "},";
 
         total += sum.second;
     }
 
-    w << "]},";
+    ss << "]},";
 
-    w << "],";
+    ss << "],";
 
     if(mono){
-        w << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
+        ss << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
 
-        w << R"=====(<span style="font-weight: bold; ">)=====";
-        w << title;
-        w << R"=====(</span><br/><hr style="margin:0px;" />)=====";
+        ss << R"=====(<span style="font-weight: bold; ">)=====";
+        ss << title;
+        ss << R"=====(</span><br/><hr style="margin:0px;" />)=====";
 
-        w << R"=====(<span style="color: red; ">)=====";
-        w << total << " __currency__";
-        w << R"=====(</span>)=====";
-        w << R"=====('},)=====";
+        ss << R"=====(<span style="color: red; ">)=====";
+        ss << total << " __currency__";
+        ss << R"=====(</span>)=====";
+        ss << R"=====('},)=====";
     } else {
-        w << R"=====(title: {text: ')=====";
-        w << title;
-        w << R"=====('},)=====";
+        ss << R"=====(title: {text: ')=====";
+        ss << title;
+        ss << R"=====('},)=====";
     }
 
-    end_chart(w);
+    end_chart(w, ss);
 }
 
-void net_worth_graph(budget::writer& w, const std::string style = ""){
-    start_chart(w, "Net Worth", "area", "net_worth_graph", style);
+void net_worth_graph(budget::html_writer& w, const std::string style = ""){
+    auto ss = start_chart(w, "Net Worth", "area", "net_worth_graph", style);
 
-    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
-    w << R"=====(legend: { enabled: false },)=====";
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+    ss << R"=====(legend: { enabled: false },)=====";
 
-    w << R"=====(subtitle: {)=====";
-    w << "text: '" << get_net_worth() << " __currency__',";
-    w << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
-    w << R"=====(},)=====";
+    ss << R"=====(subtitle: {)=====";
+    ss << "text: '" << get_net_worth() << " __currency__',";
+    ss << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
+    ss << R"=====(},)=====";
 
-    w << "series: [";
+    ss << "series: [";
 
-    w << "{ name: 'Net Worth',";
-    w << "data: [";
+    ss << "{ name: 'Net Worth',";
+    ss << "data: [";
 
     std::map<size_t, budget::money> asset_amounts;
 
@@ -1067,14 +1050,14 @@ void net_worth_graph(budget::writer& w, const std::string style = ""){
             sum += asset.second;
         }
 
-        w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
     }
 
-    w << "]},";
+    ss << "]},";
 
-    w << "]";
+    ss << "]";
 
-    end_chart(w);
+    end_chart(w, ss);
 }
 
 void index_page(const httplib::Request& req, httplib::Response& res){
@@ -1137,10 +1120,10 @@ void index_page(const httplib::Request& req, httplib::Response& res){
 
             w << R"=====(<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">)=====";
 
-            start_chart(w, objective.name, "solidgauge", "objective_gauge_" + budget::to_string(i), "height: 200px");
+            auto ss = start_chart(w, objective.name, "solidgauge", "objective_gauge_" + budget::to_string(i), "height: 200px");
 
-            w << R"=====(tooltip: { enabled: false },)=====";
-            w << R"=====(yAxis: { min: 0, max: 100, lineWidth: 0, tickPositions: [], },)=====";
+            ss << R"=====(tooltip: { enabled: false },)=====";
+            ss << R"=====(yAxis: { min: 0, max: 100, lineWidth: 0, tickPositions: [], },)=====";
 
             std::string status;
             std::string success;
@@ -1156,32 +1139,32 @@ void index_page(const httplib::Request& req, httplib::Response& res){
                 cpp_unreachable("Invalid objective type");
             }
 
-            w << R"=====(plotOptions: {)=====";
-            w << R"=====(solidgauge: {)=====";
-            w << R"=====(dataLabels: {)=====";
-            w << R"=====(enabled: true, verticalAlign: "middle", borderWidth: "0px", useHTML: true, )=====";
+            ss << R"=====(plotOptions: {)=====";
+            ss << R"=====(solidgauge: {)=====";
+            ss << R"=====(dataLabels: {)=====";
+            ss << R"=====(enabled: true, verticalAlign: "middle", borderWidth: "0px", useHTML: true, )=====";
 
-            w << R"=====(format: '<p style="color: rgb(124, 181, 236); text-align:center; "><span class="lead" style="font-weight: bold;">)=====";
-            w << success_int;
-            w << R"=====(%</span> <br /> <span>)=====";
-            w << status;
-            w << R"=====(</span></p>')=====";
+            ss << R"=====(format: '<p style="color: rgb(124, 181, 236); text-align:center; "><span class="lead" style="font-weight: bold;">)=====";
+            ss << success_int;
+            ss << R"=====(%</span> <br /> <span>)=====";
+            ss << status;
+            ss << R"=====(</span></p>')=====";
 
-            w << R"=====(},)=====";
-            w << R"=====(rounded: true)=====";
-            w << R"=====(})=====";
-            w << R"=====(},)=====";
+            ss << R"=====(},)=====";
+            ss << R"=====(rounded: true)=====";
+            ss << R"=====(})=====";
+            ss << R"=====(},)=====";
 
-            w << R"=====(series: [{)=====";
-            w << "name: '" << objective.name << "',";
-            w << R"=====(data: [{)=====";
-            w << R"=====(radius: '112%',)=====";
-            w << R"=====(innerRadius: '88%',)=====";
-            w << "y: " << success_int;
-            w << R"=====(}])=====";
-            w << R"=====(}])=====";
+            ss << R"=====(series: [{)=====";
+            ss << "name: '" << objective.name << "',";
+            ss << R"=====(data: [{)=====";
+            ss << R"=====(radius: '112%',)=====";
+            ss << R"=====(innerRadius: '88%',)=====";
+            ss << "y: " << std::min(success_int, 100);
+            ss << R"=====(}])=====";
+            ss << R"=====(}])=====";
 
-            end_chart(w);
+            end_chart(w, ss);
 
             w << R"=====(</div>)=====";
         }
@@ -1190,7 +1173,7 @@ void index_page(const httplib::Request& req, httplib::Response& res){
         w << R"=====(</div>)=====";
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void accounts_page(const httplib::Request& req, httplib::Response& res){
@@ -1202,7 +1185,7 @@ void accounts_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::show_accounts(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void all_accounts_page(const httplib::Request& req, httplib::Response& res){
@@ -1214,7 +1197,7 @@ void all_accounts_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::show_all_accounts(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1234,7 +1217,7 @@ void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1268,7 +1251,7 @@ void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void archive_accounts_month_page(const httplib::Request& req, httplib::Response& res) {
@@ -1287,7 +1270,7 @@ void archive_accounts_month_page(const httplib::Request& req, httplib::Response&
 
     form_end(w, "Confirm");
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void archive_accounts_year_page(const httplib::Request& req, httplib::Response& res) {
@@ -1306,7 +1289,7 @@ void archive_accounts_year_page(const httplib::Request& req, httplib::Response& 
 
     form_end(w, "Confirm");
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void overview_page(const httplib::Request& req, httplib::Response& res){
@@ -1323,7 +1306,7 @@ void overview_page(const httplib::Request& req, httplib::Response& res){
         display_month_overview(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res){
@@ -1364,7 +1347,7 @@ void overview_aggregate_year_page(const httplib::Request& req, httplib::Response
         aggregate_year_overview(w, full, disable_groups, separator, today.year());
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res){
@@ -1405,7 +1388,7 @@ void overview_aggregate_month_page(const httplib::Request& req, httplib::Respons
         aggregate_month_overview(w, full, disable_groups, separator, today.month(), today.year());
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void overview_year_page(const httplib::Request& req, httplib::Response& res){
@@ -1422,7 +1405,7 @@ void overview_year_page(const httplib::Request& req, httplib::Response& res){
         display_year_overview(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void report_page(const httplib::Request& req, httplib::Response& res){
@@ -1436,7 +1419,7 @@ void report_page(const httplib::Request& req, httplib::Response& res){
     auto today = budget::local_day();
     report(w, today.year(), false, "");
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void expenses_page(const httplib::Request& req, httplib::Response& res){
@@ -1453,7 +1436,7 @@ void expenses_page(const httplib::Request& req, httplib::Response& res){
         show_expenses(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void all_expenses_page(const httplib::Request& req, httplib::Response& res){
@@ -1465,7 +1448,7 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::show_all_expenses(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
@@ -1490,7 +1473,7 @@ void month_breakdown_expenses_page(const httplib::Request& req, httplib::Respons
 
     month_breakdown_expenses_graph(w, "Expenses Breakdown", month, year);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
@@ -1511,15 +1494,15 @@ void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response
 
     w << title_begin << "Expenses Breakdown of " << year << budget::year_selector{"expenses/breakdown/year", year} << title_end;
 
-    start_chart(w, "Expenses Breakdown", "pie");
+    auto ss = start_chart(w, "Expenses Breakdown", "pie");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+    ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    w << "series: [";
+    ss << "series: [";
 
-    w << "{ name: 'Expenses',";
-    w << "colorByPoint: true,";
-    w << "data: [";
+    ss << "{ name: 'Expenses',";
+    ss << "colorByPoint: true,";
+    ss << "data: [";
 
     std::map<size_t, budget::money> account_sum;
 
@@ -1530,19 +1513,19 @@ void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response
     }
 
     for (auto& sum : account_sum) {
-        w << "{";
-        w << "name: '" << get_account(sum.first).name << "',";
-        w << "y: " << budget::to_flat_string(sum.second);
-        w << "},";
+        ss << "{";
+        ss << "name: '" << get_account(sum.first).name << "',";
+        ss << "y: " << budget::to_flat_string(sum.second);
+        ss << "},";
     }
 
-    w << "]},";
+    ss << "]},";
 
-    w << "]";
+    ss << "]";
 
-    end_chart(w);
+    end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1564,7 +1547,7 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1600,7 +1583,7 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -1622,7 +1605,7 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -1658,7 +1641,7 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void earnings_page(const httplib::Request& req, httplib::Response& res){
@@ -1675,7 +1658,7 @@ void earnings_page(const httplib::Request& req, httplib::Response& res){
         show_earnings(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void all_earnings_page(const httplib::Request& req, httplib::Response& res){
@@ -1687,7 +1670,7 @@ void all_earnings_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::show_all_earnings(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void portfolio_status_page(const httplib::Request& req, httplib::Response& res){
@@ -1699,7 +1682,7 @@ void portfolio_status_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::show_asset_portfolio(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void portfolio_currency_page(const httplib::Request& req, httplib::Response& res){
@@ -1720,14 +1703,14 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     // 1. Display the currency breakdown over time
 
-    start_chart(w, "Portfolio by currency", "area", "portfolio_currency_graph");
+    auto ss = start_chart(w, "Portfolio by currency", "area", "portfolio_currency_graph");
 
-    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    w << R"=====(yAxis: { min: 0, title: { text: 'Sum' }},)=====";
-    w << R"=====(tooltip: {split: true},)=====";
-    w << R"=====(plotOptions: {area: {stacking: 'percent'}},)=====";
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Sum' }},)=====";
+    ss << R"=====(tooltip: {split: true},)=====";
+    ss << R"=====(plotOptions: {area: {stacking: 'percent'}},)=====";
 
-    w << "series: [";
+    ss << "series: [";
 
     auto sorted_asset_values = all_asset_values();
 
@@ -1735,8 +1718,8 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
               [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
 
     for (auto& currency : currencies) {
-        w << "{ name: '" << currency << "',";
-        w << "data: [";
+        ss << "{ name: '" << currency << "',";
+        ss << "data: [";
 
         std::map<size_t, budget::money> asset_amounts;
 
@@ -1762,31 +1745,31 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
                 sum += asset.second;
             }
 
-            w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
         }
 
-        w << "]},";
+        ss << "]},";
     }
 
-    w << "]";
+    ss << "]";
 
-    end_chart(w);
+    end_chart(w, ss);
 
     // 2. Display the current currency breakdown
 
-    start_chart(w, "Current Currency Breakdown", "pie", "currency_breakdown_graph");
+    auto ss2 = start_chart(w, "Current Currency Breakdown", "pie", "currency_breakdown_graph");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+    ss2 << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    w << "series: [";
+    ss2 << "series: [";
 
-    w << "{ name: 'Currencies',";
-    w << "colorByPoint: true,";
-    w << "data: [";
+    ss2 << "{ name: 'Currencies',";
+    ss2 << "colorByPoint: true,";
+    ss2 << "data: [";
 
     for (auto& currency : currencies) {
-        w << "{ name: '" << currency << "',";
-        w << "y: ";
+        ss2 << "{ name: '" << currency << "',";
+        ss2 << "y: ";
 
         std::map<size_t, budget::money> asset_amounts;
 
@@ -1804,18 +1787,18 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
             sum += asset.second;
         }
 
-        w << budget::to_flat_string(sum);
+        ss2 << budget::to_flat_string(sum);
 
-        w << "},";
+        ss2 << "},";
     }
 
-    w << "]},";
+    ss2 << "]},";
 
-    w << "]";
+    ss2 << "]";
 
-    end_chart(w);
+    end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
@@ -1826,20 +1809,20 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
 
-    start_chart(w, "Portfolio", "area");
+    auto ss = start_chart(w, "Portfolio", "area");
 
-    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    w << R"=====(yAxis: { min: 0, title: { text: 'Portfolio' }},)=====";
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Portfolio' }},)=====";
 
-    w << R"=====(subtitle: {)=====";
-    w << "text: '" << get_portfolio_value() << " __currency__',";
-    w << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
-    w << R"=====(},)=====";
+    ss << R"=====(subtitle: {)=====";
+    ss << "text: '" << get_portfolio_value() << " __currency__',";
+    ss << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
+    ss << R"=====(},)=====";
 
-    w << "series: [";
+    ss << "series: [";
 
-    w << "{ name: 'Portfolio',";
-    w << "data: [";
+    ss << "{ name: 'Portfolio',";
+    ss << "data: [";
 
     std::map<size_t, budget::money> asset_amounts;
 
@@ -1870,16 +1853,16 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
             sum += asset.second;
         }
 
-        w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
     }
 
-    w << "]},";
+    ss << "]},";
 
-    w << "]";
+    ss << "]";
 
-    end_chart(w);
+    end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void rebalance_page(const httplib::Request& req, httplib::Response& res){
@@ -1899,20 +1882,20 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
 
     w << R"=====(<div class="col-lg-6 col-md-12">)=====";
 
-    start_chart(w, "Current Allocation", "pie", "current_allocation_graph");
+    auto ss = start_chart(w, "Current Allocation", "pie", "current_allocation_graph");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+    ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    w << "series: [";
+    ss << "series: [";
 
     auto sorted_asset_values = all_asset_values();
 
     std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
               [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
 
-    w << "{ name: 'Assets',";
-    w << "colorByPoint: true,";
-    w << "data: [";
+    ss << "{ name: 'Assets',";
+    ss << "colorByPoint: true,";
+    ss << "data: [";
 
     std::map<size_t, budget::money> asset_amounts;
 
@@ -1926,20 +1909,20 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
 
     for (auto& asset_amount : asset_amounts) {
         if (!asset_amount.second.zero()) {
-            w << "{ name: '" << get_asset(asset_amount.first).name << "',";
-            w << "y: ";
-            w << budget::to_flat_string(asset_amount.second);
-            w << "},";
+            ss << "{ name: '" << get_asset(asset_amount.first).name << "',";
+            ss << "y: ";
+            ss << budget::to_flat_string(asset_amount.second);
+            ss << "},";
 
             sum += asset_amount.second;
         }
     }
 
-    w << "]},";
+    ss << "]},";
 
-    w << "]";
+    ss << "]";
 
-    end_chart(w);
+    end_chart(w, ss);
 
     w << R"=====(</div>)=====";
 
@@ -1947,36 +1930,36 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
 
     w << R"=====(<div class="col-lg-6 col-md-12">)=====";
 
-    start_chart(w, "Desired Allocation", "pie", "desired_allocation_graph");
+    auto ss2 = start_chart(w, "Desired Allocation", "pie", "desired_allocation_graph");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+    ss2 << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    w << "series: [";
+    ss2 << "series: [";
 
-    w << "{ name: 'Assets',";
-    w << "colorByPoint: true,";
-    w << "data: [";
+    ss2 << "{ name: 'Assets',";
+    ss2 << "colorByPoint: true,";
+    ss2 << "data: [";
 
     for (auto& asset : all_assets()) {
         if(asset.portfolio && !asset.portfolio_alloc.zero()){
-            w << "{ name: '" << asset.name << "',";
-            w << "y: ";
-            w << budget::to_flat_string(sum * (static_cast<float>(asset.portfolio_alloc) / 100.0f));
-            w << "},";
+            ss2 << "{ name: '" << asset.name << "',";
+            ss2 << "y: ";
+            ss2 << budget::to_flat_string(sum * (static_cast<float>(asset.portfolio_alloc) / 100.0f));
+            ss2 << "},";
         }
     }
 
-    w << "]},";
+    ss2 << "]},";
 
-    w << "]";
+    ss2 << "]";
 
-    end_chart(w);
-
-    w << R"=====(</div>)=====";
+    end_chart(w, ss2);
 
     w << R"=====(</div>)=====";
 
-    page_end(content_stream, req, res);
+    w << R"=====(</div>)=====";
+
+    page_end(w, content_stream, req, res);
 }
 
 void assets_page(const httplib::Request& req, httplib::Response& res){
@@ -1988,7 +1971,7 @@ void assets_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::show_assets(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_assets_page(const httplib::Request& req, httplib::Response& res) {
@@ -2014,7 +1997,7 @@ void add_assets_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
@@ -2054,7 +2037,7 @@ void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void net_worth_status_page(const httplib::Request& req, httplib::Response& res){
@@ -2066,7 +2049,7 @@ void net_worth_status_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::show_asset_values(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
@@ -2079,7 +2062,7 @@ void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
 
     net_worth_graph(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void net_worth_currency_page(const httplib::Request& req, httplib::Response& res){
@@ -2100,14 +2083,14 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     // 1. Display the currency breakdown over time
 
-    start_chart(w, "Net worth by currency", "area", "currency_time_graph");
+    auto ss = start_chart(w, "Net worth by currency", "area", "currency_time_graph");
 
-    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
-    w << R"=====(tooltip: {split: true},)=====";
-    w << R"=====(plotOptions: {area: {stacking: 'percent'}},)=====";
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+    ss << R"=====(tooltip: {split: true},)=====";
+    ss << R"=====(plotOptions: {area: {stacking: 'percent'}},)=====";
 
-    w << "series: [";
+    ss << "series: [";
 
     auto sorted_asset_values = all_asset_values();
 
@@ -2115,8 +2098,8 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
               [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
 
     for (auto& currency : currencies) {
-        w << "{ name: '" << currency << "',";
-        w << "data: [";
+        ss << "{ name: '" << currency << "',";
+        ss << "data: [";
 
         std::map<size_t, budget::money> asset_amounts;
 
@@ -2140,31 +2123,31 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
                 sum += asset.second;
             }
 
-            w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
         }
 
-        w << "]},";
+        ss << "]},";
     }
 
-    w << "]";
+    ss << "]";
 
-    end_chart(w);
+    end_chart(w, ss);
 
     // 2. Display the current currency breakdown
 
-    start_chart(w, "Current Currency Breakdown", "pie", "currency_breakdown_graph");
+    auto ss2 = start_chart(w, "Current Currency Breakdown", "pie", "currency_breakdown_graph");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+    ss2 << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    w << "series: [";
+    ss2 << "series: [";
 
-    w << "{ name: 'Currencies',";
-    w << "colorByPoint: true,";
-    w << "data: [";
+    ss2 << "{ name: 'Currencies',";
+    ss2 << "colorByPoint: true,";
+    ss2 << "data: [";
 
     for (auto& currency : currencies) {
-        w << "{ name: '" << currency << "',";
-        w << "y: ";
+        ss2 << "{ name: '" << currency << "',";
+        ss2 << "y: ";
 
         std::map<size_t, budget::money> asset_amounts;
 
@@ -2180,18 +2163,18 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
             sum += asset.second;
         }
 
-        w << budget::to_flat_string(sum);
+        ss2 << budget::to_flat_string(sum);
 
-        w << "},";
+        ss2 << "},";
     }
 
-    w << "]},";
+    ss2 << "]},";
 
-    w << "]";
+    ss2 << "]";
 
-    end_chart(w);
+    end_chart(w, ss2);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void list_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -2203,7 +2186,7 @@ void list_asset_values_page(const httplib::Request& req, httplib::Response& res)
     budget::html_writer w(content_stream);
     budget::list_asset_values(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -2224,7 +2207,7 @@ void add_asset_values_page(const httplib::Request& req, httplib::Response& res) 
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -2259,7 +2242,7 @@ void edit_asset_values_page(const httplib::Request& req, httplib::Response& res)
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -2294,7 +2277,7 @@ void batch_asset_values_page(const httplib::Request& req, httplib::Response& res
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void list_objectives_page(const httplib::Request& req, httplib::Response& res){
@@ -2306,7 +2289,7 @@ void list_objectives_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::list_objectives(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void status_objectives_page(const httplib::Request& req, httplib::Response& res){
@@ -2318,7 +2301,7 @@ void status_objectives_page(const httplib::Request& req, httplib::Response& res)
     budget::html_writer w(content_stream);
     budget::status_objectives(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
@@ -2341,7 +2324,7 @@ void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
@@ -2378,7 +2361,7 @@ void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void wishes_list_page(const httplib::Request& req, httplib::Response& res){
@@ -2390,7 +2373,7 @@ void wishes_list_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::list_wishes(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void wishes_status_page(const httplib::Request& req, httplib::Response& res){
@@ -2402,7 +2385,7 @@ void wishes_status_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::status_wishes(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void wishes_estimate_page(const httplib::Request& req, httplib::Response& res){
@@ -2414,7 +2397,7 @@ void wishes_estimate_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::estimate_wishes(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
@@ -2436,7 +2419,7 @@ void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
@@ -2474,7 +2457,7 @@ void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void list_fortunes_page(const httplib::Request& req, httplib::Response& res){
@@ -2486,7 +2469,7 @@ void list_fortunes_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::list_fortunes(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
@@ -2497,15 +2480,15 @@ void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
 
-    start_chart(w, "Fortune", "spline");
+    auto ss = start_chart(w, "Fortune", "spline");
 
-    w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    w << R"=====(yAxis: { min: 0, title: { text: 'Fortune' }},)=====";
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Fortune' }},)=====";
 
-    w << "series: [";
+    ss << "series: [";
 
-    w << "{ name: 'Fortune',";
-    w << "data: [";
+    ss << "{ name: 'Fortune',";
+    ss << "data: [";
 
     auto sorted_fortunes = all_fortunes();
 
@@ -2515,16 +2498,16 @@ void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
     for(auto& value : sorted_fortunes){
         auto& date = value.check_date;
 
-        w << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(value.amount) << "],";
+        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(value.amount) << "],";
     }
 
-    w << "]},";
+    ss << "]},";
 
-    w << "]";
+    ss << "]";
 
-    end_chart(w);
+    end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void status_fortunes_page(const httplib::Request& req, httplib::Response& res){
@@ -2536,7 +2519,7 @@ void status_fortunes_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::status_fortunes(w, false);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -2556,7 +2539,7 @@ void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -2590,7 +2573,7 @@ void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void recurrings_list_page(const httplib::Request& req, httplib::Response& res){
@@ -2602,7 +2585,7 @@ void recurrings_list_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::show_recurrings(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2623,7 +2606,7 @@ void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2658,7 +2641,7 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void list_debts_page(const httplib::Request& req, httplib::Response& res){
@@ -2670,7 +2653,7 @@ void list_debts_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::list_debts(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void all_debts_page(const httplib::Request& req, httplib::Response& res){
@@ -2682,7 +2665,7 @@ void all_debts_page(const httplib::Request& req, httplib::Response& res){
     budget::html_writer w(content_stream);
     budget::display_all_debts(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void add_debts_page(const httplib::Request& req, httplib::Response& res) {
@@ -2704,7 +2687,7 @@ void add_debts_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 void edit_debts_page(const httplib::Request& req, httplib::Response& res) {
@@ -2741,7 +2724,7 @@ void edit_debts_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, content_stream, req, res);
 }
 
 } //end of anonymous namespace

@@ -134,6 +134,12 @@ struct html_writer : writer {
 
     virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0) override;
     virtual void display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values) override;
+
+    void defer_script(const std::string& script);
+    void load_deferred_scripts();
+
+private:
+    std::vector<std::string> scripts;
 };
 
 } //end of namespace budget

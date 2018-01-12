@@ -356,3 +356,39 @@ void budget::html_writer::display_graph(const std::string& title, std::vector<st
 
     os << R"=====(</script>)=====";
 }
+
+void budget::html_writer::defer_script(const std::string& script){
+    std::stringstream ss;
+
+    ss << R"=====(<script langage="javascript">)=====" << '\n';
+    ss << R"=====($(function(){)=====" << '\n';
+    ss << script;
+    ss << R"=====(});)=====";
+    ss << R"=====(</script>)=====";
+
+    scripts.emplace_back(ss.str());
+}
+
+void budget::html_writer::load_deferred_scripts(){
+    // The javascript for Boostrap and JQuery
+    os << R"=====(
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+    )=====";
+
+    if(!scripts.empty()){
+        // The javascript for Boostrap and JQuery
+        os << R"=====(
+            <script src="https://code.highcharts.com/highcharts.js"></script>
+            <script src="https://code.highcharts.com/highcharts-more.js"></script>
+            <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+            <script src="https://code.highcharts.com/modules/series-label.js"></script>
+            <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        )=====";
+
+        for(auto& script : scripts){
+            os << script << '\n';
+        }
+    }
+}
