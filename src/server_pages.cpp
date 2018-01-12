@@ -894,7 +894,7 @@ void month_breakdown_income_graph(budget::writer& w, const std::string& title, b
     w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     if(mono){
-        w << R"=====(plotOptions: { pie: { colors: breakdown_income_colors, innerSize: '60%' }},)=====";
+        w << R"=====(plotOptions: { pie: { dataLabels: {enabled: false},  colors: breakdown_income_colors, innerSize: '60%' }},)=====";
     }
 
     w << "series: [";
@@ -973,7 +973,7 @@ void month_breakdown_expenses_graph(budget::writer& w, const std::string& title,
     w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     if(mono){
-        w << R"=====(plotOptions: { pie: { colors: breakdown_expense_colors, innerSize: '60%' }},)=====";
+        w << R"=====(plotOptions: {pie: { dataLabels: {enabled: false},  colors: breakdown_expense_colors, innerSize: '60%' }},)=====";
     }
 
     w << "series: [";
@@ -1025,11 +1025,12 @@ void month_breakdown_expenses_graph(budget::writer& w, const std::string& title,
     end_chart(w);
 }
 
-void net_worth_graph(budget::writer& w){
-    start_chart(w, "Net Worth", "area", "net_worth_graph");
+void net_worth_graph(budget::writer& w, const std::string style = ""){
+    start_chart(w, "Net Worth", "area", "net_worth_graph", style);
 
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+    w << R"=====(legend: { enabled: false },)=====";
 
     w << R"=====(subtitle: {)=====";
     w << "text: '" << get_net_worth() << " __currency__',";
@@ -1090,7 +1091,7 @@ void index_page(const httplib::Request& req, httplib::Response& res){
     const auto y = today.year();
 
     // 1. Display the net worth graph
-    net_worth_graph(w);
+    net_worth_graph(w, "min-width: 300px; height: 300px;");
 
     // 2. Cash flow
 
@@ -1107,11 +1108,11 @@ void index_page(const httplib::Request& req, httplib::Response& res){
     w << R"=====(<div class="row card-body">)=====";
 
     w << R"=====(<div class="col-lg-4 col-md-6 cold-sm-12">)=====";
-    month_breakdown_income_graph(w, "Income", m, y, true);
+    month_breakdown_income_graph(w, "Income", m, y, true, "min-width:300px; height: 300px;");
     w << R"=====(</div>)====="; //column
 
     w << R"=====(<div class="col-lg-4 col-md-6 cold-sm-12">)=====";
-    month_breakdown_expenses_graph(w, "Expenses", m, y, true);
+    month_breakdown_expenses_graph(w, "Expenses", m, y, true, "min-width:300px; height: 300px;");
     w << R"=====(</div>)====="; //column
 
     w << R"=====(</div>)====="; //card-body
