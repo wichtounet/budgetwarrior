@@ -366,6 +366,7 @@ void replace_all(std::string& source, const std::string& from, const std::string
 
 void filter_html(std::string& html, const httplib::Request& req){
     replace_all(html, "__budget_this_page__", req.path);
+    replace_all(html, "__currency__", get_default_currency());
 }
 
 void page_end(std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res){
@@ -884,7 +885,7 @@ void month_breakdown_income_graph(budget::writer& w, const std::string& title, b
 
     start_chart_base(w, "pie", "month_breakdown_income_graph", style);
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     if(mono){
         w << R"=====(plotOptions: { pie: { colors: breakdown_income_colors, innerSize: '60%' }},)=====";
@@ -934,7 +935,7 @@ void month_breakdown_income_graph(budget::writer& w, const std::string& title, b
         w << R"=====(</span><br/><hr style="margin:0px;" />)=====";
 
         w << R"=====(<span style="color: green; ">)=====";
-        w << total << " " << get_default_currency();
+        w << total << " __currency__";
         w << R"=====(</span>)=====";
         w << R"=====('},)=====";
     } else {
@@ -963,7 +964,7 @@ void month_breakdown_expenses_graph(budget::writer& w, const std::string& title,
 
     start_chart_base(w, "pie", "month_breakdown_expenses_graph", style);
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     if(mono){
         w << R"=====(plotOptions: { pie: { colors: breakdown_expense_colors, innerSize: '60%' }},)=====";
@@ -1006,7 +1007,7 @@ void month_breakdown_expenses_graph(budget::writer& w, const std::string& title,
         w << R"=====(</span><br/><hr style="margin:0px;" />)=====";
 
         w << R"=====(<span style="color: red; ">)=====";
-        w << total << " " << get_default_currency();
+        w << total << " __currency__";
         w << R"=====(</span>)=====";
         w << R"=====('},)=====";
     } else {
@@ -1025,7 +1026,7 @@ void net_worth_graph(budget::writer& w){
     w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
 
     w << R"=====(subtitle: {)=====";
-    w << "text: '" << get_net_worth() << " " << get_default_currency() << "',";
+    w << "text: '" << get_net_worth() << " __currency__',";
     w << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
     w << R"=====(},)=====";
 
@@ -1092,7 +1093,7 @@ void index_page(const httplib::Request& req, httplib::Response& res){
     w << R"=====(<div style="color:white;" class="card-header bg-primary">)=====";
     w << R"=====(<div class="float-left">Cash Flow</div>)=====";
     w << R"=====(<div class="float-right">)=====";
-    w << monthly_income(m, y) - monthly_spending(m, y) << " " << get_default_currency();
+    w << monthly_income(m, y) - monthly_spending(m, y) << " __currency__";
     w << R"=====(</div>)=====";
     w << R"=====(<div class="clearfix"></div>)=====";
     w << R"=====(</div>)====="; // card-header
@@ -1505,7 +1506,7 @@ void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response
 
     start_chart(w, "Expenses Breakdown", "pie");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     w << "series: [";
 
@@ -1768,7 +1769,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     start_chart(w, "Current Currency Breakdown", "pie", "currency_breakdown_graph");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     w << "series: [";
 
@@ -1824,7 +1825,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
     w << R"=====(yAxis: { min: 0, title: { text: 'Portfolio' }},)=====";
 
     w << R"=====(subtitle: {)=====";
-    w << "text: '" << get_portfolio_value() << " " << get_default_currency() << "',";
+    w << "text: '" << get_portfolio_value() << " __currency__',";
     w << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
     w << R"=====(},)=====";
 
@@ -1893,7 +1894,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
 
     start_chart(w, "Current Allocation", "pie", "current_allocation_graph");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     w << "series: [";
 
@@ -1941,7 +1942,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
 
     start_chart(w, "Desired Allocation", "pie", "desired_allocation_graph");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     w << "series: [";
 
@@ -2146,7 +2147,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     start_chart(w, "Current Currency Breakdown", "pie", "currency_breakdown_graph");
 
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
     w << "series: [";
 
