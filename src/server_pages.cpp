@@ -827,7 +827,6 @@ void form_end(budget::writer& w, const std::string& button = ""){
     w << "</form>";
 }
 
-
 void index_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     if(!page_start(req, res, content_stream, "")){
