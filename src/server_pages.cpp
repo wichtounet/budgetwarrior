@@ -852,7 +852,10 @@ void index_page(const httplib::Request& req, httplib::Response& res){
         auto year_status = budget::compute_year_status();
         auto month_status = budget::compute_month_status(today.year(), today.month());
 
-        w << R"=====(<div class="row">)=====";
+        w << R"=====(<div class="card">)=====";
+        w << R"=====(<div style="color:white; " class="card-header bg-primary">Objectives</div>)=====";
+
+        w << R"=====(<div class="row card-body">)=====";
 
         for (size_t i = 0; i < objectives.size(); ++i) {
             auto& objective = objectives[i];
@@ -908,6 +911,7 @@ void index_page(const httplib::Request& req, httplib::Response& res){
             w << R"=====(</div>)=====";
         }
 
+        w << R"=====(</div>)=====";
         w << R"=====(</div>)=====";
     }
 
