@@ -36,6 +36,12 @@ std::string exec_command(const std::string& command) {
 constexpr const std::array<std::pair<const char*, const char*>, 1> budget::module_traits<budget::versioning_module>::aliases;
 
 void budget::versioning_module::handle(const std::vector<std::string>& args){
+    // versioning does not make sense in server mode
+    if (is_server_mode()) {
+        std::cout << "The versioning commands are not available in server mode" << std::endl;
+        return;
+    }
+
     if(args.size() == 1){
         std::cout << "Missing subcommand" << std::endl;
     } else {
