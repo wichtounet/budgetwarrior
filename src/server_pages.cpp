@@ -378,7 +378,7 @@ void page_end(std::stringstream& content_stream, const httplib::Request& req, ht
     res.set_content(result, "text/html");
 }
 
-void start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
+void start_chart_base(budget::writer& w, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
     w << R"=====(<div id=")=====";
     w << id;
 
@@ -399,19 +399,23 @@ void start_chart(budget::writer& w, const std::string& title, const std::string&
     w << R"=====(chart: {type: ')=====";
     w << chart_type;
     w << R"=====('},)=====";
-    w << R"=====(title: {text: ')=====";
-    w << title;
-    w << R"=====('},)=====";
 
     w << R"=====(credits: { enabled: false },)=====";
     w << R"=====(exporting: { enabled: false },)=====";
+}
+
+void start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
+    start_chart_base(w, chart_type, id, style);
+
+    w << R"=====(title: {text: ')=====";
+    w << title;
+    w << R"=====('},)=====";
 }
 
 void end_chart(budget::writer& w){
     w << R"=====(});)=====";
     w << R"=====(</script>)=====" << end_of_line;
 }
-
 
 void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false) {
     if (one_line) {
@@ -827,8 +831,195 @@ void form_end(budget::writer& w, const std::string& button = ""){
     w << "</form>";
 }
 
+budget::money monthly_income(budget::month month, budget::year year){
+    std::map<size_t, budget::money> account_sum;
+
+    for(auto& earning : all_earnings()){
+        if(earning.date.year() == year && earning.date.month() == month){
+            account_sum[earning.account] += earning.amount;
+        }
+    }
+
+    budget::money total = get_base_income();
+
+    for (auto& sum : account_sum) {
+        total += sum.second;
+    }
+
+    return total;
+}
+
+budget::money monthly_spending(budget::month month, budget::year year){
+    std::map<size_t, budget::money> account_sum;
+
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == year && expense.date.month() == month){
+            account_sum[expense.account] += expense.amount;
+        }
+    }
+
+    budget::money total;
+
+    for (auto& sum : account_sum) {
+        total += sum.second;
+    }
+
+    return total;
+}
+
+void month_breakdown_income_graph(budget::writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = ""){
+    if(mono){
+        w << R"=====(
+            <script>
+            var breakdown_income_colors = (function () {
+                var colors = [], base = Highcharts.getOptions().colors[0], i;
+                for (i = 0; i < 10; i += 1) {
+                    colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
+                }
+                return colors;
+            }());
+            </script>
+        )=====";
+    }
+
+    start_chart_base(w, "pie", "month_breakdown_income_graph", style);
+
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+
+    if(mono){
+        w << R"=====(plotOptions: { pie: { colors: breakdown_income_colors, innerSize: '60%' }},)=====";
+    }
+
+    w << "series: [";
+
+    w << "{ name: 'Income',";
+    w << "colorByPoint: true,";
+    w << "data: [";
+
+    std::map<size_t, budget::money> account_sum;
+
+    for(auto& earning : all_earnings()){
+        if(earning.date.year() == year && earning.date.month() == month){
+            account_sum[earning.account] += earning.amount;
+        }
+    }
+
+    budget::money total = get_base_income();
+
+    if (!total.zero()) {
+        w << "{";
+        w << "name: 'Salary',";
+        w << "y: " << budget::to_flat_string(total);
+        w << "},";
+    }
+
+    for (auto& sum : account_sum) {
+        w << "{";
+        w << "name: '" << get_account(sum.first).name << "',";
+        w << "y: " << budget::to_flat_string(sum.second);
+        w << "},";
+
+        total += sum.second;
+    }
+
+    w << "]},";
+
+    w << "],";
+
+    if(mono){
+        w << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
+
+        w << R"=====(<span style="font-weight: bold; ">)=====";
+        w << title;
+        w << R"=====(</span><br/><hr style="margin:0px;" />)=====";
+
+        w << R"=====(<span style="color: green; ">)=====";
+        w << total << " " << get_default_currency();
+        w << R"=====(</span>)=====";
+        w << R"=====('},)=====";
+    } else {
+        w << R"=====(title: {text: ')=====";
+        w << title;
+        w << R"=====('},)=====";
+    }
+
+    end_chart(w);
+}
+
+void month_breakdown_expenses_graph(budget::writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = ""){
+    if(mono){
+        w << R"=====(
+            <script>
+            var breakdown_expense_colors = (function () {
+                var colors = [], base = Highcharts.getOptions().colors[3], i;
+                for (i = 0; i < 10; i += 1) {
+                    colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
+                }
+                return colors;
+            }());
+            </script>
+        )=====";
+    }
+
+    start_chart_base(w, "pie", "month_breakdown_expenses_graph", style);
+
+    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
+
+    if(mono){
+        w << R"=====(plotOptions: { pie: { colors: breakdown_expense_colors, innerSize: '60%' }},)=====";
+    }
+
+    w << "series: [";
+
+    w << "{ name: 'Expenses',";
+    w << "colorByPoint: true,";
+    w << "data: [";
+
+    std::map<size_t, budget::money> account_sum;
+
+    for(auto& expense : all_expenses()){
+        if(expense.date.year() == year && expense.date.month() == month){
+            account_sum[expense.account] += expense.amount;
+        }
+    }
+
+    budget::money total;
+
+    for (auto& sum : account_sum) {
+        w << "{";
+        w << "name: '" << get_account(sum.first).name << "',";
+        w << "y: " << budget::to_flat_string(sum.second);
+        w << "},";
+
+        total += sum.second;
+    }
+
+    w << "]},";
+
+    w << "],";
+
+    if(mono){
+        w << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
+
+        w << R"=====(<span style="font-weight: bold; ">)=====";
+        w << title;
+        w << R"=====(</span><br/><hr style="margin:0px;" />)=====";
+
+        w << R"=====(<span style="color: red; ">)=====";
+        w << total << " " << get_default_currency();
+        w << R"=====(</span>)=====";
+        w << R"=====('},)=====";
+    } else {
+        w << R"=====(title: {text: ')=====";
+        w << title;
+        w << R"=====('},)=====";
+    }
+
+    end_chart(w);
+}
+
 void net_worth_graph(budget::writer& w){
-    start_chart(w, "Net Worth", "area");
+    start_chart(w, "Net Worth", "area", "net_worth_graph");
 
     w << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     w << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
@@ -878,7 +1069,6 @@ void net_worth_graph(budget::writer& w){
     end_chart(w);
 }
 
-
 void index_page(const httplib::Request& req, httplib::Response& res){
     std::stringstream content_stream;
     if(!page_start(req, res, content_stream, "")){
@@ -887,14 +1077,38 @@ void index_page(const httplib::Request& req, httplib::Response& res){
 
     budget::html_writer w(content_stream);
 
-    auto today = budget::local_day();
+    const auto today = budget::local_day();
+
+    const auto m = today.month();
+    const auto y = today.year();
 
     // 1. Display the net worth graph
     net_worth_graph(w);
 
-    // First display overview of the accounts
-    // TODO Replace this with a cash flow overview
-    budget::account_summary(w, today.month(), today.year());
+    // 2. Cash flow
+
+    w << R"=====(<div class="card">)=====";
+
+    w << R"=====(<div style="color:white;" class="card-header bg-primary">)=====";
+    w << R"=====(<div class="float-left">Cash Flow</div>)=====";
+    w << R"=====(<div class="float-right">)=====";
+    w << monthly_income(m, y) - monthly_spending(m, y) << " " << get_default_currency();
+    w << R"=====(</div>)=====";
+    w << R"=====(<div class="clearfix"></div>)=====";
+    w << R"=====(</div>)====="; // card-header
+
+    w << R"=====(<div class="row card-body">)=====";
+
+    w << R"=====(<div class="col-lg-4 col-md-6 cold-sm-12">)=====";
+    month_breakdown_income_graph(w, "Income", m, y, true);
+    w << R"=====(</div>)====="; //column
+
+    w << R"=====(<div class="col-lg-4 col-md-6 cold-sm-12">)=====";
+    month_breakdown_expenses_graph(w, "Expenses", m, y, true);
+    w << R"=====(</div>)====="; //column
+
+    w << R"=====(</div>)====="; //card-body
+    w << R"=====(</div>)====="; //card
 
     // Display the objectives status
 
@@ -903,7 +1117,7 @@ void index_page(const httplib::Request& req, httplib::Response& res){
     if (objectives.size()) {
         //Compute the year/month status
         auto year_status = budget::compute_year_status();
-        auto month_status = budget::compute_month_status(today.year(), today.month());
+        auto month_status = budget::compute_month_status(y, m);
 
         w << R"=====(<div class="card">)=====";
         w << R"=====(<div style="color:white; " class="card-header bg-primary">Objectives</div>)=====";
@@ -1266,36 +1480,7 @@ void month_breakdown_expenses_page(const httplib::Request& req, httplib::Respons
 
     w << title_begin << "Expenses Breakdown of " << month << " " << year << budget::year_month_selector{"expenses/breakdown/month", year, month} << title_end;
 
-    start_chart(w, "Expenses Breakdown", "pie");
-
-    w << R"=====(tooltip: { pointFormat: '<b>{point.y} CHF ({point.percentage:.1f}%)</b>' },)=====";
-
-    w << "series: [";
-
-    w << "{ name: 'Expenses',";
-    w << "colorByPoint: true,";
-    w << "data: [";
-
-    std::map<size_t, budget::money> account_sum;
-
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.date.month() == month){
-            account_sum[expense.account] += expense.amount;
-        }
-    }
-
-    for (auto& sum : account_sum) {
-        w << "{";
-        w << "name: '" << get_account(sum.first).name << "',";
-        w << "y: " << budget::to_flat_string(sum.second);
-        w << "},";
-    }
-
-    w << "]},";
-
-    w << "]";
-
-    end_chart(w);
+    month_breakdown_expenses_graph(w, "Expenses Breakdown", month, year);
 
     page_end(content_stream, req, res);
 }
