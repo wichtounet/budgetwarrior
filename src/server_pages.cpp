@@ -85,6 +85,26 @@ std::string header(const std::string& title, bool menu = true){
                     background-color: #007bff !important;
                     padding: 0.5rem 0.75rem !important;
                 }
+
+                .gauge-cash-flow-title {
+                    margin-top: -15px;
+                }
+
+                .gauge-objective-title {
+                    color: rgb(124, 181, 236);
+                    margin-top: -15px;
+                    text-align: center;
+                }
+
+                .default-graph-style {
+                    min-width: 300px;
+                    height: 400px;
+                    margin: 0 auto;
+                }
+
+                .flat-hr {
+                    margin:0px;
+                }
             </style>
     )=====";
 
@@ -371,7 +391,7 @@ std::stringstream start_chart_base(budget::writer& w, const std::string& chart_t
     w << id;
 
     if (style.empty()) {
-        w << R"=====(" style="min-width: 300px; height: 400px; margin: 0 auto"></div>)=====" << end_of_line;
+        w << R"=====(" class="default-graph-style"></div>)=====" << end_of_line;
     } else {
         w << R"=====(" style="margin: 0 auto; )=====";
         w << style;
@@ -921,13 +941,13 @@ void month_breakdown_income_graph(budget::html_writer& w, const std::string& tit
     if(mono){
         ss << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
 
-        ss << R"=====(<span style="font-weight: bold; ">)=====";
+        ss << R"=====(<div class="gauge-cash-flow-title"><strong>)=====";
         ss << title;
-        ss << R"=====(</span><br/><hr style="margin:0px;" />)=====";
+        ss << R"=====(</strong><br/><hr class="flat-hr" />)=====";
 
-        ss << R"=====(<span style="color: green; ">)=====";
+        ss << R"=====(<span class="text-success">)=====";
         ss << total << " __currency__";
-        ss << R"=====(</span>)=====";
+        ss << R"=====(</span></div>)=====";
         ss << R"=====('},)=====";
     } else {
         ss << R"=====(title: {text: ')=====";
@@ -991,13 +1011,13 @@ void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& t
     if(mono){
         ss << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
 
-        ss << R"=====(<span style="font-weight: bold; ">)=====";
+        ss << R"=====(<div class="gauge-cash-flow-title"><strong>)=====";
         ss << title;
-        ss << R"=====(</span><br/><hr style="margin:0px;" />)=====";
+        ss << R"=====(</strong><br/><hr class="flat-hr" />)=====";
 
-        ss << R"=====(<span style="color: red; ">)=====";
+        ss << R"=====(<span class="text-danger">)=====";
         ss << total << " __currency__";
-        ss << R"=====(</span>)=====";
+        ss << R"=====(</span></div>)=====";
         ss << R"=====('},)=====";
     } else {
         ss << R"=====(title: {text: ')=====";
@@ -1120,7 +1140,11 @@ void index_page(const httplib::Request& req, httplib::Response& res){
 
             w << R"=====(<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">)=====";
 
-            auto ss = start_chart(w, objective.name, "solidgauge", "objective_gauge_" + budget::to_string(i), "height: 200px");
+            auto ss = start_chart_base(w, "solidgauge", "objective_gauge_" + budget::to_string(i), "height: 200px");
+
+            ss << R"=====(title: {style: {color: "rgb(124, 181, 236)", fontWeight: "bold" }, text: ')=====";
+            ss << objective.name;
+            ss << R"=====('},)=====";
 
             ss << R"=====(tooltip: { enabled: false },)=====";
             ss << R"=====(yAxis: { min: 0, max: 100, lineWidth: 0, tickPositions: [], },)=====";
@@ -1144,11 +1168,11 @@ void index_page(const httplib::Request& req, httplib::Response& res){
             ss << R"=====(dataLabels: {)=====";
             ss << R"=====(enabled: true, verticalAlign: "middle", borderWidth: "0px", useHTML: true, )=====";
 
-            ss << R"=====(format: '<p style="color: rgb(124, 181, 236); text-align:center; "><span class="lead" style="font-weight: bold;">)=====";
+            ss << R"=====(format: '<div class="gauge-objective-title"><span class="lead""><strong>)=====";
             ss << success_int;
-            ss << R"=====(%</span> <br /> <span>)=====";
+            ss << R"=====(%</strong></span> <br />)=====";
             ss << status;
-            ss << R"=====(</span></p>')=====";
+            ss << R"=====(</div>')=====";
 
             ss << R"=====(},)=====";
             ss << R"=====(rounded: true)=====";
@@ -2824,11 +2848,11 @@ void budget::load_pages(httplib::Server& server){
             content_stream << header("", true);
         }
 
-        content_stream << "<p>Error Status: <span style='color:red;'>";
+        content_stream << "<p>Error Status: <span class='text-danger'>";
         content_stream << res.status;
         content_stream << "</span></p>";
 
-        content_stream << "<p>On Page: <span style='color:green;'>";
+        content_stream << "<p>On Page: <span class='text-success'>";
         content_stream << req.path;
         content_stream << "</span></p>";
 
