@@ -16,48 +16,48 @@ namespace {
 std::string success_to_string(int success) {
     std::stringstream ss;
 
-    if(success < 25){
+    if (success < 25) {
         ss << "\033[0;31m";
-    } else if(success < 75){
+    } else if (success < 75) {
         ss << "\033[0;33m";
-    } else if(success < 100){
+    } else if (success < 100) {
         ss << "\033[0;32m";
-    } else if(success >= 100){
+    } else if (success >= 100) {
         ss << "\033[1;32m";
     }
 
     budget::print_minimum(ss, success, 5);
     ss << "%\033[0m  ";
 
-    success = std::min(success, 109);
+    success     = std::min(success, 109);
     size_t good = success == 0 ? 0 : (success / 10) + 1;
 
-    for(size_t i = 0; i < good; ++i){
+    for (size_t i = 0; i < good; ++i) {
         ss << "\033[1;42m   \033[0m";
     }
 
-    for(size_t i = good; i < 11; ++i){
+    for (size_t i = good; i < 11; ++i) {
         ss << "\033[1;41m   \033[0m";
     }
 
     return ss.str();
 }
 
-std::string format(const std::string& v){
-    if(v.substr(0, 5) == "::red"){
+std::string format(const std::string& v) {
+    if (v.substr(0, 5) == "::red") {
         auto value = v.substr(5);
 
         return "\033[0;31m" + value + budget::format_reset();
-    } else if(v.substr(0, 7) == "::green"){
+    } else if (v.substr(0, 7) == "::green") {
         auto value = v.substr(7);
 
         return "\033[0;32m" + value + budget::format_reset();
-    } else if(v.substr(0, 6) == "::blue"){
+    } else if (v.substr(0, 6) == "::blue") {
         auto value = v.substr(6);
 
         return "\033[0;33m" + value + budget::format_reset();
-    } else if(v.substr(0, 9) == "::success"){
-        auto value = v.substr(9);
+    } else if (v.substr(0, 9) == "::success") {
+        auto value   = v.substr(9);
         auto success = budget::to_number<unsigned long>(value);
         return success_to_string(success);
     }
@@ -65,18 +65,18 @@ std::string format(const std::string& v){
     return v;
 }
 
-
 } // end of anonymous namespace
 
-budget::console_writer::console_writer(std::ostream& os) : os(os) {}
+budget::console_writer::console_writer(std::ostream& os)
+        : os(os) {}
 
-budget::writer& budget::console_writer::operator<<(const std::string& value){
+budget::writer& budget::console_writer::operator<<(const std::string& value) {
     os << format(value);
 
     return *this;
 }
 
-budget::writer& budget::console_writer::operator<<(const double& value){
+budget::writer& budget::console_writer::operator<<(const double& value) {
     os << value;
 
     return *this;
@@ -121,12 +121,13 @@ budget::writer& budget::console_writer::operator<<(const budget::title_begin_t&)
 }
 
 budget::writer& budget::console_writer::operator<<(const budget::title_end_t&) {
-    os << std::endl << std::endl;
+    os << std::endl
+       << std::endl;
 
     return *this;
 }
 
-void budget::console_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left){
+void budget::console_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left) {
     cpp_assert(groups > 0, "There must be at least 1 group");
     cpp_assert(contents.size() || columns.size(), "There must be at least some columns or contents");
 
@@ -211,8 +212,8 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 
     // Display the contents
 
-    for(size_t i = 0; i < contents.size(); ++i){
-        if(left){
+    for (size_t i = 0; i < contents.size(); ++i) {
+        if (left) {
             os << std::string(left, ' ');
         }
 
@@ -220,11 +221,11 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 
         bool underline = std::find(lines.begin(), lines.end(), i) != lines.end();
 
-        for(size_t j = 0; j < row.size(); j += groups){
+        for (size_t j = 0; j < row.size(); j += groups) {
             size_t acc_width = 0;
 
             //First columns of the group
-            for(size_t k = 0; k < groups - 1; ++k){
+            for (size_t k = 0; k < groups - 1; ++k) {
                 auto column = j + k;
 
                 std::string value = format(row[column]);
@@ -247,14 +248,14 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
             //The last column of the group
 
             auto last_column = j + (groups - 1);
-            auto width = widths[last_column];
+            auto width       = widths[last_column];
             acc_width += width;
 
             //Pad with spaces to fit the header column width
 
-            if(header_widths[j / groups] > acc_width){
+            if (header_widths[j / groups] > acc_width) {
                 width += header_widths[j / groups] - acc_width;
-            } else if(last_column == row.size() - 1){
+            } else if (last_column == row.size() - 1) {
                 --width;
             }
 
@@ -263,7 +264,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
             auto missing = width - rsize(row[last_column]);
 
             std::string fill_string;
-            if (missing > 1){
+            if (missing > 1) {
                 fill_string = std::string(missing - 1, ' ');
             }
 
@@ -294,11 +295,11 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
     os << std::endl;
 }
 
-bool budget::console_writer::is_web(){
+bool budget::console_writer::is_web() {
     return false;
 }
 
-void budget::console_writer::display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values){
+void budget::console_writer::display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values) {
     cpp_unused(title);
     cpp_unused(categories);
     cpp_unused(series_names);
