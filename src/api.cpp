@@ -23,11 +23,28 @@ budget::api_response budget::api_get(const std::string& api, bool silent) {
     auto server      = config_value("server_url");
     auto server_port = config_value("server_port");
 
-    httplib::Client cli(server.c_str(), budget::to_number<size_t>(server_port));
-
     std::string api_complete = "/api" + api;
 
-    auto res = cli.get(api_complete.c_str());
+    httplib::Client cli(server.c_str(), budget::to_number<size_t>(server_port));
+
+    httplib::Request req;
+    req.method = "GET";
+    req.path = api_complete.c_str();
+    req.progress = [](int64_t,int64_t){};
+
+    req.set_header("Host", (server + ":" + server_port).c_str());
+    req.set_header("Accept", "*/*");
+    req.set_header("User-Agent", "cpp-httplib/0.1");
+    req.set_header("Authorization", ("Basic " + base64_encode(get_web_user() + ":" + get_web_password())).c_str());
+
+    auto base_res = std::make_shared<httplib::Response>();
+
+    std::shared_ptr<httplib::Response> res;
+    if (cli.send(req, *base_res)) {
+        res = base_res;
+    } else {
+        res = nullptr;
+    }
 
     if (!res) {
         if (!silent) {
@@ -54,20 +71,44 @@ budget::api_response budget::api_get(const std::string& api, bool silent) {
 budget::api_response budget::api_post(const std::string& api, const std::map<std::string, std::string>& params) {
     cpp_assert(is_server_mode(), "api_post() should only be called in server mode");
 
-    httplib::Map api_params;
-
-    for (auto& v : params) {
-        api_params[v.first] = v.second;
-    }
-
     auto server      = config_value("server_url");
     auto server_port = config_value("server_port");
 
-    httplib::Client cli(server.c_str(), budget::to_number<size_t>(server_port));
-
     std::string api_complete = "/api" + api;
 
-    auto res = cli.post(api_complete.c_str(), api_params);
+    std::string query;
+    for (auto it = params.begin(); it != params.end(); ++it) {
+        if (it != params.begin()) {
+            query += "&";
+        }
+        query += it->first;
+        query += "=";
+        query += it->second;
+    }
+
+    httplib::Client cli(server.c_str(), budget::to_number<size_t>(server_port));
+
+    httplib::Request req;
+    req.method = "POST";
+    req.path = api_complete.c_str();
+    req.progress = [](int64_t,int64_t){};
+
+    req.set_header("Host", (server + ":" + server_port).c_str());
+    req.set_header("Accept", "*/*");
+    req.set_header("User-Agent", "cpp-httplib/0.1");
+    req.set_header("Authorization", ("Basic " + base64_encode(get_web_user() + ":" + get_web_password())).c_str());
+
+    req.set_header("Content-Type", "application/x-www-form-urlencoded");
+    req.body = query;
+
+    auto base_res = std::make_shared<httplib::Response>();
+
+    std::shared_ptr<httplib::Response> res;
+    if (cli.send(req, *base_res)) {
+        res = base_res;
+    } else {
+        res = nullptr;
+    }
 
     if (!res) {
         std::cerr << "Request to the API failed!" << std::endl;

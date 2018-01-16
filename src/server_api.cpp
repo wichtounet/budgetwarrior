@@ -22,6 +22,7 @@
 #include "guid.hpp"
 #include "debts.hpp"
 #include "version.hpp"
+#include "config.hpp"
 
 #include "server_api.hpp"
 
@@ -30,6 +31,53 @@
 using namespace budget;
 
 namespace {
+
+bool api_start(const httplib::Request& req, httplib::Response& res){
+    if (req.has_header("Authorization")) {
+        auto authorization = req.get_header_value("Authorization");
+
+        if (authorization.substr(0, 6) != "Basic ") {
+            res.status = 401;
+            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+            return false;
+        }
+
+        auto sub_authorization = authorization.substr(6, authorization.size());
+        auto decoded           = base64_decode(sub_authorization);
+
+        if(decoded.find(':') == std::string::npos){
+            res.status = 401;
+            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+            return false;
+        }
+
+        auto username = decoded.substr(0, decoded.find(':'));
+        auto password = decoded.substr(decoded.find(':') + 1, decoded.size());
+
+        if(username != get_web_user()){
+            res.status = 401;
+            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+            return false;
+        }
+
+        if(password != get_web_password()){
+            res.status = 401;
+            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+            return false;
+        }
+    } else {
+        res.status = 401;
+        res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+        return false;
+    }
+
+    return true;
+}
 
 void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message){
     if (req.has_param("server")) {
@@ -73,14 +121,26 @@ bool parameters_present(const httplib::Request& req, std::vector<const char*> pa
 }
 
 void server_up_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     api_success_content(req, res, "yes");
 }
 
 void server_version_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     api_success_content(req, res, get_version_short());
 }
 
 void add_accounts_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_name", "input_amount"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -99,6 +159,10 @@ void add_accounts_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_accounts_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id", "input_name", "input_amount"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -121,6 +185,10 @@ void edit_accounts_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_accounts_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -139,6 +207,10 @@ void delete_accounts_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void list_accounts_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& account : all_accounts()){
@@ -150,18 +222,30 @@ void list_accounts_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void archive_accounts_month_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     budget::archive_accounts_impl(true);
 
     api_success(req, res, "Accounts have been migrated from the beginning of the month");
 }
 
 void archive_accounts_year_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     budget::archive_accounts_impl(false);
 
     api_success(req, res, "Accounts have been migrated from the beginning of the year");
 }
 
 void add_expenses_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -180,6 +264,10 @@ void add_expenses_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_expenses_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id", "input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -204,6 +292,10 @@ void edit_expenses_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_expenses_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -222,6 +314,10 @@ void delete_expenses_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void list_expenses_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& expense : all_expenses()){
@@ -233,6 +329,10 @@ void list_expenses_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void add_earnings_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -251,6 +351,10 @@ void add_earnings_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_earnings_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id", "input_name", "input_date", "input_amount", "input_account"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -275,6 +379,10 @@ void edit_earnings_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -293,6 +401,10 @@ void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void list_earnings_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& earning : all_earnings()){
@@ -304,6 +416,10 @@ void list_earnings_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void add_objectives_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_name", "input_type", "input_type", "input_source", "input_operator", "input_amount"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -323,6 +439,10 @@ void add_objectives_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_objectives_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id", "input_name", "input_type", "input_type", "input_source", "input_operator", "input_amount"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -348,6 +468,10 @@ void edit_objectives_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_objectives_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -366,6 +490,10 @@ void delete_objectives_api(const httplib::Request& req, httplib::Response& res) 
 }
 
 void list_objectives_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& objective : all_objectives()){
@@ -377,6 +505,10 @@ void list_objectives_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void add_assets_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -404,6 +536,10 @@ void add_assets_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_assets_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id", "input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -437,6 +573,10 @@ void edit_assets_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_assets_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -455,6 +595,10 @@ void delete_assets_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void list_assets_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& asset : all_assets()){
@@ -466,6 +610,10 @@ void list_assets_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void add_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_asset", "input_date", "input_amount"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -483,6 +631,10 @@ void add_asset_values_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id", "input_asset", "input_date", "input_amount"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -506,6 +658,10 @@ void edit_asset_values_api(const httplib::Request& req, httplib::Response& res) 
 }
 
 void delete_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!parameters_present(req, {"input_id"})){
         api_error(req, res, "Invalid parameters");
         return;
@@ -524,6 +680,10 @@ void delete_asset_values_api(const httplib::Request& req, httplib::Response& res
 }
 
 void list_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& asset_value : all_asset_values()){
@@ -535,6 +695,10 @@ void list_asset_values_api(const httplib::Request& req, httplib::Response& res) 
 }
 
 void batch_asset_values_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     auto sorted_asset_values = all_asset_values();
 
     std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
@@ -571,6 +735,10 @@ void batch_asset_values_api(const httplib::Request& req, httplib::Response& res)
 }
 
 void add_recurrings_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -589,6 +757,10 @@ void add_recurrings_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_recurrings_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -612,6 +784,10 @@ void edit_recurrings_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_recurrings_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_id")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -630,6 +806,10 @@ void delete_recurrings_api(const httplib::Request& req, httplib::Response& res) 
 }
 
 void list_recurrings_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& recurring : all_recurrings()){
@@ -641,6 +821,10 @@ void list_recurrings_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void add_debts_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_title") || !req.has_param("input_direction")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -661,6 +845,10 @@ void add_debts_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_debts_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_title") || !req.has_param("input_direction") || !req.has_param("input_paid")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -686,6 +874,10 @@ void edit_debts_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_debts_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_id")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -704,6 +896,10 @@ void delete_debts_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void list_debts_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& debt : all_debts()){
@@ -715,6 +911,10 @@ void list_debts_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void add_fortunes_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_amount") || !req.has_param("input_date")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -731,6 +931,10 @@ void add_fortunes_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_fortunes_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_id") || !req.has_param("input_amount") || !req.has_param("input_date")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -753,6 +957,10 @@ void edit_fortunes_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_fortunes_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_id")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -771,6 +979,10 @@ void delete_fortunes_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void list_fortunes_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& fortune : all_fortunes()){
@@ -782,6 +994,10 @@ void list_fortunes_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void add_wishes_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_urgency") || !req.has_param("input_importance")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -803,6 +1019,10 @@ void add_wishes_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void edit_wishes_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_urgency")
                 || !req.has_param("input_importance") || !req.has_param("input_paid") || !req.has_param("input_paid_amount")) {
         api_error(req, res, "Invalid parameters");
@@ -835,6 +1055,10 @@ void edit_wishes_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void delete_wishes_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     if (!req.has_param("input_id")) {
         api_error(req, res, "Invalid parameters");
         return;
@@ -853,6 +1077,10 @@ void delete_wishes_api(const httplib::Request& req, httplib::Response& res) {
 }
 
 void list_wishes_api(const httplib::Request& req, httplib::Response& res) {
+    if(!api_start(req, res)){
+        return;
+    }
+
     std::stringstream ss;
 
     for(auto& wish : all_wishes()){
