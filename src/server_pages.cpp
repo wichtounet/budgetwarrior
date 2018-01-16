@@ -9,20 +9,20 @@
 
 #include "cpp_utils/assert.hpp"
 
-#include "writer.hpp"
-#include "overview.hpp"
-#include "expenses.hpp"
 #include "accounts.hpp"
 #include "assets.hpp"
 #include "config.hpp"
-#include "objectives.hpp"
-#include "wishes.hpp"
-#include "version.hpp"
-#include "summary.hpp"
+#include "debts.hpp"
+#include "expenses.hpp"
 #include "fortune.hpp"
+#include "objectives.hpp"
+#include "overview.hpp"
 #include "recurring.hpp"
 #include "report.hpp"
-#include "debts.hpp"
+#include "summary.hpp"
+#include "version.hpp"
+#include "wishes.hpp"
+#include "writer.hpp"
 
 #include "server_pages.hpp"
 
@@ -34,7 +34,7 @@ namespace {
 
 static constexpr const char new_line = '\n';
 
-std::string header(const std::string& title, bool menu = true){
+std::string header(const std::string& title, bool menu = true) {
     std::stringstream stream;
 
     // The header
@@ -246,13 +246,13 @@ std::string header(const std::string& title, bool menu = true){
     return stream.str();
 }
 
-void display_error_message(budget::writer& w, const std::string& message){
+void display_error_message(budget::writer& w, const std::string& message) {
     w << R"=====(<div class="alert alert-danger" role="alert">)=====";
     w << message;
     w << R"=====(</div>)=====";
 }
 
-void display_message(budget::writer& w, const httplib::Request& req){
+void display_message(budget::writer& w, const httplib::Request& req) {
     if (req.has_param("message")) {
         if (req.has_param("error")) {
             w << R"=====(<div class="alert alert-danger" role="alert">)=====";
@@ -267,7 +267,7 @@ void display_message(budget::writer& w, const httplib::Request& req){
     }
 }
 
-bool page_start(const httplib::Request& req, httplib::Response& res, std::stringstream& content_stream, const std::string& title){
+bool page_start(const httplib::Request& req, httplib::Response& res, std::stringstream& content_stream, const std::string& title) {
     content_stream.imbue(std::locale("C"));
 
     if (req.has_header("Authorization")) {
@@ -283,7 +283,7 @@ bool page_start(const httplib::Request& req, httplib::Response& res, std::string
         auto sub_authorization = authorization.substr(6, authorization.size());
         auto decoded           = base64_decode(sub_authorization);
 
-        if(decoded.find(':') == std::string::npos){
+        if (decoded.find(':') == std::string::npos) {
             res.status = 401;
             res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
 
@@ -293,14 +293,14 @@ bool page_start(const httplib::Request& req, httplib::Response& res, std::string
         auto username = decoded.substr(0, decoded.find(':'));
         auto password = decoded.substr(decoded.find(':') + 1, decoded.size());
 
-        if(username != get_web_user()){
+        if (username != get_web_user()) {
             res.status = 401;
             res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
 
             return false;
         }
 
-        if(password != get_web_password()){
+        if (password != get_web_password()) {
             res.status = 401;
             res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
 
@@ -321,7 +321,7 @@ bool page_start(const httplib::Request& req, httplib::Response& res, std::string
     return true;
 }
 
-void replace_all(std::string& source, const std::string& from, const std::string& to){
+void replace_all(std::string& source, const std::string& from, const std::string& to) {
     size_t current_pos = 0;
 
     while ((current_pos = source.find(from, current_pos)) != std::string::npos) {
@@ -330,17 +330,17 @@ void replace_all(std::string& source, const std::string& from, const std::string
     }
 }
 
-void filter_html(std::string& html, const httplib::Request& req){
+void filter_html(std::string& html, const httplib::Request& req) {
     replace_all(html, "__budget_this_page__", req.path);
     replace_all(html, "__currency__", get_default_currency());
 }
 
 //Note: This must be synchronized with page_end
-std::string footer(){
+std::string footer() {
     return "</div></main></body></html>";
 }
 
-void page_end(budget::html_writer& w, std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res){
+void page_end(budget::html_writer& w, std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res) {
     w << "</div></main>";
     w.load_deferred_scripts();
     w << "</body></html>";
@@ -352,7 +352,7 @@ void page_end(budget::html_writer& w, std::stringstream& content_stream, const h
     res.set_content(result, "text/html");
 }
 
-std::stringstream start_chart_base(budget::writer& w, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
+std::stringstream start_chart_base(budget::writer& w, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
     w << R"=====(<div id=")=====";
     w << id;
 
@@ -381,7 +381,7 @@ std::stringstream start_chart_base(budget::writer& w, const std::string& chart_t
     return ss;
 }
 
-std::stringstream start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = ""){
+std::stringstream start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
     auto ss = start_chart_base(w, chart_type, id, style);
 
     ss << R"=====(title: {text: ')=====";
@@ -391,7 +391,7 @@ std::stringstream start_chart(budget::writer& w, const std::string& title, const
     return ss;
 }
 
-void end_chart(budget::html_writer& w, std::stringstream& ss){
+void end_chart(budget::html_writer& w, std::stringstream& ss) {
     ss << R"=====(});)=====";
 
     w.defer_script(ss.str());
@@ -781,7 +781,7 @@ void add_portfolio_picker(budget::writer& w, bool portfolio) {
     add_yes_no_picker(w, "Part of the portfolio", "input_portfolio", portfolio);
 }
 
-void form_begin(budget::writer& w, const std::string& action, const std::string& back_page){
+void form_begin(budget::writer& w, const std::string& action, const std::string& back_page) {
     w << R"=====(<form method="POST" action=")=====";
     w << action;
     w << R"=====(">)=====";
@@ -791,7 +791,7 @@ void form_begin(budget::writer& w, const std::string& action, const std::string&
     w << R"=====(">)=====";
 }
 
-void form_begin_edit(budget::writer& w, const std::string& action, const std::string& back_page, const std::string& input_id){
+void form_begin_edit(budget::writer& w, const std::string& action, const std::string& back_page, const std::string& input_id) {
     form_begin(w, action, back_page);
 
     w << R"=====(<input type="hidden" name="input_id" value=")=====";
@@ -799,7 +799,7 @@ void form_begin_edit(budget::writer& w, const std::string& action, const std::st
     w << R"=====(">)=====";
 }
 
-void form_end(budget::writer& w, const std::string& button = ""){
+void form_end(budget::writer& w, const std::string& button = "") {
     if (button.empty()) {
         w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
     } else {
@@ -811,11 +811,11 @@ void form_end(budget::writer& w, const std::string& button = ""){
     w << "</form>";
 }
 
-budget::money monthly_income(budget::month month, budget::year year){
+budget::money monthly_income(budget::month month, budget::year year) {
     std::map<size_t, budget::money> account_sum;
 
-    for(auto& earning : all_earnings()){
-        if(earning.date.year() == year && earning.date.month() == month){
+    for (auto& earning : all_earnings()) {
+        if (earning.date.year() == year && earning.date.month() == month) {
             account_sum[earning.account] += earning.amount;
         }
     }
@@ -829,11 +829,11 @@ budget::money monthly_income(budget::month month, budget::year year){
     return total;
 }
 
-budget::money monthly_spending(budget::month month, budget::year year){
+budget::money monthly_spending(budget::month month, budget::year year) {
     std::map<size_t, budget::money> account_sum;
 
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.date.month() == month){
+    for (auto& expense : all_expenses()) {
+        if (expense.date.year() == year && expense.date.month() == month) {
             account_sum[expense.account] += expense.amount;
         }
     }
@@ -847,8 +847,8 @@ budget::money monthly_spending(budget::month month, budget::year year){
     return total;
 }
 
-void month_breakdown_income_graph(budget::html_writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = ""){
-    if(mono){
+void month_breakdown_income_graph(budget::html_writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = "") {
+    if (mono) {
         w.defer_script(R"=====(
             breakdown_income_colors = (function () {
                 var colors = [], base = Highcharts.getOptions().colors[0], i;
@@ -864,7 +864,7 @@ void month_breakdown_income_graph(budget::html_writer& w, const std::string& tit
 
     ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    if(mono){
+    if (mono) {
         ss << R"=====(plotOptions: { pie: { dataLabels: {enabled: false},  colors: breakdown_income_colors, innerSize: '60%' }},)=====";
     }
 
@@ -876,8 +876,8 @@ void month_breakdown_income_graph(budget::html_writer& w, const std::string& tit
 
     std::map<size_t, budget::money> account_sum;
 
-    for(auto& earning : all_earnings()){
-        if(earning.date.year() == year && earning.date.month() == month){
+    for (auto& earning : all_earnings()) {
+        if (earning.date.year() == year && earning.date.month() == month) {
             account_sum[earning.account] += earning.amount;
         }
     }
@@ -904,7 +904,7 @@ void month_breakdown_income_graph(budget::html_writer& w, const std::string& tit
 
     ss << "],";
 
-    if(mono){
+    if (mono) {
         ss << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
 
         ss << R"=====(<div class="gauge-cash-flow-title"><strong>)=====";
@@ -924,8 +924,8 @@ void month_breakdown_income_graph(budget::html_writer& w, const std::string& tit
     end_chart(w, ss);
 }
 
-void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = ""){
-    if(mono){
+void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& title, budget::month month, budget::year year, bool mono = false, const std::string& style = "") {
+    if (mono) {
         w.defer_script(R"=====(
             breakdown_expense_colors = (function () {
                 var colors = [], base = Highcharts.getOptions().colors[3], i;
@@ -941,7 +941,7 @@ void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& t
 
     ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    if(mono){
+    if (mono) {
         ss << R"=====(plotOptions: {pie: { dataLabels: {enabled: false},  colors: breakdown_expense_colors, innerSize: '60%' }},)=====";
     }
 
@@ -953,8 +953,8 @@ void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& t
 
     std::map<size_t, budget::money> account_sum;
 
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.date.month() == month){
+    for (auto& expense : all_expenses()) {
+        if (expense.date.year() == year && expense.date.month() == month) {
             account_sum[expense.account] += expense.amount;
         }
     }
@@ -974,7 +974,7 @@ void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& t
 
     ss << "],";
 
-    if(mono){
+    if (mono) {
         ss << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
 
         ss << R"=====(<div class="gauge-cash-flow-title"><strong>)=====";
@@ -994,7 +994,7 @@ void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& t
     end_chart(w, ss);
 }
 
-void net_worth_graph(budget::html_writer& w, const std::string style = ""){
+void net_worth_graph(budget::html_writer& w, const std::string style = "") {
     auto ss = start_chart(w, "Net Worth", "area", "net_worth_graph", style);
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
@@ -1016,15 +1016,15 @@ void net_worth_graph(budget::html_writer& w, const std::string style = ""){
     auto sorted_asset_values = all_asset_values();
 
     std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-        [](const budget::asset_value& a, const budget::asset_value& b){ return a.set_date < b.set_date; });
+              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
 
-    auto it = sorted_asset_values.begin();
+    auto it  = sorted_asset_values.begin();
     auto end = sorted_asset_values.end();
 
-    while(it != end){
+    while (it != end) {
         auto date = it->set_date;
 
-        while(it->set_date == date){
+        while (it->set_date == date) {
             asset_amounts[it->asset_id] = it->amount;
 
             ++it;
@@ -1032,7 +1032,7 @@ void net_worth_graph(budget::html_writer& w, const std::string style = ""){
 
         budget::money sum;
 
-        for(auto& asset : asset_amounts){
+        for (auto& asset : asset_amounts) {
             sum += asset.second;
         }
 
@@ -1046,9 +1046,9 @@ void net_worth_graph(budget::html_writer& w, const std::string style = ""){
     end_chart(w, ss);
 }
 
-void index_page(const httplib::Request& req, httplib::Response& res){
+void index_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "")){
+    if (!page_start(req, res, content_stream, "")) {
         return;
     }
 
@@ -1093,7 +1093,7 @@ void index_page(const httplib::Request& req, httplib::Response& res){
 
     if (objectives.size()) {
         //Compute the year/month status
-        auto year_status = budget::compute_year_status();
+        auto year_status  = budget::compute_year_status();
         auto month_status = budget::compute_month_status(y, m);
 
         w << R"=====(<div class="card">)=====";
@@ -1166,9 +1166,9 @@ void index_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void accounts_page(const httplib::Request& req, httplib::Response& res){
+void accounts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Accounts")){
+    if (!page_start(req, res, content_stream, "Accounts")) {
         return;
     }
 
@@ -1178,9 +1178,9 @@ void accounts_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void all_accounts_page(const httplib::Request& req, httplib::Response& res){
+void all_accounts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "All Accounts")){
+    if (!page_start(req, res, content_stream, "All Accounts")) {
         return;
     }
 
@@ -1192,7 +1192,7 @@ void all_accounts_page(const httplib::Request& req, httplib::Response& res){
 
 void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New account")){
+    if (!page_start(req, res, content_stream, "New account")) {
         return;
     }
 
@@ -1212,18 +1212,18 @@ void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit account")){
+    if (!page_start(req, res, content_stream, "Edit account")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!account_exists(budget::to_number<size_t>(input_id))){
+        if (!account_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The account " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -1246,7 +1246,7 @@ void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
 void archive_accounts_month_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Archive accounts from the beginning of the month")){
+    if (!page_start(req, res, content_stream, "Archive accounts from the beginning of the month")) {
         return;
     }
 
@@ -1265,7 +1265,7 @@ void archive_accounts_month_page(const httplib::Request& req, httplib::Response&
 
 void archive_accounts_year_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Archive accounts from the beginning of the year")){
+    if (!page_start(req, res, content_stream, "Archive accounts from the beginning of the year")) {
         return;
     }
 
@@ -1282,15 +1282,15 @@ void archive_accounts_year_page(const httplib::Request& req, httplib::Response& 
     page_end(w, content_stream, req, res);
 }
 
-void overview_page(const httplib::Request& req, httplib::Response& res){
+void overview_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Overview")){
+    if (!page_start(req, res, content_stream, "Overview")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(req.matches.size() == 3){
+    if (req.matches.size() == 3) {
         display_month_overview(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
     } else {
         display_month_overview(w);
@@ -1299,38 +1299,38 @@ void overview_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res){
+void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Overview Aggregate")){
+    if (!page_start(req, res, content_stream, "Overview Aggregate")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
     //Default values
-    bool full = false;
-    bool disable_groups = false;
+    bool full             = false;
+    bool disable_groups   = false;
     std::string separator = "/";
 
     //Get defaults from config
 
-    if(budget::config_contains("aggregate_full")){
-        if(budget::config_value("aggregate_full") == "true"){
+    if (budget::config_contains("aggregate_full")) {
+        if (budget::config_value("aggregate_full") == "true") {
             full = true;
         }
     }
 
-    if(budget::config_contains("aggregate_no_group")){
-        if(budget::config_value("aggregate_no_group") == "true"){
+    if (budget::config_contains("aggregate_no_group")) {
+        if (budget::config_value("aggregate_no_group") == "true") {
             disable_groups = true;
         }
     }
 
-    if(budget::config_contains("aggregate_separator")){
+    if (budget::config_contains("aggregate_separator")) {
         separator = budget::config_value("aggregate_separator");
     }
 
-    if(req.matches.size() == 2){
+    if (req.matches.size() == 2) {
         aggregate_year_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[1]));
     } else {
         auto today = budget::local_day();
@@ -1340,38 +1340,38 @@ void overview_aggregate_year_page(const httplib::Request& req, httplib::Response
     page_end(w, content_stream, req, res);
 }
 
-void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res){
+void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Overview Aggregate")){
+    if (!page_start(req, res, content_stream, "Overview Aggregate")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
     //Default values
-    bool full = false;
-    bool disable_groups = false;
+    bool full             = false;
+    bool disable_groups   = false;
     std::string separator = "/";
 
     //Get defaults from config
 
-    if(budget::config_contains("aggregate_full")){
-        if(budget::config_value("aggregate_full") == "true"){
+    if (budget::config_contains("aggregate_full")) {
+        if (budget::config_value("aggregate_full") == "true") {
             full = true;
         }
     }
 
-    if(budget::config_contains("aggregate_no_group")){
-        if(budget::config_value("aggregate_no_group") == "true"){
+    if (budget::config_contains("aggregate_no_group")) {
+        if (budget::config_value("aggregate_no_group") == "true") {
             disable_groups = true;
         }
     }
 
-    if(budget::config_contains("aggregate_separator")){
+    if (budget::config_contains("aggregate_separator")) {
         separator = budget::config_value("aggregate_separator");
     }
 
-    if(req.matches.size() == 3){
+    if (req.matches.size() == 3) {
         aggregate_month_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]));
     } else {
         auto today = budget::local_day();
@@ -1381,15 +1381,15 @@ void overview_aggregate_month_page(const httplib::Request& req, httplib::Respons
     page_end(w, content_stream, req, res);
 }
 
-void overview_year_page(const httplib::Request& req, httplib::Response& res){
+void overview_year_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Overview Year")){
+    if (!page_start(req, res, content_stream, "Overview Year")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(req.matches.size() == 2){
+    if (req.matches.size() == 2) {
         display_year_overview(to_number<size_t>(req.matches[1]), w);
     } else {
         display_year_overview(w);
@@ -1398,9 +1398,9 @@ void overview_year_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void report_page(const httplib::Request& req, httplib::Response& res){
+void report_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Report")){
+    if (!page_start(req, res, content_stream, "Report")) {
         return;
     }
 
@@ -1412,15 +1412,15 @@ void report_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void expenses_page(const httplib::Request& req, httplib::Response& res){
+void expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Expenses")){
+    if (!page_start(req, res, content_stream, "Expenses")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(req.matches.size() == 3){
+    if (req.matches.size() == 3) {
         show_expenses(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
     } else {
         show_expenses(w);
@@ -1429,9 +1429,9 @@ void expenses_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void all_expenses_page(const httplib::Request& req, httplib::Response& res){
+void all_expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "All Expenses")){
+    if (!page_start(req, res, content_stream, "All Expenses")) {
         return;
     }
 
@@ -1441,19 +1441,19 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
+void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Expenses Breakdown")){
+    if (!page_start(req, res, content_stream, "Expenses Breakdown")) {
         return;
     }
 
     auto today = budget::local_day();
 
     auto month = today.month();
-    auto year = today.year();
+    auto year  = today.year();
 
-    if(req.matches.size() == 3){
-        year = to_number<size_t>(req.matches[1]);
+    if (req.matches.size() == 3) {
+        year  = to_number<size_t>(req.matches[1]);
         month = to_number<size_t>(req.matches[2]);
     }
 
@@ -1466,9 +1466,9 @@ void month_breakdown_expenses_page(const httplib::Request& req, httplib::Respons
     page_end(w, content_stream, req, res);
 }
 
-void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res){
+void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Expenses Breakdown")){
+    if (!page_start(req, res, content_stream, "Expenses Breakdown")) {
         return;
     }
 
@@ -1520,7 +1520,7 @@ void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response
 
 void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New Expense")){
+    if (!page_start(req, res, content_stream, "New Expense")) {
         return;
     }
 
@@ -1542,18 +1542,18 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit Expense")){
+    if (!page_start(req, res, content_stream, "Edit Expense")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!expense_exists(budget::to_number<size_t>(input_id))){
+        if (!expense_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The expense " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -1578,7 +1578,7 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
 void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New earning")){
+    if (!page_start(req, res, content_stream, "New earning")) {
         return;
     }
 
@@ -1600,18 +1600,18 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit earning")){
+    if (!page_start(req, res, content_stream, "Edit earning")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!earning_exists(budget::to_number<size_t>(input_id))){
+        if (!earning_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The earning " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -1634,15 +1634,15 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
     page_end(w, content_stream, req, res);
 }
 
-void earnings_page(const httplib::Request& req, httplib::Response& res){
+void earnings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Earnings")){
+    if (!page_start(req, res, content_stream, "Earnings")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(req.matches.size() == 3){
+    if (req.matches.size() == 3) {
         show_earnings(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
     } else {
         show_earnings(w);
@@ -1651,9 +1651,9 @@ void earnings_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void all_earnings_page(const httplib::Request& req, httplib::Response& res){
+void all_earnings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "All Earnings")){
+    if (!page_start(req, res, content_stream, "All Earnings")) {
         return;
     }
 
@@ -1663,9 +1663,9 @@ void all_earnings_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void portfolio_status_page(const httplib::Request& req, httplib::Response& res){
+void portfolio_status_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Portfolio")){
+    if (!page_start(req, res, content_stream, "Portfolio")) {
         return;
     }
 
@@ -1675,9 +1675,9 @@ void portfolio_status_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void portfolio_currency_page(const httplib::Request& req, httplib::Response& res){
+void portfolio_currency_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Portfolio Graph")){
+    if (!page_start(req, res, content_stream, "Portfolio Graph")) {
         return;
     }
 
@@ -1763,7 +1763,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
         std::map<size_t, budget::money> asset_amounts;
 
-        for(auto& asset_value : sorted_asset_values){
+        for (auto& asset_value : sorted_asset_values) {
             auto& asset = get_asset(asset_value.asset_id);
 
             if (asset.currency == currency && asset.portfolio) {
@@ -1773,7 +1773,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
         budget::money sum;
 
-        for(auto& asset : asset_amounts){
+        for (auto& asset : asset_amounts) {
             sum += asset.second;
         }
 
@@ -1791,9 +1791,9 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
     page_end(w, content_stream, req, res);
 }
 
-void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
+void portfolio_graph_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Portfolio Graph")){
+    if (!page_start(req, res, content_stream, "Portfolio Graph")) {
         return;
     }
 
@@ -1819,7 +1819,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
     auto sorted_asset_values = all_asset_values();
 
     std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-        [](const budget::asset_value& a, const budget::asset_value& b){ return a.set_date < b.set_date; });
+              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
 
     auto it  = sorted_asset_values.begin();
     auto end = sorted_asset_values.end();
@@ -1855,9 +1855,9 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void rebalance_page(const httplib::Request& req, httplib::Response& res){
+void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Rebalance")){
+    if (!page_start(req, res, content_stream, "Rebalance")) {
         return;
     }
 
@@ -1931,7 +1931,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
     ss2 << "data: [";
 
     for (auto& asset : all_assets()) {
-        if(asset.portfolio && !asset.portfolio_alloc.zero()){
+        if (asset.portfolio && !asset.portfolio_alloc.zero()) {
             ss2 << "{ name: '" << asset.name << "',";
             ss2 << "y: ";
             ss2 << budget::to_flat_string(sum * (static_cast<float>(asset.portfolio_alloc) / 100.0f));
@@ -1952,9 +1952,9 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void assets_page(const httplib::Request& req, httplib::Response& res){
+void assets_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Assets")){
+    if (!page_start(req, res, content_stream, "Assets")) {
         return;
     }
 
@@ -1966,7 +1966,7 @@ void assets_page(const httplib::Request& req, httplib::Response& res){
 
 void add_assets_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New asset")){
+    if (!page_start(req, res, content_stream, "New asset")) {
         return;
     }
 
@@ -1992,18 +1992,18 @@ void add_assets_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit asset")){
+    if (!page_start(req, res, content_stream, "Edit asset")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!asset_exists(budget::to_number<size_t>(input_id))){
+        if (!asset_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The asset " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -2030,9 +2030,9 @@ void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
     page_end(w, content_stream, req, res);
 }
 
-void net_worth_status_page(const httplib::Request& req, httplib::Response& res){
+void net_worth_status_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Net Worth Status")){
+    if (!page_start(req, res, content_stream, "Net Worth Status")) {
         return;
     }
 
@@ -2042,9 +2042,9 @@ void net_worth_status_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
+void net_worth_graph_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Net Worth Graph")){
+    if (!page_start(req, res, content_stream, "Net Worth Graph")) {
         return;
     }
 
@@ -2055,9 +2055,9 @@ void net_worth_graph_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void net_worth_currency_page(const httplib::Request& req, httplib::Response& res){
+void net_worth_currency_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Net Worth Graph")){
+    if (!page_start(req, res, content_stream, "Net Worth Graph")) {
         return;
     }
 
@@ -2093,14 +2093,14 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
         std::map<size_t, budget::money> asset_amounts;
 
-        auto it = sorted_asset_values.begin();
+        auto it  = sorted_asset_values.begin();
         auto end = sorted_asset_values.end();
 
-        while(it != end){
+        while (it != end) {
             auto date = it->set_date;
 
-            while(it->set_date == date){
-                if(get_asset(it->asset_id).currency == currency){
+            while (it->set_date == date) {
+                if (get_asset(it->asset_id).currency == currency) {
                     asset_amounts[it->asset_id] = it->amount;
                 }
 
@@ -2109,7 +2109,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
             budget::money sum;
 
-            for(auto& asset : asset_amounts){
+            for (auto& asset : asset_amounts) {
                 sum += asset.second;
             }
 
@@ -2141,7 +2141,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
         std::map<size_t, budget::money> asset_amounts;
 
-        for(auto& asset_value : sorted_asset_values){
+        for (auto& asset_value : sorted_asset_values) {
             if (get_asset(asset_value.asset_id).currency == currency) {
                 asset_amounts[asset_value.asset_id] = asset_value.amount;
             }
@@ -2149,7 +2149,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
         budget::money sum;
 
-        for(auto& asset : asset_amounts){
+        for (auto& asset : asset_amounts) {
             sum += asset.second;
         }
 
@@ -2169,7 +2169,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
 void list_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "List asset values")){
+    if (!page_start(req, res, content_stream, "List asset values")) {
         return;
     }
 
@@ -2181,7 +2181,7 @@ void list_asset_values_page(const httplib::Request& req, httplib::Response& res)
 
 void add_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New asset value")){
+    if (!page_start(req, res, content_stream, "New asset value")) {
         return;
     }
 
@@ -2202,18 +2202,18 @@ void add_asset_values_page(const httplib::Request& req, httplib::Response& res) 
 
 void edit_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit asset value")){
+    if (!page_start(req, res, content_stream, "Edit asset value")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!asset_value_exists(budget::to_number<size_t>(input_id))){
+        if (!asset_value_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The asset value " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -2237,7 +2237,7 @@ void edit_asset_values_page(const httplib::Request& req, httplib::Response& res)
 
 void batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Batch update asset values")){
+    if (!page_start(req, res, content_stream, "Batch update asset values")) {
         return;
     }
 
@@ -2254,10 +2254,10 @@ void batch_asset_values_page(const httplib::Request& req, httplib::Response& res
     std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
               [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
 
-    for(auto& asset : all_assets()){
+    for (auto& asset : all_assets()) {
         budget::money amount;
-        for(auto& asset_value : sorted_asset_values){
-            if(asset_value.asset_id == asset.id){
+        for (auto& asset_value : sorted_asset_values) {
+            if (asset_value.asset_id == asset.id) {
                 amount = asset_value.amount;
             }
         }
@@ -2270,9 +2270,9 @@ void batch_asset_values_page(const httplib::Request& req, httplib::Response& res
     page_end(w, content_stream, req, res);
 }
 
-void list_objectives_page(const httplib::Request& req, httplib::Response& res){
+void list_objectives_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Objectives List")){
+    if (!page_start(req, res, content_stream, "Objectives List")) {
         return;
     }
 
@@ -2282,9 +2282,9 @@ void list_objectives_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void status_objectives_page(const httplib::Request& req, httplib::Response& res){
+void status_objectives_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Objectives Status")){
+    if (!page_start(req, res, content_stream, "Objectives Status")) {
         return;
     }
 
@@ -2296,7 +2296,7 @@ void status_objectives_page(const httplib::Request& req, httplib::Response& res)
 
 void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New objective")){
+    if (!page_start(req, res, content_stream, "New objective")) {
         return;
     }
 
@@ -2319,18 +2319,18 @@ void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit objective")){
+    if (!page_start(req, res, content_stream, "Edit objective")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!objective_exists(budget::to_number<size_t>(input_id))){
+        if (!objective_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The objective " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -2354,9 +2354,9 @@ void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
     page_end(w, content_stream, req, res);
 }
 
-void wishes_list_page(const httplib::Request& req, httplib::Response& res){
+void wishes_list_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Objectives List")){
+    if (!page_start(req, res, content_stream, "Objectives List")) {
         return;
     }
 
@@ -2366,9 +2366,9 @@ void wishes_list_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void wishes_status_page(const httplib::Request& req, httplib::Response& res){
+void wishes_status_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Objectives Status")){
+    if (!page_start(req, res, content_stream, "Objectives Status")) {
         return;
     }
 
@@ -2378,9 +2378,9 @@ void wishes_status_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void wishes_estimate_page(const httplib::Request& req, httplib::Response& res){
+void wishes_estimate_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Objectives Status")){
+    if (!page_start(req, res, content_stream, "Objectives Status")) {
         return;
     }
 
@@ -2392,7 +2392,7 @@ void wishes_estimate_page(const httplib::Request& req, httplib::Response& res){
 
 void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New Wish")){
+    if (!page_start(req, res, content_stream, "New Wish")) {
         return;
     }
 
@@ -2414,18 +2414,18 @@ void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit Wish")){
+    if (!page_start(req, res, content_stream, "Edit Wish")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!wish_exists(budget::to_number<size_t>(input_id))){
+        if (!wish_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The wish " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -2450,9 +2450,9 @@ void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
     page_end(w, content_stream, req, res);
 }
 
-void list_fortunes_page(const httplib::Request& req, httplib::Response& res){
+void list_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Objectives List")){
+    if (!page_start(req, res, content_stream, "Objectives List")) {
         return;
     }
 
@@ -2462,9 +2462,9 @@ void list_fortunes_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
+void graph_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Fortune")){
+    if (!page_start(req, res, content_stream, "Fortune")) {
         return;
     }
 
@@ -2483,9 +2483,9 @@ void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
     auto sorted_fortunes = all_fortunes();
 
     std::sort(sorted_fortunes.begin(), sorted_fortunes.end(),
-        [](const budget::fortune& a, const budget::fortune& b){ return a.check_date < b.check_date; });
+              [](const budget::fortune& a, const budget::fortune& b) { return a.check_date < b.check_date; });
 
-    for(auto& value : sorted_fortunes){
+    for (auto& value : sorted_fortunes) {
         auto& date = value.check_date;
 
         ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(value.amount) << "],";
@@ -2500,9 +2500,9 @@ void graph_fortunes_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void status_fortunes_page(const httplib::Request& req, httplib::Response& res){
+void status_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Objectives Status")){
+    if (!page_start(req, res, content_stream, "Objectives Status")) {
         return;
     }
 
@@ -2514,7 +2514,7 @@ void status_fortunes_page(const httplib::Request& req, httplib::Response& res){
 
 void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New fortune")){
+    if (!page_start(req, res, content_stream, "New fortune")) {
         return;
     }
 
@@ -2534,18 +2534,18 @@ void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit fortune")){
+    if (!page_start(req, res, content_stream, "Edit fortune")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!fortune_exists(budget::to_number<size_t>(input_id))){
+        if (!fortune_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The fortune " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -2566,9 +2566,9 @@ void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     page_end(w, content_stream, req, res);
 }
 
-void recurrings_list_page(const httplib::Request& req, httplib::Response& res){
+void recurrings_list_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Recurrings List")){
+    if (!page_start(req, res, content_stream, "Recurrings List")) {
         return;
     }
 
@@ -2580,7 +2580,7 @@ void recurrings_list_page(const httplib::Request& req, httplib::Response& res){
 
 void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New Recurring Expense")){
+    if (!page_start(req, res, content_stream, "New Recurring Expense")) {
         return;
     }
 
@@ -2601,18 +2601,18 @@ void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit Recurring Expense")){
+    if (!page_start(req, res, content_stream, "Edit Recurring Expense")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!recurring_exists(budget::to_number<size_t>(input_id))){
+        if (!recurring_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The recurring expense " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -2634,9 +2634,9 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
     page_end(w, content_stream, req, res);
 }
 
-void list_debts_page(const httplib::Request& req, httplib::Response& res){
+void list_debts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Debts")){
+    if (!page_start(req, res, content_stream, "Debts")) {
         return;
     }
 
@@ -2646,9 +2646,9 @@ void list_debts_page(const httplib::Request& req, httplib::Response& res){
     page_end(w, content_stream, req, res);
 }
 
-void all_debts_page(const httplib::Request& req, httplib::Response& res){
+void all_debts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "All Debts")){
+    if (!page_start(req, res, content_stream, "All Debts")) {
         return;
     }
 
@@ -2660,7 +2660,7 @@ void all_debts_page(const httplib::Request& req, httplib::Response& res){
 
 void add_debts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "New Debt")){
+    if (!page_start(req, res, content_stream, "New Debt")) {
         return;
     }
 
@@ -2682,18 +2682,18 @@ void add_debts_page(const httplib::Request& req, httplib::Response& res) {
 
 void edit_debts_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if(!page_start(req, res, content_stream, "Edit Debt")){
+    if (!page_start(req, res, content_stream, "Edit Debt")) {
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if(!req.has_param("input_id") || !req.has_param("back_page")){
+    if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id  = req.params.at("input_id");
+        auto input_id = req.params.at("input_id");
 
-        if(!debt_exists(budget::to_number<size_t>(input_id))){
+        if (!debt_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The debt " + input_id + " does not exist");
         } else {
             auto back_page = req.params.at("back_page");
@@ -2719,7 +2719,7 @@ void edit_debts_page(const httplib::Request& req, httplib::Response& res) {
 
 } //end of anonymous namespace
 
-void budget::load_pages(httplib::Server& server){
+void budget::load_pages(httplib::Server& server) {
     // Declare all the pages
     server.get("/", &index_page);
 
@@ -2808,7 +2808,7 @@ void budget::load_pages(httplib::Server& server){
         std::stringstream content_stream;
         content_stream.imbue(std::locale("C"));
 
-        if(res.status == 401 || res.status == 403){
+        if (res.status == 401 || res.status == 403) {
             content_stream << header("", false);
         } else {
             content_stream << header("", true);
