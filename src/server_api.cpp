@@ -136,6 +136,25 @@ void server_version_api(const httplib::Request& req, httplib::Response& res) {
     api_success_content(req, res, get_version_short());
 }
 
+void server_version_support_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"version"})){
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto client_version = req.params.at("version");
+
+    if(client_version == "1.0"){
+        api_success_content(req, res, "yes");
+    } else {
+        api_success_content(req, res, "no");
+    }
+}
+
 void add_accounts_api(const httplib::Request& req, httplib::Response& res) {
     if(!api_start(req, res)){
         return;
@@ -1096,6 +1115,7 @@ void list_wishes_api(const httplib::Request& req, httplib::Response& res) {
 void budget::load_api(httplib::Server& server){
     server.get("/api/server/up/", &server_up_api);
     server.get("/api/server/version/", &server_version_api);
+    server.post("/api/server/version/support/", &server_version_support_api);
 
     server.post("/api/accounts/add/", &add_accounts_api);
     server.post("/api/accounts/edit/", &edit_accounts_api);

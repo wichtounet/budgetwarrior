@@ -270,7 +270,16 @@ int main(int argc, const char* argv[]) {
             return 0;
         }
 
-        //TODO Version check with the server
+        std::map<std::string, std::string> params;
+        params["version"] = get_version_short();
+
+        auto version_res = budget::api_post("/server/version/support/", params);
+
+        if(!version_res.success || version_res.result != "yes"){
+            std::cout << "The server does not support your version, cannot run in server mode" << std::endl;
+            std::cout << "You should either upgrade the server or your client" << std::endl;
+            return 0;
+        }
     } else {
         auto old_data_version = to_number<size_t>(internal_config_value("data_version"));
 
