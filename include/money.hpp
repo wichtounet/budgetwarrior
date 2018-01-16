@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef MONEY_H
-#define MONEY_H
+#pragma once
 
 #include <string>
 #include <ostream>
@@ -215,5 +214,3 @@ inline budget::money accumulate_amount_if(std::vector<T>& container, Functor f){
 }
 
 } //end of namespace budget
-
-#endif

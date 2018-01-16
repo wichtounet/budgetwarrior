@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef SERVER_PAGES_H
-#define SERVER_PAGES_H
+#pragma once
 
 namespace httplib {
 struct Server;
@@ -17,5 +16,3 @@ namespace budget {
 void load_pages(httplib::Server& server);
 
 } //end of namespace budget
-
-#endif

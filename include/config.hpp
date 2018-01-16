@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 namespace budget {
 
@@ -40,5 +39,3 @@ std::string get_web_password();
 bool is_server_mode();
 
 } //end of namespace budget
-
-#endif

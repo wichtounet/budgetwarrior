@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef DEBTS_H
-#define DEBTS_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -66,5 +65,3 @@ void debt_delete(size_t id);
 debt& debt_get(size_t id);
 
 } //end of namespace budget
-
-#endif

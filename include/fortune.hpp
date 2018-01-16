@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef FORTUNE_H
-#define FORTUNE_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -62,5 +61,3 @@ void fortune_delete(size_t id);
 fortune& fortune_get(size_t id);
 
 } //end of namespace budget
-
-#endif

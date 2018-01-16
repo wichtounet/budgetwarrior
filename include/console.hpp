@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef CONSOLE_H
-#define CONSOLE_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -351,5 +350,3 @@ struct one_of_checker {
 };
 
 } //end of namespace budget
-
-#endif

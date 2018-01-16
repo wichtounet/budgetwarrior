@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef ACCOUNTS_H
-#define ACCOUNTS_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -76,5 +75,3 @@ void archive_accounts_impl(bool month);
 budget::money get_base_income();
 
 } //end of namespace budget
-
-#endif

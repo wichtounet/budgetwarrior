@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef PREDICT_H
-#define PREDICT_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -28,5 +27,3 @@ struct module_traits<predict_module> {
 };
 
 } //end of namespace budget
-
-#endif

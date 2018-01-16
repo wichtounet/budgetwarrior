@@ -5,13 +5,10 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef WRITER_FWD_H
-#define WRITER_FWD_H
+#pragma once
 
 namespace budget {
 
 struct writer;
 
 } //end of namespace budget
-
-#endif

@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef SERVER_API_H
-#define SERVER_API_H
+#pragma once
 
 namespace httplib {
 struct Server;
@@ -17,5 +16,3 @@ namespace budget {
 void load_api(httplib::Server& server);
 
 } //end of namespace budget
-
-#endif

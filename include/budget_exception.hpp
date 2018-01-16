@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef BUDGET_EXCEPTION_H
-#define BUDGET_EXCEPTION_H
+#pragma once
 
 #include <string>
 
@@ -31,5 +30,3 @@ class budget_exception: public std::exception {
 };
 
 } //end of budget
-
-#endif

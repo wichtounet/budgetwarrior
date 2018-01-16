@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef SERVER_H
-#define SERVER_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -30,5 +29,3 @@ void set_server_running();
 bool is_server_running();
 
 } //end of namespace budget
-
-#endif

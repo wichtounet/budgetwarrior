@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef API_H
-#define API_H
+#pragma once
 
 #include <string>
 #include <utility>
@@ -23,5 +22,3 @@ api_response api_get(const std::string& api, bool silent = false);
 api_response api_post(const std::string& api, const std::map<std::string, std::string>& params);
 
 } //end of namespace budget
-
-#endif

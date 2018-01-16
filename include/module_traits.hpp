@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef MODULE_TRAITS_H
-#define MODULE_TRAITS_H
+#pragma once
 
 namespace budget {
 
@@ -16,5 +15,3 @@ struct module_traits {
 };
 
 } //end of namespace budget
-
-#endif

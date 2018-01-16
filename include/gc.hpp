@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef BUDGET_GC_HPP
-#define BUDGET_GC_HPP
+#pragma once
 
 #include <vector>
 #include <string>
@@ -30,5 +29,3 @@ struct module_traits<gc_module> {
 };
 
 } //end of namespace budget
-
-#endif

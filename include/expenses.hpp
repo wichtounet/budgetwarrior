@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef EXPENSES_H
-#define EXPENSES_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -67,5 +66,3 @@ void show_expenses(budget::month month, budget::writer& w);
 void show_expenses(budget::writer& w);
 
 } //end of namespace budget
-
-#endif

@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef ASSETS_H
-#define ASSETS_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -109,5 +108,3 @@ budget::money get_portfolio_value();
 budget::money get_net_worth();
 
 } //end of namespace budget
-
-#endif

@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef RECURRING_H
-#define RECURRING_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -71,5 +70,3 @@ void recurring_delete(size_t id);
 recurring& recurring_get(size_t id);
 
 } //end of namespace budget
-
-#endif

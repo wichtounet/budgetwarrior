@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef WRITER_H
-#define WRITER_H
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -143,5 +142,3 @@ private:
 };
 
 } //end of namespace budget
-
-#endif

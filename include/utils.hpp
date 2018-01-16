@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <string>
 #include <sstream>
@@ -69,5 +68,3 @@ std::string base64_decode(const std::string& in);
 std::string base64_encode(const std::string& in);
 
 } //end of namespace budget
-
-#endif

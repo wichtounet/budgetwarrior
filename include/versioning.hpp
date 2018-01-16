@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef VERSIONING_H
-#define VERSIONING_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -31,5 +30,3 @@ struct module_traits<versioning_module> {
 };
 
 } //end of namespace budget
-
-#endif

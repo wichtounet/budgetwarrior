@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef BUDGET_VERSION_H
-#define BUDGET_VERSION_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -29,5 +28,3 @@ std::string get_version();
 std::string get_version_short();
 
 } //end of namespace budget
-
-#endif

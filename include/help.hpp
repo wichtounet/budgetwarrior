@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef HELP_H
-#define HELP_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -26,5 +25,3 @@ struct module_traits<help_module> {
 };
 
 } //end of namespace budget
-
-#endif

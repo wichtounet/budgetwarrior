@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef OBJECTIVES_H
-#define OBJECTIVES_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -74,5 +73,3 @@ std::string get_status(const budget::status& status, const budget::objective& ob
 std::string get_success(const budget::status& status, const budget::objective& objective);
 
 } //end of namespace budget
-
-#endif

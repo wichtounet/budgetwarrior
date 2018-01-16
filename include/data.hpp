@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef DATA_H
-#define DATA_H
+#pragma once
 
 #include "cpp_utils/assert.hpp"
 
@@ -260,5 +259,3 @@ private:
 };
 
 } //end of namespace budget
-
-#endif

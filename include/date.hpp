@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef DATE_HPP
-#define DATE_HPP
+#pragma once
 
 #include <ctime>
 
@@ -390,5 +389,3 @@ unsigned short start_year();
 unsigned short start_month(budget::year year);
 
 } //end of namespace budget
-
-#endif

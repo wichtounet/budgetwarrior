@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef ARGS_H
-#define ARGS_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -17,5 +16,3 @@ std::vector<std::string> parse_args(int argc, const char* argv[], const std::vec
 void enough_args(const std::vector<std::string>& args, size_t min);
 
 } //end of namespace budget
-
-#endif

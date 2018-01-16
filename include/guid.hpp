@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef GUID_H
-#define GUID_H
+#pragma once
 
 #include <string>
 
@@ -15,6 +14,3 @@ namespace budget {
 std::string generate_guid();
 
 } //end of namespace budget
-
-#endif
-

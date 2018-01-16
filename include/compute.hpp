@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef COMPUTE_H
-#define COMPUTE_H
+#pragma once
 
 #include "money.hpp"
 #include "date.hpp"
@@ -51,5 +50,3 @@ status compute_avg_month_status(budget::month year);
 status compute_avg_month_status(budget::year year, budget::month month);
 
 } //end of namespace budget
-
-#endif

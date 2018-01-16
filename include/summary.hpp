@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef SUMMARY_H
-#define SUMMARY_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -38,5 +37,3 @@ void objectives_summary(budget::writer& w);
 void fortune_summary(budget::writer& w);
 
 } //end of namespace budget
-
-#endif

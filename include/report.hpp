@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef REPORT_H
-#define REPORT_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -31,5 +30,3 @@ struct module_traits<report_module> {
 void report(budget::writer& w, budget::year year, bool filter, const std::string& filter_account);
 
 } //end of namespace budget
-
-#endif

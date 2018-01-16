@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef OVERVIEW_H
-#define OVERVIEW_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -49,5 +48,3 @@ void aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, 
 void aggregate_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::month month, budget::year year);
 
 } //end of namespace budget
-
-#endif

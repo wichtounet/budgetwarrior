@@ -5,8 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#ifndef WISHES_H
-#define WISHES_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -69,5 +68,3 @@ void wish_delete(size_t id);
 wish& wish_get(size_t id);
 
 } //end of namespace budget
-
-#endif
