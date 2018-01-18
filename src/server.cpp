@@ -86,7 +86,8 @@ void budget::server_module::load(){
     load_objectives();
     load_wishes();
     load_fortunes();
-    load_recurrings(); load_debts();
+    load_recurrings();
+    load_debts();
     load_wishes();
 }
 
