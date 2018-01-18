@@ -9,7 +9,7 @@ ifneq (,$(findstring clang,$(CXX)))
 	CXX_FLAGS += -stdlib=libc++
 endif
 
-LD_FLAGS += -luuid -lcurl
+LD_FLAGS += -luuid
 
 CXX_FLAGS += -Icpp-httplib
 
