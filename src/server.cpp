@@ -6,25 +6,22 @@
 //=======================================================================
 
 #include <set>
+#include <thread>
 
 #include "cpp_utils/assert.hpp"
 
 #include "server.hpp"
-#include "writer.hpp"
-#include "overview.hpp"
 #include "expenses.hpp"
+#include "earnings.hpp"
 #include "accounts.hpp"
 #include "assets.hpp"
 #include "config.hpp"
 #include "objectives.hpp"
 #include "wishes.hpp"
-#include "version.hpp"
-#include "summary.hpp"
 #include "fortune.hpp"
 #include "recurring.hpp"
-#include "guid.hpp"
-#include "report.hpp"
 #include "debts.hpp"
+#include "currency.hpp"
 
 #include "server_api.hpp"
 #include "server_pages.hpp"
@@ -37,31 +34,7 @@ namespace {
 
 bool server_running = false;
 
-} //end of anonymous namespace
-
-void budget::set_server_running(){
-    // Indicates to the system that it's running in server mode
-    server_running = true;
-}
-
-void budget::server_module::load(){
-    load_accounts();
-    load_expenses();
-    load_earnings();
-    load_assets();
-    load_objectives();
-    load_wishes();
-    load_fortunes();
-    load_recurrings();
-    load_debts();
-    load_wishes();
-}
-
-void budget::server_module::handle(const std::vector<std::string>& args){
-    cpp_unused(args);
-
-    std::cout << "Starting the server" << std::endl;
-
+void start_server(){
     httplib::Server server;
 
     load_pages(server);
@@ -80,6 +53,53 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     // Listen
     server.listen(listen.c_str(), port);
+}
+
+void start_cron_loop(){
+    size_t hours = 0;
+
+    while(true){
+        using namespace std::chrono_literals;
+
+        std::this_thread::sleep_for(1h);
+        ++hours;
+
+        if(hours % 6 == 0){
+            std::cout << "Invalidate the currency cache" << std::endl;
+            budget::invalidate_currency_cache();
+        }
+    }
+}
+
+} //end of anonymous namespace
+
+void budget::set_server_running(){
+    // Indicates to the system that it's running in server mode
+    server_running = true;
+}
+
+void budget::server_module::load(){
+    load_accounts();
+    load_expenses();
+    load_earnings();
+    load_assets();
+    load_objectives();
+    load_wishes();
+    load_fortunes();
+    load_recurrings(); load_debts();
+    load_wishes();
+}
+
+void budget::server_module::handle(const std::vector<std::string>& args){
+    cpp_unused(args);
+
+    std::cout << "Starting the server" << std::endl;
+
+    std::thread server_thread([](){ start_server(); });
+    std::thread cron_thread([](){ start_cron_loop(); });
+
+    server_thread.join();
+    cron_thread.join();
 }
 
 bool budget::is_server_running(){

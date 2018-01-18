@@ -19,6 +19,10 @@ std::map<std::pair<std::string, std::string>, double> exchanges;
 
 } // end of anonymous namespace
 
+void budget::invalidate_currency_cache(){
+    exchanges.clear();
+}
+
 double budget::exchange_rate(const std::string& from, const std::string& to){
     if(from == to){
         return 1.0;
