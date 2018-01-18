@@ -43,17 +43,7 @@ std::map<std::string, std::string> budget::recurring::get_params() {
     return params;
 }
 
-void budget::recurring_module::preload() {
-    // In server mode, there is no need to generate recurring expenses
-    // the server will take charge of that
-    if (is_server_mode()) {
-        return;
-    }
-
-    load_recurrings();
-    load_accounts();
-    load_expenses();
-
+void budget::check_for_recurrings(){
     // In random mode, we do not try to create recurrings
     if (config_contains("random")) {
         return;
@@ -91,6 +81,20 @@ void budget::recurring_module::preload() {
     }
 
     internal_config_remove("recurring:last_checked");
+}
+
+void budget::recurring_module::preload() {
+    // In server mode, there is no need to generate recurring expenses
+    // the server will take charge of that
+    if (is_server_mode()) {
+        return;
+    }
+
+    load_recurrings();
+    load_accounts();
+    load_expenses();
+
+    check_for_recurrings();
 }
 
 void budget::recurring_module::load() {

@@ -52,6 +52,8 @@ month first_month(const recurring& recurring, budget::year year);
 year last_year(const recurring& recurring);
 month last_month(const recurring& recurring, budget::year year);
 
+void check_for_recurrings();
+
 void load_recurrings();
 void save_recurrings();
 

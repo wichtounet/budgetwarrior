@@ -64,6 +64,8 @@ void start_cron_loop(){
         std::this_thread::sleep_for(1h);
         ++hours;
 
+        check_for_recurrings();
+
         if(hours % 6 == 0){
             std::cout << "Invalidate the currency cache" << std::endl;
             budget::invalidate_currency_cache();
