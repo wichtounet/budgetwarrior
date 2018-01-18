@@ -29,7 +29,7 @@ static data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::recurring::get_params(){
+std::map<std::string, std::string> budget::recurring::get_params() {
     std::map<std::string, std::string> params;
 
     params["input_id"]          = budget::to_string(id);
@@ -86,14 +86,14 @@ void budget::recurring_module::preload() {
         }
     }
 
-    if(changed){
+    if (changed) {
         save_expenses();
     }
 
     internal_config_remove("recurring:last_checked");
 }
 
-void budget::recurring_module::load(){
+void budget::recurring_module::load() {
     // Only need to load in server mode
     if (is_server_mode()) {
         load_recurrings();
@@ -102,23 +102,23 @@ void budget::recurring_module::load(){
     }
 }
 
-void budget::recurring_module::unload(){
+void budget::recurring_module::unload() {
     save_recurrings();
 }
 
-void budget::recurring_module::handle(const std::vector<std::string>& args){
+void budget::recurring_module::handle(const std::vector<std::string>& args) {
     budget::console_writer w(std::cout);
 
-    if(args.size() == 1){
+    if (args.size() == 1) {
         show_recurrings(w);
     } else {
         auto& subcommand = args[1];
 
-        if(subcommand == "show"){
+        if (subcommand == "show") {
             show_recurrings(w);
-        } else if(subcommand == "add"){
+        } else if (subcommand == "add") {
             recurring recurring;
-            recurring.guid = generate_guid();
+            recurring.guid   = generate_guid();
             recurring.recurs = "monthly";
 
             edit_string_complete(recurring.account, "Account", all_account_names(), not_empty_checker(), account_checker());
@@ -142,12 +142,12 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             auto id = recurrings.add(std::move(recurring));
             std::cout << "Recurring expense " << id << " has been created" << std::endl;
-        } else if(subcommand == "delete"){
+        } else if (subcommand == "delete") {
             enough_args(args, 3);
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!recurrings.exists(id)){
+            if (!recurrings.exists(id)) {
                 throw budget_exception("There are no recurring expense with id " + args[2]);
             }
 
@@ -155,16 +155,16 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             std::cout << "Recurring expense " << id << " has been deleted" << std::endl;
             std::cout << "Note: The generated expenses have not been deleted" << std::endl;
-        } else if(subcommand == "edit"){
+        } else if (subcommand == "edit") {
             enough_args(args, 3);
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!recurrings.exists(id)){
+            if (!recurrings.exists(id)) {
                 throw budget_exception("There are no recurring expense with id " + args[2]);
             }
 
-            auto& recurring = recurrings[id];
+            auto& recurring         = recurrings[id];
             auto previous_recurring = recurring; // Temporary Copy
 
             auto now = budget::local_day();
@@ -175,10 +175,8 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
 
             // Update the corresponding expense
 
-            for(auto& expense : all_expenses()){
-                if(expense.date.year() == now.year() && expense.date.month() == now.month()
-                        && expense.name == previous_recurring.name && expense.amount == previous_recurring.amount
-                        && get_account(expense.account).name == previous_recurring.account){
+            for (auto& expense : all_expenses()) {
+                if (expense.date.year() == now.year() && expense.date.month() == now.month() && expense.name == previous_recurring.name && expense.amount == previous_recurring.amount && get_account(expense.account).name == previous_recurring.account) {
                     expense.name    = recurring.name;
                     expense.amount  = recurring.amount;
                     expense.account = get_account(recurring.account, now.year(), now.month()).id;
@@ -200,31 +198,31 @@ void budget::recurring_module::handle(const std::vector<std::string>& args){
     }
 }
 
-void budget::load_recurrings(){
+void budget::load_recurrings() {
     recurrings.load();
 }
 
-void budget::save_recurrings(){
+void budget::save_recurrings() {
     recurrings.save();
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const recurring& recurring){
-    return stream << recurring.id  << ':' << recurring.guid << ':' << recurring.account << ':' << recurring.name << ':' << recurring.amount << ":" << recurring.recurs;
+std::ostream& budget::operator<<(std::ostream& stream, const recurring& recurring) {
+    return stream << recurring.id << ':' << recurring.guid << ':' << recurring.account << ':' << recurring.name << ':' << recurring.amount << ":" << recurring.recurs;
 }
 
-void budget::migrate_recurring_1_to_2(){
+void budget::migrate_recurring_1_to_2() {
     load_accounts();
 
-    recurrings.load([](const std::vector<std::string>& parts, recurring& recurring){
-        recurring.id = to_number<size_t>(parts[0]);
-        recurring.guid = parts[1];
+    recurrings.load([](const std::vector<std::string>& parts, recurring& recurring) {
+        recurring.id          = to_number<size_t>(parts[0]);
+        recurring.guid        = parts[1];
         recurring.old_account = to_number<size_t>(parts[2]);
-        recurring.name = parts[3];
-        recurring.amount = parse_money(parts[4]);
-        recurring.recurs = parts[5];
-        });
+        recurring.name        = parts[3];
+        recurring.amount      = parse_money(parts[4]);
+        recurring.recurs      = parts[5];
+    });
 
-    for(auto& recurring : all_recurrings()){
+    for (auto& recurring : all_recurrings()) {
         recurring.account = get_account(recurring.old_account).name;
     }
 
@@ -233,28 +231,28 @@ void budget::migrate_recurring_1_to_2(){
     recurrings.save();
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, recurring& recurring){
+void budget::operator>>(const std::vector<std::string>& parts, recurring& recurring) {
     bool random = config_contains("random");
 
-    recurring.id = to_number<size_t>(parts[0]);
-    recurring.guid = parts[1];
+    recurring.id      = to_number<size_t>(parts[0]);
+    recurring.guid    = parts[1];
     recurring.account = parts[2];
-    recurring.name = parts[3];
-    recurring.recurs = parts[5];
+    recurring.name    = parts[3];
+    recurring.recurs  = parts[5];
 
-    if(random){
+    if (random) {
         recurring.amount = budget::random_money(100, 1000);
     } else {
         recurring.amount = parse_money(parts[4]);
     }
 }
 
-budget::year budget::first_year(const budget::recurring& recurring){
+budget::year budget::first_year(const budget::recurring& recurring) {
     budget::year year(1400);
 
-    for(auto& expense : all_expenses()){
-        if(expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account){
-            if(year == 1400 || expense.date.year() < year){
+    for (auto& expense : all_expenses()) {
+        if (expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account) {
+            if (year == 1400 || expense.date.year() < year) {
                 year = expense.date.year();
             }
         }
@@ -263,12 +261,12 @@ budget::year budget::first_year(const budget::recurring& recurring){
     return year;
 }
 
-budget::month budget::first_month(const budget::recurring& recurring, budget::year year){
+budget::month budget::first_month(const budget::recurring& recurring, budget::year year) {
     budget::month month(13);
 
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account){
-            if(month == 13 || expense.date.month() < month){
+    for (auto& expense : all_expenses()) {
+        if (expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account) {
+            if (month == 13 || expense.date.month() < month) {
                 month = expense.date.month();
             }
         }
@@ -277,12 +275,12 @@ budget::month budget::first_month(const budget::recurring& recurring, budget::ye
     return month;
 }
 
-budget::year budget::last_year(const budget::recurring& recurring){
+budget::year budget::last_year(const budget::recurring& recurring) {
     budget::year year(1400);
 
-    for(auto& expense : all_expenses()){
-        if(expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account){
-            if(year == 1400 || expense.date.year() > year){
+    for (auto& expense : all_expenses()) {
+        if (expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account) {
+            if (year == 1400 || expense.date.year() > year) {
                 year = expense.date.year();
             }
         }
@@ -291,12 +289,12 @@ budget::year budget::last_year(const budget::recurring& recurring){
     return year;
 }
 
-budget::month budget::last_month(const budget::recurring& recurring, budget::year year){
+budget::month budget::last_month(const budget::recurring& recurring, budget::year year) {
     budget::month month(13);
 
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account){
-            if(month == 13 || expense.date.month() > month){
+    for (auto& expense : all_expenses()) {
+        if (expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account) {
+            if (month == 13 || expense.date.month() > month) {
                 month = expense.date.month();
             }
         }
@@ -305,15 +303,15 @@ budget::month budget::last_month(const budget::recurring& recurring, budget::yea
     return month;
 }
 
-std::vector<recurring>& budget::all_recurrings(){
+std::vector<recurring>& budget::all_recurrings() {
     return recurrings.data;
 }
 
-void budget::set_recurrings_changed(){
+void budget::set_recurrings_changed() {
     recurrings.set_changed();
 }
 
-void budget::set_recurrings_next_id(size_t next_id){
+void budget::set_recurrings_next_id(size_t next_id) {
     recurrings.next_id = next_id;
 }
 
@@ -341,7 +339,7 @@ void budget::show_recurrings(budget::writer& w) {
     }
 }
 
-bool budget::recurring_exists(size_t id){
+bool budget::recurring_exists(size_t id) {
     return recurrings.exists(id);
 }
 
@@ -361,6 +359,6 @@ recurring& budget::recurring_get(size_t id) {
     return recurrings[id];
 }
 
-void budget::add_recurring(budget::recurring&& recurring){
+void budget::add_recurring(budget::recurring&& recurring) {
     recurrings.add(std::forward<budget::recurring>(recurring));
 }
