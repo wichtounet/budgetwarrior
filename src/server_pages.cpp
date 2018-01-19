@@ -811,6 +811,17 @@ void form_end(budget::writer& w, const std::string& button = "") {
     w << "</form>";
 }
 
+void make_tables_sortable(budget::html_writer& w){
+    w.defer_script(R"=====(
+        $(".table").DataTable({
+         "columnDefs": [ {
+          "targets": 'not-sortable',
+          "orderable": false,
+         }]
+        });
+    )=====");
+}
+
 budget::money monthly_income(budget::month month, budget::year year) {
     std::map<size_t, budget::money> account_sum;
 
@@ -1426,14 +1437,7 @@ void expenses_page(const httplib::Request& req, httplib::Response& res) {
         show_expenses(w);
     }
 
-    w.defer_script(R"=====(
-        $(".table").DataTable({
-         "columnDefs": [ {
-          "targets": 'not-sortable',
-          "orderable": false,
-         }]
-        });
-    )=====");
+    make_tables_sortable(w);
 
     page_end(w, content_stream, req, res);
 }
@@ -1969,6 +1973,8 @@ void assets_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
     budget::show_assets(w);
+
+    make_tables_sortable(w);
 
     page_end(w, content_stream, req, res);
 }
