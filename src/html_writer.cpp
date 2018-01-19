@@ -38,7 +38,7 @@ std::string edit_to_string(const std::string& module, const std::string& id){
     ss << R"=====(<input type="hidden" name="input_id" value=")=====";
     ss << id;
     ss << R"=====(">)=====";
-    ss << R"=====(<button type="submit" class="btn btn-sm btn-danger">Delete</button>)=====";
+    ss << R"=====(<button type="submit" class="btn btn-sm btn-danger oi oi-circle-x"></button>)=====";
     ss << R"=====(</form>)=====";
 
     // Add the edit button
@@ -50,7 +50,7 @@ std::string edit_to_string(const std::string& module, const std::string& id){
     ss << R"=====(<input type="hidden" name="input_id" value=")=====";
     ss << id;
     ss << R"=====(">)=====";
-    ss << R"=====(<button type="submit" class="btn btn-sm btn-warning">Edit</button>)=====";
+    ss << R"=====(<button type="submit" class="btn btn-sm btn-warning oi oi-pencil"></button>)=====";
     ss << R"=====(</form>)=====";
 
     return ss.str();
