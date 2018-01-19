@@ -636,6 +636,8 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         }
     }
 
+    auto c_foot = contents.size();
+
     //Generate the total final line
 
     if(current){
@@ -701,7 +703,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         contents.back().push_back(to_string_precision(current_total_savings_rate / current_months, 2) + "%");
     }
 
-    w.display_table(columns, contents);
+    w.display_table(columns, contents, 1, {}, 0, contents.size() - c_foot);
 }
 
 void budget::display_balance(budget::writer& w, budget::year year, bool relaxed, bool last){
