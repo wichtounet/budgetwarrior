@@ -264,6 +264,10 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         for (size_t i = 0; i < columns.size(); ++i) {
             auto& column = columns[i];
 
+            if(column == "ID"){
+                continue;
+            }
+
             std::string style;
 
             // TODO: This is only a bad hack, at best
@@ -296,6 +300,10 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         os << "<tr>";
 
         for(size_t j = 0; j < row.size(); ++j){
+            if (columns[j] == "ID") {
+                continue;
+            }
+
             std::string value = html_format(row[j]);
 
             if(value.empty()){
