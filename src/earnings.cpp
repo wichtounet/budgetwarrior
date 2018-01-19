@@ -213,7 +213,7 @@ void budget::show_earnings(budget::month month, budget::year year, budget::write
     } else {
         contents.push_back({"", "", "", "Total", to_string(total), ""});
 
-        w.display_table(columns, contents);
+        w.display_table(columns, contents, 1, {}, 0, 1);
     }
 }
 
