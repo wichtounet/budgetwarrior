@@ -102,6 +102,11 @@ std::string header(const std::string& title, bool menu = true) {
                     margin: 0 auto;
                 }
 
+                .dataTables_wrapper {
+                    padding-left: 0px !important;
+                    padding-right: 0px !important;
+                }
+
                 .flat-hr {
                     margin:0px;
                 }
