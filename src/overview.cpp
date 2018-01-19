@@ -433,7 +433,7 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
         }
     }
 
-    w.display_table(columns, contents);
+    w.display_table(columns, contents, 1, {}, 0, last ? 2 : 1);
 }
 
 } // end of anonymous namespace
@@ -784,7 +784,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
         }
     }
 
-    w.display_table(columns, contents);
+    w.display_table(columns, contents, 1, {}, 0, last ? 2 : 1);
 }
 
 void budget::display_month_overview(budget::month month, budget::year year, budget::writer& writer){
