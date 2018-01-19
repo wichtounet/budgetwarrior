@@ -1426,6 +1426,15 @@ void expenses_page(const httplib::Request& req, httplib::Response& res) {
         show_expenses(w);
     }
 
+    w.defer_script(R"=====(
+        $(".table").DataTable({
+         "columnDefs": [ {
+          "targets": 'not-sortable',
+          "orderable": false,
+         }]
+        });
+    )=====");
+
     page_end(w, content_stream, req, res);
 }
 

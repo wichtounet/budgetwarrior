@@ -223,6 +223,7 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
     }
 
     size_t extend = columns.size();
+    size_t edit = columns.size();
 
     for (size_t i = 0; i < columns.size(); ++i) {
         for (auto& row : contents) {
@@ -230,9 +231,14 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
                 extend = i;
                 break;
             }
+
+            if (row[i].size() >= 6 && row[i].substr(0, 6) == "::edit") {
+                edit = i;
+                break;
+            }
         }
 
-        if (extend == i) {
+        if (extend == i || edit == i) {
             break;
         }
     }
@@ -263,6 +269,10 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
             // TODO: This is only a bad hack, at best
             if(i == extend){
                 style = " class=\"extend-only\"";
+            }
+
+            if(i == edit){
+                style = " class=\"not-sortable\"";
             }
 
             if (groups > 1) {
@@ -387,6 +397,14 @@ void budget::html_writer::load_deferred_scripts(){
             <script src="https://code.highcharts.com/modules/exporting.js"></script>
         )=====";
 
+        // The javascript for datables
+        os << R"=====(
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css/"></link>
+            <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+            <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+        )=====";
+
+        // Add the custom scripts
         for(auto& script : scripts){
             os << script << '\n';
         }
