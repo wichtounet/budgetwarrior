@@ -1186,6 +1186,8 @@ void accounts_page(const httplib::Request& req, httplib::Response& res) {
     budget::html_writer w(content_stream);
     budget::show_accounts(w);
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
@@ -1197,6 +1199,8 @@ void all_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
     budget::show_all_accounts(w);
+
+    make_tables_sortable(w);
 
     page_end(w, content_stream, req, res);
 }
@@ -2304,6 +2308,8 @@ void list_objectives_page(const httplib::Request& req, httplib::Response& res) {
     budget::html_writer w(content_stream);
     budget::list_objectives(w);
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
@@ -2388,6 +2394,8 @@ void wishes_list_page(const httplib::Request& req, httplib::Response& res) {
     budget::html_writer w(content_stream);
     budget::list_wishes(w);
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
@@ -2400,6 +2408,8 @@ void wishes_status_page(const httplib::Request& req, httplib::Response& res) {
     budget::html_writer w(content_stream);
     budget::status_wishes(w);
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
@@ -2411,6 +2421,8 @@ void wishes_estimate_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
     budget::estimate_wishes(w);
+
+    make_tables_sortable(w);
 
     page_end(w, content_stream, req, res);
 }
@@ -2483,6 +2495,8 @@ void list_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
     budget::list_fortunes(w);
+
+    make_tables_sortable(w);
 
     page_end(w, content_stream, req, res);
 }
@@ -2600,6 +2614,8 @@ void recurrings_list_page(const httplib::Request& req, httplib::Response& res) {
     budget::html_writer w(content_stream);
     budget::show_recurrings(w);
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
@@ -2668,6 +2684,8 @@ void list_debts_page(const httplib::Request& req, httplib::Response& res) {
     budget::html_writer w(content_stream);
     budget::list_debts(w);
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
@@ -2679,6 +2697,8 @@ void all_debts_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
     budget::display_all_debts(w);
+
+    make_tables_sortable(w);
 
     page_end(w, content_stream, req, res);
 }
