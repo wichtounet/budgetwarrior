@@ -243,21 +243,17 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         }
     }
 
-    // Small indicates if it should be only on the middle of the screen
-    // Otherwise responsive will take too much space
-
     bool small = columns.empty(); // TODO Improve this heuristic!
 
     if(small){
         os << "<div class=\"row\">";
         os << "<div class=\"col-md-4\">&nbsp;</div>";
         os << "<div class=\"col-md-4\">";
-
-        os << "<table class=\"table table-sm small-text\">";
     } else {
-        os << "<table class=\"table table-sm small-text table-responsive\">";
+        os << "<div class=\"table-responsive\">";
     }
 
+    os << "<table class=\"table table-sm small-text\">";
 
     // Display the header
 
@@ -360,6 +356,8 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         os << "</div>"; // middle column
         os << "<div class=\"col-md-4\">&nbsp;</div>";
         os << "</div>"; // row
+    } else {
+        os << "</div>"; // table-responsive
     }
 }
 
