@@ -300,7 +300,7 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
         os << "<tr>";
 
         for(size_t j = 0; j < row.size(); ++j){
-            if (columns[j] == "ID") {
+            if (groups == 0 && columns[j] == "ID") {
                 continue;
             }
 
@@ -331,7 +331,7 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
             os << "<tr>";
 
             for (size_t j = 0; j < row.size(); ++j) {
-                if (columns[j] == "ID") {
+                if (groups == 0 && columns[j] == "ID") {
                     continue;
                 }
 
