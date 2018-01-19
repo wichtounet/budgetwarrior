@@ -206,7 +206,7 @@ budget::writer& budget::html_writer::operator<<(const budget::add_button& b) {
     return *this;
 }
 
-void budget::html_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left){
+void budget::html_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left, size_t foot){
     cpp_assert(groups > 0, "There must be at least 1 group");
     cpp_unused(left);
     cpp_unused(lines);
@@ -294,7 +294,7 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
 
     os << "<tbody>";
 
-    for(size_t i = 0; i < contents.size(); ++i){
+    for(size_t i = 0; i < contents.size() - foot; ++i){
         auto& row = contents[i];
 
         os << "<tr>";
@@ -321,6 +321,34 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
     }
 
     os << "</tbody>";
+
+    if (foot) {
+        os << "<tfoot>";
+
+        for (size_t i = contents.size() - foot; i < contents.size(); ++i) {
+            auto& row = contents[i];
+
+            os << "<tr>";
+
+            for (size_t j = 0; j < row.size(); ++j) {
+                if (columns[j] == "ID") {
+                    continue;
+                }
+
+                std::string value = html_format(row[j]);
+
+                if (value.empty()) {
+                    os << "<td>&nbsp;</td>";
+                } else {
+                    os << "<td>" << value << "</td>";
+                }
+            }
+
+            os << "</tr>";
+        }
+
+        os << "</tfoot>";
+    }
 
     os << "</table>";
 

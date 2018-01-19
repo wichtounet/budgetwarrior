@@ -127,7 +127,8 @@ budget::writer& budget::console_writer::operator<<(const budget::title_end_t&) {
     return *this;
 }
 
-void budget::console_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left) {
+void budget::console_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left, size_t foot) {
+    cpp_unused(foot);
     cpp_assert(groups > 0, "There must be at least 1 group");
     cpp_assert(contents.size() || columns.size(), "There must be at least some columns or contents");
 

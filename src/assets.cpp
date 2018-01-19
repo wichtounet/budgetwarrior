@@ -689,7 +689,7 @@ void budget::show_asset_rebalance(budget::writer& w){
     contents.push_back({"", "", "", "", "", "", "", ""});
     contents.push_back({"Total effort", "", "", "", "", "", "", format_money(total_rebalance)});
 
-    w.display_table(columns, contents, 1, {}, 1);
+    w.display_table(columns, contents, 1, {}, 1, 2);
 }
 
 void budget::show_asset_values(budget::writer& w){
