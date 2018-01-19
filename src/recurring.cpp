@@ -339,7 +339,7 @@ void budget::show_recurrings(budget::writer& w) {
         contents.push_back({"", "", "", "", "", ""});
         contents.push_back({"", "", "Total", to_string(total), "", ""});
 
-        w.display_table(columns, contents);
+        w.display_table(columns, contents, 1, {}, 0, 2);
     }
 }
 

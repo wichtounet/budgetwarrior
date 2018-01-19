@@ -310,7 +310,7 @@ void budget::list_wishes(budget::writer& w){
             contents.push_back({"", "Mean accuracy", "", "", to_string(static_cast<size_t>((acc / acc_counter) * 100.0)) + "%", "", "", "", ""});
         }
 
-        w.display_table(columns, contents);
+        w.display_table(columns, contents, 1, {}, 0, acc_counter > 0 ? 4 : 3);
     }
 }
 
@@ -429,7 +429,7 @@ void budget::status_wishes(budget::writer& w){
     contents.push_back({"", "", "", "", "", "", "", ""});
     contents.push_back({"", "Total", to_string(total_amount), "", "", "", "", ""});
 
-    w.display_table(columns, contents);
+    w.display_table(columns, contents, 1, {}, 0, 2);
 }
 
 void budget::estimate_wishes(budget::writer& w) {

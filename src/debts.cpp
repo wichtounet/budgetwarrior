@@ -226,29 +226,41 @@ void budget::display_all_debts(budget::writer& w){
 void budget::list_debts(budget::writer& w){
     w << title_begin << "Debts " << add_button("debts") << title_end;
 
-    std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title", "Edit"};
-    std::vector<std::vector<std::string>> contents;
-
-    money owed;
-    money deserved;
-
-    for(auto& debt : debts.data){
-        if(debt.state == 0){
-            contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), debt.title, "::edit::debts::" + to_string(debt.id)});
-
-            if(debt.direction){
-                owed += debt.amount;
-            } else {
-                deserved += debt.amount;
-            }
+    bool found = false;
+    for (auto& debt : debts.data) {
+        if (debt.state == 0) {
+            found = true;
+            break;
         }
     }
 
-    contents.push_back({"", "", "", "", "", ""});
-    contents.push_back({"", "", "Money owed", budget::to_string(owed), "", ""});
-    contents.push_back({"", "", "Money deserved", budget::to_string(deserved), "", ""});
+    if(!found){
+        w << "No active debt! Well done!" << end_of_line;
+    } else {
+        std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Title", "Edit"};
+        std::vector<std::vector<std::string>> contents;
 
-    w.display_table(columns, contents);
+        money owed;
+        money deserved;
+
+        for (auto& debt : debts.data) {
+            if (debt.state == 0) {
+                contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), debt.title, "::edit::debts::" + to_string(debt.id)});
+
+                if (debt.direction) {
+                    owed += debt.amount;
+                } else {
+                    deserved += debt.amount;
+                }
+            }
+        }
+
+        contents.push_back({"", "", "", "", "", ""});
+        contents.push_back({"", "", "Money owed", budget::to_string(owed), "", ""});
+        contents.push_back({"", "", "Money deserved", budget::to_string(deserved), "", ""});
+
+        w.display_table(columns, contents, 1, {}, 0, 3);
+    }
 }
 
 bool budget::debt_exists(size_t id){

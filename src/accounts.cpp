@@ -513,7 +513,7 @@ void budget::show_accounts(budget::writer& w){
 
     contents.push_back({"", "Total", to_string(total), "", ""});
 
-    w.display_table(columns, contents);
+    w.display_table(columns, contents, 1, {}, 0, 1);
 }
 
 void budget::show_all_accounts(budget::writer& w){
