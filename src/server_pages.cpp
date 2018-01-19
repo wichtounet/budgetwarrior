@@ -1451,6 +1451,8 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res) {
     budget::html_writer w(content_stream);
     budget::show_all_expenses(w);
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
@@ -1661,6 +1663,8 @@ void earnings_page(const httplib::Request& req, httplib::Response& res) {
         show_earnings(w);
     }
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
@@ -1672,6 +1676,8 @@ void all_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
     budget::show_all_earnings(w);
+
+    make_tables_sortable(w);
 
     page_end(w, content_stream, req, res);
 }
@@ -1878,6 +1884,8 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
     budget::show_asset_rebalance(w);
+
+    make_tables_sortable(w);
 
     w << R"=====(<div class="row">)=====";
 
@@ -2190,6 +2198,8 @@ void list_asset_values_page(const httplib::Request& req, httplib::Response& res)
 
     budget::html_writer w(content_stream);
     budget::list_asset_values(w);
+
+    make_tables_sortable(w);
 
     page_end(w, content_stream, req, res);
 }
