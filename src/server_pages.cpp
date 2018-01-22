@@ -1062,23 +1062,11 @@ void net_worth_graph(budget::html_writer& w, const std::string style = "") {
     end_chart(w, ss);
 }
 
-void index_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
+void cash_flow_card(budget::html_writer& w){
     const auto today = budget::local_day();
 
     const auto m = today.month();
     const auto y = today.year();
-
-    // 1. Display the net worth graph
-    net_worth_graph(w, "min-width: 300px; height: 300px;");
-
-    // 2. Cash flow
 
     w << R"=====(<div class="card">)=====";
 
@@ -1102,10 +1090,15 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
 
     w << R"=====(</div>)====="; //card-body
     w << R"=====(</div>)====="; //card
+}
 
-    // Display the objectives status
-
+void objectives_card(budget::html_writer& w){
     auto& objectives = all_objectives();
+
+    const auto today = budget::local_day();
+
+    const auto m = today.month();
+    const auto y = today.year();
 
     if (objectives.size()) {
         //Compute the year/month status
@@ -1178,7 +1171,26 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
         w << R"=====(</div>)=====";
         w << R"=====(</div>)=====";
     }
+}
 
+void index_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    // 1. Display the net worth graph
+    net_worth_graph(w, "min-width: 300px; height: 300px;");
+
+    // 2. Cash flow
+    cash_flow_card(w);
+
+    // 3. Display the objectives status
+    objectives_card(w);
+
+    // end the page
     page_end(w, content_stream, req, res);
 }
 
