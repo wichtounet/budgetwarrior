@@ -1081,11 +1081,11 @@ void cash_flow_card(budget::html_writer& w){
 
     w << R"=====(<div class="row card-body">)=====";
 
-    w << R"=====(<div class="col-lg-4 col-md-6 cold-sm-12">)=====";
+    w << R"=====(<div class="col-lg-4 col-md-6 col-sm-12">)=====";
     month_breakdown_income_graph(w, "Income", m, y, true, "min-width:300px; height: 300px;");
     w << R"=====(</div>)====="; //column
 
-    w << R"=====(<div class="col-lg-4 col-md-6 cold-sm-12">)=====";
+    w << R"=====(<div class="col-lg-4 col-md-6 col-sm-12">)=====";
     month_breakdown_expenses_graph(w, "Expenses", m, y, true, "min-width:300px; height: 300px;");
     w << R"=====(</div>)====="; //column
 
