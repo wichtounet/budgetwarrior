@@ -2553,6 +2553,8 @@ void status_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     budget::html_writer w(content_stream);
     budget::status_fortunes(w, false);
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
