@@ -45,6 +45,7 @@ std::string header(const std::string& title, bool menu = true) {
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
             <meta name="description" content="budgetwarrior">
             <meta name="author" content="Baptiste Wicht">
 
@@ -1181,6 +1182,22 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
 
+    // A. The left column
+
+    w << R"=====(<div class="row">)=====";
+
+    w << R"=====(<div class="col-md-3 d-none d-md-block">)====="; // left column
+
+    w << "<p>Test</p>";
+
+    //TODO
+
+    w << R"=====(</div>)====="; // left column
+
+    // B. The right column
+
+    w << R"=====(<div class="col-md-9 col-sm-12">)====="; // right column
+
     // 1. Display the net worth graph
     net_worth_graph(w, "min-width: 300px; height: 300px;");
 
@@ -1189,6 +1206,10 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
 
     // 3. Display the objectives status
     objectives_card(w);
+
+    w << R"=====(</div>)====="; // right column
+
+    w << R"=====(</div>)====="; // row
 
     // end the page
     page_end(w, content_stream, req, res);
