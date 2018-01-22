@@ -1,4 +1,4 @@
-default: release
+default: release_debug
 
 .PHONY: default release debug all clean
 
@@ -22,7 +22,7 @@ release_debug: release_debug_budget
 release: release_budget
 debug: debug_budget
 
-all: release debug
+all: release release_debug debug
 
 sonar: release
 	cppcheck --xml-version=2 --enable=all --std=c++11 src include 2> cppcheck_report.xml
@@ -32,12 +32,12 @@ prefix = /usr
 bindir = $(prefix)/bin
 mandir = $(prefix)/share/man
 
-install: release
+install: release_debug
 	@ echo "Installation of budgetwarrior"
 	@ echo "============================="
 	@ echo ""
 	install budget.man $(mandir)/man3/budget.3
-	install release/bin/budget $(bindir)/budget
+	install release_debug/bin/budget $(bindir)/budget
 	install completions/bash $(prefix)/../etc/bash_completion.d/budget
 	install completions/zsh $(prefix)/share/zsh/site-functions/_budget
 
