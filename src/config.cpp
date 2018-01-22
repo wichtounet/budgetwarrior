@@ -35,7 +35,13 @@ bool load_configuration(const std::string& path, config_type& configuration){
         if (file.is_open() && file.good()) {
             std::string line;
             while (file.good() && getline(file, line)) {
+                // Ignore empty lines
                 if (line.empty()) {
+                    continue;
+                }
+
+                // Ignore comments
+                if(line[0] == '#'){
                     continue;
                 }
 
