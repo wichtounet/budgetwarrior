@@ -2029,20 +2029,14 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     w << R"=====(<div class="col-lg-6 col-md-12">)=====";
 
-    auto ss = start_chart(w, "Current Allocation", "pie", "current_allocation_graph");
-
-    ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
-
-    ss << "series: [";
+    // Collect the sorted asset values
 
     auto sorted_asset_values = all_asset_values();
 
     std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
               [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
 
-    ss << "{ name: 'Assets',";
-    ss << "colorByPoint: true,";
-    ss << "data: [";
+    // Collect the amounts per asset
 
     std::map<size_t, budget::money> asset_amounts;
 
@@ -2051,6 +2045,46 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
             asset_amounts[asset_value.asset_id] = asset_value.amount;
         }
     }
+
+    // Compute the colors for each asset that will be displayed
+
+    std::map<size_t, size_t> colors;
+
+    for (auto& asset : all_assets()) {
+        if (asset.portfolio && (!asset_amounts[asset.id].zero() || !asset.portfolio_alloc.zero())) {
+            if (!colors.count(asset.id)) {
+                auto c           = colors.size();
+                colors[asset.id] = c;
+            }
+        }
+    }
+
+    // Compute the colors for the first graph
+
+    std::stringstream current_ss;
+
+    current_ss << "var current_pie_colors = (function () {";
+    current_ss << "var colors = [];";
+
+    for(auto& asset_amount : asset_amounts){
+        if(!asset_amount.second.zero()){
+            current_ss << "colors.push(Highcharts.getOptions().colors[" << colors[asset_amount.first] << "]);";
+        }
+    }
+
+    current_ss << "return colors;";
+    current_ss << "}());";
+
+    auto ss = start_chart(w, "Current Allocation", "pie", "current_allocation_graph");
+
+    ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+
+    ss << "series: [";
+
+    ss << "{ name: 'Assets',";
+    ss << "colorByPoint: true,";
+    ss << "colors: current_pie_colors,";
+    ss << "data: [";
 
     budget::money sum;
 
@@ -2069,11 +2103,29 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     ss << "]";
 
-    end_chart(w, ss);
+    current_ss << ss.str();
+
+    end_chart(w, current_ss);
 
     w << R"=====(</div>)=====";
 
     // 3. Display the desired allocation
+
+    // Compute the colors for the second graph
+
+    std::stringstream desired_ss;
+
+    desired_ss << "var desired_pie_colors = (function () {";
+    desired_ss << "var colors = [];";
+
+    for (auto& asset : all_assets()) {
+        if (asset.portfolio && !asset.portfolio_alloc.zero()) {
+            desired_ss << "colors.push(Highcharts.getOptions().colors[" << colors[asset.id] << "]);";
+        }
+    }
+
+    desired_ss << "return colors;";
+    desired_ss << "}());";
 
     w << R"=====(<div class="col-lg-6 col-md-12">)=====";
 
@@ -2085,6 +2137,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     ss2 << "{ name: 'Assets',";
     ss2 << "colorByPoint: true,";
+    ss2 << "colors: desired_pie_colors,";
     ss2 << "data: [";
 
     for (auto& asset : all_assets()) {
@@ -2100,7 +2153,9 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     ss2 << "]";
 
-    end_chart(w, ss2);
+    desired_ss << ss2.str();
+
+    end_chart(w, desired_ss);
 
     w << R"=====(</div>)=====";
 
