@@ -30,6 +30,15 @@ std::string get_web_user();
 std::string get_web_password();
 
 /*!
+ * \brief Indicates if the server is running in secure mode.
+ *
+ * By default, the server is running in secure mode.
+ * This can be changed by changing server_secure=false in the
+ * configuration file.
+ */
+bool is_secure();
+
+/*!
  * \brief Indicates if the application is running in server mode.
  *
  * Server mode indicates that the application is running in console

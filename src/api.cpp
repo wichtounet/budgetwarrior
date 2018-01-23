@@ -35,7 +35,10 @@ budget::api_response budget::api_get(const std::string& api, bool silent) {
     req.set_header("Host", (server + ":" + server_port).c_str());
     req.set_header("Accept", "*/*");
     req.set_header("User-Agent", "cpp-httplib/0.1");
-    req.set_header("Authorization", ("Basic " + base64_encode(get_web_user() + ":" + get_web_password())).c_str());
+
+    if (is_secure()) {
+        req.set_header("Authorization", ("Basic " + base64_encode(get_web_user() + ":" + get_web_password())).c_str());
+    }
 
     auto base_res = std::make_shared<httplib::Response>();
 

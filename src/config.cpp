@@ -219,3 +219,11 @@ bool budget::is_server_mode(){
 
     return false;
 }
+
+bool budget::is_secure(){
+    if (config_contains("server_secure")) {
+        return config_value("server_secure") != "false";
+    }
+
+    return true;
+}

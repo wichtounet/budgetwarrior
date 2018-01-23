@@ -278,47 +278,49 @@ void display_message(budget::writer& w, const httplib::Request& req) {
 bool page_start(const httplib::Request& req, httplib::Response& res, std::stringstream& content_stream, const std::string& title) {
     content_stream.imbue(std::locale("C"));
 
-    if (req.has_header("Authorization")) {
-        auto authorization = req.get_header_value("Authorization");
+    if (is_secure()) {
+        if (req.has_header("Authorization")) {
+            auto authorization = req.get_header_value("Authorization");
 
-        if (authorization.substr(0, 6) != "Basic ") {
+            if (authorization.substr(0, 6) != "Basic ") {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+
+            auto sub_authorization = authorization.substr(6, authorization.size());
+            auto decoded           = base64_decode(sub_authorization);
+
+            if (decoded.find(':') == std::string::npos) {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+
+            auto username = decoded.substr(0, decoded.find(':'));
+            auto password = decoded.substr(decoded.find(':') + 1, decoded.size());
+
+            if (username != get_web_user()) {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+
+            if (password != get_web_password()) {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+        } else {
             res.status = 401;
             res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
 
             return false;
         }
-
-        auto sub_authorization = authorization.substr(6, authorization.size());
-        auto decoded           = base64_decode(sub_authorization);
-
-        if (decoded.find(':') == std::string::npos) {
-            res.status = 401;
-            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-            return false;
-        }
-
-        auto username = decoded.substr(0, decoded.find(':'));
-        auto password = decoded.substr(decoded.find(':') + 1, decoded.size());
-
-        if (username != get_web_user()) {
-            res.status = 401;
-            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-            return false;
-        }
-
-        if (password != get_web_password()) {
-            res.status = 401;
-            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-            return false;
-        }
-    } else {
-        res.status = 401;
-        res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-        return false;
     }
 
     content_stream << header(title);
