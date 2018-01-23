@@ -1172,7 +1172,7 @@ void objectives_card(budget::html_writer& w){
         ss << R"=====(solidgauge: {)=====";
 
         ss << R"=====(dataLabels: {)=====";
-        ss << R"=====(enabled: true, verticalAlign: "middle", borderWidth: "0px", useHTML: true, )=====";
+        ss << R"=====(enabled: true, verticalAlign: "middle", borderWidth: 0, useHTML: true, )=====";
 
         ss << R"=====(format: '<div class="gauge-objective-title"><span class="lead""><strong>)=====";
         ss << success_int;
