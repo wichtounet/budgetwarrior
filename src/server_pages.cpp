@@ -51,7 +51,7 @@ std::string header(const std::string& title, bool menu = true) {
 
             <!-- The CSS -->
 
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha256-PCsx7lOyGhyGmzsO5MGXhzwV6UpNTlNf1p6V6w2CppQ=" crossorigin="anonymous" />
 
             <style>
                 body {
@@ -1170,6 +1170,7 @@ void objectives_card(budget::html_writer& w){
 
         ss << R"=====(plotOptions: {)=====";
         ss << R"=====(solidgauge: {)=====";
+
         ss << R"=====(dataLabels: {)=====";
         ss << R"=====(enabled: true, verticalAlign: "middle", borderWidth: "0px", useHTML: true, )=====";
 
@@ -1180,6 +1181,7 @@ void objectives_card(budget::html_writer& w){
         ss << R"=====(</div>')=====";
 
         ss << R"=====(},)=====";
+
         ss << R"=====(rounded: true)=====";
         ss << R"=====(})=====";
         ss << R"=====(},)=====";
