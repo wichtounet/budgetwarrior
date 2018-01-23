@@ -535,8 +535,6 @@ void add_paid_amount_picker(budget::writer& w, const std::string& default_value 
 }
 
 void add_account_picker(budget::writer& w, const std::string& default_value = "") {
-    auto today = budget::local_day();
-
     w << R"=====(
             <div class="form-group">
                 <label for="input_account">Account</label>
