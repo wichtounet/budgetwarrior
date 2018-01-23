@@ -141,19 +141,37 @@ budget::writer& budget::html_writer::operator<<(const budget::p_end_t&) {
 }
 
 budget::writer& budget::html_writer::operator<<(const budget::title_begin_t&) {
-    os << "<h2>";
+    title_started = true;
+
+    os << R"======(<div class="row">)======";
+    os << R"======(<div class="col-auto">)======";
+    os << R"======(<h2>)======";
 
     return *this;
 }
 
 budget::writer& budget::html_writer::operator<<(const budget::title_end_t&) {
-    os << "</h2>";
+    if (title_started) {
+        os << "</h2>";  // end of the title
+        os << "</div>"; // end of the col
+    }
+
+    title_started = false;
+
+    os << "</div>"; //end of the row
 
     return *this;
 }
 
 budget::writer& budget::html_writer::operator<<(const budget::year_month_selector& m) {
-    os << "<div class=\"selector\">";
+    if (title_started) {
+        os << "</h2>";  // end of the title
+        os << "</div>"; // end of the col
+    }
+
+    title_started = false;
+
+    os << R"======(<div class="col selector text-right">)======";
 
     auto previous_month = m.current_month;
     auto previous_year = m.current_year;
@@ -186,7 +204,14 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
 }
 
 budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) {
-    os << "<div class=\"selector\">";
+    if (title_started) {
+        os << "</h2>";  // end of the title
+        os << "</div>"; // end of the col
+    }
+
+    title_started = false;
+
+    os << R"======(<div class="col selector text-right">)======";
 
     auto previous_year = m.current_year - 1;
     auto next_year     = m.current_year + 1;
@@ -201,7 +226,16 @@ budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) 
 }
 
 budget::writer& budget::html_writer::operator<<(const budget::add_button& b) {
+    if (title_started) {
+        os << "</h2>";  // end of the title
+        os << "</div>"; // end of the col
+    }
+
+    title_started = false;
+
+    os << R"======(<div class="col-auto">)======";
     os << "<a href=\"/" << b.module << "/add/\" class=\"btn btn-info\" role=\"button\">New</a>\n";
+    os << R"======(</div>)======";
 
     return *this;
 }

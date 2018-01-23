@@ -76,9 +76,7 @@ std::string header(const std::string& title, bool menu = true) {
                 }
 
                 .selector {
-                    float: right;
                     font-size: xx-large;
-                    padding-top: 5px;
                 }
 
                 .card {

@@ -139,6 +139,7 @@ struct html_writer : writer {
 
 private:
     std::vector<std::string> scripts;
+    bool title_started = false;
 };
 
 } //end of namespace budget
