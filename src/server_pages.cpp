@@ -249,7 +249,7 @@ std::string header(const std::string& title, bool menu = true) {
     // The main component
 
     stream << R"=====(<main class="container-fluid">)=====" << new_line;
-    stream << "<div>" << new_line;
+    //stream << "<div>" << new_line;
 
     return stream.str();
 }
@@ -345,11 +345,11 @@ void filter_html(std::string& html, const httplib::Request& req) {
 
 //Note: This must be synchronized with page_end
 std::string footer() {
-    return "</div></main></body></html>";
+    return "</main></body></html>";
 }
 
 void page_end(budget::html_writer& w, std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res) {
-    w << "</div></main>";
+    w << "</main>";
     w.load_deferred_scripts();
     w << "</body></html>";
 
