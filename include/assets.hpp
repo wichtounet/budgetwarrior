@@ -85,6 +85,7 @@ budget::asset_value& get_asset_value(size_t id);
 
 std::vector<budget::asset>& all_assets();
 std::vector<budget::asset_value>& all_asset_values();
+std::vector<budget::asset_value> all_sorted_asset_values();
 
 void set_assets_next_id(size_t next_id);
 void set_asset_values_next_id(size_t next_id);
