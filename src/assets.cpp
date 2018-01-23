@@ -587,14 +587,10 @@ void budget::show_asset_portfolio(budget::writer& w){
         }
     }
 
-    w.display_table(columns, contents, 1, {}, 1);
+    contents.push_back({ "", "", "", "", ""});
+    contents.push_back({ "Total", budget::to_string(total), get_default_currency(), "", ""});
 
-    std::vector<std::string> second_columns;
-    std::vector<std::vector<std::string>> second_contents;
-
-    second_contents.emplace_back(std::vector<std::string>{"Total", budget::to_string(total) + get_default_currency()});
-
-    w.display_table(second_columns, second_contents, 1, {}, 15);
+    w.display_table(columns, contents, 1, {}, 1, 2);
 }
 
 void budget::show_asset_rebalance(budget::writer& w){
