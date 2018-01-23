@@ -543,7 +543,7 @@ void add_account_picker(budget::writer& w, const std::string& default_value = ""
                 <select class="form-control" id="input_account" name="input_account">
     )=====";
 
-    for (auto& account : all_accounts(today.year(), today.month())) {
+    for (auto& account : current_accounts()) {
         if (budget::to_string(account.id) == default_value) {
             w << "<option selected value=\"" << account.id << "\">" << account.name << "</option>";
         } else {

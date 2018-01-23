@@ -31,7 +31,7 @@ void predict_overview(){
     auto& expenses = all_expenses();
     auto& earnings = all_earnings();
 
-    auto accounts = all_accounts(today.year(), today.month());
+    auto accounts = current_accounts();
 
     std::map<std::string, size_t> account_mappings;
 
