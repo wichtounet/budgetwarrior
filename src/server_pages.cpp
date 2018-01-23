@@ -1825,6 +1825,8 @@ void portfolio_status_page(const httplib::Request& req, httplib::Response& res) 
     budget::html_writer w(content_stream);
     budget::show_asset_portfolio(w);
 
+    make_tables_sortable(w);
+
     page_end(w, content_stream, req, res);
 }
 
