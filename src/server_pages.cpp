@@ -78,7 +78,7 @@ std::string header(const std::string& title, bool menu = true) {
                 .selector {
                     float: right;
                     font-size: xx-large;
-                    pading-top: 5px;
+                    padding-top: 5px;
                 }
 
                 .card {
@@ -156,8 +156,8 @@ std::string header(const std::string& title, bool menu = true) {
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown05">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assets</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown02">
                   <a class="dropdown-item" href="/assets/">Assets</a>
                   <a class="dropdown-item" href="/net_worth/status/">Net worth Status</a>
                   <a class="dropdown-item" href="/net_worth/graph/">Net worth Graph</a>
@@ -191,8 +191,8 @@ std::string header(const std::string& title, bool menu = true) {
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Accounts</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown02">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Accounts</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown05">
                   <a class="dropdown-item" href="/accounts/">Accounts</a>
                   <a class="dropdown-item" href="/accounts/all/">All Accounts</a>
                   <a class="dropdown-item" href="/accounts/add/">Add Account</a>
@@ -210,16 +210,16 @@ std::string header(const std::string& title, bool menu = true) {
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Objectives</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown06">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Objectives</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown07">
                   <a class="dropdown-item" href="/objectives/status/">Status</a>
                   <a class="dropdown-item" href="/objectives/list/">List</a>
                   <a class="dropdown-item" href="/objectives/add/">Add Objective</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wishes</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown06">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown08" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wishes</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown08">
                   <a class="dropdown-item" href="/wishes/status/">Status</a>
                   <a class="dropdown-item" href="/wishes/list/">List</a>
                   <a class="dropdown-item" href="/wishes/estimate/">Estimate</a>
@@ -227,15 +227,15 @@ std::string header(const std::string& title, bool menu = true) {
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Recurrings</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown06">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown09" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Recurrings</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown09">
                   <a class="dropdown-item" href="/recurrings/list/">List</a>
                   <a class="dropdown-item" href="/recurrings/add/">Add Recurring Expense</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown06" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Debts</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown06">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown10" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Debts</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown10">
                   <a class="dropdown-item" href="/debts/add/">Add Debt</a>
                   <a class="dropdown-item" href="/debts/list/">Debts</a>
                   <a class="dropdown-item" href="/debts/all/">All Debts</a>
@@ -250,7 +250,7 @@ std::string header(const std::string& title, bool menu = true) {
 
     // The main component
 
-    stream << R"=====(<main role="main" class="container-fluid">)=====" << new_line;
+    stream << R"=====(<main class="container-fluid">)=====" << new_line;
     stream << "<div>" << new_line;
 
     return stream.str();
@@ -371,7 +371,7 @@ std::stringstream start_chart_base(budget::writer& w, const std::string& chart_t
     } else {
         w << R"=====(" style="margin: 0 auto; )=====";
         w << style;
-        w << R"=====(""></div>)=====" << end_of_line;
+        w << R"=====("></div>)=====" << end_of_line;
     }
 
     std::stringstream ss;
