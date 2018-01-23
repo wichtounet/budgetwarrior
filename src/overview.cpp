@@ -197,14 +197,12 @@ void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& entry: acc_expenses){
-        auto& account = entry.first;
+    for(auto& account : current_accounts()){
+        auto& expenses = acc_expenses[account.name];
 
         auto column = columns.size();
-        columns.push_back(account);
+        columns.push_back(account.name);
         size_t row = 0;
-
-        auto& expenses = entry.second;
 
         typedef std::pair<std::string, budget::money> s_expense;
         std::vector<s_expense> sorted_expenses;
@@ -224,7 +222,7 @@ void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const
             contents[row][column * 2] = expense.first;
             contents[row][column * 2 + 1] = to_string(expense.second);
 
-            totals[account] += expense.second;
+            totals[account.name] += expense.second;
             total += expense.second;
 
             ++row;
@@ -238,8 +236,8 @@ void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const
 
     contents.back()[i++] = "Total";
 
-    for(auto& entry: acc_expenses){
-        contents.back()[i++] = to_string(totals[entry.first]);
+    for(auto& account : current_accounts()){
+        contents.back()[i++] = to_string(totals[account.name]);
         i++;
     }
 
@@ -249,8 +247,8 @@ void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const
 
     contents.back()[i++] = "Part";
 
-    for(auto& entry: acc_expenses){
-        auto& amount = totals[entry.first];
+    for(auto& account : current_accounts()){
+        auto& amount = totals[account.name];
         float part = 100.0 * (amount.value / float(total.value));
 
         char buffer[32];
