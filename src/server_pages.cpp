@@ -81,6 +81,10 @@ std::string header(const std::string& title, bool menu = true) {
                     pading-top: 5px;
                 }
 
+                .card {
+                    margin-bottom: 10px !important;
+                }
+
                 .card-header-primary {
                     color:white !important;
                     background-color: #007bff !important;
@@ -1174,6 +1178,57 @@ void objectives_card(budget::html_writer& w){
     }
 }
 
+void assets_card(budget::html_writer& w){
+    w << R"=====(<div class="card">)=====";
+
+    w << R"=====(<div class="card-header card-header-primary">)=====";
+    w << R"=====(<div>Assets</div>)=====";
+    w << R"=====(</div>)====="; // card-header
+
+    w << R"=====(<div class="card-body">)=====";
+
+    for(auto& asset : all_assets()){
+        auto id = asset.id;
+
+        size_t asset_value_id = 0;
+        bool asset_value_found = false;
+
+        for (auto& asset_value : all_asset_values()) {
+            if (asset_value.asset_id == id) {
+                if(!asset_value_found){
+                    asset_value_found = true;
+                    asset_value_id    = asset_value.id;
+                } else if(asset_value.set_date >= get_asset_value(asset_value_id).set_date){
+                    asset_value_id    = asset_value.id;
+                }
+            }
+        }
+
+        if (asset_value_found) {
+            auto& asset_value = get_asset_value(asset_value_id);
+            auto amount       = asset_value.amount;
+
+            if (amount) {
+                w << R"=====(<div class="row">)=====";
+                w << R"=====(<div class="col-md-8 col-xl-9">)=====";
+                w << asset.name;
+                w << R"=====(</div>)=====";
+                w << R"=====(<div class="col-md-4 col-xl-3 text-right">)=====";
+                w << budget::to_string(amount);
+                w << R"=====(<br />)=====";
+                w << budget::to_string(asset_value.set_date);
+                w << R"=====(</div>)=====";
+                w << R"=====(</div>)=====";
+
+                w << R"=====(<hr />)=====";
+            }
+        }
+    }
+
+    w << R"=====(</div>)====="; //card-body
+    w << R"=====(</div>)====="; //card
+}
+
 void index_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "")) {
@@ -1186,17 +1241,15 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
 
     w << R"=====(<div class="row">)=====";
 
-    w << R"=====(<div class="col-md-3 d-none d-md-block">)====="; // left column
+    w << R"=====(<div class="col-lg-4 d-none d-lg-block">)====="; // left column
 
-    w << "<p>Test</p>";
-
-    //TODO
+    assets_card(w);
 
     w << R"=====(</div>)====="; // left column
 
     // B. The right column
 
-    w << R"=====(<div class="col-md-9 col-sm-12">)====="; // right column
+    w << R"=====(<div class="col-lg-8 col-md-12">)====="; // right column
 
     // 1. Display the net worth graph
     net_worth_graph(w, "min-width: 300px; height: 300px;");
