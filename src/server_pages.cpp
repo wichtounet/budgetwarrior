@@ -1032,8 +1032,7 @@ void net_worth_graph(budget::html_writer& w, const std::string style = "", bool 
         w << R"=====(<div class="clearfix"></div>)=====";
         w << R"=====(</div>)====="; // card-header
 
-        w << R"=====(<div class="row card-body">)=====";
-        w << R"=====(<div class="col-xs-12">)=====";
+        w << R"=====(<div class="card-body">)=====";
     }
 
     auto ss = start_chart(w, card ? "" : "Net worth", "area", "net_worth_graph", style);
@@ -1089,7 +1088,6 @@ void net_worth_graph(budget::html_writer& w, const std::string style = "", bool 
     end_chart(w, ss);
 
     if (card) {
-        w << R"=====(</div>)====="; //col-xs-12
         w << R"=====(</div>)====="; //card-body
         w << R"=====(</div>)====="; //card
     }
