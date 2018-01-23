@@ -717,10 +717,7 @@ void batch_asset_values_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+    auto sorted_asset_values = all_sorted_asset_values();
 
     for (auto& asset : all_assets()) {
         auto input_name = "input_amount_" + budget::to_string(asset.id);

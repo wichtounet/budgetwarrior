@@ -887,12 +887,7 @@ void budget::list_asset_values(budget::writer& w){
 budget::money budget::get_portfolio_value(){
     std::map<size_t, budget::money> asset_amounts;
 
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-        [](const budget::asset_value& a, const budget::asset_value& b){ return a.set_date < b.set_date; });
-
-    for (auto& asset_value : sorted_asset_values) {
+    for (auto& asset_value : all_sorted_asset_values()) {
         auto& asset = get_asset(asset_value.asset_id);
 
         if (asset.portfolio) {
@@ -912,12 +907,7 @@ budget::money budget::get_portfolio_value(){
 budget::money budget::get_net_worth(){
     std::map<size_t, budget::money> asset_amounts;
 
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-        [](const budget::asset_value& a, const budget::asset_value& b){ return a.set_date < b.set_date; });
-
-    for (auto& asset_value : sorted_asset_values) {
+    for (auto& asset_value : all_sorted_asset_values()) {
         asset_amounts[asset_value.asset_id] = asset_value.amount;
     }
 

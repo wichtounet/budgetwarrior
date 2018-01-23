@@ -1053,10 +1053,7 @@ void net_worth_graph(budget::html_writer& w, const std::string style = "", bool 
 
     std::map<size_t, budget::money> asset_amounts;
 
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+    auto sorted_asset_values = all_sorted_asset_values();
 
     auto it  = sorted_asset_values.begin();
     auto end = sorted_asset_values.end();
@@ -1857,10 +1854,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     ss << "series: [";
 
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+    auto sorted_asset_values = all_sorted_asset_values();
 
     for (auto& currency : currencies) {
         ss << "{ name: '" << currency << "',";
@@ -1971,10 +1965,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res) {
 
     std::map<size_t, budget::money> asset_amounts;
 
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+    auto sorted_asset_values = all_sorted_asset_values();
 
     auto it  = sorted_asset_values.begin();
     auto end = sorted_asset_values.end();
@@ -2029,18 +2020,11 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     w << R"=====(<div class="col-lg-6 col-md-12">)=====";
 
-    // Collect the sorted asset values
-
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
-
     // Collect the amounts per asset
 
     std::map<size_t, budget::money> asset_amounts;
 
-    for (auto& asset_value : sorted_asset_values) {
+    for (auto& asset_value : all_sorted_asset_values()) {
         if (get_asset(asset_value.asset_id).portfolio) {
             asset_amounts[asset_value.asset_id] = asset_value.amount;
         }
@@ -2296,10 +2280,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     ss << "series: [";
 
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+    auto sorted_asset_values = all_sorted_asset_values();
 
     for (auto& currency : currencies) {
         ss << "{ name: '" << currency << "',";
@@ -2465,10 +2446,7 @@ void batch_asset_values_page(const httplib::Request& req, httplib::Response& res
 
     add_date_picker(w, budget::to_string(budget::local_day()), true);
 
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+    auto sorted_asset_values = all_sorted_asset_values();
 
     for (auto& asset : all_assets()) {
         budget::money amount;
