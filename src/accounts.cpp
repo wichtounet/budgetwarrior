@@ -445,6 +445,11 @@ std::vector<account>& budget::all_accounts(){
     return accounts.data;
 }
 
+std::vector<budget::account> budget::current_accounts(){
+    auto today = budget::local_day();
+    return all_accounts(today.year(), today.month());
+}
+
 std::vector<account> budget::all_accounts(budget::year year, budget::month month){
     std::vector<account> accounts;
 
