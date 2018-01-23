@@ -38,7 +38,7 @@ std::string edit_to_string(const std::string& module, const std::string& id){
     ss << R"=====(<input type="hidden" name="input_id" value=")=====";
     ss << id;
     ss << R"=====(">)=====";
-    ss << R"=====(<button type="submit" class="btn btn-sm btn-danger oi oi-circle-x"></button>)=====";
+    ss << R"=====(<button type="submit" aria-label="Delete" class="btn btn-sm btn-danger oi oi-circle-x"></button>)=====";
     ss << R"=====(</form>)=====";
 
     // Add the edit button
@@ -50,7 +50,7 @@ std::string edit_to_string(const std::string& module, const std::string& id){
     ss << R"=====(<input type="hidden" name="input_id" value=")=====";
     ss << id;
     ss << R"=====(">)=====";
-    ss << R"=====(<button type="submit" class="btn btn-sm btn-warning oi oi-pencil"></button>)=====";
+    ss << R"=====(<button type="submit" aria-label="Edit" class="btn btn-sm btn-warning oi oi-pencil"></button>)=====";
     ss << R"=====(</form>)=====";
 
     return ss.str();
@@ -194,9 +194,9 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
         next_year  = m.current_year;
     }
 
-    os << "<a href=\"/" << m.page << "/" << previous_year << "/" << previous_month.value << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
+    os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_year << "/" << previous_month.value << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
     os << "&nbsp;";
-    os << "<a href=\"/" << m.page << "/" << next_year << "/" << next_month.value << "/\"><span class=\"oi oi-arrow-thick-right\"></span></a>";
+    os << "<a aria-label=\"Next\" href=\"/" << m.page << "/" << next_year << "/" << next_month.value << "/\"><span class=\"oi oi-arrow-thick-right\"></span></a>";
 
     os << "</div>";
 
@@ -216,9 +216,9 @@ budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) 
     auto previous_year = m.current_year - 1;
     auto next_year     = m.current_year + 1;
 
-    os << "<a href=\"/" << m.page << "/" << previous_year << "/\">&lt;&lt;</a>";
+    os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_year << "/\">&lt;&lt;</a>";
     os << "&nbsp;";
-    os << "<a href=\"/" << m.page << "/" << next_year << "/\">&gt;&gt;</a>";
+    os << "<a aria-label=\"Next\" href=\"/" << m.page << "/" << next_year << "/\">&gt;&gt;</a>";
 
     os << "</div>";
 
