@@ -1016,6 +1016,11 @@ void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& t
 }
 
 void net_worth_graph(budget::html_writer& w, const std::string style = "", bool card = false) {
+    // if the user does not use assets, this graph does not make sense
+    if(all_assets().empty() || all_asset_values().empty()){
+        return;
+    }
+
     if (card) {
         w << R"=====(<div class="card">)=====";
 
@@ -1123,82 +1128,85 @@ void cash_flow_card(budget::html_writer& w){
 void objectives_card(budget::html_writer& w){
     auto& objectives = all_objectives();
 
+    // if the user does not use objectives, this card does not make sense
+    if(objectives.empty()){
+        return;
+    }
+
     const auto today = budget::local_day();
 
     const auto m = today.month();
     const auto y = today.year();
 
-    if (objectives.size()) {
-        //Compute the year/month status
-        auto year_status  = budget::compute_year_status();
-        auto month_status = budget::compute_month_status(y, m);
+    //Compute the year/month status
+    auto year_status  = budget::compute_year_status();
+    auto month_status = budget::compute_month_status(y, m);
 
-        w << R"=====(<div class="card">)=====";
-        w << R"=====(<div class="card-header card-header-primary">Objectives</div>)=====";
+    w << R"=====(<div class="card">)=====";
+    w << R"=====(<div class="card-header card-header-primary">Objectives</div>)=====";
 
-        w << R"=====(<div class="row card-body">)=====";
+    w << R"=====(<div class="row card-body">)=====";
 
-        for (size_t i = 0; i < objectives.size(); ++i) {
-            auto& objective = objectives[i];
+    for (size_t i = 0; i < objectives.size(); ++i) {
+        auto& objective = objectives[i];
 
-            w << R"=====(<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">)=====";
+        w << R"=====(<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">)=====";
 
-            auto ss = start_chart_base(w, "solidgauge", "objective_gauge_" + budget::to_string(i), "height: 200px");
+        auto ss = start_chart_base(w, "solidgauge", "objective_gauge_" + budget::to_string(i), "height: 200px");
 
-            ss << R"=====(title: {style: {color: "rgb(124, 181, 236)", fontWeight: "bold" }, text: ')=====";
-            ss << objective.name;
-            ss << R"=====('},)=====";
+        ss << R"=====(title: {style: {color: "rgb(124, 181, 236)", fontWeight: "bold" }, text: ')=====";
+        ss << objective.name;
+        ss << R"=====('},)=====";
 
-            ss << R"=====(tooltip: { enabled: false },)=====";
-            ss << R"=====(yAxis: { min: 0, max: 100, lineWidth: 0, tickPositions: [], },)=====";
+        ss << R"=====(tooltip: { enabled: false },)=====";
+        ss << R"=====(yAxis: { min: 0, max: 100, lineWidth: 0, tickPositions: [], },)=====";
 
-            std::string status;
-            std::string success;
-            int success_int;
+        std::string status;
+        std::string success;
+        int success_int;
 
-            if (objective.type == "yearly") {
-                status      = budget::get_status(year_status, objective);
-                success_int = budget::compute_success(year_status, objective);
-            } else if (objective.type == "monthly") {
-                status      = budget::get_status(month_status, objective);
-                success_int = budget::compute_success(month_status, objective);
-            } else {
-                cpp_unreachable("Invalid objective type");
-            }
-
-            ss << R"=====(plotOptions: {)=====";
-            ss << R"=====(solidgauge: {)=====";
-            ss << R"=====(dataLabels: {)=====";
-            ss << R"=====(enabled: true, verticalAlign: "middle", borderWidth: "0px", useHTML: true, )=====";
-
-            ss << R"=====(format: '<div class="gauge-objective-title"><span class="lead""><strong>)=====";
-            ss << success_int;
-            ss << R"=====(%</strong></span> <br />)=====";
-            ss << status;
-            ss << R"=====(</div>')=====";
-
-            ss << R"=====(},)=====";
-            ss << R"=====(rounded: true)=====";
-            ss << R"=====(})=====";
-            ss << R"=====(},)=====";
-
-            ss << R"=====(series: [{)=====";
-            ss << "name: '" << objective.name << "',";
-            ss << R"=====(data: [{)=====";
-            ss << R"=====(radius: '112%',)=====";
-            ss << R"=====(innerRadius: '88%',)=====";
-            ss << "y: " << std::min(success_int, 100);
-            ss << R"=====(}])=====";
-            ss << R"=====(}])=====";
-
-            end_chart(w, ss);
-
-            w << R"=====(</div>)=====";
+        if (objective.type == "yearly") {
+            status      = budget::get_status(year_status, objective);
+            success_int = budget::compute_success(year_status, objective);
+        } else if (objective.type == "monthly") {
+            status      = budget::get_status(month_status, objective);
+            success_int = budget::compute_success(month_status, objective);
+        } else {
+            cpp_unreachable("Invalid objective type");
         }
 
-        w << R"=====(</div>)=====";
+        ss << R"=====(plotOptions: {)=====";
+        ss << R"=====(solidgauge: {)=====";
+        ss << R"=====(dataLabels: {)=====";
+        ss << R"=====(enabled: true, verticalAlign: "middle", borderWidth: "0px", useHTML: true, )=====";
+
+        ss << R"=====(format: '<div class="gauge-objective-title"><span class="lead""><strong>)=====";
+        ss << success_int;
+        ss << R"=====(%</strong></span> <br />)=====";
+        ss << status;
+        ss << R"=====(</div>')=====";
+
+        ss << R"=====(},)=====";
+        ss << R"=====(rounded: true)=====";
+        ss << R"=====(})=====";
+        ss << R"=====(},)=====";
+
+        ss << R"=====(series: [{)=====";
+        ss << "name: '" << objective.name << "',";
+        ss << R"=====(data: [{)=====";
+        ss << R"=====(radius: '112%',)=====";
+        ss << R"=====(innerRadius: '88%',)=====";
+        ss << "y: " << std::min(success_int, 100);
+        ss << R"=====(}])=====";
+        ss << R"=====(}])=====";
+
+        end_chart(w, ss);
+
         w << R"=====(</div>)=====";
     }
+
+    w << R"=====(</div>)=====";
+    w << R"=====(</div>)=====";
 }
 
 void assets_card(budget::html_writer& w){
@@ -1260,19 +1268,23 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
 
-    // A. The left column
+    bool left_column = !all_assets().empty() && !all_asset_values().empty();
 
-    w << R"=====(<div class="row">)=====";
+    if (left_column) {
+        // A. The left column
 
-    w << R"=====(<div class="col-lg-4 d-none d-lg-block">)====="; // left column
+        w << R"=====(<div class="row">)=====";
 
-    assets_card(w);
+        w << R"=====(<div class="col-lg-4 d-none d-lg-block">)====="; // left column
 
-    w << R"=====(</div>)====="; // left column
+        assets_card(w);
 
-    // B. The right column
+        w << R"=====(</div>)====="; // left column
 
-    w << R"=====(<div class="col-lg-8 col-md-12">)====="; // right column
+        // B. The right column
+
+        w << R"=====(<div class="col-lg-8 col-md-12">)====="; // right column
+    }
 
     // 1. Display the net worth graph
     net_worth_graph(w, "min-width: 300px; width: 100%; height: 300px;", true);
@@ -1283,9 +1295,11 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
     // 3. Display the objectives status
     objectives_card(w);
 
-    w << R"=====(</div>)====="; // right column
+    if (left_column) {
+        w << R"=====(</div>)====="; // right column
 
-    w << R"=====(</div>)====="; // row
+        w << R"=====(</div>)====="; // row
+    }
 
     // end the page
     page_end(w, content_stream, req, res);
