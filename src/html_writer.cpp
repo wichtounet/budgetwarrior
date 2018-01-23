@@ -368,39 +368,40 @@ bool budget::html_writer::is_web() {
 void budget::html_writer::display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values){
     os << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
 
-    os << R"=====(<script langage="javascript">)=====";
+    std::stringstream ss;
+    ss.imbue(std::locale("C"));
 
-    os << R"=====(Highcharts.chart('container', {)=====";
-    os << R"=====(chart: {type: 'column'},)=====";
-    os << R"=====(credits: {enabled: true},)=====";
+    ss << R"=====(Highcharts.chart('container', {)=====";
+    ss << R"=====(chart: {type: 'column'},)=====";
+    ss << R"=====(credits: {enabled: true},)=====";
 
-    os << "title: { text: '" << title << "'},";
-    os << "xAxis: { categories: [";
+    ss << "title: { text: '" << title << "'},";
+    ss << "xAxis: { categories: [";
 
     for (auto& category : categories) {
-        os << "'" << category << "',";
+        ss << "'" << category << "',";
     }
 
-    os << "]},";
+    ss << "]},";
 
-    os << "series: [";
+    ss << "series: [";
 
     for(size_t i = 0; i < series_names.size(); ++i){
-        os << "{ name: '" << series_names[i] << "',";
-        os << "data: [";
+        ss << "{ name: '" << series_names[i] << "',";
+        ss << "data: [";
 
         for(auto& value : series_values[i]){
-            os << value << ",";
+            ss << value << ",";
         }
 
-        os << "]},";
+        ss << "]},";
     }
 
-    os << "]";
+    ss << "]";
 
-    os << R"=====(});)=====";
+    ss << R"=====(});)=====";
 
-    os << R"=====(</script>)=====";
+    defer_script(ss.str());
 }
 
 void budget::html_writer::defer_script(const std::string& script){
