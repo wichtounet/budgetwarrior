@@ -1218,6 +1218,8 @@ void assets_card(budget::html_writer& w){
 
     w << R"=====(<div class="card-body">)=====";
 
+    bool first = true;
+
     for(auto& asset : all_assets()){
         auto id = asset.id;
 
@@ -1240,18 +1242,22 @@ void assets_card(budget::html_writer& w){
             auto amount       = asset_value.amount;
 
             if (amount) {
+                if(!first){
+                    w << R"=====(<hr />)=====";
+                }
+
                 w << R"=====(<div class="row">)=====";
-                w << R"=====(<div class="col-md-8 col-xl-9">)=====";
+                w << R"=====(<div class="col-md-8 col-xl-9 small">)=====";
                 w << asset.name;
                 w << R"=====(</div>)=====";
-                w << R"=====(<div class="col-md-4 col-xl-3 text-right">)=====";
-                w << budget::to_string(amount);
+                w << R"=====(<div class="col-md-4 col-xl-3 text-right small">)=====";
+                w << budget::to_string(amount) << " " << asset.currency;
                 w << R"=====(<br />)=====";
                 w << budget::to_string(asset_value.set_date);
                 w << R"=====(</div>)=====";
                 w << R"=====(</div>)=====";
 
-                w << R"=====(<hr />)=====";
+                first = false;
             }
         }
     }
