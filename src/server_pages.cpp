@@ -1015,17 +1015,34 @@ void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& t
     end_chart(w, ss);
 }
 
-void net_worth_graph(budget::html_writer& w, const std::string style = "") {
-    auto ss = start_chart(w, "Net Worth", "area", "net_worth_graph", style);
+void net_worth_graph(budget::html_writer& w, const std::string style = "", bool card = false) {
+    if (card) {
+        w << R"=====(<div class="card">)=====";
+
+        w << R"=====(<div class="card-header card-header-primary">)=====";
+        w << R"=====(<div class="float-left">Net Worth</div>)=====";
+        w << R"=====(<div class="float-right">)=====";
+        w << get_net_worth() << " __currency__";
+        w << R"=====(</div>)=====";
+        w << R"=====(<div class="clearfix"></div>)=====";
+        w << R"=====(</div>)====="; // card-header
+
+        w << R"=====(<div class="row card-body">)=====";
+        w << R"=====(<div class="col-xs-12">)=====";
+    }
+
+    auto ss = start_chart(w, card ? "" : "Net worth", "area", "net_worth_graph", style);
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
     ss << R"=====(legend: { enabled: false },)=====";
 
-    ss << R"=====(subtitle: {)=====";
-    ss << "text: '" << get_net_worth() << " __currency__',";
-    ss << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
-    ss << R"=====(},)=====";
+    if (!card) {
+        ss << R"=====(subtitle: {)=====";
+        ss << "text: '" << get_net_worth() << " __currency__',";
+        ss << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
+        ss << R"=====(},)=====";
+    }
 
     ss << "series: [";
 
@@ -1065,6 +1082,12 @@ void net_worth_graph(budget::html_writer& w, const std::string style = "") {
     ss << "]";
 
     end_chart(w, ss);
+
+    if (card) {
+        w << R"=====(</div>)====="; //col-xs-12
+        w << R"=====(</div>)====="; //card-body
+        w << R"=====(</div>)====="; //card
+    }
 }
 
 void cash_flow_card(budget::html_writer& w){
@@ -1252,7 +1275,7 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
     w << R"=====(<div class="col-lg-8 col-md-12">)====="; // right column
 
     // 1. Display the net worth graph
-    net_worth_graph(w, "min-width: 300px; height: 300px;");
+    net_worth_graph(w, "min-width: 300px; width: 100%; height: 300px;", true);
 
     // 2. Cash flow
     cash_flow_card(w);
