@@ -224,7 +224,7 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
 
     os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_year << "/" << previous_month.value << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
 
-    os << "<select id=\"month_selector\">";
+    os << "<select aria-label=\"Month\" id=\"month_selector\">";
     for (size_t i = 1; i < 13; ++i) {
         if (i == m.current_month) {
             os << "<option selected>" << i << "</option>";
@@ -234,7 +234,7 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
     }
     os << "</select>";
 
-    os << "<select id=\"year_selector\">";
+    os << "<select aria-label=\"Year\" id=\"year_selector\">";
 
     auto years = active_years();
 
@@ -288,7 +288,7 @@ budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) 
     auto next_year     = m.current_year + 1;
 
     os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_year << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
-    os << "<select id=\"year_selector\">";
+    os << "<select aria-label=\"Year\" id=\"year_selector\">";
 
     auto years = active_years();
 
