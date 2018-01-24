@@ -564,7 +564,6 @@ void budget::html_writer::load_deferred_scripts(){
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highcharts.js" integrity="sha256-jLlwSowwSPJ9ukSEWxfqld2rgZTzBcTJhfotyvtdOSk=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highcharts-more.js" integrity="sha256-QnoLQZe7BYRVTl3AY8Lsw6mn60HfHZNpcZBEndybfBk=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/solid-gauge.js" integrity="sha256-AIfWX+axQ036B1bKbqeWxklZ4BILxbfcNKDh+sqFS+g=" crossorigin="anonymous"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/exporting.js" integrity="sha256-lUeVX+hzn6tYnZ3uT+J5hmfN0K2LAbsvFar6eiKgKMc=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/series-label.js" integrity="sha256-58Ca6fVLKQfXdNwnmkcPq09InNJa/Io8EJPJtKXT70g=" crossorigin="anonymous"></script>
         )=====";
 
