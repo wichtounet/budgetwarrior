@@ -165,6 +165,32 @@ budget::writer& budget::html_writer::operator<<(const budget::title_end_t&) {
     return *this;
 }
 
+std::vector<budget::year> active_years(){
+    std::vector<budget::year> years;
+
+    for (auto& expense : budget::all_expenses()) {
+        if (expense.date != budget::TEMPLATE_DATE) {
+            auto y = expense.date.year();
+
+            if (std::find(years.begin(), years.end(), y) == years.end()) {
+                years.push_back(y);
+            }
+        }
+    }
+
+    for (auto& earning : budget::all_earnings()) {
+        if (earning.date != budget::TEMPLATE_DATE) {
+            auto y = earning.date.year();
+
+            if (std::find(years.begin(), years.end(), y) == years.end()) {
+                years.push_back(y);
+            }
+        }
+    }
+
+    return years;
+}
+
 budget::writer& budget::html_writer::operator<<(const budget::year_month_selector& m) {
     if (title_started) {
         os << "</h2>";  // end of the title
@@ -197,39 +223,56 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
     }
 
     os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_year << "/" << previous_month.value << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
-    os << "&nbsp;";
+
+    os << "<select id=\"month_selector\">";
+    for (size_t i = 1; i < 13; ++i) {
+        if (i == m.current_month) {
+            os << "<option selected>" << i << "</option>";
+        } else {
+            os << "<option>" << i << "</option>";
+        }
+    }
+    os << "</select>";
+
+    os << "<select id=\"year_selector\">";
+
+    auto years = active_years();
+
+    if(std::find(years.begin(), years.end(), m.current_year) == years.end()){
+        years.push_back(m.current_year);
+    }
+
+    std::sort(years.begin(), years.end());
+
+    for(auto year : years){
+        if(year == m.current_year){
+            os << "<option selected>" << year << "</option>";
+        } else {
+            os << "<option>" << year << "</option>";
+        }
+    }
+
+    os << "</select>";
+
     os << "<a aria-label=\"Next\" href=\"/" << m.page << "/" << next_year << "/" << next_month.value << "/\"><span class=\"oi oi-arrow-thick-right\"></span></a>";
 
     os << "</div>";
 
+    std::stringstream ss;
+
+    ss << "var update_page = function(){";
+    ss << "var selected_year = $(\"#year_selector\").find(':selected');";
+    ss << "var selected_month = $(\"#month_selector\").find(':selected');";
+    ss << "window.location = \"/" << m.page << "/" << "\" + selected_year.val() + \"/\" + selected_month.val() + \"/\";";
+    ss << "};";
+    ss << "$('#year_selector').change(update_page);";
+    ss << "$('#month_selector').change(update_page);";
+
+    defer_script(ss.str());
+
     return *this;
 }
 
-std::vector<budget::year> active_years(){
-    std::vector<budget::year> years;
-
-    for (auto& expense : budget::all_expenses()) {
-        if (expense.date != budget::TEMPLATE_DATE) {
-            auto y = expense.date.year();
-
-            if (std::find(years.begin(), years.end(), y) == years.end()) {
-                years.push_back(y);
-            }
-        }
-    }
-
-    for (auto& earning : budget::all_earnings()) {
-        if (earning.date != budget::TEMPLATE_DATE) {
-            auto y = earning.date.year();
-
-            if (std::find(years.begin(), years.end(), y) == years.end()) {
-                years.push_back(y);
-            }
-        }
-    }
-
-    return years;
-}
 
 budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) {
     if (title_started) {
