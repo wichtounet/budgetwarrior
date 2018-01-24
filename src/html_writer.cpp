@@ -559,20 +559,20 @@ void budget::html_writer::load_deferred_scripts(){
     )=====";
 
     if(!scripts.empty()){
-        // The javascript for Boostrap and JQuery
+        // Highcharts
         os << R"=====(
-            <script src="https://code.highcharts.com/highcharts.js"></script>
-            <script src="https://code.highcharts.com/highcharts-more.js"></script>
-            <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
-            <script src="https://code.highcharts.com/modules/series-label.js"></script>
-            <script src="https://code.highcharts.com/modules/exporting.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highcharts.js" integrity="sha256-jLlwSowwSPJ9ukSEWxfqld2rgZTzBcTJhfotyvtdOSk=" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highcharts-more.js" integrity="sha256-QnoLQZe7BYRVTl3AY8Lsw6mn60HfHZNpcZBEndybfBk=" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/solid-gauge.js" integrity="sha256-AIfWX+axQ036B1bKbqeWxklZ4BILxbfcNKDh+sqFS+g=" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/exporting.js" integrity="sha256-lUeVX+hzn6tYnZ3uT+J5hmfN0K2LAbsvFar6eiKgKMc=" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/series-label.js" integrity="sha256-58Ca6fVLKQfXdNwnmkcPq09InNJa/Io8EJPJtKXT70g=" crossorigin="anonymous"></script>
         )=====";
 
-        // The javascript for datables
+        // DataTables
         os << R"=====(
-            <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css" />
-            <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-            <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/css/dataTables.bootstrap4.min.css" integrity="sha256-LpykTdjMm+jVLpDWiYOkH8bYiithb4gajMYnIngj128=" crossorigin="anonymous" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/dataTables.bootstrap4.min.js" integrity="sha256-PahDJkda1lmviWgqffy4CcrECIFPJCWoa9EAqVx7Tf8=" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js" integrity="sha256-qcV1wr+bn4NoBtxYqghmy1WIBvxeoe8vQlCowLG+cng=" crossorigin="anonymous"></script>
         )=====";
 
         // Add the custom scripts
