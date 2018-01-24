@@ -75,8 +75,15 @@ std::string header(const std::string& title, bool menu = true) {
                     width: 75%;
                 }
 
-                .selector {
+                .selector a {
                     font-size: xx-large;
+                }
+
+                .selector select {
+                    vertical-align: middle;
+                    margin-bottom: 22px;
+                    margin-left: 2px;
+                    margin-right: 2px;
                 }
 
                 .card {

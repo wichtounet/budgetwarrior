@@ -10,6 +10,8 @@
 
 #include "writer.hpp"
 #include "console.hpp"
+#include "expenses.hpp"
+#include "earnings.hpp"
 
 namespace {
 
@@ -203,6 +205,32 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
     return *this;
 }
 
+std::vector<budget::year> active_years(){
+    std::vector<budget::year> years;
+
+    for (auto& expense : budget::all_expenses()) {
+        if (expense.date != budget::TEMPLATE_DATE) {
+            auto y = expense.date.year();
+
+            if (std::find(years.begin(), years.end(), y) == years.end()) {
+                years.push_back(y);
+            }
+        }
+    }
+
+    for (auto& earning : budget::all_earnings()) {
+        if (earning.date != budget::TEMPLATE_DATE) {
+            auto y = earning.date.year();
+
+            if (std::find(years.begin(), years.end(), y) == years.end()) {
+                years.push_back(y);
+            }
+        }
+    }
+
+    return years;
+}
+
 budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) {
     if (title_started) {
         os << "</h2>";  // end of the title
@@ -216,11 +244,38 @@ budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) 
     auto previous_year = m.current_year - 1;
     auto next_year     = m.current_year + 1;
 
-    os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_year << "/\">&lt;&lt;</a>";
-    os << "&nbsp;";
-    os << "<a aria-label=\"Next\" href=\"/" << m.page << "/" << next_year << "/\">&gt;&gt;</a>";
+    os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_year << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
+    os << "<select id=\"year_selector\">";
+
+    auto years = active_years();
+
+    if(std::find(years.begin(), years.end(), m.current_year) == years.end()){
+        years.push_back(m.current_year);
+    }
+
+    std::sort(years.begin(), years.end());
+
+    for(auto year : years){
+        if(year == m.current_year){
+            os << "<option selected>" << year << "</option>";
+        } else {
+            os << "<option>" << year << "</option>";
+        }
+    }
+
+    os << "</select>";
+    os << "<a aria-label=\"Next\" href=\"/" << m.page << "/" << next_year << "/\"><span class=\"oi oi-arrow-thick-right\"></span></a>";
 
     os << "</div>";
+
+    std::stringstream ss;
+
+    ss << "$('#year_selector').change(function(){";
+    ss << "var selected = $(this).find(':selected');";
+    ss << "window.location = \"/" << m.page << "/" << "\" + selected.val() + \"/\";";
+    ss << "})";
+
+    defer_script(ss.str());
 
     return *this;
 }
