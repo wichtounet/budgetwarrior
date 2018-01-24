@@ -369,7 +369,9 @@ void page_end(budget::html_writer& w, std::stringstream& content_stream, const h
     res.set_content(result, "text/html");
 }
 
-std::stringstream start_chart_base(budget::writer& w, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
+std::stringstream start_chart_base(budget::html_writer& w, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
+    w.use_module("highcharts");
+
     w << R"=====(<div id=")=====";
     w << id;
 
@@ -398,7 +400,7 @@ std::stringstream start_chart_base(budget::writer& w, const std::string& chart_t
     return ss;
 }
 
-std::stringstream start_chart(budget::writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
+std::stringstream start_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
     auto ss = start_chart_base(w, chart_type, id, style);
 
     ss << R"=====(title: {text: ')=====";
@@ -835,6 +837,8 @@ void make_tables_sortable(budget::html_writer& w){
          }]
         });
     )=====");
+
+    w.use_module("datatables");
 }
 
 budget::money monthly_income(budget::month month, budget::year year) {

@@ -58,7 +58,7 @@ std::string edit_to_string(const std::string& module, const std::string& id){
     return ss.str();
 }
 
-std::string html_format(const std::string& v){
+std::string html_format(budget::html_writer& w, const std::string& v){
     if(v.substr(0, 5) == "::red"){
         auto value = v.substr(5);
 
@@ -85,6 +85,8 @@ std::string html_format(const std::string& v){
         auto module = value.substr(0, value.find("::"));
         auto id     = value.substr(value.find("::") + 2, value.size());
 
+        w.use_module("open-iconic");
+
         return edit_to_string(module, id);
     }
 
@@ -96,7 +98,7 @@ std::string html_format(const std::string& v){
 budget::html_writer::html_writer(std::ostream& os) : os(os) {}
 
 budget::writer& budget::html_writer::operator<<(const std::string& value){
-    os << html_format(value);
+    os << html_format(*this, value);
 
     return *this;
 }
@@ -270,6 +272,8 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
 
     defer_script(ss.str());
 
+    use_module("open-iconic");
+
     return *this;
 }
 
@@ -319,6 +323,8 @@ budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) 
     ss << "})";
 
     defer_script(ss.str());
+
+    use_module("open-iconic");
 
     return *this;
 }
@@ -436,7 +442,7 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
                 continue;
             }
 
-            std::string value = html_format(row[j]);
+            std::string value = html_format(*this, row[j]);
 
             if(value.empty()){
                 os << "<td>&nbsp;</td>";
@@ -467,7 +473,7 @@ void budget::html_writer::display_table(std::vector<std::string>& columns, std::
                     continue;
                 }
 
-                std::string value = html_format(row[j]);
+                std::string value = html_format(*this, row[j]);
 
                 if (value.empty()) {
                     os << "<td>&nbsp;</td>";
@@ -498,6 +504,8 @@ bool budget::html_writer::is_web() {
 }
 
 void budget::html_writer::display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values){
+    use_module("highcharts");
+
     os << R"=====(<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>)=====";
 
     std::stringstream ss;
@@ -554,29 +562,44 @@ void budget::html_writer::load_deferred_scripts(){
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.13.0/umd/popper.min.js" integrity="sha256-pS96pU17yq+gVu4KBQJi38VpSuKN7otMrDQprzf/DWY=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha256-JNyuT3QsYBdyeKxKBwnGJAJiACWcow2TjhNruIFFPMQ=" crossorigin="anonymous"></script>
-
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
     )=====";
 
-    if(!scripts.empty()){
-        // Highcharts
+    // Open-Iconic
+    if (need_module("open-iconic")) {
+        os << R"=====(<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />)=====";
+    }
+
+    // DataTables
+    if (need_module("datatables")) {
+        os << R"=====(
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/css/dataTables.bootstrap4.min.css" integrity="sha256-LpykTdjMm+jVLpDWiYOkH8bYiithb4gajMYnIngj128=" crossorigin="anonymous" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/dataTables.bootstrap4.min.js" integrity="sha256-PahDJkda1lmviWgqffy4CcrECIFPJCWoa9EAqVx7Tf8=" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js" integrity="sha256-qcV1wr+bn4NoBtxYqghmy1WIBvxeoe8vQlCowLG+cng=" crossorigin="anonymous"></script>
+        )=====";
+    }
+
+    // Highcharts
+    if (need_module("highcharts")) {
         os << R"=====(
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highcharts.js" integrity="sha256-jLlwSowwSPJ9ukSEWxfqld2rgZTzBcTJhfotyvtdOSk=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highcharts-more.js" integrity="sha256-QnoLQZe7BYRVTl3AY8Lsw6mn60HfHZNpcZBEndybfBk=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/solid-gauge.js" integrity="sha256-AIfWX+axQ036B1bKbqeWxklZ4BILxbfcNKDh+sqFS+g=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/series-label.js" integrity="sha256-58Ca6fVLKQfXdNwnmkcPq09InNJa/Io8EJPJtKXT70g=" crossorigin="anonymous"></script>
         )=====";
-
-        // DataTables
-        os << R"=====(
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/css/dataTables.bootstrap4.min.css" integrity="sha256-LpykTdjMm+jVLpDWiYOkH8bYiithb4gajMYnIngj128=" crossorigin="anonymous" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/dataTables.bootstrap4.min.js" integrity="sha256-PahDJkda1lmviWgqffy4CcrECIFPJCWoa9EAqVx7Tf8=" crossorigin="anonymous"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js" integrity="sha256-qcV1wr+bn4NoBtxYqghmy1WIBvxeoe8vQlCowLG+cng=" crossorigin="anonymous"></script>
-        )=====";
-
-        // Add the custom scripts
-        for(auto& script : scripts){
-            os << script << '\n';
-        }
     }
+
+    // Add the custom scripts
+    for (auto& script : scripts) {
+        os << script << '\n';
+    }
+}
+
+void budget::html_writer::use_module(const std::string& module){
+    if (std::find(modules.begin(), modules.end(), module) == modules.end()) {
+        modules.push_back(module);
+    }
+}
+
+bool budget::html_writer::need_module(const std::string& module){
+    return std::find(modules.begin(), modules.end(), module) != modules.end();
 }

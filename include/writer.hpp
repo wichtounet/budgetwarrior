@@ -137,9 +137,14 @@ struct html_writer : writer {
     void defer_script(const std::string& script);
     void load_deferred_scripts();
 
+    void use_module(const std::string& module);
+
 private:
     std::vector<std::string> scripts;
+    std::vector<std::string> modules;
     bool title_started = false;
+
+    bool need_module(const std::string& module);
 };
 
 } //end of namespace budget
