@@ -1948,7 +1948,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     ss2 << "]";
 
-    end_chart(w, ss);
+    end_chart(w, ss2);
 
     page_end(w, content_stream, req, res);
 }
