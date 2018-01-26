@@ -1315,11 +1315,7 @@ void assets_card(budget::html_writer& w){
             }
         }
 
-        w << "<div class=\"assets_container\">";
-
         for (auto& group : groups) {
-            w << "<div class=\"asset_group_container\">";
-
             w << "<div class=\"asset_group\">";
             w << group;
             w << "</div>";
@@ -1352,11 +1348,7 @@ void assets_card(budget::html_writer& w){
                     }
                 }
             }
-
-            w << "</div>";
         }
-
-        w << "</div>";
     } else {
         bool first = true;
 
