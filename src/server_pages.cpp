@@ -1295,7 +1295,6 @@ void assets_card(budget::html_writer& w){
                 auto pos = asset.name.find(separator);
                 if (pos == 0 || pos == std::string::npos) {
                     group_style = false;
-                    std::cout << "wrong" << asset.name << std::endl;
                     break;
                 }
             }
