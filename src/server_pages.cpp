@@ -62,6 +62,38 @@ std::string header(const std::string& title, bool menu = true) {
                     margin-bottom: 8px;
                 }
 
+                .asset_group {
+                    margin-left: -20px;
+                    margin-right: -20px;
+                    padding-left: 5px;
+                    border-bottom: 1px solid #343a40;
+                    font-weight: bold;
+                    color: #343a40;
+                }
+
+                .asset_row {
+                    padding-top: 3px;
+                }
+
+                .asset_row:not(:last-child) {
+                    border-bottom: 1px solid rgba(0,0,0,0.125);
+                }
+
+                .asset_name {
+                    font-weight: bold;
+                    color: #007bff;
+                    padding-left: 5px;
+                }
+
+                .asset_right {
+                    padding-left: 0px;
+                    padding-right: 5px;
+                }
+
+                .asset_date {
+                    color: rgba(0,0,0,0.5);
+                }
+
                 .small-form-inline {
                     float: left;
                     padding-right: 10px;
@@ -1215,6 +1247,24 @@ void objectives_card(budget::html_writer& w){
     w << R"=====(</div>)=====";
 }
 
+std::pair<bool, size_t> find_last_asset_value(size_t asset_id){
+    size_t asset_value_id  = 0;
+    bool asset_value_found = false;
+
+    for (auto& asset_value : all_asset_values()) {
+        if (asset_value.asset_id == asset_id) {
+            if (!asset_value_found) {
+                asset_value_found = true;
+                asset_value_id    = asset_value.id;
+            } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
+                asset_value_id = asset_value.id;
+            }
+        }
+    }
+
+    return std::make_pair(asset_value_found, asset_value_id);
+}
+
 void assets_card(budget::html_writer& w){
     w << R"=====(<div class="card">)=====";
 
@@ -1224,46 +1274,117 @@ void assets_card(budget::html_writer& w){
 
     w << R"=====(<div class="card-body">)=====";
 
-    bool first = true;
+    std::string separator = "/";
+    if (budget::config_contains("aggregate_separator")) {
+        separator = budget::config_value("aggregate_separator");
+    }
 
-    for(auto& asset : all_assets()){
-        auto id = asset.id;
+    // If all assets are in the form group/asset, then we use special style
 
-        size_t asset_value_id = 0;
-        bool asset_value_found = false;
+    bool group_style = true;
 
-        for (auto& asset_value : all_asset_values()) {
-            if (asset_value.asset_id == id) {
-                if(!asset_value_found){
-                    asset_value_found = true;
-                    asset_value_id    = asset_value.id;
-                } else if(asset_value.set_date >= get_asset_value(asset_value_id).set_date){
-                    asset_value_id    = asset_value.id;
+    if (budget::config_contains("asset_no_group")) {
+        if (budget::config_value("asset_no_group") == "true") {
+            group_style = false;
+        }
+    }
+
+    if (group_style) {
+        for (auto& asset : all_assets()) {
+            if (asset.name != "DESIRED") {
+                auto pos = asset.name.find(separator);
+                if (pos == 0 || pos == std::string::npos) {
+                    group_style = false;
+                    std::cout << "wrong" << asset.name << std::endl;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (group_style) {
+        std::vector<std::string> groups;
+
+        for (auto& asset : all_assets()) {
+            if (asset.name != "DESIRED") {
+                std::string group = asset.name.substr(0, asset.name.find(separator));
+
+                if (std::find(groups.begin(), groups.end(), group) == groups.end()) {
+                    groups.push_back(group);
                 }
             }
         }
 
-        if (asset_value_found) {
-            auto& asset_value = get_asset_value(asset_value_id);
-            auto amount       = asset_value.amount;
+        w << "<div class=\"assets_container\">";
 
-            if (amount) {
-                if(!first){
-                    w << R"=====(<hr />)=====";
+        for (auto& group : groups) {
+            w << "<div class=\"asset_group_container\">";
+
+            w << "<div class=\"asset_group\">";
+            w << group;
+            w << "</div>";
+
+            for (auto& asset : all_assets()) {
+                if (asset.name != "DESIRED" && asset.name.substr(0, asset.name.find(separator)) == group) {
+                    auto short_name = asset.name.substr(asset.name.find(separator) + 1);
+
+                    auto value = find_last_asset_value(asset.id);
+                    if (value.first) {
+                        auto& asset_value = get_asset_value(value.second);
+                        auto amount       = asset_value.amount;
+
+                        if (amount) {
+                            w << R"=====(<div class="asset_row row">)=====";
+                            w << R"=====(<div class="asset_name col-md-8 col-xl-9 small">)=====";
+                            w << short_name;
+                            w << R"=====(</div>)=====";
+                            w << R"=====(<div class="asset_right col-md-4 col-xl-3 text-right small">)=====";
+                            w << R"=====(<span class="asset_amount">)=====";
+                            w << budget::to_string(amount) << " " << asset.currency;
+                            w << R"=====(</span>)=====";
+                            w << R"=====(<br />)=====";
+                            w << R"=====(<span class="asset_date">)=====";
+                            w << budget::to_string(asset_value.set_date);
+                            w << R"=====(</span>)=====";
+                            w << R"=====(</div>)=====";
+                            w << R"=====(</div>)=====";
+                        }
+                    }
                 }
+            }
 
-                w << R"=====(<div class="row">)=====";
-                w << R"=====(<div class="col-md-8 col-xl-9 small">)=====";
-                w << asset.name;
-                w << R"=====(</div>)=====";
-                w << R"=====(<div class="col-md-4 col-xl-3 text-right small">)=====";
-                w << budget::to_string(amount) << " " << asset.currency;
-                w << R"=====(<br />)=====";
-                w << budget::to_string(asset_value.set_date);
-                w << R"=====(</div>)=====";
-                w << R"=====(</div>)=====";
+            w << "</div>";
+        }
 
-                first = false;
+        w << "</div>";
+    } else {
+        bool first = true;
+
+        for (auto& asset : all_assets()) {
+            auto value = find_last_asset_value(asset.id);
+
+            if (value.first) {
+                auto& asset_value = get_asset_value(value.second);
+                auto amount       = asset_value.amount;
+
+                if (amount) {
+                    if (!first) {
+                        w << R"=====(<hr />)=====";
+                    }
+
+                    w << R"=====(<div class="row">)=====";
+                    w << R"=====(<div class="col-md-8 col-xl-9 small">)=====";
+                    w << asset.name;
+                    w << R"=====(</div>)=====";
+                    w << R"=====(<div class="col-md-4 col-xl-3 text-right small">)=====";
+                    w << budget::to_string(amount) << " " << asset.currency;
+                    w << R"=====(<br />)=====";
+                    w << budget::to_string(asset_value.set_date);
+                    w << R"=====(</div>)=====";
+                    w << R"=====(</div>)=====";
+
+                    first = false;
+                }
             }
         }
     }
