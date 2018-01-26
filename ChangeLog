@@ -1,5 +1,7 @@
 budgetwarrior 1.0 - in development
 
+ * Add web interface!
+ * Add server mode for synchronization!
  * Compute the savings rate
  * Add support for savings rate objectives
  * Add support for tracking asset values
