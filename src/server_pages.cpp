@@ -308,7 +308,7 @@ void display_message(budget::writer& w, const httplib::Request& req) {
             w << R"=====(<div class="alert alert-primary" role="alert">)=====";
         }
 
-        w << req.params.at("message");
+        w << req.get_param_value("message");
         w << R"=====(</div>)=====";
     }
 }
@@ -1487,12 +1487,12 @@ void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!account_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The account " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit account " << input_id << title_end;
 
@@ -1821,12 +1821,12 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!expense_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The expense " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit Expense " << input_id << title_end;
 
@@ -1879,12 +1879,12 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!earning_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The earning " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit earning " << input_id << title_end;
 
@@ -2323,12 +2323,12 @@ void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!asset_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The asset " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit asset " << input_id << title_end;
 
@@ -2532,12 +2532,12 @@ void edit_asset_values_page(const httplib::Request& req, httplib::Response& res)
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!asset_value_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The asset value " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit asset " << input_id << title_end;
 
@@ -2648,12 +2648,12 @@ void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!objective_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The objective " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit objective " << input_id << title_end;
 
@@ -2749,12 +2749,12 @@ void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!wish_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The wish " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit wish " << input_id << title_end;
 
@@ -2873,12 +2873,12 @@ void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!fortune_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The fortune " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit fortune " << input_id << title_end;
 
@@ -2942,12 +2942,12 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!recurring_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The recurring expense " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit Recurring Expense " << input_id << title_end;
 
@@ -3027,12 +3027,12 @@ void edit_debts_page(const httplib::Request& req, httplib::Response& res) {
     if (!req.has_param("input_id") || !req.has_param("back_page")) {
         display_error_message(w, "Invalid parameter for the request");
     } else {
-        auto input_id = req.params.at("input_id");
+        auto input_id = req.get_param_value("input_id");
 
         if (!debt_exists(budget::to_number<size_t>(input_id))) {
             display_error_message(w, "The debt " + input_id + " does not exist");
         } else {
-            auto back_page = req.params.at("back_page");
+            auto back_page = req.get_param_value("back_page");
 
             w << title_begin << "Edit Debt " << input_id << title_end;
 

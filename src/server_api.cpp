@@ -80,7 +80,7 @@ bool api_start(const httplib::Request& req, httplib::Response& res) {
 
 void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message) {
     if (req.has_param("server")) {
-        auto url = req.params.at("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
+        auto url = req.get_param_value("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
         res.set_redirect(url.c_str());
     } else {
         res.set_content("Success: " + message, "text/plain");
@@ -89,7 +89,7 @@ void api_success(const httplib::Request& req, httplib::Response& res, const std:
 
 void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message, const std::string& content) {
     if (req.has_param("server")) {
-        auto url = req.params.at("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
+        auto url = req.get_param_value("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
         res.set_redirect(url.c_str());
     } else {
         res.set_content(content, "text/plain");
@@ -102,7 +102,7 @@ void api_success_content(const httplib::Request& /*req*/, httplib::Response& res
 
 void api_error(const httplib::Request& req, httplib::Response& res, const std::string& message) {
     if (req.has_param("server")) {
-        auto url = req.params.at("back_page") + "?error=true&message=" + httplib::detail::encode_url(message);
+        auto url = req.get_param_value("back_page") + "?error=true&message=" + httplib::detail::encode_url(message);
         res.set_redirect(url.c_str());
     } else {
         res.set_content("Error: " + message, "text/plain");
@@ -145,7 +145,7 @@ void server_version_support_api(const httplib::Request& req, httplib::Response& 
         return;
     }
 
-    auto client_version = req.params.at("version");
+    auto client_version = req.get_param_value("version");
 
     if (client_version == "1.0") {
         api_success_content(req, res, "yes");
@@ -166,8 +166,8 @@ void add_accounts_api(const httplib::Request& req, httplib::Response& res) {
 
     account account;
     account.guid   = budget::generate_guid();
-    account.name   = req.params.at("input_name");
-    account.amount = budget::parse_money(req.params.at("input_amount"));
+    account.name   = req.get_param_value("input_name");
+    account.amount = budget::parse_money(req.get_param_value("input_amount"));
     account.since  = find_new_since();
     account.until  = budget::date(2099, 12, 31);
 
@@ -186,7 +186,7 @@ void edit_accounts_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::account_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "account " + id + " does not exist");
@@ -194,8 +194,8 @@ void edit_accounts_api(const httplib::Request& req, httplib::Response& res) {
     }
 
     account& account = account_get(budget::to_number<size_t>(id));
-    account.name     = req.params.at("input_name");
-    account.amount   = budget::parse_money(req.params.at("input_amount"));
+    account.name     = req.get_param_value("input_name");
+    account.amount   = budget::parse_money(req.get_param_value("input_amount"));
 
     set_accounts_changed();
 
@@ -212,7 +212,7 @@ void delete_accounts_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::account_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The account " + id + " does not exit");
@@ -271,10 +271,10 @@ void add_expenses_api(const httplib::Request& req, httplib::Response& res) {
 
     expense expense;
     expense.guid    = budget::generate_guid();
-    expense.date    = budget::from_string(req.params.at("input_date"));
-    expense.account = budget::to_number<size_t>(req.params.at("input_account"));
-    expense.name    = req.params.at("input_name");
-    expense.amount  = budget::parse_money(req.params.at("input_amount"));
+    expense.date    = budget::from_string(req.get_param_value("input_date"));
+    expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
+    expense.name    = req.get_param_value("input_name");
+    expense.amount  = budget::parse_money(req.get_param_value("input_amount"));
 
     add_expense(std::move(expense));
 
@@ -291,7 +291,7 @@ void edit_expenses_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::expense_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "Expense " + id + " does not exist");
@@ -299,10 +299,10 @@ void edit_expenses_api(const httplib::Request& req, httplib::Response& res) {
     }
 
     expense& expense = expense_get(budget::to_number<size_t>(id));
-    expense.date     = budget::from_string(req.params.at("input_date"));
-    expense.account  = budget::to_number<size_t>(req.params.at("input_account"));
-    expense.name     = req.params.at("input_name");
-    expense.amount   = budget::parse_money(req.params.at("input_amount"));
+    expense.date     = budget::from_string(req.get_param_value("input_date"));
+    expense.account  = budget::to_number<size_t>(req.get_param_value("input_account"));
+    expense.name     = req.get_param_value("input_name");
+    expense.amount   = budget::parse_money(req.get_param_value("input_amount"));
 
     set_expenses_changed();
 
@@ -319,7 +319,7 @@ void delete_expenses_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::expense_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The expense " + id + " does not exit");
@@ -358,10 +358,10 @@ void add_earnings_api(const httplib::Request& req, httplib::Response& res) {
 
     earning earning;
     earning.guid    = budget::generate_guid();
-    earning.date    = budget::from_string(req.params.at("input_date"));
-    earning.account = budget::to_number<size_t>(req.params.at("input_account"));
-    earning.name    = req.params.at("input_name");
-    earning.amount  = budget::parse_money(req.params.at("input_amount"));
+    earning.date    = budget::from_string(req.get_param_value("input_date"));
+    earning.account = budget::to_number<size_t>(req.get_param_value("input_account"));
+    earning.name    = req.get_param_value("input_name");
+    earning.amount  = budget::parse_money(req.get_param_value("input_amount"));
 
     add_earning(std::move(earning));
 
@@ -378,7 +378,7 @@ void edit_earnings_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::earning_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "Earning " + id + " does not exist");
@@ -386,10 +386,10 @@ void edit_earnings_api(const httplib::Request& req, httplib::Response& res) {
     }
 
     earning& earning = earning_get(budget::to_number<size_t>(id));
-    earning.date     = budget::from_string(req.params.at("input_date"));
-    earning.account  = budget::to_number<size_t>(req.params.at("input_account"));
-    earning.name     = req.params.at("input_name");
-    earning.amount   = budget::parse_money(req.params.at("input_amount"));
+    earning.date     = budget::from_string(req.get_param_value("input_date"));
+    earning.account  = budget::to_number<size_t>(req.get_param_value("input_account"));
+    earning.name     = req.get_param_value("input_name");
+    earning.amount   = budget::parse_money(req.get_param_value("input_amount"));
 
     set_earnings_changed();
 
@@ -406,7 +406,7 @@ void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::earning_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The earning " + id + " does not exit");
@@ -445,11 +445,11 @@ void add_objectives_api(const httplib::Request& req, httplib::Response& res) {
 
     objective objective;
     objective.guid   = budget::generate_guid();
-    objective.name   = req.params.at("input_name");
-    objective.type   = req.params.at("input_type");
-    objective.source = req.params.at("input_source");
-    objective.op     = req.params.at("input_operator");
-    objective.amount = budget::parse_money(req.params.at("input_amount"));
+    objective.name   = req.get_param_value("input_name");
+    objective.type   = req.get_param_value("input_type");
+    objective.source = req.get_param_value("input_source");
+    objective.op     = req.get_param_value("input_operator");
+    objective.amount = budget::parse_money(req.get_param_value("input_amount"));
 
     add_objective(std::move(objective));
 
@@ -466,7 +466,7 @@ void edit_objectives_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::objective_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "objective " + id + " does not exist");
@@ -474,11 +474,11 @@ void edit_objectives_api(const httplib::Request& req, httplib::Response& res) {
     }
 
     objective& objective = objective_get(budget::to_number<size_t>(id));
-    objective.name       = req.params.at("input_name");
-    objective.type       = req.params.at("input_type");
-    objective.source     = req.params.at("input_source");
-    objective.op         = req.params.at("input_operator");
-    objective.amount     = budget::parse_money(req.params.at("input_amount"));
+    objective.name       = req.get_param_value("input_name");
+    objective.type       = req.get_param_value("input_type");
+    objective.source     = req.get_param_value("input_source");
+    objective.op         = req.get_param_value("input_operator");
+    objective.amount     = budget::parse_money(req.get_param_value("input_amount"));
 
     set_objectives_changed();
 
@@ -495,7 +495,7 @@ void delete_objectives_api(const httplib::Request& req, httplib::Response& res) 
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::objective_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The objective " + id + " does not exit");
@@ -534,14 +534,14 @@ void add_assets_api(const httplib::Request& req, httplib::Response& res) {
 
     asset asset;
     asset.guid            = budget::generate_guid();
-    asset.name            = req.params.at("input_name");
-    asset.int_stocks      = budget::parse_money(req.params.at("input_int_stocks"));
-    asset.dom_stocks      = budget::parse_money(req.params.at("input_dom_stocks"));
-    asset.bonds           = budget::parse_money(req.params.at("input_bonds"));
-    asset.cash            = budget::parse_money(req.params.at("input_cash"));
-    asset.portfolio       = req.params.at("input_portfolio") == "yes";
-    asset.portfolio_alloc = budget::parse_money(req.params.at("input_alloc"));
-    asset.currency        = req.params.at("input_currency");
+    asset.name            = req.get_param_value("input_name");
+    asset.int_stocks      = budget::parse_money(req.get_param_value("input_int_stocks"));
+    asset.dom_stocks      = budget::parse_money(req.get_param_value("input_dom_stocks"));
+    asset.bonds           = budget::parse_money(req.get_param_value("input_bonds"));
+    asset.cash            = budget::parse_money(req.get_param_value("input_cash"));
+    asset.portfolio       = req.get_param_value("input_portfolio") == "yes";
+    asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
+    asset.currency        = req.get_param_value("input_currency");
 
     if (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)) {
         api_error(req, res, "The total allocation of the asset is not 100%");
@@ -563,7 +563,7 @@ void edit_assets_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::asset_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "asset " + id + " does not exist");
@@ -571,14 +571,14 @@ void edit_assets_api(const httplib::Request& req, httplib::Response& res) {
     }
 
     asset& asset          = asset_get(budget::to_number<size_t>(id));
-    asset.name            = req.params.at("input_name");
-    asset.int_stocks      = budget::parse_money(req.params.at("input_int_stocks"));
-    asset.dom_stocks      = budget::parse_money(req.params.at("input_dom_stocks"));
-    asset.bonds           = budget::parse_money(req.params.at("input_bonds"));
-    asset.cash            = budget::parse_money(req.params.at("input_cash"));
-    asset.portfolio       = req.params.at("input_portfolio") == "yes";
-    asset.portfolio_alloc = budget::parse_money(req.params.at("input_alloc"));
-    asset.currency        = req.params.at("input_currency");
+    asset.name            = req.get_param_value("input_name");
+    asset.int_stocks      = budget::parse_money(req.get_param_value("input_int_stocks"));
+    asset.dom_stocks      = budget::parse_money(req.get_param_value("input_dom_stocks"));
+    asset.bonds           = budget::parse_money(req.get_param_value("input_bonds"));
+    asset.cash            = budget::parse_money(req.get_param_value("input_cash"));
+    asset.portfolio       = req.get_param_value("input_portfolio") == "yes";
+    asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
+    asset.currency        = req.get_param_value("input_currency");
 
     if (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)) {
         api_error(req, res, "The total allocation of the asset is not 100%");
@@ -600,7 +600,7 @@ void delete_assets_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::asset_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The asset " + id + " does not exit");
@@ -639,9 +639,9 @@ void add_asset_values_api(const httplib::Request& req, httplib::Response& res) {
 
     asset_value asset_value;
     asset_value.guid     = budget::generate_guid();
-    asset_value.amount   = budget::parse_money(req.params.at("input_amount"));
-    asset_value.asset_id = budget::to_number<size_t>(req.params.at("input_asset"));
-    asset_value.set_date = budget::from_string(req.params.at("input_date"));
+    asset_value.amount   = budget::parse_money(req.get_param_value("input_amount"));
+    asset_value.asset_id = budget::to_number<size_t>(req.get_param_value("input_asset"));
+    asset_value.set_date = budget::from_string(req.get_param_value("input_date"));
 
     add_asset_value(std::move(asset_value));
 
@@ -658,7 +658,7 @@ void edit_asset_values_api(const httplib::Request& req, httplib::Response& res) 
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::asset_value_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "Asset value " + id + " does not exist");
@@ -666,9 +666,9 @@ void edit_asset_values_api(const httplib::Request& req, httplib::Response& res) 
     }
 
     asset_value& asset_value = asset_value_get(budget::to_number<size_t>(id));
-    asset_value.amount       = budget::parse_money(req.params.at("input_amount"));
-    asset_value.asset_id     = budget::to_number<size_t>(req.params.at("input_asset"));
-    asset_value.set_date     = budget::from_string(req.params.at("input_date"));
+    asset_value.amount       = budget::parse_money(req.get_param_value("input_amount"));
+    asset_value.asset_id     = budget::to_number<size_t>(req.get_param_value("input_asset"));
+    asset_value.set_date     = budget::from_string(req.get_param_value("input_date"));
 
     set_asset_values_changed();
 
@@ -685,7 +685,7 @@ void delete_asset_values_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::asset_value_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The asset value " + id + " does not exit");
@@ -723,7 +723,7 @@ void batch_asset_values_api(const httplib::Request& req, httplib::Response& res)
         auto input_name = "input_amount_" + budget::to_string(asset.id);
 
         if (req.has_param(input_name.c_str())) {
-            auto new_amount = budget::parse_money(req.params.at(input_name.c_str()));
+            auto new_amount = budget::parse_money(req.get_param_value(input_name.c_str()));
 
             budget::money current_amount;
 
@@ -739,7 +739,7 @@ void batch_asset_values_api(const httplib::Request& req, httplib::Response& res)
                 asset_value.guid     = budget::generate_guid();
                 asset_value.amount   = new_amount;
                 asset_value.asset_id = asset.id;
-                asset_value.set_date = budget::from_string(req.params.at("input_date"));
+                asset_value.set_date = budget::from_string(req.get_param_value("input_date"));
 
                 add_asset_value(std::move(asset_value));
             }
@@ -761,9 +761,9 @@ void add_recurrings_api(const httplib::Request& req, httplib::Response& res) {
 
     recurring recurring;
     recurring.guid    = budget::generate_guid();
-    recurring.account = budget::get_account(budget::to_number<size_t>(req.params.at("input_account"))).name;
-    recurring.name    = req.params.at("input_name");
-    recurring.amount  = budget::parse_money(req.params.at("input_amount"));
+    recurring.account = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
+    recurring.name    = req.get_param_value("input_name");
+    recurring.amount  = budget::parse_money(req.get_param_value("input_amount"));
     recurring.recurs  = "monthly";
 
     add_recurring(std::move(recurring));
@@ -781,7 +781,7 @@ void edit_recurrings_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::recurring_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "recurring " + id + " does not exist");
@@ -789,9 +789,9 @@ void edit_recurrings_api(const httplib::Request& req, httplib::Response& res) {
     }
 
     recurring& recurring = recurring_get(budget::to_number<size_t>(id));
-    recurring.account    = budget::get_account(budget::to_number<size_t>(req.params.at("input_account"))).name;
-    recurring.name       = req.params.at("input_name");
-    recurring.amount     = budget::parse_money(req.params.at("input_amount"));
+    recurring.account    = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
+    recurring.name       = req.get_param_value("input_name");
+    recurring.amount     = budget::parse_money(req.get_param_value("input_amount"));
 
     set_recurrings_changed();
 
@@ -808,7 +808,7 @@ void delete_recurrings_api(const httplib::Request& req, httplib::Response& res) 
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::recurring_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The recurring " + id + " does not exit");
@@ -849,10 +849,10 @@ void add_debts_api(const httplib::Request& req, httplib::Response& res) {
     debt.state         = 0;
     debt.guid          = budget::generate_guid();
     debt.creation_date = budget::local_day();
-    debt.direction     = req.params.at("input_direction") == "to";
-    debt.name          = req.params.at("input_name");
-    debt.title         = req.params.at("input_title");
-    debt.amount        = budget::parse_money(req.params.at("input_amount"));
+    debt.direction     = req.get_param_value("input_direction") == "to";
+    debt.name          = req.get_param_value("input_name");
+    debt.title         = req.get_param_value("input_title");
+    debt.amount        = budget::parse_money(req.get_param_value("input_amount"));
 
     add_debt(std::move(debt));
 
@@ -869,7 +869,7 @@ void edit_debts_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::debt_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "Debt " + id + " does not exist");
@@ -877,11 +877,11 @@ void edit_debts_api(const httplib::Request& req, httplib::Response& res) {
     }
 
     debt& debt     = debt_get(budget::to_number<size_t>(id));
-    debt.direction = req.params.at("input_direction") == "to";
-    debt.name      = req.params.at("input_name");
-    debt.title     = req.params.at("input_title");
-    debt.amount    = budget::parse_money(req.params.at("input_amount"));
-    debt.state     = req.params.at("input_paid") == "yes" ? 1 : 0;
+    debt.direction = req.get_param_value("input_direction") == "to";
+    debt.name      = req.get_param_value("input_name");
+    debt.title     = req.get_param_value("input_title");
+    debt.amount    = budget::parse_money(req.get_param_value("input_amount"));
+    debt.state     = req.get_param_value("input_paid") == "yes" ? 1 : 0;
 
     set_debts_changed();
 
@@ -898,7 +898,7 @@ void delete_debts_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::debt_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The debt " + id + " does not exit");
@@ -937,8 +937,8 @@ void add_fortunes_api(const httplib::Request& req, httplib::Response& res) {
 
     fortune fortune;
     fortune.guid       = budget::generate_guid();
-    fortune.check_date = budget::from_string(req.params.at("input_date"));
-    fortune.amount     = budget::parse_money(req.params.at("input_amount"));
+    fortune.check_date = budget::from_string(req.get_param_value("input_date"));
+    fortune.amount     = budget::parse_money(req.get_param_value("input_amount"));
 
     add_fortune(std::move(fortune));
 
@@ -955,7 +955,7 @@ void edit_fortunes_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::fortune_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "Fortune " + id + " does not exist");
@@ -963,8 +963,8 @@ void edit_fortunes_api(const httplib::Request& req, httplib::Response& res) {
     }
 
     fortune& fortune   = fortune_get(budget::to_number<size_t>(id));
-    fortune.check_date = budget::from_string(req.params.at("input_date"));
-    fortune.amount     = budget::parse_money(req.params.at("input_amount"));
+    fortune.check_date = budget::from_string(req.get_param_value("input_date"));
+    fortune.amount     = budget::parse_money(req.get_param_value("input_amount"));
 
     set_fortunes_changed();
 
@@ -981,7 +981,7 @@ void delete_fortunes_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::fortune_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The fortune " + id + " does not exit");
@@ -1023,10 +1023,10 @@ void add_wishes_api(const httplib::Request& req, httplib::Response& res) {
     wish.paid_amount = 0;
     wish.guid        = budget::generate_guid();
     wish.date        = budget::local_day();
-    wish.name        = req.params.at("input_name");
-    wish.importance  = budget::to_number<int>(req.params.at("input_importance"));
-    wish.urgency     = budget::to_number<int>(req.params.at("input_urgency"));
-    wish.amount      = budget::parse_money(req.params.at("input_amount"));
+    wish.name        = req.get_param_value("input_name");
+    wish.importance  = budget::to_number<int>(req.get_param_value("input_importance"));
+    wish.urgency     = budget::to_number<int>(req.get_param_value("input_urgency"));
+    wish.amount      = budget::parse_money(req.get_param_value("input_amount"));
 
     add_wish(std::move(wish));
 
@@ -1043,24 +1043,24 @@ void edit_wishes_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::wish_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "wish " + id + " does not exist");
         return;
     }
 
-    bool paid = req.params.at("input_paid") == "yes";
+    bool paid = req.get_param_value("input_paid") == "yes";
 
     wish& wish      = wish_get(budget::to_number<size_t>(id));
-    wish.name       = req.params.at("input_name");
-    wish.importance = budget::to_number<int>(req.params.at("input_importance"));
-    wish.urgency    = budget::to_number<int>(req.params.at("input_urgency"));
-    wish.amount     = budget::parse_money(req.params.at("input_amount"));
+    wish.name       = req.get_param_value("input_name");
+    wish.importance = budget::to_number<int>(req.get_param_value("input_importance"));
+    wish.urgency    = budget::to_number<int>(req.get_param_value("input_urgency"));
+    wish.amount     = budget::parse_money(req.get_param_value("input_amount"));
     wish.paid       = paid;
 
     if (paid) {
-        wish.paid_amount = budget::parse_money(req.params.at("input_paid_amount"));
+        wish.paid_amount = budget::parse_money(req.get_param_value("input_paid_amount"));
     }
 
     set_wishes_changed();
@@ -1078,7 +1078,7 @@ void delete_wishes_api(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    auto id = req.params.at("input_id");
+    auto id = req.get_param_value("input_id");
 
     if (!budget::wish_exists(budget::to_number<size_t>(id))) {
         api_error(req, res, "The wish " + id + " does not exit");
