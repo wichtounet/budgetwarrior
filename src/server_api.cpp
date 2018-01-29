@@ -147,7 +147,7 @@ void server_version_support_api(const httplib::Request& req, httplib::Response& 
 
     auto client_version = req.get_param_value("version");
 
-    if (client_version == "1.0") {
+    if (client_version == "1.0" || client_version == "1.0.1") {
         api_success_content(req, res, "yes");
     } else {
         api_success_content(req, res, "no");
