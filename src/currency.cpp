@@ -10,8 +10,7 @@
 #include <iostream>
 
 #include "currency.hpp"
-
-#include "httplib.h"
+#include "http.hpp"
 
 namespace {
 

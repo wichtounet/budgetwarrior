@@ -22,10 +22,8 @@
 #include "version.hpp"
 #include "wishes.hpp"
 #include "writer.hpp"
-
 #include "server_api.hpp"
-
-#include "httplib.h"
+#include "http.hpp"
 
 using namespace budget;
 

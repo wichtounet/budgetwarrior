@@ -14,8 +14,7 @@
 #include "api.hpp"
 #include "config.hpp"
 #include "utils.hpp"
-
-#include "httplib.h"
+#include "http.hpp"
 
 budget::api_response budget::api_get(const std::string& api, bool silent) {
     cpp_assert(is_server_mode(), "api_get() should only be called in server mode");

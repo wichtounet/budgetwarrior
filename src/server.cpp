@@ -22,11 +22,9 @@
 #include "recurring.hpp"
 #include "debts.hpp"
 #include "currency.hpp"
-
 #include "server_api.hpp"
 #include "server_pages.hpp"
-
-#include "httplib.h"
+#include "http.hpp"
 
 using namespace budget;
 
