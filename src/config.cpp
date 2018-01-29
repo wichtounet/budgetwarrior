@@ -227,3 +227,11 @@ bool budget::is_secure(){
 
     return true;
 }
+
+bool budget::is_server_ssl(){
+    if (config_contains("server_ssl")) {
+        return config_value("server_ssl") == "true";
+    }
+
+    return false;
+}

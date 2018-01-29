@@ -47,4 +47,9 @@ bool is_secure();
  */
 bool is_server_mode();
 
+/*!
+ * \brief Indicates if the server is running with SSL.
+ */
+bool is_server_ssl();
+
 } //end of namespace budget
