@@ -663,29 +663,35 @@ void budget::show_asset_rebalance(budget::writer& w){
                 }
             }
 
+            budget::money amount;
+
             if (asset_value_found) {
                 auto& asset_value = get_asset_value(asset_value_id);
-                auto amount       = asset_value.amount;
+                amount       = asset_value.amount;
+            }
 
-                auto conv_amount = amount * exchange_rate(asset.currency, get_default_currency());
-                auto allocation  = 100.0 * (conv_amount / total);
-                auto desired     = total * (float(asset.portfolio_alloc) / 100.0);
-                auto difference  = desired - conv_amount;
+            if(amount.zero() && asset.portfolio_alloc.zero()){
+                continue;
+            }
 
-                total_rebalance += difference.abs();
+            auto conv_amount = amount * exchange_rate(asset.currency, get_default_currency());
+            auto allocation  = 100.0 * (conv_amount / total);
+            auto desired     = total * (float(asset.portfolio_alloc) / 100.0);
+            auto difference  = desired - conv_amount;
 
-                if (amount || difference) {
-                    contents.push_back({
-                        asset.name,
-                        to_string(amount),
-                        asset.currency,
-                        to_string(conv_amount),
-                        to_percent(allocation),
-                        to_string(asset.portfolio_alloc),
-                        to_string(desired),
-                        format_money(difference)
-                    });
-                }
+            total_rebalance += difference.abs();
+
+            if (amount || difference) {
+                contents.push_back({
+                    asset.name,
+                    to_string(amount),
+                    asset.currency,
+                    to_string(conv_amount),
+                    to_percent(allocation),
+                    to_string(asset.portfolio_alloc),
+                    to_string(desired),
+                    format_money(difference)
+                });
             }
         }
     }
