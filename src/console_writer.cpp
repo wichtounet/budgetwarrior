@@ -65,6 +65,28 @@ std::string format(const std::string& v) {
     return v;
 }
 
+std::string underline_format(const std::string& v) {
+    if (v.substr(0, 5) == "::red") {
+        auto value = v.substr(5);
+
+        return "\033[4;31m" + value + budget::format_reset();
+    } else if (v.substr(0, 7) == "::green") {
+        auto value = v.substr(7);
+
+        return "\033[4;32m" + value + budget::format_reset();
+    } else if (v.substr(0, 6) == "::blue") {
+        auto value = v.substr(6);
+
+        return "\033[4;33m" + value + budget::format_reset();
+    } else if (v.substr(0, 9) == "::success") {
+        auto value   = v.substr(9);
+        auto success = budget::to_number<unsigned long>(value);
+        return success_to_string(success);
+    }
+
+    return v;
+}
+
 } // end of anonymous namespace
 
 budget::console_writer::console_writer(std::ostream& os)
@@ -235,7 +257,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 
                 if (underline) {
                     os << format_code(4, 0, 7);
-                    os << value;
+                    os << underline_format(row[column]);
                     os << std::string(widths[column] - rsize(value) - 1, ' ');
                     os << format_code(0, 0, 7);
                 } else {
@@ -271,7 +293,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 
             if (underline) {
                 os << format_code(4, 0, 7);
-                os << value;
+                os << underline_format(row[last_column]);
                 os << fill_string;
                 os << format_code(0, 0, 7);
             } else {
