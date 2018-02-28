@@ -668,40 +668,77 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         }
     }
 
-    contents.push_back({"Savings Rate"});
+    {
+        contents.push_back({"Savings Rate"});
 
-    double total_savings_rate = 0.0;
-    double current_total_savings_rate = 0.0;
+        double total_savings_rate         = 0.0;
+        double current_total_savings_rate = 0.0;
 
-    for(unsigned short i = sm; i < 13; ++i){
-        budget::month m = i;
+        for (unsigned short i = sm; i < 13; ++i) {
+            budget::month m = i;
 
-        auto status = compute_month_status(year, m);
+            auto status = compute_month_status(year, m);
 
-        double savings_rate = 0.0;
+            double savings_rate = 0.0;
 
-        if(status.balance.dollars() > 0){
-            savings_rate = 100.0 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+            if (status.balance.dollars() > 0) {
+                savings_rate = 100.0 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+            }
+
+            contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
+
+            if (i < sm + current_months) {
+                current_total_savings_rate += savings_rate;
+            }
+
+            total_savings_rate += savings_rate;
         }
 
-        contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
-
-        if(i < current_months){
-            current_total_savings_rate += savings_rate;
-        }
-
-        total_savings_rate += savings_rate;
-    }
-
-    contents.back().push_back("");
-    contents.back().push_back(to_string_precision(total_savings_rate / 12, 2) + "%");
-
-    if(current){
         contents.back().push_back("");
-        contents.back().push_back(to_string_precision(current_total_savings_rate / current_months, 2) + "%");
+        contents.back().push_back(to_string_precision(total_savings_rate / 12, 2) + "%");
+
+        if (current) {
+            contents.back().push_back("");
+            contents.back().push_back(to_string_precision(current_total_savings_rate / current_months, 2) + "%");
+        }
     }
 
-    w.display_table(columns, contents, 1, {}, 0, contents.size() - c_foot);
+    {
+        contents.push_back({"Previous Year"});
+
+        double total_savings_rate         = 0.0;
+        double current_total_savings_rate = 0.0;
+
+        for (unsigned short i = sm; i < 13; ++i) {
+            budget::month m = i;
+
+            auto status = compute_month_status(year - 1, m);
+
+            double savings_rate = 0.0;
+
+            if (status.balance.dollars() > 0) {
+                savings_rate = 100.0 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+            }
+
+            contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
+
+            if (i < sm + current_months) {
+                current_total_savings_rate += savings_rate;
+            }
+
+            total_savings_rate += savings_rate;
+        }
+
+        contents.back().push_back("");
+        contents.back().push_back(to_string_precision(total_savings_rate / 12, 2) + "%");
+
+        if (current) {
+            contents.back().push_back("");
+            contents.back().push_back(to_string_precision(current_total_savings_rate / current_months, 2) + "%");
+        }
+    }
+
+    w.display_table(columns, contents, 1, {6, 8}, 0, contents.size() - c_foot);
 }
 
 void budget::display_balance(budget::writer& w, budget::year year, bool relaxed, bool last){
