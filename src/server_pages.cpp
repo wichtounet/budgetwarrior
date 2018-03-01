@@ -2573,14 +2573,16 @@ void batch_asset_values_page(const httplib::Request& req, httplib::Response& res
     auto sorted_asset_values = all_sorted_asset_values();
 
     for (auto& asset : all_assets()) {
-        budget::money amount;
-        for (auto& asset_value : sorted_asset_values) {
-            if (asset_value.asset_id == asset.id) {
-                amount = asset_value.amount;
+        if (asset.name != "DESIRED") {
+            budget::money amount;
+            for (auto& asset_value : sorted_asset_values) {
+                if (asset_value.asset_id == asset.id) {
+                    amount = asset_value.amount;
+                }
             }
-        }
 
-        add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true);
+            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true);
+        }
     }
 
     form_end(w);
