@@ -535,7 +535,11 @@ void add_percent_picker(budget::writer& w, const std::string& title, const std::
     )=====";
 }
 
-void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool one_line = false) {
+void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool one_line = false, const std::string& currency = "") {
+    if(!currency.empty()){
+        cpp_assert(one_line, "add_money_picker currency only works with one_line");
+    }
+
     if (one_line) {
         w << R"=====(<div class="form-group row">)=====";
 
@@ -560,6 +564,11 @@ void add_money_picker(budget::writer& w, const std::string& title, const std::st
 
     if (one_line) {
         w << "</div>";
+
+        if (!currency.empty()) {
+            w << "<label class=\"col-sm-2 col-form-label\">" << currency << "</label>";
+        }
+
         w << "</div>";
     } else {
         w << "</div>";
@@ -2581,7 +2590,7 @@ void batch_asset_values_page(const httplib::Request& req, httplib::Response& res
                 }
             }
 
-            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true);
+            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
         }
     }
 
