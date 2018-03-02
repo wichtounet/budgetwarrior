@@ -2194,12 +2194,14 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     std::stringstream current_ss;
 
+    current_ss << R"=====(var current_base_colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1", red, blue, green];)=====";
+
     current_ss << "var current_pie_colors = (function () {";
     current_ss << "var colors = [];";
 
     for (auto& asset_amount : asset_amounts) {
         if (asset_amount.second) {
-            current_ss << "colors.push(Highcharts.getOptions().colors[" << colors[asset_amount.first] << "]);";
+            current_ss << "colors.push(current_base_colors[" << colors[asset_amount.first] << "]);";
         }
     }
 
@@ -2251,12 +2253,14 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     std::stringstream desired_ss;
 
+    desired_ss << R"=====(var desired_base_colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1", red, blue, green];)=====";
+
     desired_ss << "var desired_pie_colors = (function () {";
     desired_ss << "var colors = [];";
 
     for (auto& asset : all_assets()) {
         if (asset.portfolio && asset.portfolio_alloc) {
-            desired_ss << "colors.push(Highcharts.getOptions().colors[" << colors[asset.id] << "]);";
+            desired_ss << "colors.push(desired_base_colors[" << colors[asset.id] << "]);";
         }
     }
 
