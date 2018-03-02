@@ -147,9 +147,20 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 expense.guid = generate_guid();
                 expense.date = budget::local_day();
 
+                std::string account_name;
+
+                if (config_contains("default_account")) {
+                    auto default_account = config_value("default_account");
+
+                    if (account_exists(default_account)) {
+                        account_name = default_account;
+                    } else {
+                        std::cerr << "error: The default account set in the configuration does not exist, ignoring it" << std::endl;
+                    }
+                }
+
                 edit_date(expense.date, "Date");
 
-                std::string account_name;
                 edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
                 expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
