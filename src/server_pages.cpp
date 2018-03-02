@@ -1812,7 +1812,18 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
     add_date_picker(w);
     add_name_picker(w);
     add_amount_picker(w);
-    add_account_picker(w);
+
+    std::string account;
+
+    if (config_contains("default_account")) {
+        auto default_account = config_value("default_account");
+
+        if (account_exists(default_account)) {
+            account = default_account;
+        }
+    }
+
+    add_account_picker(w, account);
 
     form_end(w);
 
