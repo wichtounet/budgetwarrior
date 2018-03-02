@@ -2194,7 +2194,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     std::stringstream current_ss;
 
-    current_ss << R"=====(var current_base_colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1", red, blue, green];)=====";
+    current_ss << R"=====(var current_base_colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1", "red", "blue", "green"];)=====";
 
     current_ss << "var current_pie_colors = (function () {";
     current_ss << "var colors = [];";
@@ -2253,7 +2253,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     std::stringstream desired_ss;
 
-    desired_ss << R"=====(var desired_base_colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1", red, blue, green];)=====";
+    desired_ss << R"=====(var desired_base_colors = ["#7cb5ec", "#434348", "#90ed7d", "#f7a35c", "#8085e9", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1", "red", "blue", "green"];)=====";
 
     desired_ss << "var desired_pie_colors = (function () {";
     desired_ss << "var colors = [];";
