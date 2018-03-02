@@ -204,7 +204,8 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                   <a class="dropdown-item" href="/assets/add/">Add Asset</a>
                   <a class="dropdown-item" href="/asset_values/list/">Asset Values</a>
-                  <a class="dropdown-item" href="/asset_values/batch/">Batch Update</a>
+                  <a class="dropdown-item" href="/asset_values/batch/full/">Full Batch Update</a>
+                  <a class="dropdown-item" href="/asset_values/batch/current/">Current Batch Update</a>
                   <a class="dropdown-item" href="/asset_values/add/">Set One Asset Value</a>
                 </div>
               </li>
@@ -2577,7 +2578,7 @@ void edit_asset_values_page(const httplib::Request& req, httplib::Response& res)
     page_end(w, content_stream, req, res);
 }
 
-void batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
+void full_batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Batch update asset values")) {
         return;
@@ -2603,6 +2604,42 @@ void batch_asset_values_page(const httplib::Request& req, httplib::Response& res
             }
 
             add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
+        }
+    }
+
+    form_end(w);
+
+    page_end(w, content_stream, req, res);
+}
+
+void current_batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Batch update asset values")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Batch update asset values" << title_end;
+
+    form_begin(w, "/api/asset_values/batch/", "/asset_values/batch/");
+
+    add_date_picker(w, budget::to_string(budget::local_day()), true);
+
+    auto sorted_asset_values = all_sorted_asset_values();
+
+    for (auto& asset : all_assets()) {
+        if (asset.name != "DESIRED") {
+            budget::money amount;
+            for (auto& asset_value : sorted_asset_values) {
+                if (asset_value.asset_id == asset.id) {
+                    amount = asset_value.amount;
+                }
+            }
+
+            if (amount) {
+                add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
+            }
         }
     }
 
@@ -3132,7 +3169,8 @@ void budget::load_pages(httplib::Server& server) {
 
     server.get("/asset_values/list/", &list_asset_values_page);
     server.get("/asset_values/add/", &add_asset_values_page);
-    server.get("/asset_values/batch/", &batch_asset_values_page);
+    server.get("/asset_values/batch/full/", &full_batch_asset_values_page);
+    server.get("/asset_values/batch/current/", &current_batch_asset_values_page);
     server.post("/asset_values/edit/", &edit_asset_values_page);
 
     server.get("/objectives/list/", &list_objectives_page);
