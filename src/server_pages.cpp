@@ -955,7 +955,7 @@ void month_breakdown_income_graph(budget::html_writer& w, const std::string& tit
 
     budget::money total = get_base_income();
 
-    if (!total.zero()) {
+    if (total) {
         ss << "{";
         ss << "name: 'Salary',";
         ss << "y: " << budget::to_flat_string(total);
@@ -2181,7 +2181,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     std::map<size_t, size_t> colors;
 
     for (auto& asset : all_assets()) {
-        if (asset.portfolio && (!asset_amounts[asset.id].zero() || !asset.portfolio_alloc.zero())) {
+        if (asset.portfolio && (asset_amounts[asset.id] || asset.portfolio_alloc)) {
             if (!colors.count(asset.id)) {
                 auto c           = colors.size();
                 colors[asset.id] = c;
@@ -2196,8 +2196,8 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     current_ss << "var current_pie_colors = (function () {";
     current_ss << "var colors = [];";
 
-    for(auto& asset_amount : asset_amounts){
-        if(!asset_amount.second.zero()){
+    for (auto& asset_amount : asset_amounts) {
+        if (asset_amount.second) {
             current_ss << "colors.push(Highcharts.getOptions().colors[" << colors[asset_amount.first] << "]);";
         }
     }
@@ -2219,7 +2219,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     budget::money sum;
 
     for (auto& asset_amount : asset_amounts) {
-        if (!asset_amount.second.zero()) {
+        if (asset_amount.second) {
             ss << "{ name: '" << get_asset(asset_amount.first).name << "',";
             ss << "y: ";
             ss << budget::to_flat_string(asset_amount.second);
@@ -2249,7 +2249,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     desired_ss << "var colors = [];";
 
     for (auto& asset : all_assets()) {
-        if (asset.portfolio && !asset.portfolio_alloc.zero()) {
+        if (asset.portfolio && asset.portfolio_alloc) {
             desired_ss << "colors.push(Highcharts.getOptions().colors[" << colors[asset.id] << "]);";
         }
     }
@@ -2271,7 +2271,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     ss2 << "data: [";
 
     for (auto& asset : all_assets()) {
-        if (asset.portfolio && !asset.portfolio_alloc.zero()) {
+        if (asset.portfolio && asset.portfolio_alloc) {
             ss2 << "{ name: '" << asset.name << "',";
             ss2 << "y: ";
             ss2 << budget::to_flat_string(sum * (static_cast<float>(asset.portfolio_alloc) / 100.0f));
