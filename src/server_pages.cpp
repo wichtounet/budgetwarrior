@@ -1819,7 +1819,7 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
         auto default_account = config_value("default_account");
 
         if (account_exists(default_account)) {
-            account = default_account;
+            account = budget::to_string(get_account(account_name, expense.date.year(), expense.date.month()).id);
         }
     }
 
