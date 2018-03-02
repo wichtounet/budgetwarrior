@@ -23,6 +23,7 @@
 #include "version.hpp"
 #include "wishes.hpp"
 #include "writer.hpp"
+#include "currency.hpp"
 
 #include "server_pages.hpp"
 #include "http.hpp"
@@ -2219,13 +2220,18 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     budget::money sum;
 
     for (auto& asset_amount : asset_amounts) {
-        if (asset_amount.second) {
-            ss << "{ name: '" << get_asset(asset_amount.first).name << "',";
+        auto amount = asset_amount.second;
+
+        if (amount) {
+            auto& asset      = get_asset(asset_amount.first);
+            auto conv_amount = amount * exchange_rate(asset.currency, get_default_currency());
+
+            ss << "{ name: '" << asset.name << "',";
             ss << "y: ";
-            ss << budget::to_flat_string(asset_amount.second);
+            ss << budget::to_flat_string(conv_amount);
             ss << "},";
 
-            sum += asset_amount.second;
+            sum += conv_amount;
         }
     }
 
