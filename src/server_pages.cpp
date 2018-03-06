@@ -2598,7 +2598,7 @@ void full_batch_asset_values_page(const httplib::Request& req, httplib::Response
 
     w << title_begin << "Batch update asset values" << title_end;
 
-    form_begin(w, "/api/asset_values/batch/", "/asset_values/batch/");
+    form_begin(w, "/api/asset_values/batch/", "/asset_values/batch/full/");
 
     add_date_picker(w, budget::to_string(budget::local_day()), true);
 
@@ -2632,7 +2632,7 @@ void current_batch_asset_values_page(const httplib::Request& req, httplib::Respo
 
     w << title_begin << "Batch update asset values" << title_end;
 
-    form_begin(w, "/api/asset_values/batch/", "/asset_values/batch/");
+    form_begin(w, "/api/asset_values/batch/", "/asset_values/batch/current/");
 
     add_date_picker(w, budget::to_string(budget::local_day()), true);
 
