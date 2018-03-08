@@ -1758,17 +1758,17 @@ void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response
     ss << "colorByPoint: true,";
     ss << "data: [";
 
-    std::map<size_t, budget::money> account_sum;
+    std::map<std::string, budget::money> account_sum;
 
     for (auto& expense : all_expenses()) {
         if (expense.date.year() == year) {
-            account_sum[expense.account] += expense.amount;
+            account_sum[get_account(expense.account).name] += expense.amount;
         }
     }
 
     for (auto& sum : account_sum) {
         ss << "{";
-        ss << "name: '" << get_account(sum.first).name << "',";
+        ss << "name: '" << sum.first << "',";
         ss << "y: " << budget::to_flat_string(sum.second);
         ss << "},";
     }
