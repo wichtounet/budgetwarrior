@@ -89,6 +89,11 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
         query += it->second;
     }
 
+    // Add some form of identification
+    if (!params.empty()) {
+        query += "&budgetwarrior=666";
+    }
+
     httplib::Request req;
     req.method = "POST";
     req.path = api_complete.c_str();
