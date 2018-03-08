@@ -25,6 +25,47 @@ using namespace budget;
 
 namespace {
 
+bool invalid_accounts_all(){
+    auto sy = start_year();
+
+    auto today = budget::local_day();
+
+    std::vector<budget::account> previous = all_accounts(sy, start_month(sy));
+
+    for(unsigned short j = sy; j <= today.year(); ++j){
+        budget::year year = j;
+
+        auto sm = start_month(year);
+
+        for(unsigned short i = sm; i < 13; ++i){
+            budget::month month = i;
+
+            auto current_accounts = all_accounts(year, month);
+
+            if(current_accounts.size() != previous.size()){
+                return true;
+            }
+
+            for(auto& c : current_accounts){
+                bool found = false;
+
+                for(auto& p : previous){
+                    if(p.name == c.name){
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found){
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 bool invalid_accounts(budget::year year){
     auto sm = start_month(year);
 
@@ -539,6 +580,8 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
                                                  budget::month(to_number<unsigned short>(args[3])),
                                                  budget::year(to_number<unsigned short>(args[4])));
                     }
+                } else if (args[2] == "all") {
+                    aggregate_all_overview(w, full, disable_groups, separator);
                 } else {
                     throw budget_exception("Invalid subcommand");
                 }
@@ -931,6 +974,16 @@ void budget::display_year_overview(budget::writer& w){
     auto today = budget::local_day();
 
     display_year_overview(today.year(), w);
+}
+
+void budget::aggregate_all_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator){
+    if(invalid_accounts_all()){
+        throw budget::budget_exception("The accounts of the different years or months have different names, impossible to generate the complete overview. ");
+    }
+
+    w << title_begin << "Aggregate overview of all time" << title_end;
+
+    aggregate_overview(w, full, disable_groups, separator, [](const budget::expense& /*expense*/){ return true; });
 }
 
 void budget::aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year){

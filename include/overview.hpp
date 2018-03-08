@@ -44,6 +44,7 @@ void display_month_overview(budget::writer& );
 void display_year_overview(budget::year year, budget::writer& w);
 void display_year_overview(budget::writer& w);
 
+void aggregate_all_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator);
 void aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year);
 void aggregate_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::month month, budget::year year);
 
