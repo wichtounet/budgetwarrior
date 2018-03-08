@@ -21,6 +21,8 @@ void save_config();
 
 bool config_contains(const std::string& key);
 std::string config_value(const std::string& key);
+std::string config_value(const std::string& key, const std::string& def);
+bool config_contains_and_true(const std::string& key);
 
 bool internal_config_contains(const std::string& key);
 std::string& internal_config_value(const std::string& key);

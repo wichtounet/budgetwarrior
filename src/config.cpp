@@ -179,6 +179,22 @@ std::string budget::config_value(const std::string& key){
     return configuration[key];
 }
 
+std::string budget::config_value(const std::string& key, const std::string& def){
+    if (config_contains(key)) {
+        return config_value(key);
+    }
+
+    return def;
+}
+
+bool budget::config_contains_and_true(const std::string& key) {
+    if (config_contains(key)) {
+        return config_value(key) == "true";
+    }
+
+    return false;
+}
+
 bool budget::internal_config_contains(const std::string& key){
     return internal.find(key) != internal.end();
 }
