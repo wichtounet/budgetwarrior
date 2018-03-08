@@ -1585,28 +1585,10 @@ void overview_aggregate_all_page(const httplib::Request& req, httplib::Response&
 
     budget::html_writer w(content_stream);
 
-    //Default values
-    bool full             = false;
-    bool disable_groups   = false;
-    std::string separator = "/";
-
-    //Get defaults from config
-
-    if (budget::config_contains("aggregate_full")) {
-        if (budget::config_value("aggregate_full") == "true") {
-            full = true;
-        }
-    }
-
-    if (budget::config_contains("aggregate_no_group")) {
-        if (budget::config_value("aggregate_no_group") == "true") {
-            disable_groups = true;
-        }
-    }
-
-    if (budget::config_contains("aggregate_separator")) {
-        separator = budget::config_value("aggregate_separator");
-    }
+    // Configuration of the overview
+    bool full             = config_contains_and_true("aggregate_full");
+    bool disable_groups   = config_contains_and_true("aggregate_no_group");
+    std::string separator = config_value("aggregate_separator", "/");
 
     aggregate_all_overview(w, full, disable_groups, separator);
 
@@ -1621,28 +1603,10 @@ void overview_aggregate_year_page(const httplib::Request& req, httplib::Response
 
     budget::html_writer w(content_stream);
 
-    //Default values
-    bool full             = false;
-    bool disable_groups   = false;
-    std::string separator = "/";
-
-    //Get defaults from config
-
-    if (budget::config_contains("aggregate_full")) {
-        if (budget::config_value("aggregate_full") == "true") {
-            full = true;
-        }
-    }
-
-    if (budget::config_contains("aggregate_no_group")) {
-        if (budget::config_value("aggregate_no_group") == "true") {
-            disable_groups = true;
-        }
-    }
-
-    if (budget::config_contains("aggregate_separator")) {
-        separator = budget::config_value("aggregate_separator");
-    }
+    // Configuration of the overview
+    bool full             = config_contains_and_true("aggregate_full");
+    bool disable_groups   = config_contains_and_true("aggregate_no_group");
+    std::string separator = config_value("aggregate_separator", "/");
 
     if (req.matches.size() == 2) {
         aggregate_year_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[1]));
@@ -1662,28 +1626,10 @@ void overview_aggregate_month_page(const httplib::Request& req, httplib::Respons
 
     budget::html_writer w(content_stream);
 
-    //Default values
-    bool full             = false;
-    bool disable_groups   = false;
-    std::string separator = "/";
-
-    //Get defaults from config
-
-    if (budget::config_contains("aggregate_full")) {
-        if (budget::config_value("aggregate_full") == "true") {
-            full = true;
-        }
-    }
-
-    if (budget::config_contains("aggregate_no_group")) {
-        if (budget::config_value("aggregate_no_group") == "true") {
-            disable_groups = true;
-        }
-    }
-
-    if (budget::config_contains("aggregate_separator")) {
-        separator = budget::config_value("aggregate_separator");
-    }
+    // Configuration of the overview
+    bool full             = config_contains_and_true("aggregate_full");
+    bool disable_groups   = config_contains_and_true("aggregate_no_group");
+    std::string separator = config_value("aggregate_separator", "/");
 
     if (req.matches.size() == 3) {
         aggregate_month_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]));
