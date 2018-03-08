@@ -262,11 +262,12 @@ void budget::set_expenses_next_id(size_t next_id){
 void budget::show_all_expenses(budget::writer& w){
     w << title_begin << "All Expenses " << add_button("expenses") << title_end;
 
-    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     for(auto& expense : expenses.data){
-        contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+        contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name,
+            expense.name, to_string(expense.amount), "::edit::expenses::" + to_string(expense.id)});
     }
 
     w.display_table(columns, contents);
