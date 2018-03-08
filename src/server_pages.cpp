@@ -586,14 +586,14 @@ void add_paid_amount_picker(budget::writer& w, const std::string& default_value 
     add_money_picker(w, "paid amount", "input_paid_amount", default_value);
 }
 
-void add_account_picker(budget::writer& w, const std::string& default_value = "") {
+void add_account_picker(budget::writer& w, budget::date day, const std::string& default_value = "") {
     w << R"=====(
             <div class="form-group">
                 <label for="input_account">Account</label>
                 <select class="form-control" id="input_account" name="input_account">
     )=====";
 
-    for (auto& account : current_accounts()) {
+    for (auto& account : all_accounts(day.year(), day.month())) {
         if (budget::to_string(account.id) == default_value) {
             w << "<option selected value=\"" << account.id << "\">" << account.name << "</option>";
         } else {
@@ -1809,7 +1809,7 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    add_account_picker(w, account);
+    add_account_picker(w, budget::local_day(), account);
 
     form_end(w);
 
@@ -1843,7 +1843,7 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
             add_date_picker(w, budget::to_string(expense.date));
             add_name_picker(w, expense.name);
             add_amount_picker(w, budget::to_flat_string(expense.amount));
-            add_account_picker(w, budget::to_string(expense.account));
+            add_account_picker(w, expense.date, budget::to_string(expense.account));
 
             form_end(w);
         }
@@ -1867,7 +1867,7 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
     add_date_picker(w);
     add_name_picker(w);
     add_amount_picker(w);
-    add_account_picker(w);
+    add_account_picker(w, budget::local_day());
 
     form_end(w);
 
@@ -1901,7 +1901,7 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
             add_date_picker(w, budget::to_string(earning.date));
             add_name_picker(w, earning.name);
             add_amount_picker(w, budget::to_flat_string(earning.amount));
-            add_account_picker(w, budget::to_string(earning.account));
+            add_account_picker(w, earning.date, budget::to_string(earning.account));
 
             form_end(w);
         }
@@ -2977,7 +2977,7 @@ void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
 
     add_name_picker(w);
     add_amount_picker(w);
-    add_account_picker(w);
+    add_account_picker(w, budget::local_day());
 
     form_end(w);
 
@@ -3010,7 +3010,7 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
 
             add_name_picker(w, recurring.name);
             add_amount_picker(w, budget::to_flat_string(recurring.amount));
-            add_account_picker(w, budget::to_string(recurring.account));
+            add_account_picker(w, budget::local_day(), budget::to_string(recurring.account));
 
             form_end(w);
         }
