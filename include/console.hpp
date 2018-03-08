@@ -282,8 +282,19 @@ struct not_zero_checker {
 };
 
 struct account_checker {
-    bool operator()(const std::string& value){
-        return account_exists(value);
+    budget::date date;
+
+    account_checker() : date(budget::local_day()) {}
+    account_checker(budget::date date) : date(date) {}
+
+    bool operator()(const std::string& value) {
+        for (auto& account : all_accounts(date.year(), date.month())) {
+            if (account.name == value) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     std::string message(){
