@@ -2770,8 +2770,17 @@ void retirement_configure_page(const httplib::Request& req, httplib::Response& r
 
     form_begin(w, "/api/retirement/configure/", "/retirement/status/");
 
-    add_percent_picker(w, "Withdrawal Rate [%]", "input_wrate", 4.0);
-    add_percent_picker(w, "Annual Return [%]", "input_roi", 5.0);
+    if (!internal_config_contains("withdrawal_rate")) {
+        add_percent_picker(w, "Withdrawal Rate [%]", "input_wrate", 4.0);
+    } else {
+        add_percent_picker(w, "Withdrawal Rate [%]", "input_wrate", to_number<double>(internal_config_value("withdrawal_rate")));
+    }
+
+    if (!internal_config_contains("expected_roi")) {
+        add_percent_picker(w, "Annual Return [%]", "input_roi", 5.0);
+    } else {
+        add_percent_picker(w, "Annual Return [%]", "input_roi", to_number<double>(internal_config_value("expected_roi")));
+    }
 
     form_end(w);
 
