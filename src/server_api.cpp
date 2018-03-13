@@ -433,6 +433,25 @@ void list_earnings_api(const httplib::Request& req, httplib::Response& res) {
     api_success_content(req, res, ss.str());
 }
 
+void retirement_configure_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_wrate", "input_roi"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    // Save the configuration
+    internal_config_value("withdrawal_rate") = req.get_param_value("input_wrate");
+    internal_config_value("expected_roi") = req.get_param_value("input_roi");
+
+    save_config();
+
+    api_success(req, res, "Retirement configuration was saved");
+}
+
 void add_objectives_api(const httplib::Request& req, httplib::Response& res) {
     if (!api_start(req, res)) {
         return;
@@ -1159,6 +1178,8 @@ void budget::load_api(httplib::Server& server) {
     server.post("/api/asset_values/batch/", &batch_asset_values_api);
     server.post("/api/asset_values/delete/", &delete_asset_values_api);
     server.get("/api/asset_values/list/", &list_asset_values_api);
+
+    server.post("/api/retirement/configure/", &retirement_configure_api);
 
     server.post("/api/objectives/add/", &add_objectives_api);
     server.post("/api/objectives/edit/", &edit_objectives_api);

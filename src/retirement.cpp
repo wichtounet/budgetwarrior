@@ -15,6 +15,7 @@
 #include "budget_exception.hpp"
 #include "config.hpp"
 #include "console.hpp"
+#include "writer.hpp"
 
 using namespace budget;
 
@@ -82,70 +83,6 @@ double running_savings_rate(){
     return savings_rate / running_limit;
 }
 
-void retirement_status() {
-    if(!internal_config_contains("withdrawal_rate")){
-        std::cerr << "Not enough information, please configure first with retirement set" << std::endl;
-        return;
-    }
-
-    if(!internal_config_contains("expected_roi")){
-        std::cerr << "Not enough information, please configure first with retirement set" << std::endl;
-        return;
-    }
-
-    auto currency = get_default_currency();
-    auto wrate = to_number<double>(internal_config_value("withdrawal_rate"));
-    auto roi = to_number<double>(internal_config_value("expected_roi"));
-    auto years = double(int(100.0 / wrate));
-    auto expenses = running_expenses();
-    auto savings_rate = running_savings_rate();
-    auto nw = get_net_worth();
-    auto missing = years * expenses - nw;
-    auto income= 12 * get_base_income();
-
-    auto current_nw = nw;
-    size_t base_months = 0;
-
-    while(current_nw < years * expenses){
-        current_nw *= 1.0 + (roi / 100.0) / 12;
-        current_nw += (savings_rate * income) / 12;
-
-        ++base_months;
-    }
-
-    std::cout << "         Withdrawal rate: " << wrate << "%" << std::endl;
-    std::cout << "        Years of expense: " << years << std::endl;
-    std::cout << "        Running expenses: " << expenses << " " << currency << std::endl;
-    std::cout << "        Target Net Worth: " << years * expenses << " " << currency << std::endl;
-    std::cout << "       Current Net Worth: " << nw << " " << currency << std::endl;
-    std::cout << "       Missing Net Worth: " << missing << " " << currency << std::endl;
-    std::cout << "                FI Ratio: " << 100 * (nw / missing) << "%" << std::endl;
-    std::cout << "           Yearly income: " << income << " " << currency << std::endl;
-    std::cout << "    Running Savings Rate: " << 100 * savings_rate << "%" << std::endl;
-    std::cout << "          Yearly savings: " << savings_rate * income << " " << currency << std::endl;
-    std::cout << "Time to FI (w/o returns): " << missing / (savings_rate * income) << " years" << std::endl;
-    std::cout << " Time to FI (w/ returns): " << base_months / 12.0 << " years" << std::endl;
-    std::cout << std::endl;
-
-    std::array<int, 5> decs{1, 2, 5, 10, 20};
-
-    for (auto dec : decs) {
-        auto dec_savings_rate = savings_rate + 0.01 * dec;
-
-        auto current_nw        = nw;
-        size_t months = 0;
-
-        while (current_nw < years * expenses) {
-            current_nw *= 1.0 + (roi / 100.0) / 12;
-            current_nw += (dec_savings_rate * income) / 12;
-
-            ++months;
-        }
-
-        std::cout << "Increasing your Savings Rate by " << dec << "% would save you " << (base_months - months) / 12.0 << " years" << std::endl;
-    }
-}
-
 void retirement_set() {
     double wrate = 4.0;
     double roi = 4.0;
@@ -176,19 +113,93 @@ void budget::retirement_module::load() {
 }
 
 void budget::retirement_module::handle(std::vector<std::string>& args) {
+    console_writer w(std::cout);
+
     if (args.empty() || args.size() == 1) {
-        retirement_status();
+        retirement_status(w);
     } else {
         auto& subcommand = args[1];
 
         if (subcommand == "status") {
-            retirement_status();
+            retirement_status(w);
         } else if (subcommand == "set") {
             retirement_set();
             std::cout << std::endl;
-            retirement_status();
+            retirement_status(w);
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
+    }
+}
+
+void budget::retirement_status(budget::writer& w) {
+    if (!w.is_web()) {
+        if (!internal_config_contains("withdrawal_rate")) {
+            w << "Not enough information, please configure first with retirement set" << end_of_line;
+            return;
+        }
+
+        if (!internal_config_contains("expected_roi")) {
+            w << "Not enough information, please configure first with retirement set" << end_of_line;
+            return;
+        }
+    }
+
+    auto currency = get_default_currency();
+    auto wrate = to_number<double>(internal_config_value("withdrawal_rate"));
+    auto roi = to_number<double>(internal_config_value("expected_roi"));
+    auto years = double(int(100.0 / wrate));
+    auto expenses = running_expenses();
+    auto savings_rate = running_savings_rate();
+    auto nw = get_net_worth();
+    auto missing = years * expenses - nw;
+    auto income= 12 * get_base_income();
+
+    auto current_nw = nw;
+    size_t base_months = 0;
+
+    while(current_nw < years * expenses){
+        current_nw *= 1.0 + (roi / 100.0) / 12;
+        current_nw += (savings_rate * income) / 12;
+
+        ++base_months;
+    }
+
+    std::vector<std::string> columns = {};
+    std::vector<std::vector<std::string>> contents;
+
+    using namespace std::string_literals;
+
+    contents.push_back({"Withdrawal rate"s, to_string(wrate) + "%"});
+    contents.push_back({"Years of expense"s, to_string(years)});
+    contents.push_back({"Running expenses"s, to_string(expenses) + " " + currency});
+    contents.push_back({"Target Net Worth"s, to_string(years * expenses) + " " + currency});
+    contents.push_back({"Current Net Worth"s, to_string(nw) + " " + currency});
+    contents.push_back({"Missing Net Worth"s, to_string(missing) + " " + currency});
+    contents.push_back({"FI Ratio"s, to_string(100 * (nw / missing)) + "%"});
+    contents.push_back({"Yearly income"s, to_string(income) + " " + currency});
+    contents.push_back({"Running Savings Rate"s, to_string(100 * savings_rate) + "%"});
+    contents.push_back({"Yearly savings"s, to_string(savings_rate * income) + " " + currency});
+    contents.push_back({"Time to FI (w/o returns)"s, to_string(missing / (savings_rate * income)) + " years"});
+    contents.push_back({"Time to FI (w/ returns)"s, to_string(base_months / 12.0) + " years"});
+
+    w.display_table(columns, contents);
+
+    std::array<int, 5> decs{1, 2, 5, 10, 20};
+
+    for (auto dec : decs) {
+        auto dec_savings_rate = savings_rate + 0.01 * dec;
+
+        auto current_nw        = nw;
+        size_t months = 0;
+
+        while (current_nw < years * expenses) {
+            current_nw *= 1.0 + (roi / 100.0) / 12;
+            current_nw += (dec_savings_rate * income) / 12;
+
+            ++months;
+        }
+
+        w << p_begin << "Increasing your Savings Rate by " << dec << "% would save you " << (base_months - months) / 12.0 << " years" << p_end;
     }
 }

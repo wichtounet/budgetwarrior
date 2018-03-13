@@ -11,6 +11,7 @@
 #include <string>
 
 #include "module_traits.hpp"
+#include "writer_fwd.hpp"
 
 namespace budget {
 
@@ -24,5 +25,7 @@ struct module_traits<retirement_module> {
     static constexpr const bool is_default = false;
     static constexpr const char* command   = "retirement";
 };
+
+void retirement_status(budget::writer& w);
 
 } //end of namespace budget

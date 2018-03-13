@@ -22,6 +22,7 @@
 #include "summary.hpp"
 #include "version.hpp"
 #include "wishes.hpp"
+#include "retirement.hpp"
 #include "writer.hpp"
 #include "currency.hpp"
 
@@ -237,6 +238,13 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/accounts/add/">Add Account</a>
                   <a class="dropdown-item" href="/accounts/archive/month/">Archive Account (month)</a>
                   <a class="dropdown-item" href="/accounts/archive/year/">Archive Account (year)</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown_retirement" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Retirement</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown_retirement">
+                  <a class="dropdown-item" href="/retirement/status/">Status</a>
+                  <a class="dropdown-item" href="/retirement/configure/">Configure</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -522,11 +530,11 @@ void add_currency_picker(budget::writer& w, const std::string& default_value = "
     add_text_picker(w, "Currency", "input_currency", default_value);
 }
 
-void add_percent_picker(budget::writer& w, const std::string& title, const std::string& name, size_t default_value = 0) {
+void add_percent_picker(budget::writer& w, const std::string& title, const std::string& name, double default_value = 0.0) {
     w << R"=====(<div class="form-group">)=====";
 
     w << "<label for=\"" << name << "\">" << title << "</label>";
-    w << "<input required type=\"number\" min=\"0\" max=\"100\" step=\"1\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    w << "<input required type=\"number\" min=\"0\" max=\"100\" step=\"0.01\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
     w << " value=\"" << default_value << "\" ";
     w << R"=====(
             >
@@ -2723,6 +2731,53 @@ void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
     page_end(w, content_stream, req, res);
 }
 
+void retirement_status_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Retirement status")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Retirement status" << title_end;
+
+    if(!internal_config_contains("withdrawal_rate")){
+        display_error_message(w, "Not enough information, please configure Retirement Options first");
+        page_end(w, content_stream, req, res);
+        return;
+    }
+
+    if(!internal_config_contains("expected_roi")){
+        display_error_message(w, "Not enough information, please configure Retirement Options first");
+        page_end(w, content_stream, req, res);
+        return;
+    }
+
+    budget::retirement_status(w);
+
+    page_end(w, content_stream, req, res);
+}
+
+void retirement_configure_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Retirement configure")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "Retirement Options" << title_end;
+
+    form_begin(w, "/api/retirement/configure/", "/retirement/status/");
+
+    add_percent_picker(w, "Withdrawal Rate [%]", "input_wrate", 4.0);
+    add_percent_picker(w, "Annual Return [%]", "input_roi", 5.0);
+
+    form_end(w);
+
+    page_end(w, content_stream, req, res);
+}
+
 void wishes_list_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Objectives List")) {
@@ -3173,6 +3228,9 @@ void budget::load_pages(httplib::Server& server) {
     server.get("/wishes/estimate/", &wishes_estimate_page);
     server.get("/wishes/add/", &add_wishes_page);
     server.post("/wishes/edit/", &edit_wishes_page);
+
+    server.get("/retirement/status/", &retirement_status_page);
+    server.get("/retirement/configure/", &retirement_configure_page);
 
     server.get("/recurrings/list/", &recurrings_list_page);
     server.get("/recurrings/add/", &add_recurrings_page);
