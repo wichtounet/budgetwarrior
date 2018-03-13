@@ -237,12 +237,23 @@ struct date {
     }
 
     date& operator-=(months months){
+        // Handle the NOP subtraction
+        if(months == 0){
+            return *this;
+        }
+
+        // First remove several years if necessary
+        if (months >= 12) {
+            *this -= years(months.value / 12);
+            months = months.value % 12;
+        }
+
         if(_month == months){
             *this -= years(1);
             _month = 12;
         } else if(_month < months){
-            *this -= years(months / 12);
-            _month -= months % 12;
+            *this -= years(1);
+            _month = 12 - (int(months) - _month);
         } else {
             _month -= months;
         }
