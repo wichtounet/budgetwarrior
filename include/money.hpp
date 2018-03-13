@@ -113,6 +113,18 @@ struct money {
         return value / double(m.value);
     }
 
+    friend money operator*(double factor, money m){
+        return m * factor;
+    }
+
+    friend money operator*(float factor, money m){
+        return m * factor;
+    }
+
+    friend money operator*(int factor, money m){
+        return m * factor;
+    }
+
     bool operator==(const budget::money& rhs) const {
         return value == rhs.value;
     }
