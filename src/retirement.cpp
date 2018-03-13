@@ -200,6 +200,6 @@ void budget::retirement_status(budget::writer& w) {
             ++months;
         }
 
-        w << p_begin << "Increasing your Savings Rate by " << dec << "% would save you " << (base_months - months) / 12.0 << " years" << p_end;
+        w << p_begin << "Increasing Savings Rate by " << dec << "% would you " << (base_months - months) / 12.0 << " years (in " << months / 12.0 << " years)" << p_end;
     }
 }
