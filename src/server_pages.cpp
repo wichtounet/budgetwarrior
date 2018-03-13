@@ -266,17 +266,13 @@ std::string header(const std::string& title, bool menu = true) {
                 </div>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown09" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Recurrings</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown09">
-                  <a class="dropdown-item" href="/recurrings/list/">List</a>
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown_others" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Others</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown_others">
+                  <a class="dropdown-item" href="/recurrings/list/">List Recurrings</a>
                   <a class="dropdown-item" href="/recurrings/add/">Add Recurring Expense</a>
-                </div>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown10" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Debts</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown10">
+                  <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="/debts/add/">Add Debt</a>
-                  <a class="dropdown-item" href="/debts/list/">Debts</a>
+                  <a class="dropdown-item" href="/debts/list/">List Debts</a>
                   <a class="dropdown-item" href="/debts/all/">All Debts</a>
                 </div>
               </li>
