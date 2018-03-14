@@ -145,22 +145,22 @@ void budget::retirement_status(budget::writer& w) {
         }
     }
 
-    auto currency = get_default_currency();
-    auto wrate = to_number<double>(internal_config_value("withdrawal_rate"));
-    auto roi = to_number<double>(internal_config_value("expected_roi"));
-    auto years = double(int(100.0 / wrate));
-    auto expenses = running_expenses();
-    auto savings_rate = running_savings_rate();
-    auto nw = get_net_worth();
-    auto missing = years * expenses - nw;
-    auto income= 12 * get_base_income();
+    auto currency       = get_default_currency();
+    auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
+    auto roi            = to_number<double>(internal_config_value("expected_roi"));
+    auto years          = double(int(100.0 / wrate));
+    auto expenses       = running_expenses();
+    auto savings_rate   = running_savings_rate();
+    auto nw             = get_net_worth();
+    auto missing        = years * expenses - nw;
+    auto income         = 12 * get_base_income();
     auto a_savings_rate = (income - expenses) / income;
 
-    size_t base_months = 0;
+    size_t base_months   = 0;
     size_t a_base_months = 0;
 
     auto current_nw = nw;
-    while(current_nw < years * expenses){
+    while (current_nw < years * expenses) {
         current_nw *= 1.0 + (roi / 100.0) / 12;
         current_nw += (savings_rate * income) / 12;
 
@@ -168,7 +168,7 @@ void budget::retirement_status(budget::writer& w) {
     }
 
     current_nw = nw;
-    while(current_nw < years * expenses){
+    while (current_nw < years * expenses) {
         current_nw *= 1.0 + (roi / 100.0) / 12;
         current_nw += (a_savings_rate * income) / 12;
 
