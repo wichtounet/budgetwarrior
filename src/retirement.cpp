@@ -220,4 +220,22 @@ void budget::retirement_status(budget::writer& w) {
 
         w << p_begin << "Increasing Savings Rate by " << dec << "% would save " << (base_months - months) / 12.0 << " years (in " << months / 12.0 << " years)" << p_end;
     }
+
+    std::array<int, 5> exp_decs{10, 50, 100, 200, 500};
+
+    for (auto dec : exp_decs) {
+        auto current_nw = nw;
+        size_t months   = 0;
+
+        auto new_savings_rate = (income - (expenses - dec * 12)) / income;;
+
+        while (current_nw < years * (expenses - (dec * 12))) {
+            current_nw *= 1.0 + (roi / 100.0) / 12;
+            current_nw += (new_savings_rate * income) / 12;
+
+            ++months;
+        }
+
+        w << p_begin << "Decreasing monthly expenses by " << dec << " " << currency << " would save " << (base_months - months) / 12.0 << " years (in " << months / 12.0 << " (adjusted) years)" << p_end;
+    }
 }
