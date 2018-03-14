@@ -154,15 +154,25 @@ void budget::retirement_status(budget::writer& w) {
     auto nw = get_net_worth();
     auto missing = years * expenses - nw;
     auto income= 12 * get_base_income();
+    auto a_savings_rate = (income - expenses) / income;
+
+    size_t base_months = 0;
+    size_t a_base_months = 0;
 
     auto current_nw = nw;
-    size_t base_months = 0;
-
     while(current_nw < years * expenses){
         current_nw *= 1.0 + (roi / 100.0) / 12;
         current_nw += (savings_rate * income) / 12;
 
         ++base_months;
+    }
+
+    current_nw = nw;
+    while(current_nw < years * expenses){
+        current_nw *= 1.0 + (roi / 100.0) / 12;
+        current_nw += (a_savings_rate * income) / 12;
+
+        ++a_base_months;
     }
 
     std::vector<std::string> columns = {};
@@ -183,15 +193,23 @@ void budget::retirement_status(budget::writer& w) {
     contents.push_back({"Time to FI (w/o returns)"s, to_string(missing / (savings_rate * income)) + " years"});
     contents.push_back({"Time to FI (w/ returns)"s, to_string(base_months / 12.0) + " years"});
 
+    contents.push_back({"Adjusted Savings Rate"s, to_string(100 * a_savings_rate) + "%"});
+    contents.push_back({"Adjusted Yearly savings"s, to_string(a_savings_rate * income) + " " + currency});
+    contents.push_back({"Adjusted Time to FI (w/o returns)"s, to_string(missing / (a_savings_rate * income)) + " years"});
+    contents.push_back({"Adjusted Time to FI (w/ returns)"s, to_string(a_base_months / 12.0) + " years"});
+
     w.display_table(columns, contents);
 
-    std::array<int, 5> decs{1, 2, 5, 10, 20};
+    std::array<int, 5> rate_decs{1, 2, 5, 10, 20};
 
-    for (auto dec : decs) {
+    // Note: this not totally correct since we ignore the
+    // correlation between the savings rate and the expenses
+
+    for (auto dec : rate_decs) {
         auto dec_savings_rate = savings_rate + 0.01 * dec;
 
-        auto current_nw        = nw;
-        size_t months = 0;
+        auto current_nw = nw;
+        size_t months   = 0;
 
         while (current_nw < years * expenses) {
             current_nw *= 1.0 + (roi / 100.0) / 12;
@@ -200,6 +218,6 @@ void budget::retirement_status(budget::writer& w) {
             ++months;
         }
 
-        w << p_begin << "Increasing Savings Rate by " << dec << "% would you " << (base_months - months) / 12.0 << " years (in " << months / 12.0 << " years)" << p_end;
+        w << p_begin << "Increasing Savings Rate by " << dec << "% would save " << (base_months - months) / 12.0 << " years (in " << months / 12.0 << " years)" << p_end;
     }
 }
