@@ -59,6 +59,24 @@ struct money {
         return *this;
     }
 
+    money operator+(long rhs) const {
+        return *this + money(rhs);
+    }
+
+    money& operator+=(long rhs){
+        *this += money(rhs);
+        return *this;
+    }
+
+    money operator-(long rhs) const {
+        return *this - money(rhs);
+    }
+
+    money& operator-=(long rhs){
+        *this -= money(rhs);
+        return *this;
+    }
+
     money operator*(double factor) const {
         money new_money = *this;
         new_money.value *= factor;
