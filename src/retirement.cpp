@@ -181,7 +181,7 @@ void budget::retirement_status(budget::writer& w) {
     using namespace std::string_literals;
 
     contents.push_back({"Withdrawal rate"s, to_string(wrate) + "%"});
-    contents.push_back({"Annul Return"s, to_string(roi) + "%"});
+    contents.push_back({"Annual Return"s, to_string(roi) + "%"});
     contents.push_back({"Years of expense"s, to_string(years)});
     contents.push_back({"Running expenses"s, to_string(expenses) + " " + currency});
     contents.push_back({"Target Net Worth"s, to_string(years * expenses) + " " + currency});
