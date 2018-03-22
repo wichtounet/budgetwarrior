@@ -1707,7 +1707,7 @@ void time_graph_expenses_page(const httplib::Request& req, httplib::Response& re
     auto ss = start_chart(w, "Expenses over time", "line", "expenses_time_graph", "");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Expenses' }},)=====";
     ss << R"=====(legend: { enabled: false },)=====";
 
     ss << "series: [";
@@ -1721,8 +1721,13 @@ void time_graph_expenses_page(const httplib::Request& req, httplib::Response& re
         budget::year year = j;
 
         auto sm = start_month(year);
+        auto last = 13;
 
-        for(unsigned short i = sm; i < 13; ++i){
+        if(year == budget::local_day().year()){
+            last = budget::local_day().month() + 1;
+        }
+
+        for(unsigned short i = sm; i < last; ++i){
             budget::month month = i;
 
             budget::money sum;
