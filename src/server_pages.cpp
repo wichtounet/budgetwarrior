@@ -220,6 +220,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/expenses/all/">All Expenses</a>
                   <a class="dropdown-item" href="/expenses/breakdown/month/">Expenses Breakdown Month</a>
                   <a class="dropdown-item" href="/expenses/breakdown/year/">Expenses Breakdown Year</a>
+                  <a class="dropdown-item" href="/expenses/time/">Expenses over time</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -1691,6 +1692,56 @@ void expenses_page(const httplib::Request& req, httplib::Response& res) {
     }
 
     make_tables_sortable(w);
+
+    page_end(w, content_stream, req, res);
+}
+
+void time_graph_expenses_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Expenses over time")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    auto ss = start_chart(w, "Expenses over time", "line", "expenses_time_graph", "");
+
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+    ss << R"=====(legend: { enabled: false },)=====";
+
+    ss << "series: [";
+
+    ss << "{ name: 'Monthly expenses',";
+    ss << "data: [";
+
+    auto sy = start_year();
+
+    for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
+        budget::year year = j;
+
+        auto sm = start_month(year);
+
+        for(unsigned short i = sm; i < 13; ++i){
+            budget::month month = i;
+
+            budget::money sum;
+
+            for(auto& expense : all_expenses()){
+                if(expense.date.year() == year && expense.date.month() == month){
+                    sum += expense.amount;
+                }
+            }
+
+            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << budget::to_flat_string(sum) << "],";
+        }
+    }
+
+    ss << "]},";
+
+    ss << "]";
+
+    end_chart(w, ss);
 
     page_end(w, content_stream, req, res);
 }
@@ -3200,6 +3251,7 @@ void budget::load_pages(httplib::Server& server) {
     server.get(R"(/expenses/breakdown/year/(\d+)/)", &year_breakdown_expenses_page);
     server.get("/expenses/breakdown/year/", &year_breakdown_expenses_page);
 
+    server.get("/expenses/time/", &time_graph_expenses_page);
     server.get("/expenses/all/", &all_expenses_page);
     server.get("/expenses/add/", &add_expenses_page);
     server.post("/expenses/edit/", &edit_expenses_page);
