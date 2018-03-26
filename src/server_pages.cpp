@@ -1717,8 +1717,8 @@ void search_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    if(req.has_param("name")){
-        auto search = req.get_param_value("name");
+    if(req.has_param("input_name")){
+        auto search = req.get_param_value("input_name");
 
         search_expenses(search, w);
     }
