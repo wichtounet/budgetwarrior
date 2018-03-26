@@ -205,6 +205,11 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             if (expenses.edit(expense)) {
                 std::cout << "Expense " << id << " has been modified" << std::endl;
             }
+        } else if (subcommand == "search") {
+            std::string search;
+            edit_string(search, "Search", not_empty_checker());
+
+            search_expenses(search, w);
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -271,6 +276,39 @@ void budget::show_all_expenses(budget::writer& w){
     }
 
     w.display_table(columns, contents);
+}
+
+void budget::search_expenses(const std::string& search, budget::writer& w){
+    w << title_begin << "Results" << title_end;
+
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
+    std::vector<std::vector<std::string>> contents;
+
+    money total;
+    size_t count = 0;
+
+    auto l_search = search;
+    std::transform(l_search.begin(), l_search.end(), l_search.begin(), ::tolower);
+
+    for(auto& expense : expenses.data){
+        auto l_name = expense.name;
+        std::transform(l_name.begin(), l_name.end(), l_name.begin(), ::tolower);
+
+        if(l_name.find(l_search) != std::string::npos){
+            contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount), "::edit::expenses::" + to_string(expense.id)});
+
+            total += expense.amount;
+            ++count;
+        }
+    }
+
+    if(count == 0){
+        w << "No expenses found" << end_of_line;
+    } else {
+        contents.push_back({"", "", "", "Total", to_string(total), ""});
+
+        w.display_table(columns, contents, 1, {}, 0, 1);
+    }
 }
 
 void budget::show_expenses(budget::month month, budget::year year, budget::writer& w){

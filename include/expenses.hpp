@@ -64,5 +64,6 @@ void show_all_expenses(budget::writer& w);
 void show_expenses(budget::month month, budget::year year, budget::writer& w);
 void show_expenses(budget::month month, budget::writer& w);
 void show_expenses(budget::writer& w);
+void search_expenses(const std::string& search, budget::writer& w);
 
 } //end of namespace budget
