@@ -217,6 +217,7 @@ std::string header(const std::string& title, bool menu = true) {
                 <div class="dropdown-menu" aria-labelledby="dropdown03">
                   <a class="dropdown-item" href="/expenses/add/">Add Expense</a>
                   <a class="dropdown-item" href="/expenses/">Expenses</a>
+                  <a class="dropdown-item" href="/expenses/search/">Search</a>
                   <a class="dropdown-item" href="/expenses/all/">All Expenses</a>
                   <a class="dropdown-item" href="/expenses/breakdown/month/">Expenses Breakdown Month</a>
                   <a class="dropdown-item" href="/expenses/breakdown/year/">Expenses Breakdown Year</a>
@@ -853,6 +854,12 @@ void form_begin(budget::writer& w, const std::string& action, const std::string&
     w << R"=====(<input type="hidden" name="server" value="yes">)=====";
     w << R"=====(<input type="hidden" name="back_page" value=")=====";
     w << back_page;
+    w << R"=====(">)=====";
+}
+
+void page_form_begin(budget::writer& w, const std::string& action) {
+    w << R"=====(<form method="GET" action=")=====";
+    w << action;
     w << R"=====(">)=====";
 }
 
@@ -1689,6 +1696,31 @@ void expenses_page(const httplib::Request& req, httplib::Response& res) {
         show_expenses(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
     } else {
         show_expenses(w);
+    }
+
+    make_tables_sortable(w);
+
+    page_end(w, content_stream, req, res);
+}
+
+void search_expenses_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Search Expenses")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    page_form_begin(w, "/expenses/search/");
+
+    add_name_picker(w);
+
+    form_end(w);
+
+    if(req.has_param("name")){
+        auto search = req.get_param_value("name");
+
+        search_expenses(search, w);
     }
 
     make_tables_sortable(w);
@@ -3249,6 +3281,7 @@ void budget::load_pages(httplib::Server& server) {
 
     server.get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
     server.get("/expenses/", &expenses_page);
+    server.get("/expenses/search/", &search_expenses_page);
 
     server.get(R"(/expenses/breakdown/month/(\d+)/(\d+)/)", &month_breakdown_expenses_page);
     server.get("/expenses/breakdown/month/", &month_breakdown_expenses_page);
