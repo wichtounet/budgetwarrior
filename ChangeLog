@@ -8,6 +8,7 @@ budgetwarrior 1.0.1 - in development
  * Add graph of expenses over time
  * Aggregate overview of all time
  * Fix bug when editing old expense
+ * New command (and page) to search for expenses
 
 budgetwarrior 1.0 - 29.01.2018
 
