@@ -6,6 +6,8 @@ budgetwarrior 1.0.1 - in development
  * Improve display of rebalance
  * Basic retirement calculator
  * Add graph of expenses over time
+ * Aggregate overview of all time
+ * Fix bug when editing old expense
 
 budgetwarrior 1.0 - 29.01.2018
 
