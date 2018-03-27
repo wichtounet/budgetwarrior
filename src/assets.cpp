@@ -764,6 +764,8 @@ void budget::show_asset_values(budget::writer& w){
         }
     }
 
+    auto total_no_cash = int_stocks + dom_stocks + bonds;
+
     contents.emplace_back(columns.size(), "");
 
     contents.push_back({"Total",
@@ -776,11 +778,19 @@ void budget::show_asset_values(budget::writer& w){
 
     contents.emplace_back(columns.size(), "");
 
-    contents.push_back({"Distribution",
+    contents.push_back({"Distribution (w/ cash)",
                         to_string_precision(100 * int_stocks.dollars() / (double)total.dollars(), 2),
                         to_string_precision(100 * dom_stocks.dollars() / (double)total.dollars(), 2),
                         to_string_precision(100 * bonds.dollars() / (double)total.dollars(), 2),
                         to_string_precision(100 * cash.dollars() / (double)total.dollars(), 2),
+                        to_string(100),
+                        ""});
+
+    contents.push_back({"Distribution (w/o cash)",
+                        to_string_precision(100 * int_stocks.dollars() / (double)total_no_cash.dollars(), 2),
+                        to_string_precision(100 * dom_stocks.dollars() / (double)total_no_cash.dollars(), 2),
+                        to_string_precision(100 * bonds.dollars() / (double)total_no_cash.dollars(), 2),
+                        to_string(0),
                         to_string(100),
                         ""});
 
