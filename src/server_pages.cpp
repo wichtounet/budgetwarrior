@@ -2471,6 +2471,18 @@ void net_worth_status_page(const httplib::Request& req, httplib::Response& res) 
     page_end(w, content_stream, req, res);
 }
 
+void net_worth_small_status_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Net Worth Status")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+    budget::small_show_asset_values(w);
+
+    page_end(w, content_stream, req, res);
+}
+
 void net_worth_graph_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Net Worth Graph")) {
@@ -3306,6 +3318,7 @@ void budget::load_pages(httplib::Server& server) {
     server.get("/rebalance/", &rebalance_page);
     server.get("/assets/", &assets_page);
     server.get("/net_worth/status/", &net_worth_status_page);
+    server.get("/net_worth/status/small/", &net_worth_small_status_page); // Not in the menu for now
     server.get("/net_worth/graph/", &net_worth_graph_page);
     server.get("/net_worth/currency/", &net_worth_currency_page);
     server.get("/assets/add/", &add_assets_page);

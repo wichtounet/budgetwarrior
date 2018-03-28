@@ -70,6 +70,7 @@ void save_assets();
 
 void show_assets(budget::writer& w);
 void list_asset_values(budget::writer& w);
+void small_show_asset_values(budget::writer& w);
 void show_asset_values(budget::writer& w);
 void show_asset_portfolio(budget::writer& w);
 void show_asset_rebalance(budget::writer& w);

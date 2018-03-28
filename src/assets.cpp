@@ -266,6 +266,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     std::cout << "Asset Value " << id << " has been created" << std::endl;
                 } else if(subsubcommand == "show"){
                     budget::show_asset_values(w);
+                } else if(subsubcommand == "small"){
+                    budget::small_show_asset_values(w);
                 } else if(subsubcommand == "list"){
                     list_asset_values(w);
                 } else if(subsubcommand == "edit"){
@@ -701,6 +703,62 @@ void budget::show_asset_rebalance(budget::writer& w){
     contents.push_back({"Total effort", "", "", "", "", "", "", format_money(total_rebalance)});
 
     w.display_table(columns, contents, 1, {}, 1, 2);
+}
+
+void budget::small_show_asset_values(budget::writer& w){
+    if (!asset_values.data.size()) {
+        w << "No asset values" << end_of_line;
+        return;
+    }
+
+    w << title_begin << "Net Worth" << title_end;
+
+    std::vector<std::string> columns = {"Name", "Value", "Currency"};
+    std::vector<std::vector<std::string>> contents;
+
+    budget::money int_stocks;
+    budget::money dom_stocks;
+    budget::money bonds;
+    budget::money cash;
+    budget::money total;
+
+    for(auto& asset : assets.data){
+        auto id = asset.id;
+
+        size_t asset_value_id = 0;
+        bool asset_value_found = false;
+
+        for (auto& asset_value : asset_values.data) {
+            if (asset_value.asset_id == id) {
+                if(!asset_value_found){
+                    asset_value_found = true;
+                    asset_value_id    = asset_value.id;
+                } else if(asset_value.set_date >= get_asset_value(asset_value_id).set_date){
+                    asset_value_id    = asset_value.id;
+                }
+            }
+        }
+
+        if(asset_value_found){
+            auto& asset_value = get_asset_value(asset_value_id);
+            auto amount       = asset_value.amount;
+
+            if (amount) {
+                contents.push_back({asset.name,
+                                    to_string(amount),
+                                    asset.currency});
+
+                total += amount * exchange_rate(asset.currency, get_default_currency());
+            }
+        }
+    }
+
+    contents.push_back({"", "", ""});
+    contents.push_back({"Net Worth", budget::to_string(total), get_default_currency()});
+
+    // Display the table
+
+    w.display_table(columns, contents, 1, {}, 1);
 }
 
 void budget::show_asset_values(budget::writer& w){
