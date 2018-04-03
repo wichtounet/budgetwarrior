@@ -7,8 +7,10 @@ budgetwarrior 1.0.1 - in development
  * Basic retirement calculator
  * Add graph of expenses over time
  * Aggregate overview of all time
- * Fix bug when editing old expense
  * New command (and page) to search for expenses
+ * Fix bug when editing old expense
+ * Fix bug with currency exchange in the net worth
+ * Fix bug with average expense in the monthly overview
 
 budgetwarrior 1.0 - 29.01.2018
 
