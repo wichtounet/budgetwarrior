@@ -11,6 +11,7 @@
 
 namespace budget {
 
+double exchange_rate(const std::string& from);
 double exchange_rate(const std::string& from, const std::string& to);
 
 void invalidate_currency_cache();

@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "currency.hpp"
+#include "assets.hpp"
 #include "http.hpp"
 
 namespace {
@@ -20,6 +21,10 @@ std::map<std::pair<std::string, std::string>, double> exchanges;
 
 void budget::invalidate_currency_cache(){
     exchanges.clear();
+}
+
+double budget::exchange_rate(const std::string& from){
+    return exchange_rate(from, get_default_currency());
 }
 
 double budget::exchange_rate(const std::string& from, const std::string& to){
