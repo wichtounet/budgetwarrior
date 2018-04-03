@@ -1130,7 +1130,7 @@ void net_worth_graph(budget::html_writer& w, const std::string style = "", bool 
         auto date = it->set_date;
 
         while (it->set_date == date) {
-            asset_amounts[it->asset_id] = it->amount;
+            asset_amounts[it->asset_id] = it->amount * exchange_rate(get_asset(it->asset_id).currency, get_default_currency());
 
             ++it;
         }
@@ -2096,7 +2096,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
                 auto& asset = get_asset(it->asset_id);
 
                 if (asset.currency == currency && asset.portfolio) {
-                    asset_amounts[it->asset_id] = it->amount;
+                    asset_amounts[it->asset_id] = it->amount * exchange_rate(asset.currency, get_default_currency());
                 }
 
                 ++it;
@@ -2140,7 +2140,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
             auto& asset = get_asset(asset_value.asset_id);
 
             if (asset.currency == currency && asset.portfolio) {
-                asset_amounts[asset_value.asset_id] = asset_value.amount;
+                asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
             }
         }
 
@@ -2201,7 +2201,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res) {
             auto& asset = get_asset(it->asset_id);
 
             if (asset.portfolio) {
-                asset_amounts[it->asset_id] = it->amount;
+                asset_amounts[it->asset_id] = it->amount * exchange_rate(asset.currency, get_default_currency());
             }
 
             ++it;
@@ -2815,7 +2815,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
             while (it->set_date == date) {
                 if (get_asset(it->asset_id).currency == currency) {
-                    asset_amounts[it->asset_id] = it->amount;
+                    asset_amounts[it->asset_id] = it->amount * exchange_rate(get_asset(it->asset_id).currency, get_default_currency());
                 }
 
                 ++it;
@@ -2857,7 +2857,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
         for (auto& asset_value : sorted_asset_values) {
             if (get_asset(asset_value.asset_id).currency == currency) {
-                asset_amounts[asset_value.asset_id] = asset_value.amount;
+                asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(get_asset(asset_value.asset_id).currency, get_default_currency());
             }
         }
 
