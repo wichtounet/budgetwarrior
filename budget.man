@@ -1,6 +1,6 @@
 .\" Manpage for budgetwarrior
 .\" Contact baptiste.wicht@gmail.com to correct errors or typos.
-.TH man 8 "01 Feb 2014" "1.0.1" "budgetwarrior man page"
+.TH man 8 "01 Feb 2014" "1.0.2" "budgetwarrior man page"
 .SH NAME
 budget \- Manage personal accounting
 .SH SYNOPSIS

@@ -11,11 +11,11 @@
 #include "budget_exception.hpp"
 
 std::string budget::get_version(){
-    return "budgetwarrior 1.0.1";
+    return "budgetwarrior 1.0.2";
 }
 
 std::string budget::get_version_short(){
-    return "1.0.1";
+    return "1.0.2";
 }
 
 void budget::version_module::handle(const std::vector<std::string>& args){
