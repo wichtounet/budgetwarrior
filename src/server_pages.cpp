@@ -204,6 +204,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/net_worth/currency/">Net worth Currency</a>
                   <a class="dropdown-item" href="/portfolio/status/">Portfolio Status</a>
                   <a class="dropdown-item" href="/portfolio/graph/">Portfolio Graph</a>
+                  <a class="dropdown-item" href="/portfolio/allocation/">Portfolio Allocation</a>
                   <a class="dropdown-item" href="/portfolio/currency/">Portfolio Currency</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                   <a class="dropdown-item" href="/assets/add/">Add Asset</a>
@@ -2535,20 +2536,22 @@ void net_worth_allocation_page(const httplib::Request& req, httplib::Response& r
             while (it->set_date == date) {
                 auto& asset = get_asset(it->asset_id);
 
+                auto amount = it->amount * exchange_rate(asset.currency, get_default_currency());
+
                 if(i == 0 && asset.int_stocks){
-                    asset_amounts[it->asset_id] = it->amount * (float(asset.int_stocks) / 100.0f);
+                    asset_amounts[it->asset_id] = amount * (float(asset.int_stocks) / 100.0f);
                 }
 
                 if(i == 1 && asset.dom_stocks){
-                    asset_amounts[it->asset_id] = it->amount * (float(asset.dom_stocks) / 100.0f);
+                    asset_amounts[it->asset_id] = amount * (float(asset.dom_stocks) / 100.0f);
                 }
 
                 if(i == 2 && asset.bonds){
-                    asset_amounts[it->asset_id] = it->amount * (float(asset.bonds) / 100.0f);
+                    asset_amounts[it->asset_id] = amount * (float(asset.bonds) / 100.0f);
                 }
 
                 if(i == 3 && asset.cash){
-                    asset_amounts[it->asset_id] = it->amount * (float(asset.cash) / 100.0f);
+                    asset_amounts[it->asset_id] = amount * (float(asset.cash) / 100.0f);
                 }
 
                 ++it;
@@ -2591,20 +2594,161 @@ void net_worth_allocation_page(const httplib::Request& req, httplib::Response& r
         for (auto& asset_value : sorted_asset_values) {
             auto& asset = get_asset(asset_value.asset_id);
 
+            auto amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
+
             if(i == 0 && asset.int_stocks){
-                asset_amounts[asset_value.asset_id] = asset_value.amount * (float(asset.int_stocks) / 100.0f);
+                asset_amounts[asset_value.asset_id] = amount * (float(asset.int_stocks) / 100.0f);
             }
 
             if(i == 1 && asset.dom_stocks){
-                asset_amounts[asset_value.asset_id] = asset_value.amount * (float(asset.dom_stocks) / 100.0f);
+                asset_amounts[asset_value.asset_id] = amount * (float(asset.dom_stocks) / 100.0f);
             }
 
             if(i == 2 && asset.bonds){
-                asset_amounts[asset_value.asset_id] = asset_value.amount * (float(asset.bonds) / 100.0f);
+                asset_amounts[asset_value.asset_id] = amount * (float(asset.bonds) / 100.0f);
             }
 
             if(i == 3 && asset.cash){
-                asset_amounts[asset_value.asset_id] = asset_value.amount * (float(asset.cash) / 100.0f);
+                asset_amounts[asset_value.asset_id] = amount * (float(asset.cash) / 100.0f);
+            }
+        }
+
+        budget::money sum;
+
+        for (auto& asset : asset_amounts) {
+            sum += asset.second;
+        }
+
+        ss2 << budget::to_flat_string(sum);
+
+        ss2 << "},";
+    }
+
+    ss2 << "]},";
+
+    ss2 << "]";
+
+    end_chart(w, ss2);
+
+    page_end(w, content_stream, req, res);
+}
+
+void portfolio_allocation_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Portfolio Allocation")) {
+        return;
+    }
+
+    std::vector<std::string> names{"Int. Stocks", "Dom. Stocks", "Bonds", "Cash"};
+
+    budget::html_writer w(content_stream);
+
+    // 1. Display the currency breakdown over time
+
+    auto ss = start_chart(w, "Portfolio allocation", "area", "allocation_time_graph");
+
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+    ss << R"=====(tooltip: {split: true},)=====";
+    ss << R"=====(plotOptions: {area: {stacking: 'percent'}},)=====";
+
+    ss << "series: [";
+
+    auto sorted_asset_values = all_sorted_asset_values();
+
+    for(size_t i = 0; i < names.size(); ++i){
+        ss << "{ name: '" << names[i] << "',";
+        ss << "data: [";
+
+        std::map<size_t, budget::money> asset_amounts;
+
+        auto it  = sorted_asset_values.begin();
+        auto end = sorted_asset_values.end();
+
+        while (it != end) {
+            auto date = it->set_date;
+
+            while (it->set_date == date) {
+                auto& asset = get_asset(it->asset_id);
+
+                if(asset.portfolio){
+                    auto amount = it->amount * exchange_rate(asset.currency, get_default_currency());
+
+                    if(i == 0 && asset.int_stocks){
+                        asset_amounts[it->asset_id] = amount * (float(asset.int_stocks) / 100.0f);
+                    }
+
+                    if(i == 1 && asset.dom_stocks){
+                        asset_amounts[it->asset_id] = amount * (float(asset.dom_stocks) / 100.0f);
+                    }
+
+                    if(i == 2 && asset.bonds){
+                        asset_amounts[it->asset_id] = amount * (float(asset.bonds) / 100.0f);
+                    }
+
+                    if(i == 3 && asset.cash){
+                        asset_amounts[it->asset_id] = amount * (float(asset.cash) / 100.0f);
+                    }
+                }
+
+                ++it;
+            }
+
+            budget::money sum;
+
+            for (auto& asset : asset_amounts) {
+                sum += asset.second;
+            }
+
+            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+        }
+
+        ss << "]},";
+    }
+
+    ss << "]";
+
+    end_chart(w, ss);
+
+    // 2. Display the current currency breakdown
+
+    auto ss2 = start_chart(w, "Current Allocation Breakdown", "pie", "allocation_breakdown_graph");
+
+    ss2 << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+
+    ss2 << "series: [";
+
+    ss2 << "{ name: 'Classes',";
+    ss2 << "colorByPoint: true,";
+    ss2 << "data: [";
+
+    for(size_t i = 0; i < names.size(); ++i){
+        ss2 << "{ name: '" << names[i] << "',";
+        ss2 << "y: ";
+
+        std::map<size_t, budget::money> asset_amounts;
+
+        for (auto& asset_value : sorted_asset_values) {
+            auto& asset = get_asset(asset_value.asset_id);
+
+            if(asset.portfolio){
+                auto amount = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
+
+                if(i == 0 && asset.int_stocks){
+                    asset_amounts[asset_value.asset_id] = amount * (float(asset.int_stocks) / 100.0f);
+                }
+
+                if(i == 1 && asset.dom_stocks){
+                    asset_amounts[asset_value.asset_id] = amount * (float(asset.dom_stocks) / 100.0f);
+                }
+
+                if(i == 2 && asset.bonds){
+                    asset_amounts[asset_value.asset_id] = amount * (float(asset.bonds) / 100.0f);
+                }
+
+                if(i == 3 && asset.cash){
+                    asset_amounts[asset_value.asset_id] = amount * (float(asset.cash) / 100.0f);
+                }
             }
         }
 
@@ -3447,6 +3591,7 @@ void budget::load_pages(httplib::Server& server) {
     server.get("/portfolio/status/", &portfolio_status_page);
     server.get("/portfolio/graph/", &portfolio_graph_page);
     server.get("/portfolio/currency/", &portfolio_currency_page);
+    server.get("/portfolio/allocation/", &portfolio_allocation_page);
     server.get("/rebalance/", &rebalance_page);
     server.get("/assets/", &assets_page);
     server.get("/net_worth/status/", &net_worth_status_page);
