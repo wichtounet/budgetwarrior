@@ -93,6 +93,17 @@ if you have installed the man pages.
 
 to see all the available commands.
 
+If you want to use the web interface, you can use::
+
+    $ budget server
+
+You can then go to localhost:8080 to view and edit your budget online. The
+default user is admin and the default password is 1234. You can edit them in the
+configuration file::
+
+    web_user=admin
+    web_password=1234
+
 Contributors
 ------------
 
