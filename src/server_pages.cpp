@@ -232,6 +232,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/earnings/add/">Add Earning</a>
                   <a class="dropdown-item" href="/earnings/">Earnings</a>
                   <a class="dropdown-item" href="/earnings/all/">All Earnings</a>
+                  <a class="dropdown-item" href="/earnings/time/">Earnings over time</a>
                 </div>
               </li>
               <li class="nav-item dropdown">
@@ -1946,6 +1947,61 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
     page_end(w, content_stream, req, res);
 }
 
+void time_graph_earnings_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Earnings over time")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    auto ss = start_chart(w, "Earnings over time", "line", "earnings_time_graph", "");
+
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Earnings' }},)=====";
+    ss << R"=====(legend: { enabled: false },)=====";
+
+    ss << "series: [";
+
+    ss << "{ name: 'Monthly earnings',";
+    ss << "data: [";
+
+    auto sy = start_year();
+
+    for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
+        budget::year year = j;
+
+        auto sm = start_month(year);
+        auto last = 13;
+
+        if(year == budget::local_day().year()){
+            last = budget::local_day().month() + 1;
+        }
+
+        for(unsigned short i = sm; i < last; ++i){
+            budget::month month = i;
+
+            budget::money sum;
+
+            for(auto& earning : all_earnings()){
+                if(earning.date.year() == year && earning.date.month() == month){
+                    sum += earning.amount;
+                }
+            }
+
+            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << budget::to_flat_string(sum) << "],";
+        }
+    }
+
+    ss << "]},";
+
+    ss << "]";
+
+    end_chart(w, ss);
+
+    page_end(w, content_stream, req, res);
+}
+
 void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "New earning")) {
@@ -3584,6 +3640,8 @@ void budget::load_pages(httplib::Server& server) {
 
     server.get(R"(/earnings/(\d+)/(\d+)/)", &earnings_page);
     server.get("/earnings/", &earnings_page);
+
+    server.get("/earnings/time/", &time_graph_earnings_page);
     server.get("/earnings/all/", &all_earnings_page);
     server.get("/earnings/add/", &add_earnings_page);
     server.post("/earnings/edit/", &edit_earnings_page);
