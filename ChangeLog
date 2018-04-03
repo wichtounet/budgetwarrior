@@ -1,10 +1,11 @@
 budgetwarrior 1.0.1 - in development
 
- * New feature: Support for default account
  * New feature: Basic retirement calculator
  * New feature: Add graph of expenses over time
  * New feature: Aggregate overview of all time
  * New feature: Search for expenses
+ * New feature: Net Worth (and portfolio) allocation
+ * Improvement: Support for default account
  * Improvement: Year overview display better savings rate
  * Improvement: Rebalance is more clear
  * Improvement: Batch update can only show the current asset values
