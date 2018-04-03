@@ -108,10 +108,12 @@ budget::status budget::compute_avg_month_status(year year, month month){
         avg_status.balance += status.balance;
     }
 
-    avg_status.expenses /= month.value;
-    avg_status.earnings /= month.value;
-    avg_status.budget /= month.value;
-    avg_status.balance /= month.value;
+    if(month.value > 1){
+        avg_status.expenses /= month.value - 1;
+        avg_status.earnings /= month.value - 1;
+        avg_status.budget /= month.value - 1;
+        avg_status.balance /= month.value - 1;
+    }
 
     return std::move(avg_status);
 }
