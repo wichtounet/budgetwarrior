@@ -965,7 +965,7 @@ budget::money budget::get_portfolio_value(){
         auto& asset = get_asset(asset_value.asset_id);
 
         if (asset.portfolio) {
-            asset_amounts[asset_value.asset_id] = asset_value.amount;
+            asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
         }
     }
 
@@ -982,7 +982,8 @@ budget::money budget::get_net_worth(){
     std::map<size_t, budget::money> asset_amounts;
 
     for (auto& asset_value : all_sorted_asset_values()) {
-        asset_amounts[asset_value.asset_id] = asset_value.amount;
+        auto& asset = get_asset(asset_value.asset_id);
+        asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
     }
 
     budget::money total;
