@@ -1,6 +1,6 @@
 .\" Manpage for budgetwarrior
 .\" Contact baptiste.wicht@gmail.com to correct errors or typos.
-.TH man 8 "01 Feb 2014" "1.0" "budgetwarrior man page"
+.TH man 8 "01 Feb 2014" "1.0.1" "budgetwarrior man page"
 .SH NAME
 budget \- Manage personal accounting
 .SH SYNOPSIS
@@ -160,7 +160,7 @@ wish edit (id)
 Edit the wish with the specified id.
 .TP
 wish estimate
-Display an estimation of a good time to buy an item from the wish list. 
+Display an estimation of a good time to buy an item from the wish list.
 .SH DEBTS
 With this module, you can track your debts, either you're owing someone or someone is owing you..
 .TP
