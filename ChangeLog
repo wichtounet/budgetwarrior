@@ -1,5 +1,9 @@
 budgetwarrior 1.0.2 - in development
  * New fature: Income/Earnings over time
+ * Improvement: Option to disable fortune module
+   * Use disable_fortune=true to disable it
+   * Will remove menu from web interface
+   * Will use net worth cash over fortune for wishes
  * Bug Fix: Creating an objective from web interface was not using the correct date
 
 budgetwarrior 1.0.1 - 03.04.2018
