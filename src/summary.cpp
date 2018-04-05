@@ -125,10 +125,15 @@ void month_overview(budget::month month, budget::year year) {
     std::string m_objectives_summary = objectives_ss.str();
 
     // Third display a summary of the fortune
-    std::stringstream fortune_ss;
-    console_writer fortune_w(fortune_ss);
-    budget::fortune_summary(fortune_w);
-    std::string m_fortune_summary = fortune_ss.str();
+
+    std::string m_fortune_summary;
+
+    if(!is_fortune_disabled()){
+        std::stringstream fortune_ss;
+        console_writer fortune_w(fortune_ss);
+        budget::fortune_summary(fortune_w);
+        m_fortune_summary = fortune_ss.str();
+    }
 
     // Print each column
     print_columns({m_summary, m_objectives_summary, m_fortune_summary});
