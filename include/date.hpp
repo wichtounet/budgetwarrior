@@ -20,7 +20,7 @@ class date_exception: public std::exception {
         std::string _message;
 
     public:
-        date_exception(std::string message) : _message(message){}
+        date_exception(const std::string& message) : _message(message){}
 
         /*!
          * Return the error message.
@@ -117,15 +117,15 @@ struct date {
 
     date(date_type year, date_type month, date_type day) : _year(year), _month(month), _day(day){
         if(year < 1400){
-            throw date_exception("Year not in the valid range");
+            throw date_exception("Year not in the valid range: " + std::to_string(year));
         }
 
         if(month == 0 || month > 12){
-            throw date_exception("Invalid month");
+            throw date_exception("Invalid month: " + std::to_string(month));
         }
 
         if(day == 0 || day > days_month(year, month)){
-            throw date_exception("Invalid day");
+            throw date_exception("Invalid day: " + std::to_string(month));
         }
     }
 
