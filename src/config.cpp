@@ -22,6 +22,9 @@
 #include "utils.hpp"
 #include "server.hpp"
 
+#include "assets.hpp"
+#include "fortune.hpp"
+
 using namespace budget;
 
 typedef std::unordered_map<std::string, std::string> config_type;
@@ -250,4 +253,18 @@ bool budget::is_server_ssl(){
     }
 
     return false;
+}
+
+bool budget::net_worth_over_fortune(){
+    // If the fortune module is disabled, use net worth
+    if (config_contains("disable_fortune")) {
+        if(config_value("disable_fortune") == "true"){
+            return true;
+        }
+    }
+
+    // By default, fortune is the thing being taken into account
+    // Unless it's not used and net worth is used
+
+    return all_asset_values().size() && !all_fortunes().size();
 }

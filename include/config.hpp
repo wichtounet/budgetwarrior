@@ -54,4 +54,12 @@ bool is_server_mode();
  */
 bool is_server_ssl();
 
+/*!
+ * \brief Indicates if net worth should be used instead of fortune
+ * for computation.
+ *
+ * This needs fortunes and assets to be loaded
+ */
+bool net_worth_over_fortune();
+
 } //end of namespace budget
