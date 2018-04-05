@@ -469,6 +469,7 @@ void add_objectives_api(const httplib::Request& req, httplib::Response& res) {
     objective.source = req.get_param_value("input_source");
     objective.op     = req.get_param_value("input_operator");
     objective.amount = budget::parse_money(req.get_param_value("input_amount"));
+    objective.date   = budget::local_day();
 
     add_objective(std::move(objective));
 
