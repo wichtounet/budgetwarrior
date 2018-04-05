@@ -16,6 +16,7 @@
 #include "expenses.hpp"
 #include "earnings.hpp"
 #include "fortune.hpp"
+#include "assets.hpp"
 #include "accounts.hpp"
 #include "args.hpp"
 #include "data.hpp"
@@ -75,6 +76,14 @@ void edit(budget::wish& wish){
     edit_number(wish.urgency, "Urgency", range_checker<1,3>());
 }
 
+budget::money cash_for_wishes(){
+    if(budget::net_worth_over_fortune()){
+        return get_net_worth_cash();
+    } else {
+        return current_fortune();
+    }
+}
+
 } //end of anonymous namespace
 
 std::map<std::string, std::string> budget::wish::get_params(){
@@ -96,7 +105,12 @@ void budget::wishes_module::load(){
     load_expenses();
     load_earnings();
     load_accounts();
+
+    // Need to load both to make sure to have the correct information
+    load_assets();
     load_fortunes();
+
+    // Need to be loaded last
     load_objectives();
     load_wishes();
 }
@@ -329,7 +343,7 @@ void budget::status_wishes(budget::writer& w){
     auto month_status = budget::compute_month_status(today.year(), today.month());
     auto year_status = budget::compute_year_status(today.year(), today.month());
 
-    auto fortune_amount = budget::current_fortune();
+    auto fortune_amount = cash_for_wishes();
 
     budget::money total_amount;
 
@@ -437,7 +451,7 @@ void budget::estimate_wishes(budget::writer& w) {
     std::vector<std::vector<std::string>> year_contents;
     std::vector<std::vector<std::string>> month_contents;
 
-    auto fortune_amount = budget::current_fortune();
+    auto fortune_amount = cash_for_wishes();
     auto today          = budget::local_day();
 
     for (auto& wish : wishes.data) {
