@@ -255,6 +255,10 @@ bool budget::is_server_ssl(){
     return false;
 }
 
+bool budget::is_fortune_disabled(){
+    return config_contains("disable_fortune") && config_value("disable_fortune") == "true";
+}
+
 bool budget::net_worth_over_fortune(){
     // If the fortune module is disabled, use net worth
     if (config_contains("disable_fortune")) {

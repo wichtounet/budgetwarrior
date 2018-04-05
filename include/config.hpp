@@ -55,6 +55,11 @@ bool is_server_mode();
 bool is_server_ssl();
 
 /*!
+ * \brief Indicates if the fortune module is disabled.
+ */
+bool is_fortune_disabled();
+
+/*!
  * \brief Indicates if net worth should be used instead of fortune
  * for computation.
  *
