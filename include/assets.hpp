@@ -108,5 +108,6 @@ asset_value& asset_value_get(size_t id);
 
 budget::money get_portfolio_value();
 budget::money get_net_worth();
+budget::money get_net_worth_cash();
 
 } //end of namespace budget

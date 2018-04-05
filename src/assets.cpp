@@ -994,3 +994,23 @@ budget::money budget::get_net_worth(){
 
     return total;
 }
+
+budget::money budget::get_net_worth_cash(){
+    std::map<size_t, budget::money> asset_amounts;
+
+    for (auto& asset_value : all_sorted_asset_values()) {
+        auto& asset = get_asset(asset_value.asset_id);
+
+        if(asset.cash == budget::money(100)){
+            asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(asset.currency, get_default_currency());
+        }
+    }
+
+    budget::money total;
+
+    for (auto& asset_amount : asset_amounts) {
+        total += asset_amount.second;
+    }
+
+    return total;
+}
