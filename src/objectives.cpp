@@ -12,7 +12,6 @@
 #include "objectives.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
-#include "fortune.hpp"
 #include "accounts.hpp"
 #include "args.hpp"
 #include "data.hpp"
@@ -212,7 +211,6 @@ void budget::objectives_module::load(){
     load_expenses();
     load_earnings();
     load_accounts();
-    load_fortunes();
     load_objectives();
 }
 
