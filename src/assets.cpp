@@ -400,6 +400,10 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
     asset.portfolio       = to_number<size_t>(parts[8]);
     asset.portfolio_alloc = parse_money(parts[9]);
 
+    if(asset.guid == "XXXXX"){
+        asset.guid = generate_guid();
+    }
+
     if (random) {
         asset.name = parts[2];
 
@@ -427,6 +431,10 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_value& asse
     asset_value.guid     = parts[1];
     asset_value.asset_id = to_number<size_t>(parts[2]);
     asset_value.set_date = from_string(parts[4]);
+
+    if(asset_value.guid == "XXXXX"){
+        asset_value.guid = generate_guid();
+    }
 
     if (random) {
         asset_value.amount = budget::random_money(1000, 50000);
