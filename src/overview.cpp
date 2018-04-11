@@ -5,6 +5,8 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <cstdio>
+#include <cstring>
 #include <numeric>
 #include <unordered_map>
 #include <unordered_set>
@@ -203,9 +205,23 @@ void add_values_column(budget::month month, budget::year year, const std::string
     add_recap_line(contents, title, total);
 }
 
+struct icompare_str {
+    bool operator()(const std::string& lhs, const std::string& rhs) const {
+        // Note: This is very fast, but not very good for locale
+        return strcasecmp(lhs.c_str(), rhs.c_str()) == 0;
+    }
+
+    size_t operator()(const std::string& value) const {
+        auto l_value = value;
+        std::transform(l_value.begin(), l_value.end(), l_value.begin(), ::tolower);
+        std::hash<std::string> hasher;
+        return hasher(l_value);
+    }
+};
+
 template<typename Functor>
 void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
-    std::unordered_map<std::string, std::unordered_map<std::string, budget::money>> acc_expenses;
+    std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_expenses;
 
     //Accumulate all the expenses
     for(auto& expense : all_expenses()){
