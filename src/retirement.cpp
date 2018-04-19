@@ -184,6 +184,7 @@ void budget::retirement_status(budget::writer& w) {
     contents.push_back({"Annual Return"s, to_string(roi) + "%"});
     contents.push_back({"Years of expense"s, to_string(years)});
     contents.push_back({"Running expenses"s, to_string(expenses) + " " + currency});
+    contents.push_back({"Monthly expenses"s, to_string(expenses / 12) + " " + currency});
     contents.push_back({"Target Net Worth"s, to_string(years * expenses) + " " + currency});
     contents.push_back({"Current Net Worth"s, to_string(nw) + " " + currency});
     contents.push_back({"Missing Net Worth"s, to_string(missing) + " " + currency});
