@@ -189,6 +189,7 @@ void budget::retirement_status(budget::writer& w) {
     contents.push_back({"Current Net Worth"s, to_string(nw) + " " + currency});
     contents.push_back({"Missing Net Worth"s, to_string(missing) + " " + currency});
     contents.push_back({"FI Ratio"s, to_string(100 * (nw / missing)) + "%"});
+    contents.push_back({"Months of FI"s, to_string(nw / (expenses / 12))});
     contents.push_back({"Yearly income"s, to_string(income) + " " + currency});
     contents.push_back({"Running Savings Rate"s, to_string(100 * savings_rate) + "%"});
     contents.push_back({"Yearly savings"s, to_string(savings_rate * income) + " " + currency});
