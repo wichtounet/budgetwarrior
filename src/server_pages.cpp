@@ -197,6 +197,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/overview/aggregate/month/">Aggregate Month</a>
                   <a class="dropdown-item" href="/overview/aggregate/all/">Aggregate All</a>
                   <a class="dropdown-item" href="/report/">Report</a>
+                  <a class="dropdown-item" href="/overview/savings/time/">Savings rate over time</a>
                 </div>
               </li>
         )=====";
@@ -2012,6 +2013,72 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
     page_end(w, content_stream, req, res);
 }
 
+void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Savings rate over time")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    auto ss = start_chart(w, "Savings rate over time", "line", "savings_time_graph", "");
+
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Savings Rate' }},)=====";
+    ss << R"=====(legend: { enabled: false },)=====";
+
+    ss << "series: [";
+
+    ss << "{ name: 'Savings Rate',";
+    ss << "data: [";
+
+    auto sy = start_year();
+
+    for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
+        budget::year year = j;
+
+        auto sm = start_month(year);
+        auto last = 13;
+
+        if(year == budget::local_day().year()){
+            last = budget::local_day().month() + 1;
+        }
+
+        for(unsigned short i = sm; i < last; ++i){
+            budget::month month = i;
+
+            budget::money income;
+            budget::money expenses;
+
+            for(auto& account : all_accounts(year, month)){
+                income += account.amount;
+            }
+
+            for(auto& earning : all_earnings()){
+                if(earning.date.year() == year && earning.date.month() == month){
+                    income += earning.amount;
+                }
+            }
+
+            for(auto& expense : all_expenses()){
+                if(expense.date.year() == year && expense.date.month() == month){
+                    expenses += expense.amount;
+                }
+            }
+
+            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << (income - expenses) / income << "],";
+        }
+    }
+
+    ss << "]},";
+
+    ss << "]";
+
+    end_chart(w, ss);
+
+    page_end(w, content_stream, req, res);
+}
+
 void time_graph_income_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Income over time")) {
@@ -3737,6 +3804,7 @@ void budget::load_pages(httplib::Server& server) {
     server.get("/overview/aggregate/month/", &overview_aggregate_month_page);
     server.get(R"(/overview/aggregate/month/(\d+)/(\d+)/)", &overview_aggregate_month_page);
     server.get("/overview/aggregate/all/", &overview_aggregate_all_page);
+    server.get("/overview/savings/time/", &time_graph_savings_rate_page);
 
     server.get("/report/", &report_page);
 
