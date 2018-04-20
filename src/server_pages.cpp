@@ -2066,7 +2066,13 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
                 }
             }
 
-            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << (income - expenses) / income << "],";
+            auto savings_rate = (income - expenses) / income;
+
+            if(savings_rate < 0){
+                savings_rate = 0;
+            }
+
+            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << 100.0 * savings_rate << "%],";
         }
     }
 
