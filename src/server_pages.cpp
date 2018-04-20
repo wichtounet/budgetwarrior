@@ -1222,10 +1222,18 @@ void cash_flow_card(budget::html_writer& w){
 
     w << R"=====(<div class="card">)=====";
 
+    auto income = monthly_income(m, y);
+    auto spending = monthly_spending(m, y);
+
     w << R"=====(<div class="card-header card-header-primary">)=====";
     w << R"=====(<div class="float-left">Cash Flow</div>)=====";
     w << R"=====(<div class="float-right">)=====";
-    w << monthly_income(m, y) - monthly_spending(m, y) << " __currency__";
+    w << income - spending << " __currency__";
+
+    if(income > spending){
+        w << " (" << ((income - spending) / income) << "%)";
+    }
+
     w << R"=====(</div>)=====";
     w << R"=====(<div class="clearfix"></div>)=====";
     w << R"=====(</div>)====="; // card-header
