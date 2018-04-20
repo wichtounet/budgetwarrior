@@ -1231,7 +1231,7 @@ void cash_flow_card(budget::html_writer& w){
     w << income - spending << " __currency__";
 
     if(income > spending){
-        w << " (" << ((income - spending) / income) << "%)";
+        w << " (" << 100.0f * ((income - spending) / income) << "%)";
     }
 
     w << R"=====(</div>)=====";

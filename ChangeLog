@@ -5,7 +5,8 @@ budgetwarrior 1.0.2 - in development
    * Use disable_fortune=true to disable it
    * Will remove menu from web interface
    * Will use net worth cash over fortune for wishes
- * Add monthly expenses to retirement status
+ * Improvement: Add monthly expenses to retirement status
+ * Improvement: Add savings rate to index
  * Bug Fix: Creating an objective from web interface was not using the correct date
 
 budgetwarrior 1.0.1 - 03.04.2018
