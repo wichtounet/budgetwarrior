@@ -2024,7 +2024,7 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
     auto ss = start_chart(w, "Savings rate over time", "line", "savings_time_graph", "");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Savings Rate' }},)=====";
+    ss << R"=====(yAxis: { min: 0, max: 100, title: { text: 'Monthly Savings Rate' }},)=====";
     ss << R"=====(legend: { enabled: false },)=====";
 
     ss << "series: [";
@@ -2072,7 +2072,7 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
                 savings_rate = 0;
             }
 
-            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << 100.0 * savings_rate << "%],";
+            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << 100.0 * savings_rate << "],";
         }
     }
 
