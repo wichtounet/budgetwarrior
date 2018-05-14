@@ -180,26 +180,47 @@ void budget::retirement_status(budget::writer& w) {
 
     using namespace std::string_literals;
 
+    // The configuration
     contents.push_back({"Withdrawal rate"s, to_string(wrate) + "%"});
     contents.push_back({"Annual Return"s, to_string(roi) + "%"});
     contents.push_back({"Years of expense"s, to_string(years)});
+
+    // The target
+    contents.push_back({""s, ""s});
     contents.push_back({"Running expenses"s, to_string(expenses) + " " + currency});
     contents.push_back({"Monthly expenses"s, to_string(expenses / 12) + " " + currency});
     contents.push_back({"Target Net Worth"s, to_string(years * expenses) + " " + currency});
+
+    contents.push_back({""s, ""s});
     contents.push_back({"Current Net Worth"s, to_string(nw) + " " + currency});
     contents.push_back({"Missing Net Worth"s, to_string(missing) + " " + currency});
-    contents.push_back({"FI Ratio"s, to_string(100 * (nw / missing)) + "%"});
-    contents.push_back({"Months of FI"s, to_string(nw / (expenses / 12))});
     contents.push_back({"Yearly income"s, to_string(income) + " " + currency});
     contents.push_back({"Running Savings Rate"s, to_string(100 * savings_rate) + "%"});
     contents.push_back({"Yearly savings"s, to_string(savings_rate * income) + " " + currency});
-    contents.push_back({"Time to FI (w/o returns)"s, to_string(missing / (savings_rate * income)) + " years"});
-    contents.push_back({"Time to FI (w/ returns)"s, to_string(base_months / 12.0) + " years"});
+    contents.push_back({"FI Ratio"s, to_string(100 * (nw / missing)) + "%"});
 
+    auto fi_date = budget::local_day() + budget::months(base_months);
+    contents.push_back({""s, ""s});
+    contents.push_back({"Months to FI"s, to_string(base_months)});
+    contents.push_back({"Years to FI"s, to_string(base_months / 12.0)});
+    contents.push_back({"Date to FI"s, to_string(fi_date)});
+
+    contents.push_back({""s, ""s});
+    contents.push_back({"Current Withdrawal Rate"s, to_string(100.0 * (expenses / nw)) + "%"});
+    contents.push_back({"Months of FI"s, to_string(nw / (expenses / 12))});
+    contents.push_back({"Years of FI"s, to_string(nw / (expenses))});
+
+    contents.push_back({""s, ""s});
+    contents.push_back({"Current Yearly Allowance"s, to_string(nw * (wrate / 100.0))});
+    contents.push_back({"Current Monthly Allowance"s, to_string((nw * (wrate / 100.0)) / 12)});
+
+    auto a_fi_date = budget::local_day() + budget::months(a_base_months);
+    contents.push_back({""s, ""s});
     contents.push_back({"Adjusted Savings Rate"s, to_string(100 * a_savings_rate) + "%"});
     contents.push_back({"Adjusted Yearly savings"s, to_string(a_savings_rate * income) + " " + currency});
-    contents.push_back({"Adjusted Time to FI (w/o returns)"s, to_string(missing / (a_savings_rate * income)) + " years"});
-    contents.push_back({"Adjusted Time to FI (w/ returns)"s, to_string(a_base_months / 12.0) + " years"});
+    contents.push_back({"Adjusted Months to FI"s, to_string(a_base_months)});
+    contents.push_back({"Adjusted Years to FI"s, to_string(a_base_months / 12.0)});
+    contents.push_back({"Adjusted Date to FI"s, to_string(a_fi_date)});
 
     w.display_table(columns, contents);
 
