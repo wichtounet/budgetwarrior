@@ -1817,6 +1817,9 @@ void time_graph_expenses_page(const httplib::Request& req, httplib::Response& re
     ss << "{ name: 'Monthly expenses',";
     ss << "data: [";
 
+    std::vector<budget::money> serie;
+    std::vector<std::string> dates;
+
     auto sy = start_year();
 
     for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
@@ -1840,8 +1843,34 @@ void time_graph_expenses_page(const httplib::Request& req, httplib::Response& re
                 }
             }
 
-            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << budget::to_flat_string(sum) << "],";
+            std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(month.value - 1) + ", 1)";
+
+            serie.push_back(sum);
+            dates.push_back(date);
+
+            ss << "[" << date <<  "," << budget::to_flat_string(sum) << "],";
         }
+    }
+
+    ss << "]},";
+
+    ss << "{ name: '12 months average',";
+    ss << "data: [";
+
+    std::array<budget::money, 12> average_12;
+
+    for(size_t i = 0; i < serie.size(); ++i){
+        average_12[i % 12] = serie[i];
+
+        auto average = std::accumulate(average_12.begin(), average_12.end(), budget::money());
+
+        if(i < 12){
+            average = average / int(i + 1);
+        } else {
+            average = average / 12;
+        }
+
+        ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
     }
 
     ss << "]},";
@@ -2157,7 +2186,7 @@ void time_graph_income_page(const httplib::Request& req, httplib::Response& res)
         auto average = std::accumulate(average_12.begin(), average_12.end(), budget::money());
 
         if(i < 12){
-            average = average / (i + 1);
+            average = average / int(i + 1);
         } else {
             average = average / 12;
         }
