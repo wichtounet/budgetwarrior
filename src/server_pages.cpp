@@ -2273,7 +2273,19 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
     add_date_picker(w);
     add_name_picker(w);
     add_amount_picker(w);
-    add_account_picker(w, budget::local_day());
+
+    std::string account;
+
+    if (config_contains("default_account")) {
+        auto default_account = config_value("default_account");
+
+        if (account_exists(default_account)) {
+            auto today = budget::local_day();
+            account = budget::to_string(get_account(default_account, today.year(), today.month()).id);
+        }
+    }
+
+    add_account_picker(w, budget::local_day(), account);
 
     form_end(w);
 
