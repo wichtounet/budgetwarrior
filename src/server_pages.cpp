@@ -2154,7 +2154,13 @@ void time_graph_income_page(const httplib::Request& req, httplib::Response& res)
     for(size_t i = 0; i < serie.size(); ++i){
         average_12[i % 12] = serie[i];
 
-        auto average = std::accumulate(average_12.begin(), average_12.end(), budget::money()) / 12;
+        auto average = std::accumulate(average_12.begin(), average_12.end(), budget::money());
+
+        if(i < 12){
+            average = average / (i + 1);
+        } else {
+            average = average / 12;
+        }
 
         ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
     }
