@@ -2062,6 +2062,9 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
     ss << "{ name: 'Savings Rate',";
     ss << "data: [";
 
+    std::vector<float> serie;
+    std::vector<std::string> dates;
+
     auto sy = start_year();
 
     for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
@@ -2102,8 +2105,34 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
                 savings_rate = 0;
             }
 
-            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << 100.0 * savings_rate << "],";
+            std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(month.value - 1) + ", 1)";
+
+            serie.push_back(savings_rate);
+            dates.push_back(date);
+
+            ss << "[" << date << " ," << 100.0 * savings_rate << "],";
         }
+    }
+
+    ss << "]},";
+
+    ss << "{ name: '12 months average',";
+    ss << "data: [";
+
+    std::array<float, 12> average_12;
+
+    for(size_t i = 0; i < serie.size(); ++i){
+        average_12[i % 12] = serie[i];
+
+        auto average = std::accumulate(average_12.begin(), average_12.end(), 0.0f);
+
+        if(i < 12){
+            average = average / float(i + 1);
+        } else {
+            average = average / 12.f;
+        }
+
+        ss << "[" << dates[i] << "," << 100.0 * average << "],";
     }
 
     ss << "]},";
