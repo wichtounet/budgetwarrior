@@ -2160,12 +2160,12 @@ void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Respons
         auto ss = start_chart(w, "FI Ratio over time", "line", "fi_time_graph", "");
 
         ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-        ss << R"=====(yAxis: { min: 0, title: { text: 'FI Ratio' }},)=====";
+        ss << R"=====(yAxis: { min: 0, max: 100, title: { text: 'FI Ratio' }},)=====";
         ss << R"=====(legend: { enabled: false },)=====";
 
         ss << "series: [";
 
-        ss << "{ name: 'FI Ratio',";
+        ss << "{ name: 'FI Ratio %',";
         ss << "data: [";
 
         std::vector<budget::money> serie;
@@ -2175,14 +2175,15 @@ void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Respons
 
         for (size_t i = 0; i < values.size(); ++i) {
             auto& asset_value = values[i];
+            auto current = asset_value.set_date;
 
-            if (i == 0 || previous != asset_value.set_date) {
-                previous = asset_value.set_date;
+            if (i == 0 || (previous.month() != current.month() && previous.year() != current.year())) {
+                previous = current;
 
                 auto ratio = budget::fi_ratio(previous);
 
                 std::string date = "Date.UTC(" + std::to_string(previous.year()) + "," + std::to_string(previous.month().value - 1) + ", 1)";
-                ss << "[" << date <<  "," << budget::to_string(ratio) << "%],";
+                ss << "[" << date <<  "," << budget::to_string(100 * ratio) << "],";
             }
         }
 
