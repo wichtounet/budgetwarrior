@@ -23,10 +23,8 @@ namespace {
 
 constexpr size_t running_limit = 12;
 
-money running_expenses(){
-    auto today = budget::local_day();
-
-    budget::date end = today - budget::days(today.day() - 1);
+money running_expenses(budget::date d = budget::local_day()){
+    budget::date end = d - budget::days(d.day() - 1);
     budget::date start = end - budget::months(running_limit);
 
     budget::money total;
@@ -40,13 +38,11 @@ money running_expenses(){
     return total;
 }
 
-double running_savings_rate(){
-    auto today = budget::local_day();
-
+double running_savings_rate(budget::date sd = budget::local_day()){
     double savings_rate = 0.0;
 
     for(size_t i = 1; i <= running_limit; ++i){
-        auto d = today - budget::months(i);
+        auto d = sd - budget::months(i);
 
         budget::money expenses;
 
@@ -130,6 +126,16 @@ void budget::retirement_module::handle(std::vector<std::string>& args) {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
+}
+
+float budget::fi_ratio(budget::date d) {
+    auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
+    auto years          = double(int(100.0 / wrate));
+    auto expenses       = running_expenses(d);
+    auto nw             = get_net_worth(d);
+    auto missing        = years * expenses - nw;
+
+    return nw / missing;
 }
 
 void budget::retirement_status(budget::writer& w) {

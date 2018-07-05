@@ -12,6 +12,7 @@
 
 #include "module_traits.hpp"
 #include "writer_fwd.hpp"
+#include "date.hpp"
 
 namespace budget {
 
@@ -26,6 +27,7 @@ struct module_traits<retirement_module> {
     static constexpr const char* command   = "retirement";
 };
 
+float fi_ratio(budget::date d);
 void retirement_status(budget::writer& w);
 
 } //end of namespace budget

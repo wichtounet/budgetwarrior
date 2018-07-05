@@ -283,6 +283,7 @@ std::string header(const std::string& title, bool menu = true) {
                 <div class="dropdown-menu" aria-labelledby="dropdown_retirement">
                   <a class="dropdown-item" href="/retirement/status/">Status</a>
                   <a class="dropdown-item" href="/retirement/configure/">Configure</a>
+                  <a class="dropdown-item" href="/retirement/fi/">FI Ratio Over Time</a>
                 </div>
               </li>
         )=====";
@@ -2144,6 +2145,56 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
     page_end(w, content_stream, req, res);
 }
 
+void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "FI Ratio over time")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    auto values = all_sorted_asset_values();
+
+    if (!values.empty()){
+
+        auto ss = start_chart(w, "FI Ratio over time", "line", "fi_time_graph", "");
+
+        ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+        ss << R"=====(yAxis: { min: 0, title: { text: 'FI Ratio' }},)=====";
+        ss << R"=====(legend: { enabled: false },)=====";
+
+        ss << "series: [";
+
+        ss << "{ name: 'FI Ratio',";
+        ss << "data: [";
+
+        std::vector<budget::money> serie;
+        std::vector<std::string> dates;
+
+        auto previous = values.front().set_date;
+
+        for (size_t i = 0; i < values.size(); ++i) {
+            auto& asset_value = values[i];
+
+            if (i == 0 || previous != asset_value.set_date) {
+                previous = asset_value.set_date;
+
+                auto ratio = budget::fi_ratio(previous);
+
+                std::string date = "Date.UTC(" + std::to_string(previous.year()) + "," + std::to_string(previous.month().value - 1) + ", 1)";
+                ss << "[" << date <<  "," << budget::to_string(ratio) << "%],";
+            }
+        }
+
+        ss << "]},";
+        ss << "]";
+
+        end_chart(w, ss);
+    }
+
+    page_end(w, content_stream, req, res);
+}
+
 void time_graph_income_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Income over time")) {
@@ -3978,6 +4029,7 @@ void budget::load_pages(httplib::Server& server) {
 
     server.get("/retirement/status/", &retirement_status_page);
     server.get("/retirement/configure/", &retirement_configure_page);
+    server.get("/retirement/fi/", &retirement_fi_ratio_over_time);
 
     server.get("/recurrings/list/", &recurrings_list_page);
     server.get("/recurrings/add/", &add_recurrings_page);

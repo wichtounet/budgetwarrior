@@ -110,4 +110,6 @@ budget::money get_portfolio_value();
 budget::money get_net_worth();
 budget::money get_net_worth_cash();
 
+budget::money get_net_worth(budget::date d);
+
 } //end of namespace budget
