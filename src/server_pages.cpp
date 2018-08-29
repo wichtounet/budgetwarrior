@@ -2121,6 +2121,7 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
     ss << "data: [";
 
     std::array<float, 12> average_12;
+    average_12.fill(0.0f);
 
     for(size_t i = 0; i < serie.size(); ++i){
         average_12[i % 12] = serie[i];
