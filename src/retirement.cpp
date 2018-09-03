@@ -6,6 +6,7 @@
 //=======================================================================
 
 #include <iostream>
+#include <array>
 
 #include "retirement.hpp"
 #include "assets.hpp"
