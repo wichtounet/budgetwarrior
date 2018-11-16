@@ -46,6 +46,14 @@ struct filter_iterator {
         return *first;
     }
 
+    decltype(auto) operator->() {
+        return &*first;
+    }
+
+    decltype(auto) operator->() const {
+        return &*first;
+    }
+
 private:
     Iterator first;
     Iterator last;
@@ -56,11 +64,11 @@ template<typename Iterator, typename Filter>
 struct filter_view {
     filter_view(Iterator first, Iterator last, Filter filter) : first(first), last(last), filter(filter) {}
 
-    auto begin(){
+    auto begin() const {
         return filter_iterator<Iterator, Filter>(first, last, filter);
     }
 
-    auto end(){
+    auto end() const {
         return filter_iterator<Iterator, Filter>(last, last, filter);
     }
 
