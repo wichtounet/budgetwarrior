@@ -26,25 +26,11 @@ budget::status budget::compute_year_status(year year, month month){
 
     auto sm = start_month(year);
 
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.date.month() >= sm && expense.date.month() <= month){
-            status.expenses += expense.amount;
-        }
-    }
+    status.expenses = accumulate_amount(all_expenses_between(year, sm, month));
+    status.earnings = accumulate_amount(all_earnings_between(year, sm, month));
 
-    budget::money year_earnings;
-    for(auto& earning : all_earnings()){
-        if(earning.date.year() == year && earning.date.month() >= sm && earning.date.month() <= month){
-            status.earnings += earning.amount;
-        }
-    }
-
-    for(unsigned short i = sm; i <= month; ++i){
-        budget::month month = i;
-
-        for(auto& c : all_accounts(year, month)){
-            status.budget += c.amount;
-        }
+    for (unsigned short i = sm; i <= month; ++i) {
+        status.budget += accumulate_amount(all_accounts(year, i));
     }
 
     status.balance = status.budget + status.earnings - status.expenses;
@@ -65,25 +51,12 @@ budget::status budget::compute_month_status(month month){
 budget::status budget::compute_month_status(year year, month month){
     budget::status status;
 
-    for(auto& expense : all_expenses()){
-        if(expense.date.year() == year && expense.date.month() == month){
-            status.expenses += expense.amount;
-        }
-    }
+    status.expenses = accumulate_amount(all_expenses_month(year, month));
+    status.earnings = accumulate_amount(all_earnings_month(year, month));
+    status.budget   = accumulate_amount(all_accounts(year, month));
+    status.balance  = status.budget + status.earnings - status.expenses;
 
-    for(auto& earning : all_earnings()){
-        if(earning.date.year() == year && earning.date.month() == month){
-            status.earnings += earning.amount;
-        }
-    }
-
-    for(auto& c : all_accounts(year, month)){
-        status.budget += c.amount;
-    }
-
-    status.balance = status.budget + status.earnings - status.expenses;
-
-    return std::move(status);
+    return status;
 }
 
 budget::status budget::compute_avg_month_status(){
