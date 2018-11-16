@@ -15,6 +15,7 @@
 #include "money.hpp"
 #include "date.hpp"
 #include "writer_fwd.hpp"
+#include "filter_iterator.hpp"
 
 namespace budget {
 
@@ -61,5 +62,19 @@ void show_all_earnings(budget::writer& w);
 void show_earnings(budget::month month, budget::year year, budget::writer& w);
 void show_earnings(budget::month month, budget::writer& w);
 void show_earnings(budget::writer& w);
+
+// Filter functions
+
+inline auto all_earnings_between(budget::year year, budget::month sm, budget::month month) {
+    return make_filter_view(begin(all_earnings()), end(all_earnings()), [=](const earning& e) {
+        return e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
+    });
+}
+
+inline auto all_earnings_month(budget::year year, budget::month month) {
+    return make_filter_view(begin(all_earnings()), end(all_earnings()), [=](const earning& e) {
+        return e.date.year() == year && e.date.month() == month;
+    });
+}
 
 } //end of namespace budget

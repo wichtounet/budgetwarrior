@@ -15,6 +15,7 @@
 #include "money.hpp"
 #include "date.hpp"
 #include "writer_fwd.hpp"
+#include "filter_iterator.hpp"
 
 namespace budget {
 
@@ -65,5 +66,19 @@ void show_expenses(budget::month month, budget::year year, budget::writer& w);
 void show_expenses(budget::month month, budget::writer& w);
 void show_expenses(budget::writer& w);
 void search_expenses(const std::string& search, budget::writer& w);
+
+// Filter functions
+
+inline auto all_expenses_between(budget::year year, budget::month sm, budget::month month) {
+    return make_filter_view(begin(all_expenses()), end(all_expenses()), [=](const expense& e) {
+        return e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
+    });
+}
+
+inline auto all_expenses_month(budget::year year, budget::month month) {
+    return make_filter_view(begin(all_expenses()), end(all_expenses()), [=](const expense& e) {
+        return e.date.year() == year && e.date.month() == month;
+    });
+}
 
 } //end of namespace budget
