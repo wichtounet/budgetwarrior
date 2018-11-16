@@ -12,16 +12,16 @@
 #include "earnings.hpp"
 #include "accounts.hpp"
 
-budget::status budget::compute_year_status(){
+budget::status budget::compute_year_status() {
     auto today = budget::local_day();
     return compute_year_status(today.year(), today.month());
 }
 
-budget::status budget::compute_year_status(year year){
+budget::status budget::compute_year_status(year year) {
     return compute_year_status(year, 12);
 }
 
-budget::status budget::compute_year_status(year year, month month){
+budget::status budget::compute_year_status(year year, month month) {
     budget::status status;
 
     auto sm = start_month(year);
@@ -38,17 +38,17 @@ budget::status budget::compute_year_status(year year, month month){
     return status;
 }
 
-budget::status budget::compute_month_status(){
+budget::status budget::compute_month_status() {
     auto today = budget::local_day();
     return compute_month_status(today.year(), today.month());
 }
 
-budget::status budget::compute_month_status(month month){
+budget::status budget::compute_month_status(month month) {
     auto today = budget::local_day();
     return compute_month_status(today.year(), month);
 }
 
-budget::status budget::compute_month_status(year year, month month){
+budget::status budget::compute_month_status(year year, month month) {
     budget::status status;
 
     status.expenses = accumulate_amount(all_expenses_month(year, month));
@@ -59,20 +59,20 @@ budget::status budget::compute_month_status(year year, month month){
     return status;
 }
 
-budget::status budget::compute_avg_month_status(){
+budget::status budget::compute_avg_month_status() {
     auto today = budget::local_day();
     return compute_avg_month_status(today.year(), today.month());
 }
 
-budget::status budget::compute_avg_month_status(month month){
+budget::status budget::compute_avg_month_status(month month) {
     auto today = budget::local_day();
     return compute_avg_month_status(today.year(), month);
 }
 
-budget::status budget::compute_avg_month_status(year year, month month){
+budget::status budget::compute_avg_month_status(year year, month month) {
     budget::status avg_status;
 
-    for(budget::month m = 1; m < month; m = m + 1){
+    for (budget::month m = 1; m < month; m = m + 1) {
         auto status = compute_month_status(year, m);
 
         avg_status.expenses += status.expenses;
@@ -81,7 +81,7 @@ budget::status budget::compute_avg_month_status(year year, month month){
         avg_status.balance += status.balance;
     }
 
-    if(month.value > 1){
+    if (month.value > 1) {
         avg_status.expenses /= month.value - 1;
         avg_status.earnings /= month.value - 1;
         avg_status.budget /= month.value - 1;
