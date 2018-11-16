@@ -146,11 +146,11 @@ std::vector<budget::money> compute_total_budget(budget::month month, budget::yea
             for(auto& account : all_accounts(y, m)){
                 tmp[account.name] += account.amount;
 
-                tmp[account.name] -= accumulate_amount_if(all_expenses(), [y,m,account](budget::expense& e){
+                tmp[account.name] -= accumulate_amount_if(all_expenses(), [y,m,account](const budget::expense& e){
                     return e.account == account.id && e.date.year() == y && e.date.month() == m;
                     });
 
-                tmp[account.name] += accumulate_amount_if(all_earnings(), [y,m,account](budget::earning& e){
+                tmp[account.name] += accumulate_amount_if(all_earnings(), [y,m,account](const budget::earning& e){
                     return e.account == account.id && e.date.year() == y && e.date.month() == m;
                     });
             }
@@ -660,11 +660,11 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
             budget::money total_earnings;
 
             if(relaxed){
-                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
-                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](const budget::expense& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](const budget::earning& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
             } else {
-                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](const budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](const budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
             }
 
             auto month_total = account.amount - total_expenses + total_earnings;
@@ -842,11 +842,11 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
             budget::money total_earnings;
 
             if(relaxed){
-                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
-                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](const budget::expense& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](const budget::earning& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
             } else {
-                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+                total_expenses = accumulate_amount_if(all_expenses(), [account,year,m](const budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+                total_earnings = accumulate_amount_if(all_earnings(), [account,year,m](const budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
             }
 
             auto month_total = account_previous[account.name][i - 1] + account.amount - total_expenses + total_earnings;

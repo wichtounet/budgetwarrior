@@ -104,9 +104,9 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
              for (auto& account : all_accounts(year, month)) {
                  if (!filter || account.name == filter_account) {
                      auto expenses = accumulate_amount_if(all_expenses(),
-                                                          [year, month, account](budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
+                                                          [year, month, account](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
                      auto earnings = accumulate_amount_if(all_earnings(),
-                                                          [year, month, account](budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
+                                                          [year, month, account](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
 
                      m_expenses += expenses;
                      m_earnings += earnings;
@@ -150,9 +150,9 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
         for (auto& account : all_accounts(year, month)) {
             if (!filter || account.name == filter_account) {
                 auto expenses = accumulate_amount_if(all_expenses(),
-                                                     [year, month, account](budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
+                                                     [year, month, account](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
                 auto earnings = accumulate_amount_if(all_earnings(),
-                                                     [year, month, account](budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
+                                                     [year, month, account](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
 
                 total_expenses += expenses;
                 total_earnings += earnings;
