@@ -1409,9 +1409,7 @@ void assets_card(budget::html_writer& w){
         }
 
         for (auto& group : groups) {
-            w << "<div class=\"asset_group\">";
-            w << group;
-            w << "</div>";
+	    bool started = false;
 
             for (auto& asset : all_assets()) {
                 if (asset.name != "DESIRED" && asset.name.substr(0, asset.name.find(separator)) == group) {
@@ -1423,6 +1421,14 @@ void assets_card(budget::html_writer& w){
                         auto amount       = asset_value.amount;
 
                         if (amount) {
+			    if (!started) {
+				w << "<div class=\"asset_group\">";
+			    	w << group;
+			    	w << "</div>";
+
+				started = true;
+			    }
+
                             w << R"=====(<div class="asset_row row">)=====";
                             w << R"=====(<div class="asset_name col-md-8 col-xl-9 small">)=====";
                             w << short_name;
