@@ -15,6 +15,7 @@
 #include "money.hpp"
 #include "date.hpp"
 #include "writer_fwd.hpp"
+#include "filter_iterator.hpp"
 
 namespace budget {
 
@@ -111,5 +112,13 @@ budget::money get_net_worth();
 budget::money get_net_worth_cash();
 
 budget::money get_net_worth(budget::date d);
+
+// Filter functions
+
+inline auto all_user_assets() {
+    return make_filter_view(begin(all_assets()), end(all_assets()), [=](const asset& a) {
+        return a.name != "DESIRED";
+    });
+}
 
 } //end of namespace budget

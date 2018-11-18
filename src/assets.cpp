@@ -36,10 +36,8 @@ static data_handler<asset_value> asset_values { "asset_values", "asset_values.da
 std::vector<std::string> get_asset_names(){
     std::vector<std::string> asset_names;
 
-    for (auto& asset : all_assets()) {
-        if (asset.name != "DESIRED") {
-            asset_names.push_back(asset.name);
-        }
+    for (auto& asset : all_user_assets()) {
+        asset_names.push_back(asset.name);
     }
 
     return asset_names;
@@ -202,7 +200,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             //Verify that there are no OTHER asset with this name
             //in the current set of assets (taking archiving into asset)
 
-            for(auto& other_asset : all_assets()){
+            for(auto& other_asset : all_user_assets()){
                 if(other_asset.id != id){
                     if(other_asset.name == asset.name){
                         throw budget_exception("There is already an asset with the name " + asset.name);

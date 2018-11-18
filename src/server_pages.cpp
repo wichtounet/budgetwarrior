@@ -683,7 +683,7 @@ void add_asset_picker(budget::writer& w, const std::string& default_value = "") 
                 <select class="form-control" id="input_asset" name="input_asset">
     )=====";
 
-    for (auto& asset : all_assets()) {
+    for (auto& asset : all_user_assets()) {
         if (budget::to_string(asset.id) == default_value) {
             w << "<option selected value=\"" << asset.id << "\">" << asset.name << "</option>";
         } else {
@@ -1380,13 +1380,11 @@ void assets_card(budget::html_writer& w){
     }
 
     if (group_style) {
-        for (auto& asset : all_assets()) {
-            if (asset.name != "DESIRED") {
-                auto pos = asset.name.find(separator);
-                if (pos == 0 || pos == std::string::npos) {
-                    group_style = false;
-                    break;
-                }
+        for (auto& asset : all_user_assets()) {
+            auto pos = asset.name.find(separator);
+            if (pos == 0 || pos == std::string::npos) {
+                group_style = false;
+                break;
             }
         }
     }
@@ -1394,21 +1392,19 @@ void assets_card(budget::html_writer& w){
     if (group_style) {
         std::vector<std::string> groups;
 
-        for (auto& asset : all_assets()) {
-            if (asset.name != "DESIRED") {
-                std::string group = asset.name.substr(0, asset.name.find(separator));
+        for (auto& asset : all_user_assets()) {
+            std::string group = asset.name.substr(0, asset.name.find(separator));
 
-                if (std::find(groups.begin(), groups.end(), group) == groups.end()) {
-                    groups.push_back(group);
-                }
+            if (std::find(groups.begin(), groups.end(), group) == groups.end()) {
+                groups.push_back(group);
             }
         }
 
         for (auto& group : groups) {
-	    bool started = false;
+        bool started = false;
 
-            for (auto& asset : all_assets()) {
-                if (asset.name != "DESIRED" && asset.name.substr(0, asset.name.find(separator)) == group) {
+            for (auto& asset : all_user_assets()) {
+                if (asset.name.substr(0, asset.name.find(separator)) == group) {
                     auto short_name = asset.name.substr(asset.name.find(separator) + 1);
 
                     auto value = find_last_asset_value(asset.id);
@@ -1417,13 +1413,13 @@ void assets_card(budget::html_writer& w){
                         auto amount       = asset_value.amount;
 
                         if (amount) {
-			    if (!started) {
-				w << "<div class=\"asset_group\">";
-			    	w << group;
-			    	w << "</div>";
+                            if (!started) {
+                                w << "<div class=\"asset_group\">";
+                                w << group;
+                                w << "</div>";
 
-				started = true;
-			    }
+                                started = true;
+                            }
 
                             w << R"=====(<div class="asset_row row">)=====";
                             w << R"=====(<div class="asset_name col-md-8 col-xl-9 small">)=====";
@@ -1447,7 +1443,7 @@ void assets_card(budget::html_writer& w){
     } else {
         bool first = true;
 
-        for (auto& asset : all_assets()) {
+        for (auto& asset : all_user_assets()) {
             auto value = find_last_asset_value(asset.id);
 
             if (value.first) {
@@ -2467,8 +2463,8 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     std::set<std::string> currencies;
 
-    for (auto& asset : all_assets()) {
-        if (asset.name != "DESIRED" && asset.portfolio) {
+    for (auto& asset : all_user_assets()) {
+        if (asset.portfolio) {
             currencies.insert(asset.currency);
         }
     }
@@ -2666,7 +2662,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     std::map<size_t, size_t> colors;
 
-    for (auto& asset : all_assets()) {
+    for (auto& asset : all_user_assets()) {
         if (asset.portfolio && (asset_amounts[asset.id] || asset.portfolio_alloc)) {
             if (!colors.count(asset.id)) {
                 auto c           = colors.size();
@@ -2743,7 +2739,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     desired_ss << "var desired_pie_colors = (function () {";
     desired_ss << "var colors = [];";
 
-    for (auto& asset : all_assets()) {
+    for (auto& asset : all_user_assets()) {
         if (asset.portfolio && asset.portfolio_alloc) {
             desired_ss << "colors.push(desired_base_colors[" << colors[asset.id] << "]);";
         }
@@ -2765,7 +2761,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     ss2 << "colors: desired_pie_colors,";
     ss2 << "data: [";
 
-    for (auto& asset : all_assets()) {
+    for (auto& asset : all_user_assets()) {
         if (asset.portfolio && asset.portfolio_alloc) {
             ss2 << "{ name: '" << asset.name << "',";
             ss2 << "y: ";
@@ -3188,10 +3184,8 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     std::set<std::string> currencies;
 
-    for (auto& asset : all_assets()) {
-        if (asset.name != "DESIRED") {
-            currencies.insert(asset.currency);
-        }
+    for (auto& asset : all_user_assets()) {
+        currencies.insert(asset.currency);
     }
 
     budget::html_writer w(content_stream);
@@ -3375,17 +3369,15 @@ void full_batch_asset_values_page(const httplib::Request& req, httplib::Response
 
     auto sorted_asset_values = all_sorted_asset_values();
 
-    for (auto& asset : all_assets()) {
-        if (asset.name != "DESIRED") {
-            budget::money amount;
-            for (auto& asset_value : sorted_asset_values) {
-                if (asset_value.asset_id == asset.id) {
-                    amount = asset_value.amount;
-                }
+    for (auto& asset : all_user_assets()) {
+        budget::money amount;
+        for (auto& asset_value : sorted_asset_values) {
+            if (asset_value.asset_id == asset.id) {
+                amount = asset_value.amount;
             }
-
-            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
         }
+
+        add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
     }
 
     form_end(w);
@@ -3409,18 +3401,16 @@ void current_batch_asset_values_page(const httplib::Request& req, httplib::Respo
 
     auto sorted_asset_values = all_sorted_asset_values();
 
-    for (auto& asset : all_assets()) {
-        if (asset.name != "DESIRED") {
-            budget::money amount;
-            for (auto& asset_value : sorted_asset_values) {
-                if (asset_value.asset_id == asset.id) {
-                    amount = asset_value.amount;
-                }
+    for (auto& asset : all_user_assets()) {
+        budget::money amount;
+        for (auto& asset_value : sorted_asset_values) {
+            if (asset_value.asset_id == asset.id) {
+                amount = asset_value.amount;
             }
+        }
 
-            if (amount) {
-                add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
-            }
+        if (amount) {
+            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
         }
     }
 
