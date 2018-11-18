@@ -138,6 +138,7 @@ std::vector<budget::money> compute_total_budget(budget::month month, budget::yea
 
     for(budget::year y = start_year_report; y <= year; y = y + 1){
         budget::month m = start_month(y);
+
         while(true){
             if(y == year && m >= month){
                 break;
@@ -145,14 +146,8 @@ std::vector<budget::money> compute_total_budget(budget::month month, budget::yea
 
             for(auto& account : all_accounts(y, m)){
                 tmp[account.name] += account.amount;
-
-                tmp[account.name] -= accumulate_amount_if(all_expenses(), [y,m,account](const budget::expense& e){
-                    return e.account == account.id && e.date.year() == y && e.date.month() == m;
-                    });
-
-                tmp[account.name] += accumulate_amount_if(all_earnings(), [y,m,account](const budget::earning& e){
-                    return e.account == account.id && e.date.year() == y && e.date.month() == m;
-                    });
+                tmp[account.name] -= accumulate_amount(all_expenses_month(account.id, y, m));
+                tmp[account.name] += accumulate_amount(all_earnings_month(account.id, y, m));
             }
 
             if(y != year && m == 12){

@@ -1024,10 +1024,8 @@ void month_breakdown_income_graph(budget::html_writer& w, const std::string& tit
 
     std::map<size_t, budget::money> account_sum;
 
-    for (auto& earning : all_earnings()) {
-        if (earning.date.year() == year && earning.date.month() == month) {
-            account_sum[earning.account] += earning.amount;
-        }
+    for (auto& earning : all_earnings_month(year, month)) {
+        account_sum[earning.account] += earning.amount;
     }
 
     budget::money total = get_base_income();
@@ -1101,10 +1099,8 @@ void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& t
 
     std::map<size_t, budget::money> account_sum;
 
-    for (auto& expense : all_expenses()) {
-        if (expense.date.year() == year && expense.date.month() == month) {
-            account_sum[expense.account] += expense.amount;
-        }
+    for (auto& expense : all_expenses_month(year, month)) {
+        account_sum[expense.account] += expense.amount;
     }
 
     budget::money total;
