@@ -364,12 +364,6 @@ std::string header(const std::string& title, bool menu = true) {
     return stream.str();
 }
 
-void display_error_message(budget::writer& w, const std::string& message) {
-    w << R"=====(<div class="alert alert-danger" role="alert">)=====";
-    w << message;
-    w << R"=====(</div>)=====";
-}
-
 void display_message(budget::writer& w, const httplib::Request& req) {
     if (req.has_param("message")) {
         if (req.has_param("error")) {
@@ -385,61 +379,6 @@ void display_message(budget::writer& w, const httplib::Request& req) {
     }
 }
 
-bool page_start(const httplib::Request& req, httplib::Response& res, std::stringstream& content_stream, const std::string& title) {
-    content_stream.imbue(std::locale("C"));
-
-    if (is_secure()) {
-        if (req.has_header("Authorization")) {
-            auto authorization = req.get_header_value("Authorization");
-
-            if (authorization.substr(0, 6) != "Basic ") {
-                res.status = 401;
-                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-                return false;
-            }
-
-            auto sub_authorization = authorization.substr(6, authorization.size());
-            auto decoded           = base64_decode(sub_authorization);
-
-            if (decoded.find(':') == std::string::npos) {
-                res.status = 401;
-                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-                return false;
-            }
-
-            auto username = decoded.substr(0, decoded.find(':'));
-            auto password = decoded.substr(decoded.find(':') + 1, decoded.size());
-
-            if (username != get_web_user()) {
-                res.status = 401;
-                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-                return false;
-            }
-
-            if (password != get_web_password()) {
-                res.status = 401;
-                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-                return false;
-            }
-        } else {
-            res.status = 401;
-            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-            return false;
-        }
-    }
-
-    content_stream << header(title);
-
-    budget::html_writer w(content_stream);
-    display_message(w, req);
-
-    return true;
-}
 
 void replace_all(std::string& source, const std::string& from, const std::string& to) {
     size_t current_pos = 0;
@@ -458,18 +397,6 @@ void filter_html(std::string& html, const httplib::Request& req) {
 //Note: This must be synchronized with page_end
 std::string footer() {
     return "</main></body></html>";
-}
-
-void page_end(budget::html_writer& w, std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res) {
-    w << "</main>";
-    w.load_deferred_scripts();
-    w << "</body></html>";
-
-    auto result = content_stream.str();
-
-    filter_html(result, req);
-
-    res.set_content(result, "text/html");
 }
 
 std::stringstream start_chart_base(budget::html_writer& w, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
@@ -583,14 +510,6 @@ void add_text_picker(budget::writer& w, const std::string& title, const std::str
     )=====";
 }
 
-void add_name_picker(budget::writer& w, const std::string& default_value = "") {
-    add_text_picker(w, "Name", "input_name", default_value);
-}
-
-void add_title_picker(budget::writer& w, const std::string& default_value = "") {
-    add_text_picker(w, "Title", "input_title", default_value);
-}
-
 void add_currency_picker(budget::writer& w, const std::string& default_value = "") {
     add_text_picker(w, "Currency", "input_currency", default_value);
 }
@@ -645,14 +564,6 @@ void add_money_picker(budget::writer& w, const std::string& title, const std::st
     } else {
         w << "</div>";
     }
-}
-
-void add_amount_picker(budget::writer& w, const std::string& default_value = "") {
-    add_money_picker(w, "amount", "input_amount", default_value);
-}
-
-void add_paid_amount_picker(budget::writer& w, const std::string& default_value = "") {
-    add_money_picker(w, "paid amount", "input_paid_amount", default_value);
 }
 
 void add_account_picker(budget::writer& w, budget::date day, const std::string& default_value = "") {
@@ -784,31 +695,6 @@ void add_objective_source_picker(budget::writer& w, const std::string& default_v
     )=====";
 }
 
-void add_direction_picker(budget::writer& w, const std::string& default_value = "") {
-    w << R"=====(
-            <div class="form-group">
-                <label for="input_direction">Direction</label>
-                <select class="form-control" id="input_direction" name="input_direction">
-    )=====";
-
-    if ("to" == default_value) {
-        w << "<option selected value=\"to\">To</option>";
-    } else {
-        w << "<option value=\"to\">To</option>";
-    }
-
-    if ("from" == default_value) {
-        w << "<option selected value=\"from\">From</option>";
-    } else {
-        w << "<option value=\"from\">From</option>";
-    }
-
-    w << R"=====(
-                </select>
-            </div>
-    )=====";
-}
-
 void add_importance_picker(budget::writer& w, int importance) {
     w << R"=====(
             <div class="form-group">
@@ -902,61 +788,8 @@ void add_yes_no_picker(budget::writer& w, const std::string& title, const std::s
     )=====";
 }
 
-void add_paid_picker(budget::writer& w, bool paid) {
-    add_yes_no_picker(w, "Paid", "input_paid", paid);
-}
-
 void add_portfolio_picker(budget::writer& w, bool portfolio) {
     add_yes_no_picker(w, "Part of the portfolio", "input_portfolio", portfolio);
-}
-
-void form_begin(budget::writer& w, const std::string& action, const std::string& back_page) {
-    w << R"=====(<form method="POST" action=")=====";
-    w << action;
-    w << R"=====(">)=====";
-    w << R"=====(<input type="hidden" name="server" value="yes">)=====";
-    w << R"=====(<input type="hidden" name="back_page" value=")=====";
-    w << back_page;
-    w << R"=====(">)=====";
-}
-
-void page_form_begin(budget::writer& w, const std::string& action) {
-    w << R"=====(<form method="GET" action=")=====";
-    w << action;
-    w << R"=====(">)=====";
-}
-
-void form_begin_edit(budget::writer& w, const std::string& action, const std::string& back_page, const std::string& input_id) {
-    form_begin(w, action, back_page);
-
-    w << R"=====(<input type="hidden" name="input_id" value=")=====";
-    w << input_id;
-    w << R"=====(">)=====";
-}
-
-void form_end(budget::writer& w, const std::string& button = "") {
-    if (button.empty()) {
-        w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
-    } else {
-        w << R"=====(<button type="submit" class="btn btn-primary">)=====";
-        w << button;
-        w << R"=====(</button>)=====";
-    }
-
-    w << "</form>";
-}
-
-void make_tables_sortable(budget::html_writer& w){
-    w.defer_script(R"=====(
-        $(".table").DataTable({
-         "columnDefs": [ {
-          "targets": 'not-sortable',
-          "orderable": false,
-         }]
-        });
-    )=====");
-
-    w.use_module("datatables");
 }
 
 budget::money monthly_income(budget::month month, budget::year year) {
@@ -1518,7 +1351,7 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
     }
 
     // end the page
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1532,7 +1365,7 @@ void accounts_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void all_accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1546,7 +1379,7 @@ void all_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1566,7 +1399,7 @@ void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1600,7 +1433,7 @@ void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void archive_accounts_month_page(const httplib::Request& req, httplib::Response& res) {
@@ -1619,7 +1452,7 @@ void archive_accounts_month_page(const httplib::Request& req, httplib::Response&
 
     form_end(w, "Confirm");
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void archive_accounts_year_page(const httplib::Request& req, httplib::Response& res) {
@@ -1638,7 +1471,7 @@ void archive_accounts_year_page(const httplib::Request& req, httplib::Response& 
 
     form_end(w, "Confirm");
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void overview_page(const httplib::Request& req, httplib::Response& res) {
@@ -1655,7 +1488,7 @@ void overview_page(const httplib::Request& req, httplib::Response& res) {
         display_month_overview(w);
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void overview_aggregate_all_page(const httplib::Request& req, httplib::Response& res) {
@@ -1673,7 +1506,7 @@ void overview_aggregate_all_page(const httplib::Request& req, httplib::Response&
 
     aggregate_all_overview(w, full, disable_groups, separator);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res) {
@@ -1696,7 +1529,7 @@ void overview_aggregate_year_page(const httplib::Request& req, httplib::Response
         aggregate_year_overview(w, full, disable_groups, separator, today.year());
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res) {
@@ -1719,7 +1552,7 @@ void overview_aggregate_month_page(const httplib::Request& req, httplib::Respons
         aggregate_month_overview(w, full, disable_groups, separator, today.month(), today.year());
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void overview_year_page(const httplib::Request& req, httplib::Response& res) {
@@ -1736,7 +1569,7 @@ void overview_year_page(const httplib::Request& req, httplib::Response& res) {
         display_year_overview(w);
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void report_page(const httplib::Request& req, httplib::Response& res) {
@@ -1750,7 +1583,7 @@ void report_page(const httplib::Request& req, httplib::Response& res) {
     auto today = budget::local_day();
     report(w, today.year(), false, "");
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1769,7 +1602,7 @@ void expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void search_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1794,7 +1627,7 @@ void search_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void time_graph_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1878,7 +1711,7 @@ void time_graph_expenses_page(const httplib::Request& req, httplib::Response& re
 
     end_chart(w, ss);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void all_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1892,7 +1725,7 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1917,7 +1750,7 @@ void month_breakdown_expenses_page(const httplib::Request& req, httplib::Respons
 
     month_breakdown_expenses_graph(w, "Expenses Breakdown", month, year);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1969,7 +1802,7 @@ void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response
 
     end_chart(w, ss);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -2003,7 +1836,7 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -2039,7 +1872,7 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response& res) {
@@ -2141,7 +1974,7 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
 
     end_chart(w, ss);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Response& res) {
@@ -2192,7 +2025,7 @@ void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Respons
         end_chart(w, ss);
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void time_graph_income_page(const httplib::Request& req, httplib::Response& res) {
@@ -2280,7 +2113,7 @@ void time_graph_income_page(const httplib::Request& req, httplib::Response& res)
 
     end_chart(w, ss);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void time_graph_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2335,7 +2168,7 @@ void time_graph_earnings_page(const httplib::Request& req, httplib::Response& re
 
     end_chart(w, ss);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2369,7 +2202,7 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2405,7 +2238,7 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2424,7 +2257,7 @@ void earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void all_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2438,7 +2271,7 @@ void all_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void portfolio_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -2452,7 +2285,7 @@ void portfolio_status_page(const httplib::Request& req, httplib::Response& res) 
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void portfolio_currency_page(const httplib::Request& req, httplib::Response& res) {
@@ -2565,7 +2398,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     end_chart(w, ss2);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void portfolio_graph_page(const httplib::Request& req, httplib::Response& res) {
@@ -2626,7 +2459,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res) {
 
     end_chart(w, ss);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void rebalance_page(const httplib::Request& req, httplib::Response& res) {
@@ -2782,7 +2615,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     w << R"=====(</div>)=====";
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void assets_page(const httplib::Request& req, httplib::Response& res) {
@@ -2796,7 +2629,7 @@ void assets_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void add_assets_page(const httplib::Request& req, httplib::Response& res) {
@@ -2822,7 +2655,7 @@ void add_assets_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
@@ -2862,7 +2695,7 @@ void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void net_worth_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -2874,7 +2707,7 @@ void net_worth_status_page(const httplib::Request& req, httplib::Response& res) 
     budget::html_writer w(content_stream);
     budget::show_asset_values(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void net_worth_small_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -2886,7 +2719,7 @@ void net_worth_small_status_page(const httplib::Request& req, httplib::Response&
     budget::html_writer w(content_stream);
     budget::small_show_asset_values(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void net_worth_graph_page(const httplib::Request& req, httplib::Response& res) {
@@ -2899,7 +2732,7 @@ void net_worth_graph_page(const httplib::Request& req, httplib::Response& res) {
 
     net_worth_graph(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void net_worth_allocation_page(const httplib::Request& req, httplib::Response& res) {
@@ -3034,7 +2867,7 @@ void net_worth_allocation_page(const httplib::Request& req, httplib::Response& r
 
     end_chart(w, ss2);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void portfolio_allocation_page(const httplib::Request& req, httplib::Response& res) {
@@ -3173,7 +3006,7 @@ void portfolio_allocation_page(const httplib::Request& req, httplib::Response& r
 
     end_chart(w, ss2);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void net_worth_currency_page(const httplib::Request& req, httplib::Response& res) {
@@ -3280,7 +3113,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     end_chart(w, ss2);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void list_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -3294,7 +3127,7 @@ void list_asset_values_page(const httplib::Request& req, httplib::Response& res)
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void add_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -3315,42 +3148,61 @@ void add_asset_values_page(const httplib::Request& req, httplib::Response& res) 
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
+}
+
+bool parameters_present(const httplib::Request& req, std::vector<const char*> parameters) {
+    for (auto& param : parameters) {
+        if (!req.has_param(param)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool validate_parameters(std::stringstream& content_stream, const httplib::Request& req, std::vector<const char*> parameters) {
+    if(!parameters_present(req, parameters)){
+        budget::html_writer w(content_stream);
+
+        display_error_message(w, "Invalid parameter for the request");
+
+        return false;
+    }
+
+    return true;
 }
 
 void edit_asset_values_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Edit asset value")) {
+
+    if (!page_get_start(req, res, content_stream, "Edit asset value", {"input_id", "back_page"})){
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if (!req.has_param("input_id") || !req.has_param("back_page")) {
-        display_error_message(w, "Invalid parameter for the request");
+    auto input_id = req.get_param_value("input_id");
+
+    if (!asset_value_exists(budget::to_number<size_t>(input_id))) {
+        display_error_message(w, "The asset value " + input_id + " does not exist");
     } else {
-        auto input_id = req.get_param_value("input_id");
+        auto back_page = req.get_param_value("back_page");
 
-        if (!asset_value_exists(budget::to_number<size_t>(input_id))) {
-            display_error_message(w, "The asset value " + input_id + " does not exist");
-        } else {
-            auto back_page = req.get_param_value("back_page");
+        w << title_begin << "Edit asset " << input_id << title_end;
 
-            w << title_begin << "Edit asset " << input_id << title_end;
+        form_begin_edit(w, "/api/asset_values/edit/", back_page, input_id);
 
-            form_begin_edit(w, "/api/asset_values/edit/", back_page, input_id);
+        auto& asset_value = asset_value_get(budget::to_number<size_t>(input_id));
 
-            auto& asset_value = asset_value_get(budget::to_number<size_t>(input_id));
+        add_asset_picker(w, budget::to_string(asset_value.asset_id));
+        add_amount_picker(w, budget::to_flat_string(asset_value.amount));
+        add_date_picker(w, budget::to_string(asset_value.set_date));
 
-            add_asset_picker(w, budget::to_string(asset_value.asset_id));
-            add_amount_picker(w, budget::to_flat_string(asset_value.amount));
-            add_date_picker(w, budget::to_string(asset_value.set_date));
-
-            form_end(w);
-        }
+        form_end(w);
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void full_batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -3382,7 +3234,7 @@ void full_batch_asset_values_page(const httplib::Request& req, httplib::Response
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void current_batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -3416,7 +3268,7 @@ void current_batch_asset_values_page(const httplib::Request& req, httplib::Respo
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void list_objectives_page(const httplib::Request& req, httplib::Response& res) {
@@ -3430,7 +3282,7 @@ void list_objectives_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void status_objectives_page(const httplib::Request& req, httplib::Response& res) {
@@ -3442,7 +3294,7 @@ void status_objectives_page(const httplib::Request& req, httplib::Response& res)
     budget::html_writer w(content_stream);
     budget::status_objectives(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
@@ -3465,44 +3317,41 @@ void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Edit objective")) {
+
+    if (!page_get_start(req, res, content_stream, "Edit Objective", {"input_id", "back_page"})){
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if (!req.has_param("input_id") || !req.has_param("back_page")) {
-        display_error_message(w, "Invalid parameter for the request");
+    auto input_id = req.get_param_value("input_id");
+
+    if (!objective_exists(budget::to_number<size_t>(input_id))) {
+        display_error_message(w, "The objective " + input_id + " does not exist");
     } else {
-        auto input_id = req.get_param_value("input_id");
+        auto back_page = req.get_param_value("back_page");
 
-        if (!objective_exists(budget::to_number<size_t>(input_id))) {
-            display_error_message(w, "The objective " + input_id + " does not exist");
-        } else {
-            auto back_page = req.get_param_value("back_page");
+        w << title_begin << "Edit objective " << input_id << title_end;
 
-            w << title_begin << "Edit objective " << input_id << title_end;
+        form_begin_edit(w, "/api/objectives/edit/", back_page, input_id);
 
-            form_begin_edit(w, "/api/objectives/edit/", back_page, input_id);
+        auto& objective = objective_get(budget::to_number<size_t>(input_id));
 
-            auto& objective = objective_get(budget::to_number<size_t>(input_id));
+        add_name_picker(w, objective.name);
+        add_objective_type_picker(w, objective.type);
+        add_objective_source_picker(w, objective.source);
+        add_objective_operator_picker(w, objective.op);
+        add_amount_picker(w, budget::to_flat_string(objective.amount));
 
-            add_name_picker(w, objective.name);
-            add_objective_type_picker(w, objective.type);
-            add_objective_source_picker(w, objective.source);
-            add_objective_operator_picker(w, objective.op);
-            add_amount_picker(w, budget::to_flat_string(objective.amount));
-
-            form_end(w);
-        }
+        form_end(w);
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void retirement_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -3517,19 +3366,19 @@ void retirement_status_page(const httplib::Request& req, httplib::Response& res)
 
     if(!internal_config_contains("withdrawal_rate")){
         display_error_message(w, "Not enough information, please configure Retirement Options first");
-        page_end(w, content_stream, req, res);
+        page_end(content_stream, req, res);
         return;
     }
 
     if(!internal_config_contains("expected_roi")){
         display_error_message(w, "Not enough information, please configure Retirement Options first");
-        page_end(w, content_stream, req, res);
+        page_end(content_stream, req, res);
         return;
     }
 
     budget::retirement_status(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void retirement_configure_page(const httplib::Request& req, httplib::Response& res) {
@@ -3558,7 +3407,7 @@ void retirement_configure_page(const httplib::Request& req, httplib::Response& r
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void wishes_list_page(const httplib::Request& req, httplib::Response& res) {
@@ -3572,7 +3421,7 @@ void wishes_list_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void wishes_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -3586,7 +3435,7 @@ void wishes_status_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void wishes_estimate_page(const httplib::Request& req, httplib::Response& res) {
@@ -3600,7 +3449,7 @@ void wishes_estimate_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3622,45 +3471,42 @@ void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Edit Wish")) {
+
+    if (!page_get_start(req, res, content_stream, "Edit Wish", {"input_id", "back_page"})){
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if (!req.has_param("input_id") || !req.has_param("back_page")) {
-        display_error_message(w, "Invalid parameter for the request");
+    auto input_id = req.get_param_value("input_id");
+
+    if (!wish_exists(budget::to_number<size_t>(input_id))) {
+        display_error_message(w, "The wish " + input_id + " does not exist");
     } else {
-        auto input_id = req.get_param_value("input_id");
+        auto back_page = req.get_param_value("back_page");
 
-        if (!wish_exists(budget::to_number<size_t>(input_id))) {
-            display_error_message(w, "The wish " + input_id + " does not exist");
-        } else {
-            auto back_page = req.get_param_value("back_page");
+        w << title_begin << "Edit wish " << input_id << title_end;
 
-            w << title_begin << "Edit wish " << input_id << title_end;
+        form_begin_edit(w, "/api/wishes/edit/", back_page, input_id);
 
-            form_begin_edit(w, "/api/wishes/edit/", back_page, input_id);
+        auto& wish = wish_get(budget::to_number<size_t>(input_id));
 
-            auto& wish = wish_get(budget::to_number<size_t>(input_id));
+        add_name_picker(w, wish.name);
+        add_importance_picker(w, wish.importance);
+        add_urgency_picker(w, wish.urgency);
+        add_amount_picker(w, budget::to_flat_string(wish.amount));
+        add_paid_picker(w, wish.paid);
+        add_paid_amount_picker(w, budget::to_flat_string(wish.paid_amount));
 
-            add_name_picker(w, wish.name);
-            add_importance_picker(w, wish.importance);
-            add_urgency_picker(w, wish.urgency);
-            add_amount_picker(w, budget::to_flat_string(wish.amount));
-            add_paid_picker(w, wish.paid);
-            add_paid_amount_picker(w, budget::to_flat_string(wish.paid_amount));
-
-            form_end(w);
-        }
+        form_end(w);
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void list_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3674,7 +3520,7 @@ void list_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void graph_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3712,7 +3558,7 @@ void graph_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     end_chart(w, ss);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void status_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3726,7 +3572,7 @@ void status_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3746,41 +3592,38 @@ void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Edit fortune")) {
+
+    if (!page_get_start(req, res, content_stream, "Edit Fortune", {"input_id", "back_page"})){
         return;
     }
 
     budget::html_writer w(content_stream);
 
-    if (!req.has_param("input_id") || !req.has_param("back_page")) {
-        display_error_message(w, "Invalid parameter for the request");
+    auto input_id = req.get_param_value("input_id");
+
+    if (!fortune_exists(budget::to_number<size_t>(input_id))) {
+        display_error_message(w, "The fortune " + input_id + " does not exist");
     } else {
-        auto input_id = req.get_param_value("input_id");
+        auto back_page = req.get_param_value("back_page");
 
-        if (!fortune_exists(budget::to_number<size_t>(input_id))) {
-            display_error_message(w, "The fortune " + input_id + " does not exist");
-        } else {
-            auto back_page = req.get_param_value("back_page");
+        w << title_begin << "Edit fortune " << input_id << title_end;
 
-            w << title_begin << "Edit fortune " << input_id << title_end;
+        form_begin_edit(w, "/api/fortunes/edit/", back_page, input_id);
 
-            form_begin_edit(w, "/api/fortunes/edit/", back_page, input_id);
+        auto& fortune = fortune_get(budget::to_number<size_t>(input_id));
 
-            auto& fortune = fortune_get(budget::to_number<size_t>(input_id));
+        add_date_picker(w, budget::to_string(fortune.check_date));
+        add_amount_picker(w, budget::to_flat_string(fortune.amount));
 
-            add_date_picker(w, budget::to_string(fortune.check_date));
-            add_amount_picker(w, budget::to_flat_string(fortune.amount));
-
-            form_end(w);
-        }
+        form_end(w);
     }
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void recurrings_list_page(const httplib::Request& req, httplib::Response& res) {
@@ -3794,7 +3637,7 @@ void recurrings_list_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
@@ -3815,7 +3658,7 @@ void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
@@ -3850,94 +3693,7 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(w, content_stream, req, res);
-}
-
-void list_debts_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Debts")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-    budget::list_debts(w);
-
-    make_tables_sortable(w);
-
-    page_end(w, content_stream, req, res);
-}
-
-void all_debts_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "All Debts")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-    budget::display_all_debts(w);
-
-    make_tables_sortable(w);
-
-    page_end(w, content_stream, req, res);
-}
-
-void add_debts_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "New Debt")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "New Debt" << title_end;
-
-    form_begin(w, "/api/debts/add/", "/debts/add/");
-
-    add_direction_picker(w);
-    add_name_picker(w);
-    add_amount_picker(w);
-    add_title_picker(w);
-
-    form_end(w);
-
-    page_end(w, content_stream, req, res);
-}
-
-void edit_debts_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Edit Debt")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    if (!req.has_param("input_id") || !req.has_param("back_page")) {
-        display_error_message(w, "Invalid parameter for the request");
-    } else {
-        auto input_id = req.get_param_value("input_id");
-
-        if (!debt_exists(budget::to_number<size_t>(input_id))) {
-            display_error_message(w, "The debt " + input_id + " does not exist");
-        } else {
-            auto back_page = req.get_param_value("back_page");
-
-            w << title_begin << "Edit Debt " << input_id << title_end;
-
-            form_begin_edit(w, "/api/debts/edit/", back_page, input_id);
-
-            auto& debt = debt_get(budget::to_number<size_t>(input_id));
-
-            add_direction_picker(w, debt.direction ? "to" : "from");
-            add_name_picker(w, debt.name);
-            add_amount_picker(w, budget::to_flat_string(debt.amount));
-            add_title_picker(w, debt.title);
-            add_paid_picker(w, debt.state == 1);
-
-            form_end(w);
-        }
-    }
-
-    page_end(w, content_stream, req, res);
+    page_end(content_stream, req, res);
 }
 
 } //end of anonymous namespace
@@ -4029,10 +3785,10 @@ void budget::load_pages(httplib::Server& server) {
     server.get("/recurrings/add/", &add_recurrings_page);
     server.post("/recurrings/edit/", &edit_recurrings_page);
 
-    server.get("/debts/list/", &list_debts_page);
-    server.get("/debts/all/", &all_debts_page);
-    server.get("/debts/add/", &add_debts_page);
-    server.post("/debts/edit/", &edit_debts_page);
+    server.get("/debts/list/", &budget::list_debts_page);
+    server.get("/debts/all/", &budget::all_debts_page);
+    server.get("/debts/add/", &budget::add_debts_page);
+    server.post("/debts/edit/", &budget::edit_debts_page);
 
     server.get("/fortunes/graph/", &graph_fortunes_page);
     server.get("/fortunes/status/", &status_fortunes_page);
@@ -4064,4 +3820,161 @@ void budget::load_pages(httplib::Server& server) {
 
         res.set_content(content_stream.str(), "text/html");
     });
+}
+
+bool budget::page_start(const httplib::Request& req, httplib::Response& res, std::stringstream& content_stream, const std::string& title) {
+    content_stream.imbue(std::locale("C"));
+
+    if (is_secure()) {
+        if (req.has_header("Authorization")) {
+            auto authorization = req.get_header_value("Authorization");
+
+            if (authorization.substr(0, 6) != "Basic ") {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+
+            auto sub_authorization = authorization.substr(6, authorization.size());
+            auto decoded           = base64_decode(sub_authorization);
+
+            if (decoded.find(':') == std::string::npos) {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+
+            auto username = decoded.substr(0, decoded.find(':'));
+            auto password = decoded.substr(decoded.find(':') + 1, decoded.size());
+
+            if (username != get_web_user()) {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+
+            if (password != get_web_password()) {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+        } else {
+            res.status = 401;
+            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+            return false;
+        }
+    }
+
+    content_stream << header(title);
+
+    budget::html_writer w(content_stream);
+    display_message(w, req);
+
+    return true;
+}
+
+void budget::page_end(std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res) {
+    budget::html_writer w(content_stream);
+    w << "</main>";
+    w.load_deferred_scripts();
+    w << "</body></html>";
+
+    auto result = content_stream.str();
+
+    filter_html(result, req);
+
+    res.set_content(result, "text/html");
+}
+
+void budget::make_tables_sortable(budget::html_writer& w){
+    w.defer_script(R"=====(
+        $(".table").DataTable({
+         "columnDefs": [ {
+          "targets": 'not-sortable',
+          "orderable": false,
+         }]
+        });
+    )=====");
+
+    w.use_module("datatables");
+}
+
+bool budget::page_get_start(const httplib::Request& req, httplib::Response& res,
+                    std::stringstream& content_stream, const std::string& title, std::vector<const char*> parameters) {
+    if (!page_start(req, res, content_stream, title)) {
+        return false;
+    }
+
+    if (!validate_parameters(content_stream, req, parameters)){
+        return false;
+    }
+
+    return true;
+}
+
+void budget::display_error_message(budget::writer& w, const std::string& message) {
+    w << R"=====(<div class="alert alert-danger" role="alert">)=====";
+    w << message;
+    w << R"=====(</div>)=====";
+}
+
+void budget::form_begin(budget::writer& w, const std::string& action, const std::string& back_page) {
+    w << R"=====(<form method="POST" action=")=====";
+    w << action;
+    w << R"=====(">)=====";
+    w << R"=====(<input type="hidden" name="server" value="yes">)=====";
+    w << R"=====(<input type="hidden" name="back_page" value=")=====";
+    w << back_page;
+    w << R"=====(">)=====";
+}
+
+void budget::page_form_begin(budget::writer& w, const std::string& action) {
+    w << R"=====(<form method="GET" action=")=====";
+    w << action;
+    w << R"=====(">)=====";
+}
+
+void budget::form_begin_edit(budget::writer& w, const std::string& action, const std::string& back_page, const std::string& input_id) {
+    form_begin(w, action, back_page);
+
+    w << R"=====(<input type="hidden" name="input_id" value=")=====";
+    w << input_id;
+    w << R"=====(">)=====";
+}
+
+void budget::form_end(budget::writer& w, const std::string& button) {
+    if (button.empty()) {
+        w << R"=====(<button type="submit" class="btn btn-primary">Submit</button>)=====";
+    } else {
+        w << R"=====(<button type="submit" class="btn btn-primary">)=====";
+        w << button;
+        w << R"=====(</button>)=====";
+    }
+
+    w << "</form>";
+}
+
+void budget::add_name_picker(budget::writer& w, const std::string& default_value) {
+    add_text_picker(w, "Name", "input_name", default_value);
+}
+
+void budget::add_title_picker(budget::writer& w, const std::string& default_value) {
+    add_text_picker(w, "Title", "input_title", default_value);
+}
+
+void budget::add_amount_picker(budget::writer& w, const std::string& default_value) {
+    add_money_picker(w, "amount", "input_amount", default_value);
+}
+
+void budget::add_paid_amount_picker(budget::writer& w, const std::string& default_value) {
+    add_money_picker(w, "paid amount", "input_paid_amount", default_value);
+}
+
+void budget::add_paid_picker(budget::writer& w, bool paid) {
+    add_yes_no_picker(w, "Paid", "input_paid", paid);
 }
