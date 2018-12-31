@@ -581,11 +581,10 @@ void budget::html_writer::load_deferred_scripts(){
     // Highcharts
     if (need_module("highcharts")) {
         os << R"=====(
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highcharts.js" integrity="sha256-jLlwSowwSPJ9ukSEWxfqld2rgZTzBcTJhfotyvtdOSk=" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highstock.js" integrity="sha256-ZdoT00QjMb+DdcNmKfZJYcZY6/H83RYoLS4sZRL43T8=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highcharts-more.js" integrity="sha256-QnoLQZe7BYRVTl3AY8Lsw6mn60HfHZNpcZBEndybfBk=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/solid-gauge.js" integrity="sha256-AIfWX+axQ036B1bKbqeWxklZ4BILxbfcNKDh+sqFS+g=" crossorigin="anonymous"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/js/modules/series-label.js" integrity="sha256-58Ca6fVLKQfXdNwnmkcPq09InNJa/Io8EJPJtKXT70g=" crossorigin="anonymous"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.4/highstock.js" integrity="sha256-ZdoT00QjMb+DdcNmKfZJYcZY6/H83RYoLS4sZRL43T8=" crossorigin="anonymous"></script>
         )=====";
     }
 
