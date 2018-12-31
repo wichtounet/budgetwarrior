@@ -440,6 +440,17 @@ std::stringstream start_chart(budget::html_writer& w, const std::string& title, 
     return ss;
 }
 
+std::stringstream start_time_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
+    // Note: Not nice but we are simply injecting zoomType here
+    auto ss = start_chart_base(w, chart_type + "', zoomType: 'x", id, style);
+
+    ss << R"=====(title: {text: ')=====";
+    ss << title;
+    ss << R"=====('},)=====";
+
+    return ss;
+}
+
 void end_chart(budget::html_writer& w, std::stringstream& ss) {
     ss << R"=====(});)=====";
 
@@ -991,7 +1002,7 @@ void net_worth_graph(budget::html_writer& w, const std::string style = "", bool 
         w << R"=====(<div class="card-body">)=====";
     }
 
-    auto ss = start_chart(w, card ? "" : "Net worth", "area", "net_worth_graph", style);
+    auto ss = start_time_chart(w, card ? "" : "Net worth", "area", "net_worth_graph", style);
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
@@ -1638,7 +1649,7 @@ void time_graph_expenses_page(const httplib::Request& req, httplib::Response& re
 
     budget::html_writer w(content_stream);
 
-    auto ss = start_chart(w, "Expenses over time", "line", "expenses_time_graph", "");
+    auto ss = start_time_chart(w, "Expenses over time", "line", "expenses_time_graph", "");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Expenses' }},)=====";
@@ -1883,7 +1894,7 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
 
     budget::html_writer w(content_stream);
 
-    auto ss = start_chart(w, "Savings rate over time", "line", "savings_time_graph", "");
+    auto ss = start_time_chart(w, "Savings rate over time", "line", "savings_time_graph", "");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, max: 100, title: { text: 'Monthly Savings Rate' }},)=====";
@@ -1989,7 +2000,7 @@ void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Respons
 
     if (!values.empty()){
 
-        auto ss = start_chart(w, "FI Ratio over time", "line", "fi_time_graph", "");
+        auto ss = start_time_chart(w, "FI Ratio over time", "line", "fi_time_graph", "");
 
         ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
         ss << R"=====(yAxis: { min: 0, title: { text: 'FI Ratio' }},)=====";
@@ -2036,7 +2047,7 @@ void time_graph_income_page(const httplib::Request& req, httplib::Response& res)
 
     budget::html_writer w(content_stream);
 
-    auto ss = start_chart(w, "Income over time", "line", "income_time_graph", "");
+    auto ss = start_time_chart(w, "Income over time", "line", "income_time_graph", "");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Income' }},)=====";
@@ -2124,7 +2135,7 @@ void time_graph_earnings_page(const httplib::Request& req, httplib::Response& re
 
     budget::html_writer w(content_stream);
 
-    auto ss = start_chart(w, "Earnings over time", "line", "earnings_time_graph", "");
+    auto ss = start_time_chart(w, "Earnings over time", "line", "earnings_time_graph", "");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Earnings' }},)=====";
@@ -2306,7 +2317,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     // 1. Display the currency breakdown over time
 
-    auto ss = start_chart(w, "Portfolio by currency", "area", "portfolio_currency_graph");
+    auto ss = start_time_chart(w, "Portfolio by currency", "area", "portfolio_currency_graph");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Sum' }},)=====";
@@ -2409,7 +2420,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
 
-    auto ss = start_chart(w, "Portfolio", "area");
+    auto ss = start_time_chart(w, "Portfolio", "area");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Portfolio' }},)=====";
@@ -2747,7 +2758,7 @@ void net_worth_allocation_page(const httplib::Request& req, httplib::Response& r
 
     // 1. Display the currency breakdown over time
 
-    auto ss = start_chart(w, "Net worth allocation", "area", "allocation_time_graph");
+    auto ss = start_time_chart(w, "Net worth allocation", "area", "allocation_time_graph");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
@@ -2882,7 +2893,7 @@ void portfolio_allocation_page(const httplib::Request& req, httplib::Response& r
 
     // 1. Display the currency breakdown over time
 
-    auto ss = start_chart(w, "Portfolio allocation", "area", "allocation_time_graph");
+    auto ss = start_time_chart(w, "Portfolio allocation", "area", "allocation_time_graph");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
@@ -3025,7 +3036,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     // 1. Display the currency breakdown over time
 
-    auto ss = start_chart(w, "Net worth by currency", "area", "currency_time_graph");
+    auto ss = start_time_chart(w, "Net worth by currency", "area", "currency_time_graph");
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
