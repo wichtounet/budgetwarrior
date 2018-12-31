@@ -53,7 +53,7 @@ void budget::list_debts_page(const httplib::Request& req, httplib::Response& res
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void budget::all_debts_page(const httplib::Request& req, httplib::Response& res) {
@@ -67,7 +67,7 @@ void budget::all_debts_page(const httplib::Request& req, httplib::Response& res)
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void budget::add_debts_page(const httplib::Request& req, httplib::Response& res) {
@@ -89,7 +89,7 @@ void budget::add_debts_page(const httplib::Request& req, httplib::Response& res)
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void budget::edit_debts_page(const httplib::Request& req, httplib::Response& res) {
@@ -123,5 +123,5 @@ void budget::edit_debts_page(const httplib::Request& req, httplib::Response& res
         form_end(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }

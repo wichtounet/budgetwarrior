@@ -25,7 +25,7 @@ void load_pages(httplib::Server& server);
 bool page_start(const httplib::Request& req, httplib::Response& res, std::stringstream& content_stream, const std::string& title);
 bool page_get_start(const httplib::Request& req, httplib::Response& res,
                     std::stringstream& content_stream, const std::string& title, std::vector<const char*> parameters);
-void page_end(std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res);
+void page_end(budget::html_writer& w, const httplib::Request& req, httplib::Response& res);
 
 void display_error_message(budget::writer& w, const std::string& message);
 

@@ -1362,7 +1362,7 @@ void index_page(const httplib::Request& req, httplib::Response& res) {
     }
 
     // end the page
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1376,7 +1376,7 @@ void accounts_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void all_accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1390,7 +1390,7 @@ void all_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1410,7 +1410,7 @@ void add_accounts_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
@@ -1444,7 +1444,7 @@ void edit_accounts_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void archive_accounts_month_page(const httplib::Request& req, httplib::Response& res) {
@@ -1463,7 +1463,7 @@ void archive_accounts_month_page(const httplib::Request& req, httplib::Response&
 
     form_end(w, "Confirm");
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void archive_accounts_year_page(const httplib::Request& req, httplib::Response& res) {
@@ -1482,7 +1482,7 @@ void archive_accounts_year_page(const httplib::Request& req, httplib::Response& 
 
     form_end(w, "Confirm");
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void overview_page(const httplib::Request& req, httplib::Response& res) {
@@ -1499,7 +1499,7 @@ void overview_page(const httplib::Request& req, httplib::Response& res) {
         display_month_overview(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void overview_aggregate_all_page(const httplib::Request& req, httplib::Response& res) {
@@ -1517,7 +1517,7 @@ void overview_aggregate_all_page(const httplib::Request& req, httplib::Response&
 
     aggregate_all_overview(w, full, disable_groups, separator);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res) {
@@ -1540,7 +1540,7 @@ void overview_aggregate_year_page(const httplib::Request& req, httplib::Response
         aggregate_year_overview(w, full, disable_groups, separator, today.year());
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res) {
@@ -1563,7 +1563,7 @@ void overview_aggregate_month_page(const httplib::Request& req, httplib::Respons
         aggregate_month_overview(w, full, disable_groups, separator, today.month(), today.year());
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void overview_year_page(const httplib::Request& req, httplib::Response& res) {
@@ -1580,7 +1580,7 @@ void overview_year_page(const httplib::Request& req, httplib::Response& res) {
         display_year_overview(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void report_page(const httplib::Request& req, httplib::Response& res) {
@@ -1594,7 +1594,7 @@ void report_page(const httplib::Request& req, httplib::Response& res) {
     auto today = budget::local_day();
     report(w, today.year(), false, "");
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1613,7 +1613,7 @@ void expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void search_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1638,7 +1638,7 @@ void search_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void time_graph_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1722,7 +1722,7 @@ void time_graph_expenses_page(const httplib::Request& req, httplib::Response& re
 
     end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void all_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1736,7 +1736,7 @@ void all_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1761,7 +1761,7 @@ void month_breakdown_expenses_page(const httplib::Request& req, httplib::Respons
 
     month_breakdown_expenses_graph(w, "Expenses Breakdown", month, year);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1813,7 +1813,7 @@ void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response
 
     end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1847,7 +1847,7 @@ void add_expenses_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
@@ -1883,7 +1883,7 @@ void edit_expenses_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response& res) {
@@ -1985,7 +1985,7 @@ void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response
 
     end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Response& res) {
@@ -2036,7 +2036,7 @@ void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Respons
         end_chart(w, ss);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void time_graph_income_page(const httplib::Request& req, httplib::Response& res) {
@@ -2124,7 +2124,7 @@ void time_graph_income_page(const httplib::Request& req, httplib::Response& res)
 
     end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void time_graph_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2179,7 +2179,7 @@ void time_graph_earnings_page(const httplib::Request& req, httplib::Response& re
 
     end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2213,7 +2213,7 @@ void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2249,7 +2249,7 @@ void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2268,7 +2268,7 @@ void earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void all_earnings_page(const httplib::Request& req, httplib::Response& res) {
@@ -2282,7 +2282,7 @@ void all_earnings_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void portfolio_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -2296,7 +2296,7 @@ void portfolio_status_page(const httplib::Request& req, httplib::Response& res) 
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void portfolio_currency_page(const httplib::Request& req, httplib::Response& res) {
@@ -2409,7 +2409,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 
     end_chart(w, ss2);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void portfolio_graph_page(const httplib::Request& req, httplib::Response& res) {
@@ -2470,7 +2470,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res) {
 
     end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void rebalance_page(const httplib::Request& req, httplib::Response& res) {
@@ -2626,7 +2626,7 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
 
     w << R"=====(</div>)=====";
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void assets_page(const httplib::Request& req, httplib::Response& res) {
@@ -2640,7 +2640,7 @@ void assets_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void add_assets_page(const httplib::Request& req, httplib::Response& res) {
@@ -2666,7 +2666,7 @@ void add_assets_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
@@ -2706,7 +2706,7 @@ void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void net_worth_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -2718,7 +2718,7 @@ void net_worth_status_page(const httplib::Request& req, httplib::Response& res) 
     budget::html_writer w(content_stream);
     budget::show_asset_values(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void net_worth_small_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -2730,7 +2730,7 @@ void net_worth_small_status_page(const httplib::Request& req, httplib::Response&
     budget::html_writer w(content_stream);
     budget::small_show_asset_values(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void net_worth_graph_page(const httplib::Request& req, httplib::Response& res) {
@@ -2743,7 +2743,7 @@ void net_worth_graph_page(const httplib::Request& req, httplib::Response& res) {
 
     net_worth_graph(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void net_worth_allocation_page(const httplib::Request& req, httplib::Response& res) {
@@ -2878,7 +2878,7 @@ void net_worth_allocation_page(const httplib::Request& req, httplib::Response& r
 
     end_chart(w, ss2);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void portfolio_allocation_page(const httplib::Request& req, httplib::Response& res) {
@@ -3017,7 +3017,7 @@ void portfolio_allocation_page(const httplib::Request& req, httplib::Response& r
 
     end_chart(w, ss2);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void net_worth_currency_page(const httplib::Request& req, httplib::Response& res) {
@@ -3124,7 +3124,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
     end_chart(w, ss2);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void list_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -3138,7 +3138,7 @@ void list_asset_values_page(const httplib::Request& req, httplib::Response& res)
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void add_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -3159,7 +3159,7 @@ void add_asset_values_page(const httplib::Request& req, httplib::Response& res) 
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 bool parameters_present(const httplib::Request& req, std::vector<const char*> parameters) {
@@ -3213,7 +3213,7 @@ void edit_asset_values_page(const httplib::Request& req, httplib::Response& res)
         form_end(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void full_batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -3245,7 +3245,7 @@ void full_batch_asset_values_page(const httplib::Request& req, httplib::Response
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void current_batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
@@ -3279,7 +3279,7 @@ void current_batch_asset_values_page(const httplib::Request& req, httplib::Respo
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void list_objectives_page(const httplib::Request& req, httplib::Response& res) {
@@ -3293,7 +3293,7 @@ void list_objectives_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void status_objectives_page(const httplib::Request& req, httplib::Response& res) {
@@ -3305,7 +3305,7 @@ void status_objectives_page(const httplib::Request& req, httplib::Response& res)
     budget::html_writer w(content_stream);
     budget::status_objectives(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
@@ -3328,7 +3328,7 @@ void add_objectives_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
@@ -3362,7 +3362,7 @@ void edit_objectives_page(const httplib::Request& req, httplib::Response& res) {
         form_end(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void retirement_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -3377,19 +3377,19 @@ void retirement_status_page(const httplib::Request& req, httplib::Response& res)
 
     if(!internal_config_contains("withdrawal_rate")){
         display_error_message(w, "Not enough information, please configure Retirement Options first");
-        page_end(content_stream, req, res);
+        page_end(w, req, res);
         return;
     }
 
     if(!internal_config_contains("expected_roi")){
         display_error_message(w, "Not enough information, please configure Retirement Options first");
-        page_end(content_stream, req, res);
+        page_end(w, req, res);
         return;
     }
 
     budget::retirement_status(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void retirement_configure_page(const httplib::Request& req, httplib::Response& res) {
@@ -3418,7 +3418,7 @@ void retirement_configure_page(const httplib::Request& req, httplib::Response& r
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void wishes_list_page(const httplib::Request& req, httplib::Response& res) {
@@ -3432,7 +3432,7 @@ void wishes_list_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void wishes_status_page(const httplib::Request& req, httplib::Response& res) {
@@ -3446,7 +3446,7 @@ void wishes_status_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void wishes_estimate_page(const httplib::Request& req, httplib::Response& res) {
@@ -3460,7 +3460,7 @@ void wishes_estimate_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3482,7 +3482,7 @@ void add_wishes_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3517,7 +3517,7 @@ void edit_wishes_page(const httplib::Request& req, httplib::Response& res) {
         form_end(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void list_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3531,7 +3531,7 @@ void list_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void graph_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3569,7 +3569,7 @@ void graph_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     end_chart(w, ss);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void status_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3583,7 +3583,7 @@ void status_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3603,7 +3603,7 @@ void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
@@ -3634,7 +3634,7 @@ void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
         form_end(w);
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void recurrings_list_page(const httplib::Request& req, httplib::Response& res) {
@@ -3648,7 +3648,7 @@ void recurrings_list_page(const httplib::Request& req, httplib::Response& res) {
 
     make_tables_sortable(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
@@ -3669,7 +3669,7 @@ void add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
 
     form_end(w);
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
@@ -3704,7 +3704,7 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
         }
     }
 
-    page_end(content_stream, req, res);
+    page_end(w, req, res);
 }
 
 } //end of anonymous namespace
@@ -3889,13 +3889,12 @@ bool budget::page_start(const httplib::Request& req, httplib::Response& res, std
     return true;
 }
 
-void budget::page_end(std::stringstream& content_stream, const httplib::Request& req, httplib::Response& res) {
-    budget::html_writer w(content_stream);
+void budget::page_end(budget::html_writer & w, const httplib::Request& req, httplib::Response& res) {
     w << "</main>";
     w.load_deferred_scripts();
     w << "</body></html>";
 
-    auto result = content_stream.str();
+    auto result = w.os.str();
 
     filter_html(result, req);
 

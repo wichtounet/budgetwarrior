@@ -95,7 +95,7 @@ std::string html_format(budget::html_writer& w, const std::string& v){
 
 } // end of anonymous namespace
 
-budget::html_writer::html_writer(std::ostream& os) : os(os) {}
+budget::html_writer::html_writer(std::stringstream& os) : os(os) {}
 
 budget::writer& budget::html_writer::operator<<(const std::string& value){
     os << html_format(*this, value);
