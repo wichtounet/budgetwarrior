@@ -448,6 +448,8 @@ std::stringstream start_time_chart(budget::html_writer& w, const std::string& ti
     ss << title;
     ss << R"=====('},)=====";
 
+    ss << R"=====(rangeSelector: {enabled: true}, )=====";
+
     return ss;
 }
 
