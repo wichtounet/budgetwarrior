@@ -17,6 +17,37 @@ namespace {
 
 std::map<std::pair<std::string, std::string>, double> exchanges;
 
+// V1 is using free.currencyconverterapi.com
+double get_rate_v1(const std::string& from, const std::string& to){
+    httplib::Client cli("free.currencyconverterapi.com", 80);
+
+    std::string api_complete = "/api/v3/convert?q=" + from + "_" + to + "&compact=ultra";
+
+    auto res = cli.get(api_complete.c_str());
+
+    if (!res) {
+        std::cout << "Error accessing exchange rates (no response), setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
+
+        return  1.0;
+    } else if (res->status != 200) {
+        std::cout << "Error accessing exchange rates (not OK), setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
+
+        return  1.0;
+    } else {
+        auto& buffer = res->body;
+
+        if (buffer.find(':') == std::string::npos || buffer.find('}') == std::string::npos) {
+            std::cout << "Error parsing exchange rates, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
+
+            return  1.0;
+        } else {
+            std::string ratio_result(buffer.begin() + buffer.find(':') + 1, buffer.begin() + buffer.find('}'));
+
+            return atof(ratio_result.c_str());
+        }
+    }
+}
+
 } // end of anonymous namespace
 
 void budget::invalidate_currency_cache(){
@@ -35,34 +66,10 @@ double budget::exchange_rate(const std::string& from, const std::string& to){
         auto reverse_key = std::make_pair(to, from);
 
         if (!exchanges.count(key)) {
-            httplib::Client cli("free.currencyconverterapi.com", 80);
+            auto rate = get_rate_v1(from, to);
 
-            std::string api_complete = "/api/v3/convert?q=" + from + "_" + to + "&compact=ultra";
-
-            auto res = cli.get(api_complete.c_str());
-
-            if (!res) {
-                std::cout << "Error accessing exchange rates (no response), setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
-
-                exchanges[key] = 1.0;
-            } else if (res->status != 200) {
-                std::cout << "Error accessing exchange rates (not OK), setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
-
-                exchanges[key] = 1.0;
-            } else {
-                auto& buffer = res->body;
-
-                if (buffer.find(':') == std::string::npos || buffer.find('}') == std::string::npos) {
-                    std::cout << "Error parsing exchange rates, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
-
-                    exchanges[key] = 1.0;
-                } else {
-                    std::string ratio_result(buffer.begin() + buffer.find(':') + 1, buffer.begin() + buffer.find('}'));
-
-                    exchanges[key]         = atof(ratio_result.c_str());
-                    exchanges[reverse_key] = 1.0 / exchanges[key];
-                }
-            }
+            exchanges[key]         = rate;
+            exchanges[reverse_key] = 1.0 / rate;
         }
 
         return exchanges[key];
