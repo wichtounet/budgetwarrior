@@ -51,7 +51,7 @@ double get_rate_v1(const std::string& from, const std::string& to){
 
 // V2 is using api.exchangeratesapi.io
 double get_rate_v2(const std::string& from, const std::string& to, const std::string& date = "latest") {
-    httplib::Client cli("api.exchangeratesapi.io", 80);
+    httplib::SSLClient cli("api.exchangeratesapi.io", 443);
 
     std::string api_complete = date + "?symbols=" + to + "&base=" + from;
 
