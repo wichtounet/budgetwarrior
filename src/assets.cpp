@@ -1007,7 +1007,7 @@ budget::money budget::get_net_worth(budget::date d){
     for (auto& asset_value : all_sorted_asset_values()) {
         if (asset_value.set_date <= d) {
             auto& asset = get_asset(asset_value.asset_id);
-            asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(asset.currency);
+            asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(asset.currency, d);
         }
     }
 

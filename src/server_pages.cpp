@@ -1033,7 +1033,7 @@ void net_worth_graph(budget::html_writer& w, const std::string style = "", bool 
         auto date = it->set_date;
 
         while (it->set_date == date) {
-            asset_amounts[it->asset_id] = it->amount * exchange_rate(get_asset(it->asset_id).currency);
+            asset_amounts[it->asset_id] = it->amount * exchange_rate(get_asset(it->asset_id).currency, date);
 
             ++it;
         }
@@ -2346,7 +2346,7 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
                 auto& asset = get_asset(it->asset_id);
 
                 if (asset.currency == currency && asset.portfolio) {
-                    asset_amounts[it->asset_id] = it->amount * exchange_rate(asset.currency);
+                    asset_amounts[it->asset_id] = it->amount * exchange_rate(asset.currency, date);
                 }
 
                 ++it;
@@ -2451,7 +2451,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res) {
             auto& asset = get_asset(it->asset_id);
 
             if (asset.portfolio) {
-                asset_amounts[it->asset_id] = it->amount * exchange_rate(asset.currency);
+                asset_amounts[it->asset_id] = it->amount * exchange_rate(asset.currency, date);
             }
 
             ++it;
@@ -2786,7 +2786,7 @@ void net_worth_allocation_page(const httplib::Request& req, httplib::Response& r
             while (it->set_date == date) {
                 auto& asset = get_asset(it->asset_id);
 
-                auto amount = it->amount * exchange_rate(asset.currency);
+                auto amount = it->amount * exchange_rate(asset.currency, date);
 
                 if(i == 0 && asset.int_stocks){
                     asset_amounts[it->asset_id] = amount * (float(asset.int_stocks) / 100.0f);
@@ -2922,7 +2922,7 @@ void portfolio_allocation_page(const httplib::Request& req, httplib::Response& r
                 auto& asset = get_asset(it->asset_id);
 
                 if(asset.portfolio){
-                    auto amount = it->amount * exchange_rate(asset.currency);
+                    auto amount = it->amount * exchange_rate(asset.currency, date);
 
                     if(i == 0 && asset.int_stocks){
                         asset_amounts[it->asset_id] = amount * (float(asset.int_stocks) / 100.0f);
@@ -3063,7 +3063,7 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
 
             while (it->set_date == date) {
                 if (get_asset(it->asset_id).currency == currency) {
-                    asset_amounts[it->asset_id] = it->amount * exchange_rate(get_asset(it->asset_id).currency);
+                    asset_amounts[it->asset_id] = it->amount * exchange_rate(get_asset(it->asset_id).currency, date);
                 }
 
                 ++it;
