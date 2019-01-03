@@ -101,6 +101,10 @@ double budget::exchange_rate(const std::string& from, const std::string& to){
     return exchange_rate(from, to, budget::local_day());
 }
 
+double budget::exchange_rate(const std::string& from, budget::date d){
+    return exchange_rate(from, get_default_currency(), d);
+}
+
 double budget::exchange_rate(const std::string& from, const std::string& to, budget::date d){
     if(from == to){
         return 1.0;
