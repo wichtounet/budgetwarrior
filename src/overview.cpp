@@ -243,6 +243,14 @@ void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const
         }
     }
 
+    for (auto& account : current_accounts()) {
+        auto it = acc_expenses.find(account.name);
+
+        if (it == acc_expenses.end()) {
+            acc_expenses[account.name];
+        }
+    }
+
     std::unordered_map<std::string, budget::money> totals;
     budget::money total;
 
