@@ -13,10 +13,11 @@
 #include "server.hpp"
 #include "assets.hpp" // For get_default_currency
 #include "http.hpp"
+#include "date.hpp"
 
 namespace {
 
-std::map<std::tuple<std::string, std::string>, double> exchanges;
+std::map<std::tuple<std::string, std::string, std::string>, double> exchanges;
 
 // V1 is using free.currencyconverterapi.com
 double get_rate_v1(const std::string& from, const std::string& to){
@@ -97,17 +98,23 @@ double budget::exchange_rate(const std::string& from){
 }
 
 double budget::exchange_rate(const std::string& from, const std::string& to){
+    return exchange_rate(from, to, budget::local_day());
+}
+
+double budget::exchange_rate(const std::string& from, const std::string& to, budget::date d){
     if(from == to){
         return 1.0;
     } else {
-        auto key = std::make_tuple(from, to);
-        auto reverse_key = std::make_tuple(to, from);
+        auto date_str         = budget::date_to_string(d);
+        auto key         = std::make_tuple(date_str, from, to);
+        auto reverse_key = std::make_tuple(date_str, to, from);
 
         if (!exchanges.count(key)) {
-            auto rate = get_rate_v2(from, to);
+            auto rate = get_rate_v2(from, to, date_str);
 
             if (budget::is_server_running()) {
-                std::cout << "INFO: Currency: Rate from " << from << " to " << to << " = " << rate << std::endl;
+                std::cout << "INFO: Currency: Rate (" << date_str << ")"
+                          << " from " << from << " to " << to << " = " << rate << std::endl;
             }
 
             exchanges[key]         = rate;
