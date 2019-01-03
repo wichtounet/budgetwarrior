@@ -70,15 +70,16 @@ double get_rate_v2(const std::string& from, const std::string& to, const std::st
         return  1.0;
     } else {
         auto& buffer = res->body;
+        auto index   = "\"" + to + "\":";
 
-        if (buffer.find("\"" + to + "\":") == std::string::npos || buffer.find('}') == std::string::npos) {
+        if (buffer.find(index) == std::string::npos || buffer.find('}') == std::string::npos) {
             std::cout << "ERROR: Currency(v2): Error parsing exchange rates, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
             std::cout << "ERROR: Currency(v2): URL is " << api_complete << std::endl;
             std::cout << "ERROR: Currency(v2): Response is " << res->body << std::endl;
 
             return  1.0;
         } else {
-            std::string ratio_result(buffer.begin() + buffer.find("\"" + to + "\":") + 1, buffer.begin() + buffer.find('}'));
+            std::string ratio_result(buffer.begin() + buffer.find(index) + index.size(), buffer.begin() + buffer.find('}'));
 
             return atof(ratio_result.c_str());
         }
