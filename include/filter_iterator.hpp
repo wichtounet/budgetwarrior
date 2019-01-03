@@ -13,7 +13,7 @@ template <typename Iterator, typename Filter>
 struct filter_iterator {
     filter_iterator(Iterator first, Iterator last, Filter filter)
             : first(first), last(last), filter(filter) {
-        while(!this->filter(*this->first) && this->first != this->last){
+        while(this->first != this->last && !this->filter(*this->first)){
             ++this->first;
         }
     }
