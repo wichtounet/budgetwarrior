@@ -53,19 +53,19 @@ double get_rate_v1(const std::string& from, const std::string& to){
 double get_rate_v2(const std::string& from, const std::string& to, const std::string& date = "latest") {
     httplib::SSLClient cli("api.exchangeratesapi.io", 443);
 
-    std::string api_complete = date + "?symbols=" + to + "&base=" + from;
+    std::string api_complete = "/" + date + "?symbols=" + to + "&base=" + from;
 
     auto res = cli.get(api_complete.c_str());
 
     if (!res) {
         std::cout << "ERROR: Currency(v2): No response, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
-        std::cout << "ERROR: Currency(v2): URL is" << api_complete << std::endl;
+        std::cout << "ERROR: Currency(v2): URL is " << api_complete << std::endl;
 
         return  1.0;
     } else if (res->status != 200) {
         std::cout << "ERROR: Currency(v2): Error response " << res->status << ", setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
-        std::cout << "ERROR: Currency(v2): URL is" << api_complete << std::endl;
-        std::cout << "ERROR: Currency(v2): Response is" << res->body << std::endl;
+        std::cout << "ERROR: Currency(v2): URL is " << api_complete << std::endl;
+        std::cout << "ERROR: Currency(v2): Response is " << res->body << std::endl;
 
         return  1.0;
     } else {
@@ -73,8 +73,8 @@ double get_rate_v2(const std::string& from, const std::string& to, const std::st
 
         if (buffer.find("\"" + to + "\":") == std::string::npos || buffer.find('}') == std::string::npos) {
             std::cout << "ERROR: Currency(v2): Error parsing exchange rates, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
-            std::cout << "ERROR: Currency(v2): URL is" << api_complete << std::endl;
-            std::cout << "ERROR: Currency(v2): Response is" << res->body << std::endl;
+            std::cout << "ERROR: Currency(v2): URL is " << api_complete << std::endl;
+            std::cout << "ERROR: Currency(v2): Response is " << res->body << std::endl;
 
             return  1.0;
         } else {
