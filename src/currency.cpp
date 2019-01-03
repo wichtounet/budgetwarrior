@@ -10,7 +10,8 @@
 #include <iostream>
 
 #include "currency.hpp"
-#include "assets.hpp"
+#include "server.hpp"
+#include "assets.hpp" // For get_default_currency
 #include "http.hpp"
 
 namespace {
@@ -48,6 +49,37 @@ double get_rate_v1(const std::string& from, const std::string& to){
     }
 }
 
+// V2 is using api.exchangeratesapi.io
+double get_rate_v2(const std::string& from, const std::string& to, const std::string& date = "latest") {
+    httplib::Client cli("api.exchangeratesapi.io", 80);
+
+    std::string api_complete = date + "?symbols=" + to + "&base=" + from;
+
+    auto res = cli.get(api_complete.c_str());
+
+    if (!res) {
+        std::cout << "Error accessing exchange rates (no response), setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
+
+        return  1.0;
+    } else if (res->status != 200) {
+        std::cout << "Error accessing exchange rates (not OK), setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
+
+        return  1.0;
+    } else {
+        auto& buffer = res->body;
+
+        if (buffer.find("\"" + to + "\":") == std::string::npos || buffer.find('}') == std::string::npos) {
+            std::cout << "Error parsing exchange rates, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
+
+            return  1.0;
+        } else {
+            std::string ratio_result(buffer.begin() + buffer.find("\"" + to + "\":") + 1, buffer.begin() + buffer.find('}'));
+
+            return atof(ratio_result.c_str());
+        }
+    }
+}
+
 } // end of anonymous namespace
 
 void budget::invalidate_currency_cache(){
@@ -66,7 +98,11 @@ double budget::exchange_rate(const std::string& from, const std::string& to){
         auto reverse_key = std::make_tuple(to, from);
 
         if (!exchanges.count(key)) {
-            auto rate = get_rate_v1(from, to);
+            auto rate = get_rate_v2(from, to);
+
+            if (budget::is_server_running()) {
+                std::cout << "INFO: Currency: Rate from " << from << " to " << to << " = " << rate << std::endl;
+            }
 
             exchanges[key]         = rate;
             exchanges[reverse_key] = 1.0 / rate;
