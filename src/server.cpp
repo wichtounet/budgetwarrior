@@ -64,9 +64,9 @@ void start_cron_loop(){
 
         check_for_recurrings();
 
-        if(hours % 48 == 0){
-            std::cout << "Invalidate the currency cache" << std::endl;
-            budget::invalidate_currency_cache();
+        if(hours % 72 == 0){
+            std::cout << "Refresh the currency cache" << std::endl;
+            budget::refresh_currency_cache();
         }
     }
 }

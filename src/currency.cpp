@@ -89,8 +89,28 @@ double get_rate_v2(const std::string& from, const std::string& to, const std::st
 
 } // end of anonymous namespace
 
-void budget::invalidate_currency_cache(){
-    exchanges.clear();
+void budget::refresh_currency_cache(){
+    // Refresh the rates for each value
+    for (auto& pair : exchanges) {
+        auto& key = pair.first;
+        auto from = std::get<0>(key);
+        auto to   = std::get<1>(key);
+        auto date = std::get<2>(key);
+
+        exchanges[key] = get_rate_v2(from, to, date);
+    }
+
+    // Prefetch the current exchange rates
+    for (auto & pair : exchanges) {
+        auto& key = pair.first;
+        auto from = std::get<0>(key);
+        auto to   = std::get<1>(key);
+
+        exchange_rate(from, to);
+    }
+
+    std::cout << "INFO: Currency Cache has been refreshed" << std::endl;
+    std::cout << "INFO: Currency Cache has " << exchanges.size() << " entries " << std::endl;
 }
 
 double budget::exchange_rate(const std::string& from){
