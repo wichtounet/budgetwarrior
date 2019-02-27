@@ -2016,20 +2016,14 @@ void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Respons
         std::vector<budget::money> serie;
         std::vector<std::string> dates;
 
-        auto previous = values.front().set_date;
-
         for (size_t i = 0; i < values.size(); ++i) {
             auto& asset_value = values[i];
             auto current = asset_value.set_date;
 
-            if (i == 0 || !(previous.month() == current.month() && previous.year() == current.year())) {
-                previous = current;
+            auto ratio = budget::fi_ratio(current);
 
-                auto ratio = budget::fi_ratio(previous);
-
-                std::string date = "Date.UTC(" + std::to_string(previous.year()) + "," + std::to_string(previous.month().value - 1) + ", 1)";
-                ss << "[" << date <<  "," << budget::to_string(100 * ratio) << "],";
-            }
+            std::string date = "Date.UTC(" + std::to_string(current.year()) + "," + std::to_string(current.month().value - 1) + ", 1)";
+            ss << "[" << date << "," << budget::to_string(100 * ratio) << "],";
         }
 
         ss << "]},";
