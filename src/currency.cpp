@@ -93,9 +93,9 @@ void budget::refresh_currency_cache(){
     // Refresh the rates for each value
     for (auto& pair : exchanges) {
         auto& key = pair.first;
-        auto from = std::get<0>(key);
-        auto to   = std::get<1>(key);
-        auto date = std::get<2>(key);
+        auto date = std::get<0>(key);
+        auto from = std::get<1>(key);
+        auto to   = std::get<2>(key);
 
         exchanges[key] = get_rate_v2(from, to, date);
     }
@@ -103,8 +103,8 @@ void budget::refresh_currency_cache(){
     // Prefetch the current exchange rates
     for (auto & pair : exchanges) {
         auto& key = pair.first;
-        auto from = std::get<0>(key);
-        auto to   = std::get<1>(key);
+        auto from = std::get<1>(key);
+        auto to   = std::get<2>(key);
 
         exchange_rate(from, to);
     }
@@ -129,7 +129,7 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
     if(from == to){
         return 1.0;
     } else {
-        auto date_str         = budget::date_to_string(d);
+        auto date_str    = budget::date_to_string(d);
         auto key         = std::make_tuple(date_str, from, to);
         auto reverse_key = std::make_tuple(date_str, to, from);
 
