@@ -100,6 +100,11 @@ double budget::share_price(const std::string& quote, budget::date d){
     auto date_str = budget::date_to_string(d);
     auto key      = std::make_tuple(date_str, quote);
 
+    // We cannot get closing price in the future, so we use the day before date
+    if (d >= budget::local_day()) {
+        return share_price(quote, d - budget::days(1));
+    }
+
     if (!share_prices.count(key)) {
         auto price = get_share_price_v1(quote, date_str);
 
