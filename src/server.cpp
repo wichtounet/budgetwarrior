@@ -57,7 +57,8 @@ void start_server(){
 void start_cron_loop(){
     size_t hours = 0;
 
-    std::cout << "Debug: VOO " << budget::share_price("VOO") << std::endl;
+    auto voo_price = budget::share_price("VOO");
+    std::cout << "Debug: VOO " << voo_price << std::endl;
 
     while(true){
         using namespace std::chrono_literals;
