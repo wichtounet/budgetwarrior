@@ -97,19 +97,23 @@ bool asset_exists(const std::string& asset);
 budget::asset& get_asset(size_t id);
 budget::asset& get_asset(std::string name);
 
-budget::asset& get_desired_allocation();
-
 budget::asset_value& get_asset_value(size_t id);
+budget::asset_share& get_asset_share(size_t id);
+
+budget::asset& get_desired_allocation();
 
 std::vector<budget::asset>& all_assets();
 std::vector<budget::asset_value>& all_asset_values();
 std::vector<budget::asset_value> all_sorted_asset_values();
+std::vector<budget::asset_share>& all_asset_shares();
 
 void set_assets_next_id(size_t next_id);
 void set_asset_values_next_id(size_t next_id);
+void set_asset_shares_next_id(size_t next_id);
 
 void set_assets_changed();
 void set_asset_values_changed();
+void set_asset_shares_changed();
 
 std::string get_default_currency();
 
@@ -122,6 +126,11 @@ void add_asset_value(asset_value&& asset_value);
 bool asset_value_exists(size_t id);
 void asset_value_delete(size_t id);
 asset_value& asset_value_get(size_t id);
+
+void add_asset_share(asset_share&& asset_share);
+bool asset_share_exists(size_t id);
+void asset_share_delete(size_t id);
+asset_share& asset_share_get(size_t id);
 
 budget::money get_portfolio_value();
 budget::money get_net_worth();

@@ -48,8 +48,8 @@ void adapt(Values& values, size_t old, size_t id){
     }
 }
 
-template<typename Values>
-void adapt_assets(Values& values, size_t old, size_t id){
+template <typename Values>
+void adapt_assets(Values& values, size_t old, size_t id) {
     for(auto& value : values){
         if(value.asset_id == old){
             value.asset_id = id;
@@ -132,6 +132,12 @@ void gc_asset_values(){
     set_asset_values_changed();
 }
 
+void gc_asset_shares(){
+    auto next_id = gc(all_asset_shares());
+    set_asset_shares_next_id(next_id);
+    set_asset_shares_changed();
+}
+
 void gc_assets(){
     auto& assets = all_assets();
 
@@ -145,6 +151,7 @@ void gc_assets(){
             asset.id = next_id;
 
             adapt_assets(all_asset_values(), old_asset, asset.id);
+            adapt_assets(all_asset_shares(), old_asset, asset.id);
         }
 
         ++next_id;
@@ -203,6 +210,7 @@ void budget::gc_module::handle(const std::vector<std::string>& args){
         gc_recurrings();
         gc_accounts();
         gc_asset_values();
+        gc_asset_shares();
         gc_assets();
 
         std::cout << "...done" << std::endl;

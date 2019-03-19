@@ -33,6 +33,7 @@ namespace {
 
 static data_handler<asset> assets { "assets", "assets.data" };
 static data_handler<asset_value> asset_values { "asset_values", "asset_values.data" };
+static data_handler<asset_share> asset_shares { "asset_shares", "asset_shares.data" };
 
 std::vector<std::string> get_asset_names(){
     std::vector<std::string> asset_names;
@@ -394,6 +395,10 @@ budget::asset_value& budget::get_asset_value(size_t id){
     return asset_values[id];
 }
 
+budget::asset_share& budget::get_asset_share(size_t id) {
+    return asset_shares[id];
+}
+
 std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
     return stream << asset.id << ':' << asset.guid << ':' << asset.name << ':'
         << asset.int_stocks << ':' << asset.dom_stocks << ":" << asset.bonds << ":" << asset.cash << ":" << asset.currency << ":" << asset.portfolio << ":" << asset.portfolio_alloc;
@@ -517,6 +522,10 @@ std::vector<asset_value> budget::all_sorted_asset_values() {
     return sorted_asset_values;
 }
 
+std::vector<asset_share>& budget::all_asset_shares(){
+    return asset_shares.data;
+}
+
 void budget::set_assets_changed(){
     assets.set_changed();
 }
@@ -525,12 +534,20 @@ void budget::set_asset_values_changed(){
     asset_values.set_changed();
 }
 
+void budget::set_asset_shares_changed(){
+    asset_shares.set_changed();
+}
+
 void budget::set_assets_next_id(size_t next_id){
     assets.next_id = next_id;
 }
 
 void budget::set_asset_values_next_id(size_t next_id){
     asset_values.next_id = next_id;
+}
+
+void budget::set_asset_shares_next_id(size_t next_id){
+    asset_shares.next_id = next_id;
 }
 
 std::string budget::get_default_currency(){
@@ -993,6 +1010,30 @@ asset_value& budget::asset_value_get(size_t id) {
 
 void budget::add_asset_value(budget::asset_value&& asset_value){
     asset_values.add(std::forward<budget::asset_value>(asset_value));
+}
+
+bool budget::asset_share_exists(size_t id){
+    return asset_shares.exists(id);
+}
+
+void budget::asset_share_delete(size_t id) {
+    if (!asset_shares.exists(id)) {
+        throw budget_exception("There are no asset_share with id ");
+    }
+
+    asset_shares.remove(id);
+}
+
+asset_share& budget::asset_share_get(size_t id) {
+    if (!asset_shares.exists(id)) {
+        throw budget_exception("There are no asset_share with id ");
+    }
+
+    return asset_shares[id];
+}
+
+void budget::add_asset_share(budget::asset_share&& asset_share){
+    asset_shares.add(std::forward<budget::asset_share>(asset_share));
 }
 
 void budget::list_asset_values(budget::writer& w){
