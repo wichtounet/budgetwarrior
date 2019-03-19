@@ -50,6 +50,7 @@ struct asset {
     }
 };
 
+// Used to set the value of the asset
 struct asset_value {
     size_t id;
     std::string guid;
@@ -60,11 +61,26 @@ struct asset_value {
     std::map<std::string, std::string> get_params();
 };
 
+// Used to indicate purchase of shares
+struct asset_share {
+    size_t id;
+    std::string guid;
+    size_t asset_id;
+    size_t shares;       // The number of shares
+    budget::money price; // The purchase price
+    budget::date date;   // The purchase date
+
+    std::map<std::string, std::string> get_params();
+};
+
 std::ostream& operator<<(std::ostream& stream, const asset& asset);
 void operator>>(const std::vector<std::string>& parts, asset& asset);
 
 std::ostream& operator<<(std::ostream& stream, const asset_value& asset);
 void operator>>(const std::vector<std::string>& parts, asset_value& asset);
+
+std::ostream& operator<<(std::ostream& stream, const asset_share& asset);
+void operator>>(const std::vector<std::string>& parts, asset_share& asset);
 
 void load_assets();
 void save_assets();

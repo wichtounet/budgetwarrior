@@ -10,6 +10,7 @@
 #include <sstream>
 #include <utility>
 #include <map>
+#include <random>
 
 #include "assets.hpp"
 #include "budget_exception.hpp"
@@ -70,6 +71,19 @@ std::map<std::string, std::string> budget::asset_value::get_params(){
     params["input_asset_id"] = budget::to_string(asset_id);
     params["input_amount"]   = budget::to_string(amount);
     params["input_set_date"] = budget::to_string(set_date);
+
+    return params;
+}
+
+std::map<std::string, std::string> budget::asset_share::get_params(){
+    std::map<std::string, std::string> params;
+
+    params["input_id"]       = budget::to_string(id);
+    params["input_guid"]     = guid;
+    params["input_asset_id"] = budget::to_string(asset_id);
+    params["input_price"]    = budget::to_string(price);
+    params["input_date"]     = budget::to_string(date);
+    params["input_shares"]   = budget::to_string(shares);
 
     return params;
 }
@@ -438,6 +452,41 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_value& asse
         asset_value.amount = budget::random_money(1000, 50000);
     } else {
         asset_value.amount = parse_money(parts[3]);
+    }
+}
+
+std::ostream& budget::operator<<(std::ostream& stream, const asset_share& asset_share){
+    return stream
+               << asset_share.id
+        << ':' << asset_share.guid
+        << ':' << asset_share.asset_id
+        << ":" << asset_share.shares
+        << ":" << to_string(asset_share.date)
+        << ":" << asset_share.price;
+}
+
+void budget::operator>>(const std::vector<std::string>& parts, asset_share& asset_share){
+    bool random = config_contains("random");
+
+    asset_share.id       = to_number<size_t>(parts[0]);
+    asset_share.guid     = parts[1];
+    asset_share.asset_id = to_number<size_t>(parts[2]);
+    asset_share.date     = from_string(parts[4]);
+    asset_share.price    = parse_money(parts[5]);
+
+    if (asset_share.guid == "XXXXX") {
+        asset_share.guid = generate_guid();
+    }
+
+    if (random) {
+        static std::random_device rd;
+        static std::mt19937_64 engine(rd());
+
+        std::uniform_int_distribution<int> dist(0, 1000);
+
+        asset_share.shares = dist(engine);
+    } else {
+        asset_share.shares = to_number<size_t>(parts[3]);
     }
 }
 
