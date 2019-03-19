@@ -21,12 +21,13 @@ std::map<std::tuple<std::string, std::string>, double> share_prices;
 
 // V1 is using cloud.iexapis.com
 double get_share_price_v1(const std::string& quote, const std::string& date) {
-    std::string token;
     if (!budget::config_contains("iex_cloud_token")) {
         std::cout << "ERROR: Price(v1): Need IEX cloud token configured to work" << std::endl;
 
         return  1.0;
     }
+
+    auto token = budget::config_value("iex_cloud_token");
 
     httplib::SSLClient cli("cloud.iexapis.com", 443);
 
