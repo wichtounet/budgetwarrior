@@ -22,6 +22,7 @@
 #include "recurring.hpp"
 #include "debts.hpp"
 #include "currency.hpp"
+#include "share.hpp"
 #include "server_api.hpp"
 #include "server_pages.hpp"
 #include "http.hpp"
@@ -55,6 +56,8 @@ void start_server(){
 
 void start_cron_loop(){
     size_t hours = 0;
+
+    std::cout << "Debug: VOO " << budget::share_price("VOO") << std::endl;
 
     while(true){
         using namespace std::chrono_literals;
