@@ -23,9 +23,10 @@
 #include "debts.hpp"
 #include "currency.hpp"
 #include "share.hpp"
-#include "server_api.hpp"
-#include "pages/server_pages.hpp"
 #include "http.hpp"
+
+#include "api/server_api.hpp"
+#include "pages/server_pages.hpp"
 
 using namespace budget;
 

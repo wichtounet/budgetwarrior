@@ -7,7 +7,7 @@
 
 #include <set>
 
-#include "cpp_utils/assert.hpp"
+#include "api/server_api.hpp"
 
 #include "accounts.hpp"
 #include "assets.hpp"
@@ -22,7 +22,6 @@
 #include "version.hpp"
 #include "wishes.hpp"
 #include "writer.hpp"
-#include "server_api.hpp"
 #include "http.hpp"
 
 using namespace budget;

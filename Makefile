@@ -17,6 +17,7 @@ CXX_FLAGS += -Icpp-httplib
 
 $(eval $(call auto_folder_compile,src))
 $(eval $(call auto_folder_compile,src/pages))
+$(eval $(call auto_folder_compile,src/api))
 $(eval $(call auto_add_executable,budget))
 
 release_debug: release_debug_budget
