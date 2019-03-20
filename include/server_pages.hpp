@@ -108,4 +108,11 @@ void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& t
                                     budget::month month, budget::year year, bool mono = false, 
                                     const std::string& style = "");
 
+// Overview pages
+void overview_page(const httplib::Request& req, httplib::Response& res);
+void overview_aggregate_all_page(const httplib::Request& req, httplib::Response& res);
+void overview_aggregate_year_page(const httplib::Request& req, httplib::Response& res);
+void overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res);
+void overview_year_page(const httplib::Request& req, httplib::Response& res);
+
 } //end of namespace budget
