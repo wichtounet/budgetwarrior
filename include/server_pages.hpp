@@ -71,4 +71,12 @@ void status_fortunes_page(const httplib::Request& req, httplib::Response& res);
 void add_fortunes_page(const httplib::Request& req, httplib::Response& res);
 void edit_fortunes_page(const httplib::Request& req, httplib::Response& res);
 
+// Accounts pages
+void accounts_page(const httplib::Request& req, httplib::Response& res);
+void all_accounts_page(const httplib::Request& req, httplib::Response& res);
+void add_accounts_page(const httplib::Request& req, httplib::Response& res);
+void edit_accounts_page(const httplib::Request& req, httplib::Response& res);
+void archive_accounts_month_page(const httplib::Request& req, httplib::Response& res);
+void archive_accounts_year_page(const httplib::Request& req, httplib::Response& res);
+
 } //end of namespace budget
