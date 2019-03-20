@@ -9,7 +9,7 @@
 
 #include "objectives.hpp"
 
-#include "pages/server_pages.hpp"
+#include "pages/objectives_pages.hpp"
 #include "writer.hpp"
 #include "http.hpp"
 #include "config.hpp"

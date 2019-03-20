@@ -10,7 +10,7 @@
 #include "recurring.hpp"
 
 #include "writer.hpp"
-#include "pages/server_pages.hpp"
+#include "pages/recurrings_pages.hpp"
 #include "http.hpp"
 
 using namespace budget;

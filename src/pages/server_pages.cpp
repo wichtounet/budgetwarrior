@@ -23,10 +23,21 @@
 #include "currency.hpp"
 
 // Include all the pages
+#include "pages/assets_pages.hpp"
+#include "pages/asset_values_pages.hpp"
+#include "pages/fortunes_pages.hpp"
 #include "pages/wishes_pages.hpp"
 #include "pages/index_pages.hpp"
 #include "pages/report_pages.hpp"
 #include "pages/debts_pages.hpp"
+#include "pages/accounts_pages.hpp"
+#include "pages/expenses_pages.hpp"
+#include "pages/earnings_pages.hpp"
+#include "pages/retirement_pages.hpp"
+#include "pages/recurrings_pages.hpp"
+#include "pages/objectives_pages.hpp"
+#include "pages/overview_pages.hpp"
+#include "pages/net_worth_pages.hpp"
 #include "http.hpp"
 
 using namespace budget;

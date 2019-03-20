@@ -10,7 +10,7 @@
 #include "assets.hpp"
 
 #include "writer.hpp"
-#include "pages/server_pages.hpp"
+#include "pages/assets_pages.hpp"
 #include "http.hpp"
 
 using namespace budget;

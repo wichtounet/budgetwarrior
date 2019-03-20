@@ -7,7 +7,7 @@
 
 #include "fortune.hpp"
 
-#include "pages/server_pages.hpp"
+#include "pages/fortunes_pages.hpp"
 #include "writer.hpp"
 #include "http.hpp"
 
