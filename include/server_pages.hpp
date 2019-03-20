@@ -123,4 +123,9 @@ void status_objectives_page(const httplib::Request& req, httplib::Response& res)
 void add_objectives_page(const httplib::Request& req, httplib::Response& res);
 void edit_objectives_page(const httplib::Request& req, httplib::Response& res);
 
+// Recurrings Pages
+void recurrings_list_page(const httplib::Request& req, httplib::Response& res);
+void add_recurrings_page(const httplib::Request& req, httplib::Response& res);
+void edit_recurrings_page(const httplib::Request& req, httplib::Response& res);
+
 } //end of namespace budget
