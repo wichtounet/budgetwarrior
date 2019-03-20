@@ -1,4 +1,4 @@
-budgetwarrior 1.0.2 - in development
+budgetwarrior 1.1.0 - in development
 
  * New fature: Income/Earnings over time
  * New fature: Savings rate over time
@@ -9,6 +9,7 @@ budgetwarrior 1.0.2 - in development
  * Improvement: Add monthly expenses to retirement status
  * Improvement: Add savings rate to index
  * Bug Fix: Creating an objective from web interface was not using the correct date
+ * Bug Fix: Fix the FI ratio over time web graph
 
 budgetwarrior 1.0.1 - 03.04.2018
 

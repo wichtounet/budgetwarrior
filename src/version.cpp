@@ -11,11 +11,11 @@
 #include "budget_exception.hpp"
 
 std::string budget::get_version(){
-    return "budgetwarrior 1.0.2";
+    return "budgetwarrior 1.1.0";
 }
 
 std::string budget::get_version_short(){
-    return "1.0.2";
+    return "1.1.0";
 }
 
 void budget::version_module::handle(const std::vector<std::string>& args){
@@ -24,5 +24,5 @@ void budget::version_module::handle(const std::vector<std::string>& args){
     }
 
     std::cout << get_version() << std::endl;
-    std::cout << "Copyright 2013-2018 Baptiste Wicht" << std::endl;
+    std::cout << "Copyright 2013-2019 Baptiste Wicht" << std::endl;
 }

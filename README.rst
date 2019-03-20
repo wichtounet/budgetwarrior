@@ -1,4 +1,4 @@
-budgetwarrior 1.0.2
+budgetwarrior 1.1.0
 ===================
 
 Simple command line utility to helps keeping track of your expenses and the
