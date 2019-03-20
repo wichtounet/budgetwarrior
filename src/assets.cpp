@@ -60,6 +60,8 @@ std::map<std::string, std::string> budget::asset::get_params(){
     params["input_currency"]        = currency;
     params["input_portfolio"]       = portfolio ? "true" : "false";
     params["input_portfolio_alloc"] = budget::to_string(portfolio_alloc);
+    params["input_shared_based"]    = share_based ? "true" : "false";
+    params["input_ticker"]          = ticker;
 
     return params;
 }
@@ -350,11 +352,13 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 void budget::load_assets(){
     assets.load();
     asset_values.load();
+    asset_shares.load();
 }
 
 void budget::save_assets(){
     assets.save();
     asset_values.save();
+    asset_shares.save();
 }
 
 budget::asset& budget::get_asset(size_t id){
@@ -399,9 +403,38 @@ budget::asset_share& budget::get_asset_share(size_t id) {
     return asset_shares[id];
 }
 
+void budget::migrate_assets_4_to_5(){
+    assets.load([](const std::vector<std::string>& parts, asset& asset){
+        asset.id              = to_number<size_t>(parts[0]);
+        asset.guid            = parts[1];
+        asset.name            = parts[2];
+        asset.int_stocks      = parse_money(parts[3]);
+        asset.dom_stocks      = parse_money(parts[4]);
+        asset.bonds           = parse_money(parts[5]);
+        asset.cash            = parse_money(parts[6]);
+        asset.currency        = parts[7];
+        asset.portfolio       = to_number<size_t>(parts[8]);
+        asset.portfolio_alloc = parse_money(parts[9]);
+
+        if(asset.guid == "XXXXX"){
+            asset.guid = generate_guid();
+        }
+
+        // Version 5 added support for shares
+        asset.share_based = false;
+        asset.ticker      = "EMPTY";
+    });
+
+    set_assets_changed();
+
+    assets.save();
+}
+
 std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
     return stream << asset.id << ':' << asset.guid << ':' << asset.name << ':'
-        << asset.int_stocks << ':' << asset.dom_stocks << ":" << asset.bonds << ":" << asset.cash << ":" << asset.currency << ":" << asset.portfolio << ":" << asset.portfolio_alloc;
+                  << asset.int_stocks << ':' << asset.dom_stocks << ":" << asset.bonds << ":" << asset.cash << ":"
+                  << asset.currency << ":" << asset.portfolio << ":" << asset.portfolio_alloc << ":"
+                  << asset.share_based << ":" << asset.ticker;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
@@ -416,6 +449,8 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
     asset.currency        = parts[7];
     asset.portfolio       = to_number<size_t>(parts[8]);
     asset.portfolio_alloc = parse_money(parts[9]);
+    asset.share_based     = to_number<size_t>(parts[10]);
+    asset.ticker          = parts[11];
 
     if(asset.guid == "XXXXX"){
         asset.guid = generate_guid();

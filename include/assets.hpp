@@ -42,6 +42,8 @@ struct asset {
     std::string currency;
     bool portfolio;
     money portfolio_alloc;
+    bool share_based;
+    std::string ticker;
 
     std::map<std::string, std::string> get_params();
 
@@ -84,6 +86,8 @@ void operator>>(const std::vector<std::string>& parts, asset_share& asset);
 
 void load_assets();
 void save_assets();
+
+void migrate_assets_4_to_5();
 
 void show_assets(budget::writer& w);
 void list_asset_values(budget::writer& w);
