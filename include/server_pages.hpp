@@ -116,4 +116,11 @@ void overview_aggregate_month_page(const httplib::Request& req, httplib::Respons
 void overview_year_page(const httplib::Request& req, httplib::Response& res);
 void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response& res);
 
+// Objectives pages
+void objectives_card(budget::html_writer& w);
+void list_objectives_page(const httplib::Request& req, httplib::Response& res);
+void status_objectives_page(const httplib::Request& req, httplib::Response& res);
+void add_objectives_page(const httplib::Request& req, httplib::Response& res);
+void edit_objectives_page(const httplib::Request& req, httplib::Response& res);
+
 } //end of namespace budget
