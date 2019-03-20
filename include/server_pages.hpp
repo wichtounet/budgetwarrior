@@ -37,10 +37,12 @@ void page_form_begin(budget::writer& w, const std::string& action);
 void form_begin_edit(budget::writer& w, const std::string& action, const std::string& back_page, const std::string& input_id);
 void form_end(budget::writer& w, const std::string& button = "");
 
+void add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value);
 void add_name_picker(budget::writer& w, const std::string& default_value = "");
 void add_title_picker(budget::writer& w, const std::string& default_value = "");
 void add_amount_picker(budget::writer& w, const std::string& default_value = "");
 void add_paid_amount_picker(budget::writer& w, const std::string& default_value = "");
+void add_yes_no_picker(budget::writer& w, const std::string& title, const std::string& name, bool default_value);
 void add_paid_picker(budget::writer& w, bool paid);
 void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false);
 void add_account_picker(budget::writer& w, budget::date day, const std::string& default_value = "");
@@ -135,6 +137,11 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res);
 void retirement_status_page(const httplib::Request& req, httplib::Response& res);
 void retirement_configure_page(const httplib::Request& req, httplib::Response& res);
 void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Response& res);
+
+// Asset Pages
+void assets_page(const httplib::Request& req, httplib::Response& res);
+void add_assets_page(const httplib::Request& req, httplib::Response& res);
+void edit_assets_page(const httplib::Request& req, httplib::Response& res);
 
 // Asset Values Pages
 void list_asset_values_page(const httplib::Request& req, httplib::Response& res);

@@ -394,64 +394,6 @@ std::string footer() {
     return "</main></body></html>";
 }
 
-void add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
-    w << R"=====(<div class="form-group">)=====";
-
-    w << "<label for=\"" << name << "\">" << title << "</label>";
-
-    w << "<input required type=\"text\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
-
-    if (default_value.empty()) {
-        w << " placeholder=\"Enter " << title << "\"";
-    } else {
-        w << " value=\"" << default_value << "\" ";
-    }
-
-    w << R"=====(
-            >
-         </div>
-    )=====";
-}
-
-void add_currency_picker(budget::writer& w, const std::string& default_value = "") {
-    add_text_picker(w, "Currency", "input_currency", default_value);
-}
-
-void add_yes_no_picker(budget::writer& w, const std::string& title, const std::string& name, bool default_value) {
-    w << R"=====(<div class="form-group">)=====";
-
-    w << "<label for=\"" << name << "\">" << title << "</label>";
-
-    if (default_value) {
-        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
-        w << name;
-        w << R"=====(" value="yes" checked>Yes</label>)=====";
-    } else {
-        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
-        w << name;
-        w << R"=====(" value="yes">Yes</label>)=====";
-    }
-
-    if (!default_value) {
-        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
-        w << name;
-        w << R"=====(" value="no" checked>No</label>)=====";
-    } else {
-        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
-        w << name;
-        w << R"=====(" value="no">No</label>)=====";
-    }
-
-    w << R"=====(
-                </select>
-            </div>
-    )=====";
-}
-
-void add_portfolio_picker(budget::writer& w, bool portfolio) {
-    add_yes_no_picker(w, "Part of the portfolio", "input_portfolio", portfolio);
-}
-
 budget::money monthly_income(budget::month month, budget::year year) {
     std::map<size_t, budget::money> account_sum;
 
@@ -1108,86 +1050,6 @@ void rebalance_page(const httplib::Request& req, httplib::Response& res) {
     w << R"=====(</div>)=====";
 
     w << R"=====(</div>)=====";
-
-    page_end(w, req, res);
-}
-
-void assets_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Assets")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-    budget::show_assets(w);
-
-    make_tables_sortable(w);
-
-    page_end(w, req, res);
-}
-
-void add_assets_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "New asset")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "New asset" << title_end;
-
-    form_begin(w, "/api/assets/add/", "/assets/add/");
-
-    add_name_picker(w);
-    add_money_picker(w, "International Stocks (%)", "input_int_stocks", "");
-    add_money_picker(w, "Domestic Stocks (%)", "input_dom_stocks", "");
-    add_money_picker(w, "Bonds (%)", "input_bonds", "");
-    add_money_picker(w, "Cash (%)", "input_cash", "");
-    add_currency_picker(w);
-    add_portfolio_picker(w, false);
-    add_money_picker(w, "Percent of portfolio (%)", "input_alloc", "");
-
-    form_end(w);
-
-    page_end(w, req, res);
-}
-
-void edit_assets_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Edit asset")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    if (!req.has_param("input_id") || !req.has_param("back_page")) {
-        display_error_message(w, "Invalid parameter for the request");
-    } else {
-        auto input_id = req.get_param_value("input_id");
-
-        if (!asset_exists(budget::to_number<size_t>(input_id))) {
-            display_error_message(w, "The asset " + input_id + " does not exist");
-        } else {
-            auto back_page = req.get_param_value("back_page");
-
-            w << title_begin << "Edit asset " << input_id << title_end;
-
-            form_begin_edit(w, "/api/assets/edit/", back_page, input_id);
-
-            auto& asset = asset_get(budget::to_number<size_t>(input_id));
-
-            add_name_picker(w, asset.name);
-            add_money_picker(w, "International Stocks (%)", "input_int_stocks", budget::to_flat_string(asset.int_stocks));
-            add_money_picker(w, "Domestic Stocks (%)", "input_dom_stocks", budget::to_flat_string(asset.dom_stocks));
-            add_money_picker(w, "Bonds (%)", "input_bonds", budget::to_flat_string(asset.bonds));
-            add_money_picker(w, "Cash (%)", "input_cash", budget::to_flat_string(asset.cash));
-            add_currency_picker(w, asset.currency);
-            add_portfolio_picker(w, asset.portfolio);
-            add_money_picker(w, "Percent of portfolio (%)", "input_alloc", budget::to_flat_string(asset.portfolio_alloc));
-
-            form_end(w);
-        }
-    }
 
     page_end(w, req, res);
 }
@@ -1894,6 +1756,26 @@ void budget::form_end(budget::writer& w, const std::string& button) {
     w << "</form>";
 }
 
+void budget::add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
+    w << R"=====(<div class="form-group">)=====";
+
+    w << "<label for=\"" << name << "\">" << title << "</label>";
+
+    w << "<input required type=\"text\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+
+    if (default_value.empty()) {
+        w << " placeholder=\"Enter " << title << "\"";
+    } else {
+        w << " value=\"" << default_value << "\" ";
+    }
+
+    w << R"=====(
+            >
+         </div>
+    )=====";
+}
+
+
 void budget::add_name_picker(budget::writer& w, const std::string& default_value) {
     add_text_picker(w, "Name", "input_name", default_value);
 }
@@ -1908,6 +1790,37 @@ void budget::add_amount_picker(budget::writer& w, const std::string& default_val
 
 void budget::add_paid_amount_picker(budget::writer& w, const std::string& default_value) {
     add_money_picker(w, "paid amount", "input_paid_amount", default_value);
+}
+
+void budget::add_yes_no_picker(budget::writer& w, const std::string& title, const std::string& name, bool default_value) {
+    w << R"=====(<div class="form-group">)=====";
+
+    w << "<label for=\"" << name << "\">" << title << "</label>";
+
+    if (default_value) {
+        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
+        w << name;
+        w << R"=====(" value="yes" checked>Yes</label>)=====";
+    } else {
+        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
+        w << name;
+        w << R"=====(" value="yes">Yes</label>)=====";
+    }
+
+    if (!default_value) {
+        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
+        w << name;
+        w << R"=====(" value="no" checked>No</label>)=====";
+    } else {
+        w << R"=====(<label class="radio-inline"><input type="radio" name=")=====";
+        w << name;
+        w << R"=====(" value="no">No</label>)=====";
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
 }
 
 void budget::add_paid_picker(budget::writer& w, bool paid) {
@@ -2102,4 +2015,3 @@ void budget::add_money_picker(budget::writer& w, const std::string& title, const
         w << "</div>";
     }
 }
-
