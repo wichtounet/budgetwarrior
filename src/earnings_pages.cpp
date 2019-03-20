@@ -17,6 +17,82 @@
 
 using namespace budget;
 
+void budget::month_breakdown_income_graph(budget::html_writer& w, const std::string& title, budget::month month, budget::year year, bool mono, const std::string& style) {
+    if (mono) {
+        w.defer_script(R"=====(
+            breakdown_income_colors = (function () {
+                var colors = [], base = Highcharts.getOptions().colors[0], i;
+                for (i = 0; i < 10; i += 1) {
+                    colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
+                }
+                return colors;
+            }());
+        )=====");
+    }
+
+    auto ss = start_chart_base(w, "pie", "month_breakdown_income_graph", style);
+
+    ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+
+    if (mono) {
+        ss << R"=====(plotOptions: { pie: { dataLabels: {enabled: false},  colors: breakdown_income_colors, innerSize: '60%' }},)=====";
+    }
+
+    ss << "series: [";
+
+    ss << "{ name: 'Income',";
+    ss << "colorByPoint: true,";
+    ss << "data: [";
+
+    std::map<size_t, budget::money> account_sum;
+
+    for (auto& earning : all_earnings_month(year, month)) {
+        account_sum[earning.account] += earning.amount;
+    }
+
+    budget::money total = get_base_income();
+
+    if (total) {
+        ss << "{";
+        ss << "name: 'Salary',";
+        ss << "y: " << budget::to_flat_string(total);
+        ss << "},";
+    }
+
+    for (auto& sum : account_sum) {
+        ss << "{";
+        ss << "name: '" << get_account(sum.first).name << "',";
+        ss << "y: " << budget::to_flat_string(sum.second);
+        ss << "},";
+
+        total += sum.second;
+    }
+
+    ss << "]},";
+
+    ss << "],";
+
+    if (mono) {
+        ss << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
+
+        ss << R"=====(<div class="gauge-cash-flow-title"><strong>)=====";
+        ss << title;
+        ss << R"=====(</strong><br/><hr class="flat-hr" />)=====";
+
+        ss << R"=====(<span class="text-success">)=====";
+        ss << total << " __currency__";
+        ss << R"=====(</span></div>)=====";
+        ss << R"=====('},)=====";
+    } else {
+        ss << R"=====(title: {text: ')=====";
+        ss << title;
+        ss << R"=====('},)=====";
+    }
+
+    end_chart(w, ss);
+}
+
+
 void budget::time_graph_income_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Income over time")) {

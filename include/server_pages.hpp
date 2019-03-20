@@ -46,6 +46,8 @@ void add_date_picker(budget::writer& w, const std::string& default_value = "", b
 void add_account_picker(budget::writer& w, budget::date day, const std::string& default_value = "");
 
 // Charts
+std::stringstream start_chart_base(budget::html_writer& w, const std::string& chart_type, 
+                                   const std::string& id = "container", std::string style = "");
 std::stringstream start_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type,
                               const std::string& id = "container", std::string style = "");
 std::stringstream start_time_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type, 
@@ -82,11 +84,28 @@ void edit_accounts_page(const httplib::Request& req, httplib::Response& res);
 void archive_accounts_month_page(const httplib::Request& req, httplib::Response& res);
 void archive_accounts_year_page(const httplib::Request& req, httplib::Response& res);
 
+// Earnings / Income pages
 void time_graph_income_page(const httplib::Request& req, httplib::Response& res);
 void time_graph_earnings_page(const httplib::Request& req, httplib::Response& res);
 void add_earnings_page(const httplib::Request& req, httplib::Response& res);
 void edit_earnings_page(const httplib::Request& req, httplib::Response& res);
 void earnings_page(const httplib::Request& req, httplib::Response& res);
 void all_earnings_page(const httplib::Request& req, httplib::Response& res);
+void month_breakdown_income_graph(budget::html_writer& w, const std::string& title,
+                                  budget::month month, budget::year year, bool mono = false, 
+                                  const std::string& style = "");
+
+// Expenses pages
+void expenses_page(const httplib::Request& req, httplib::Response& res);
+void search_expenses_page(const httplib::Request& req, httplib::Response& res);
+void time_graph_expenses_page(const httplib::Request& req, httplib::Response& res);
+void all_expenses_page(const httplib::Request& req, httplib::Response& res);
+void month_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res);
+void year_breakdown_expenses_page(const httplib::Request& req, httplib::Response& res);
+void add_expenses_page(const httplib::Request& req, httplib::Response& res);
+void edit_expenses_page(const httplib::Request& req, httplib::Response& res);
+void month_breakdown_expenses_graph(budget::html_writer& w, const std::string& title,
+                                    budget::month month, budget::year year, bool mono = false, 
+                                    const std::string& style = "");
 
 } //end of namespace budget
