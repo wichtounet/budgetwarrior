@@ -22,7 +22,11 @@
 #include "writer.hpp"
 #include "currency.hpp"
 
-#include "pages/server_pages.hpp"
+// Include all the pages
+#include "pages/wishes_pages.hpp"
+#include "pages/index_pages.hpp"
+#include "pages/report_pages.hpp"
+#include "pages/debts_pages.hpp"
 #include "http.hpp"
 
 using namespace budget;

@@ -62,24 +62,6 @@ std::stringstream start_time_chart(budget::html_writer& w, const std::string& ti
                                    const std::string& id = "container", std::string style = "");
 void end_chart(budget::html_writer& w, std::stringstream& ss);
 
-// Pages
-
-// Index pages
-void index_page(const httplib::Request& req, httplib::Response& res);
-
-// Debts Pages
-void list_debts_page(const httplib::Request& req, httplib::Response& res);
-void all_debts_page(const httplib::Request& req, httplib::Response& res);
-void edit_debts_page(const httplib::Request& req, httplib::Response& res);
-void add_debts_page(const httplib::Request& req, httplib::Response& res);
-
-// Wishes Pages
-void wishes_list_page(const httplib::Request& req, httplib::Response& res);
-void wishes_status_page(const httplib::Request& req, httplib::Response& res);
-void wishes_estimate_page(const httplib::Request& req, httplib::Response& res);
-void add_wishes_page(const httplib::Request& req, httplib::Response& res);
-void edit_wishes_page(const httplib::Request& req, httplib::Response& res);
-
 // Fortunes pages
 void list_fortunes_page(const httplib::Request& req, httplib::Response& res);
 void graph_fortunes_page(const httplib::Request& req, httplib::Response& res);
@@ -169,7 +151,5 @@ void portfolio_status_page(const httplib::Request& req, httplib::Response& res);
 void portfolio_currency_page(const httplib::Request& req, httplib::Response& res);
 void portfolio_graph_page(const httplib::Request& req, httplib::Response& res);
 void rebalance_page(const httplib::Request& req, httplib::Response& res);
-
-void report_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget

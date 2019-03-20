@@ -8,7 +8,7 @@
 #include "wishes.hpp"
 
 #include "writer.hpp"
-#include "pages/server_pages.hpp"
+#include "pages/wishes_pages.hpp"
 #include "http.hpp"
 
 using namespace budget;

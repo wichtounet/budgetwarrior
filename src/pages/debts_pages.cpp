@@ -8,7 +8,7 @@
 #include "debts.hpp"
 
 #include "writer.hpp"
-#include "pages/server_pages.hpp"
+#include "pages/debts_pages.hpp"
 #include "http.hpp"
 
 using namespace budget;

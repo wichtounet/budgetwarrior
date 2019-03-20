@@ -7,7 +7,7 @@
 
 #include "cpp_utils/assert.hpp"
 
-#include "pages/server_pages.hpp"
+#include "pages/index_pages.hpp"
 #include "writer.hpp"
 #include "http.hpp"
 #include "config.hpp"
