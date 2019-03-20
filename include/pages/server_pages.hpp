@@ -170,4 +170,6 @@ void portfolio_currency_page(const httplib::Request& req, httplib::Response& res
 void portfolio_graph_page(const httplib::Request& req, httplib::Response& res);
 void rebalance_page(const httplib::Request& req, httplib::Response& res);
 
+void report_page(const httplib::Request& req, httplib::Response& res);
+
 } //end of namespace budget

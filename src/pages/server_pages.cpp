@@ -17,7 +17,6 @@
 #include "expenses.hpp"
 #include "objectives.hpp"
 #include "overview.hpp"
-#include "report.hpp"
 #include "summary.hpp"
 #include "version.hpp"
 #include "writer.hpp"
@@ -392,20 +391,6 @@ void filter_html(std::string& html, const httplib::Request& req) {
 //Note: This must be synchronized with page_end
 std::string footer() {
     return "</main></body></html>";
-}
-
-void report_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Report")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    auto today = budget::local_day();
-    report(w, today.year(), false, "");
-
-    page_end(w, req, res);
 }
 
 bool parameters_present(const httplib::Request& req, std::vector<const char*> parameters) {
