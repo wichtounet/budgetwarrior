@@ -417,67 +417,6 @@ void add_currency_picker(budget::writer& w, const std::string& default_value = "
     add_text_picker(w, "Currency", "input_currency", default_value);
 }
 
-void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool one_line = false, const std::string& currency = "") {
-    if(!currency.empty()){
-        cpp_assert(one_line, "add_money_picker currency only works with one_line");
-    }
-
-    if (one_line) {
-        w << R"=====(<div class="form-group row">)=====";
-
-        w << "<label class=\"col-sm-4 col-form-label\" for=\"" << name << "\">" << title << "</label>";
-
-        w << R"=====(<div class="col-sm-4">)=====";
-    } else {
-        w << R"=====(<div class="form-group">)=====";
-
-        w << "<label for=\"" << name << "\">" << title << "</label>";
-    }
-
-    w << "<input required type=\"number\" step=\"0.01\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
-
-    if (default_value.empty()) {
-        w << " placeholder=\"Enter " << title << "\" ";
-    } else {
-        w << " value=\"" << default_value << "\" ";
-    }
-
-    w << ">";
-
-    if (one_line) {
-        w << "</div>";
-
-        if (!currency.empty()) {
-            w << "<label class=\"col-sm-2 col-form-label\">" << currency << "</label>";
-        }
-
-        w << "</div>";
-    } else {
-        w << "</div>";
-    }
-}
-
-void add_asset_picker(budget::writer& w, const std::string& default_value = "") {
-    w << R"=====(
-            <div class="form-group">
-                <label for="input_asset">Asset</label>
-                <select class="form-control" id="input_asset" name="input_asset">
-    )=====";
-
-    for (auto& asset : all_user_assets()) {
-        if (budget::to_string(asset.id) == default_value) {
-            w << "<option selected value=\"" << asset.id << "\">" << asset.name << "</option>";
-        } else {
-            w << "<option value=\"" << asset.id << "\">" << asset.name << "</option>";
-        }
-    }
-
-    w << R"=====(
-                </select>
-            </div>
-    )=====";
-}
-
 void add_yes_no_picker(budget::writer& w, const std::string& title, const std::string& name, bool default_value) {
     w << R"=====(<div class="form-group">)=====";
 
@@ -1671,41 +1610,6 @@ void net_worth_currency_page(const httplib::Request& req, httplib::Response& res
     page_end(w, req, res);
 }
 
-void list_asset_values_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "List asset values")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-    budget::list_asset_values(w);
-
-    make_tables_sortable(w);
-
-    page_end(w, req, res);
-}
-
-void add_asset_values_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "New asset value")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "New asset value" << title_end;
-
-    form_begin(w, "/api/asset_values/add/", "/asset_values/add/");
-
-    add_asset_picker(w);
-    add_amount_picker(w);
-    add_date_picker(w, budget::to_string(budget::local_day()));
-
-    form_end(w);
-
-    page_end(w, req, res);
-}
-
 bool parameters_present(const httplib::Request& req, std::vector<const char*> parameters) {
     for (auto& param : parameters) {
         if (!req.has_param(param)) {
@@ -1726,90 +1630,6 @@ bool validate_parameters(std::stringstream& content_stream, const httplib::Reque
     }
 
     return true;
-}
-
-void edit_asset_values_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-
-    if (!page_get_start(req, res, content_stream, "Edit asset value", {"input_id", "back_page"})){
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    auto input_id = req.get_param_value("input_id");
-
-    if (!asset_value_exists(budget::to_number<size_t>(input_id))) {
-        display_error_message(w, "The asset value " + input_id + " does not exist");
-    } else {
-        auto back_page = req.get_param_value("back_page");
-
-        w << title_begin << "Edit asset " << input_id << title_end;
-
-        form_begin_edit(w, "/api/asset_values/edit/", back_page, input_id);
-
-        auto& asset_value = asset_value_get(budget::to_number<size_t>(input_id));
-
-        add_asset_picker(w, budget::to_string(asset_value.asset_id));
-        add_amount_picker(w, budget::to_flat_string(asset_value.amount));
-        add_date_picker(w, budget::to_string(asset_value.set_date));
-
-        form_end(w);
-    }
-
-    page_end(w, req, res);
-}
-
-void full_batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Batch update asset values")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "Batch update asset values" << title_end;
-
-    form_begin(w, "/api/asset_values/batch/", "/asset_values/batch/full/");
-
-    add_date_picker(w, budget::to_string(budget::local_day()), true);
-
-    for (auto& asset : all_user_assets()) {
-        budget::money amount = get_asset_value(asset);
-
-        add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
-    }
-
-    form_end(w);
-
-    page_end(w, req, res);
-}
-
-void current_batch_asset_values_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Batch update asset values")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "Batch update asset values" << title_end;
-
-    form_begin(w, "/api/asset_values/batch/", "/asset_values/batch/current/");
-
-    add_date_picker(w, budget::to_string(budget::local_day()), true);
-
-    for (auto& asset : all_user_assets()) {
-        budget::money amount = get_asset_value(asset);
-
-        if (amount) {
-            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
-        }
-    }
-
-    form_end(w);
-
-    page_end(w, req, res);
 }
 
 } //end of anonymous namespace
@@ -2221,3 +2041,65 @@ void budget::add_account_picker(budget::writer& w, budget::date day, const std::
             </div>
     )=====";
 }
+
+void budget::add_asset_picker(budget::writer& w, const std::string& default_value) {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_asset">Asset</label>
+                <select class="form-control" id="input_asset" name="input_asset">
+    )=====";
+
+    for (auto& asset : all_user_assets()) {
+        if (budget::to_string(asset.id) == default_value) {
+            w << "<option selected value=\"" << asset.id << "\">" << asset.name << "</option>";
+        } else {
+            w << "<option value=\"" << asset.id << "\">" << asset.name << "</option>";
+        }
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
+void budget::add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool one_line, const std::string& currency) {
+    if(!currency.empty()){
+        cpp_assert(one_line, "add_money_picker currency only works with one_line");
+    }
+
+    if (one_line) {
+        w << R"=====(<div class="form-group row">)=====";
+
+        w << "<label class=\"col-sm-4 col-form-label\" for=\"" << name << "\">" << title << "</label>";
+
+        w << R"=====(<div class="col-sm-4">)=====";
+    } else {
+        w << R"=====(<div class="form-group">)=====";
+
+        w << "<label for=\"" << name << "\">" << title << "</label>";
+    }
+
+    w << "<input required type=\"number\" step=\"0.01\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+
+    if (default_value.empty()) {
+        w << " placeholder=\"Enter " << title << "\" ";
+    } else {
+        w << " value=\"" << default_value << "\" ";
+    }
+
+    w << ">";
+
+    if (one_line) {
+        w << "</div>";
+
+        if (!currency.empty()) {
+            w << "<label class=\"col-sm-2 col-form-label\">" << currency << "</label>";
+        }
+
+        w << "</div>";
+    } else {
+        w << "</div>";
+    }
+}
+

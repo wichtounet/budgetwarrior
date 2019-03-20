@@ -44,6 +44,9 @@ void add_paid_amount_picker(budget::writer& w, const std::string& default_value 
 void add_paid_picker(budget::writer& w, bool paid);
 void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false);
 void add_account_picker(budget::writer& w, budget::date day, const std::string& default_value = "");
+void add_asset_picker(budget::writer& w, const std::string& default_value = "");
+void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, 
+                      const std::string& default_value, bool one_line = false, const std::string& currency = "");
 
 // Charts
 std::stringstream start_chart_base(budget::html_writer& w, const std::string& chart_type, 
@@ -132,5 +135,12 @@ void edit_recurrings_page(const httplib::Request& req, httplib::Response& res);
 void retirement_status_page(const httplib::Request& req, httplib::Response& res);
 void retirement_configure_page(const httplib::Request& req, httplib::Response& res);
 void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Response& res);
+
+// Asset Values Pages
+void list_asset_values_page(const httplib::Request& req, httplib::Response& res);
+void add_asset_values_page(const httplib::Request& req, httplib::Response& res);
+void edit_asset_values_page(const httplib::Request& req, httplib::Response& res);
+void full_batch_asset_values_page(const httplib::Request& req, httplib::Response& res);
+void current_batch_asset_values_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget
