@@ -23,7 +23,7 @@
 #include "writer.hpp"
 #include "currency.hpp"
 
-#include "server_pages.hpp"
+#include "pages/server_pages.hpp"
 #include "http.hpp"
 
 using namespace budget;

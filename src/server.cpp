@@ -24,7 +24,7 @@
 #include "currency.hpp"
 #include "share.hpp"
 #include "server_api.hpp"
-#include "server_pages.hpp"
+#include "pages/server_pages.hpp"
 #include "http.hpp"
 
 using namespace budget;

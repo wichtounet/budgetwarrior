@@ -12,7 +12,7 @@
 #include "assets.hpp"
 
 #include "writer.hpp"
-#include "server_pages.hpp"
+#include "pages/server_pages.hpp"
 #include "http.hpp"
 #include "currency.hpp"
 #include "config.hpp"
