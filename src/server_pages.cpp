@@ -428,19 +428,6 @@ std::stringstream start_chart_base(budget::html_writer& w, const std::string& ch
     return ss;
 }
 
-std::stringstream start_time_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
-    // Note: Not nice but we are simply injecting zoomType here
-    auto ss = start_chart_base(w, chart_type + "', zoomType: 'x", id, style);
-
-    ss << R"=====(title: {text: ')=====";
-    ss << title;
-    ss << R"=====('},)=====";
-
-    ss << R"=====(rangeSelector: {enabled: true}, )=====";
-
-    return ss;
-}
-
 void add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
     w << R"=====(<div class="form-group">)=====";
 
@@ -514,27 +501,6 @@ void add_money_picker(budget::writer& w, const std::string& title, const std::st
     } else {
         w << "</div>";
     }
-}
-
-void add_account_picker(budget::writer& w, budget::date day, const std::string& default_value = "") {
-    w << R"=====(
-            <div class="form-group">
-                <label for="input_account">Account</label>
-                <select class="form-control" id="input_account" name="input_account">
-    )=====";
-
-    for (auto& account : all_accounts(day.year(), day.month())) {
-        if (budget::to_string(account.id) == default_value) {
-            w << "<option selected value=\"" << account.id << "\">" << account.name << "</option>";
-        } else {
-            w << "<option value=\"" << account.id << "\">" << account.name << "</option>";
-        }
-    }
-
-    w << R"=====(
-                </select>
-            </div>
-    )=====";
 }
 
 void add_asset_picker(budget::writer& w, const std::string& default_value = "") {
@@ -1760,251 +1726,6 @@ void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Respons
     page_end(w, req, res);
 }
 
-void time_graph_income_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Income over time")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    auto ss = start_time_chart(w, "Income over time", "line", "income_time_graph", "");
-
-    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Income' }},)=====";
-    ss << R"=====(legend: { enabled: false },)=====";
-
-    ss << "series: [";
-
-    ss << "{ name: 'Monthly income',";
-    ss << "data: [";
-
-    std::vector<budget::money> serie;
-    std::vector<std::string> dates;
-
-    auto sy = start_year();
-
-    for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
-        budget::year year = j;
-
-        auto sm = start_month(year);
-        auto last = 13;
-
-        if(year == budget::local_day().year()){
-            last = budget::local_day().month() + 1;
-        }
-
-        for(unsigned short i = sm; i < last; ++i){
-            budget::month month = i;
-
-            budget::money sum;
-
-            for(auto& account : all_accounts(year, month)){
-                sum += account.amount;
-            }
-
-            for(auto& earning : all_earnings()){
-                if(earning.date.year() == year && earning.date.month() == month){
-                    sum += earning.amount;
-                }
-            }
-
-            std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(month.value - 1) + ", 1)";
-
-            serie.push_back(sum);
-            dates.push_back(date);
-
-            ss << "[" << date <<  "," << budget::to_flat_string(sum) << "],";
-        }
-    }
-
-    ss << "]},";
-
-    ss << "{ name: '12 months average',";
-    ss << "data: [";
-
-    std::array<budget::money, 12> average_12;
-
-    for(size_t i = 0; i < serie.size(); ++i){
-        average_12[i % 12] = serie[i];
-
-        auto average = std::accumulate(average_12.begin(), average_12.end(), budget::money());
-
-        if(i < 12){
-            average = average / int(i + 1);
-        } else {
-            average = average / 12;
-        }
-
-        ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
-    }
-
-    ss << "]},";
-
-    ss << "]";
-
-    end_chart(w, ss);
-
-    page_end(w, req, res);
-}
-
-void time_graph_earnings_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Earnings over time")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    auto ss = start_time_chart(w, "Earnings over time", "line", "earnings_time_graph", "");
-
-    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Earnings' }},)=====";
-    ss << R"=====(legend: { enabled: false },)=====";
-
-    ss << "series: [";
-
-    ss << "{ name: 'Monthly earnings',";
-    ss << "data: [";
-
-    auto sy = start_year();
-
-    for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
-        budget::year year = j;
-
-        auto sm = start_month(year);
-        auto last = 13;
-
-        if(year == budget::local_day().year()){
-            last = budget::local_day().month() + 1;
-        }
-
-        for(unsigned short i = sm; i < last; ++i){
-            budget::month month = i;
-
-            budget::money sum;
-
-            for(auto& earning : all_earnings()){
-                if(earning.date.year() == year && earning.date.month() == month){
-                    sum += earning.amount;
-                }
-            }
-
-            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << budget::to_flat_string(sum) << "],";
-        }
-    }
-
-    ss << "]},";
-
-    ss << "]";
-
-    end_chart(w, ss);
-
-    page_end(w, req, res);
-}
-
-void add_earnings_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "New earning")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "New earning" << title_end;
-
-    form_begin(w, "/api/earnings/add/", "/earnings/add/");
-
-    add_date_picker(w);
-    add_name_picker(w);
-    add_amount_picker(w);
-
-    std::string account;
-
-    if (config_contains("default_account")) {
-        auto default_account = config_value("default_account");
-
-        if (account_exists(default_account)) {
-            auto today = budget::local_day();
-            account = budget::to_string(get_account(default_account, today.year(), today.month()).id);
-        }
-    }
-
-    add_account_picker(w, budget::local_day(), account);
-
-    form_end(w);
-
-    page_end(w, req, res);
-}
-
-void edit_earnings_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Edit earning")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    if (!req.has_param("input_id") || !req.has_param("back_page")) {
-        display_error_message(w, "Invalid parameter for the request");
-    } else {
-        auto input_id = req.get_param_value("input_id");
-
-        if (!earning_exists(budget::to_number<size_t>(input_id))) {
-            display_error_message(w, "The earning " + input_id + " does not exist");
-        } else {
-            auto back_page = req.get_param_value("back_page");
-
-            w << title_begin << "Edit earning " << input_id << title_end;
-
-            form_begin_edit(w, "/api/earnings/edit/", back_page, input_id);
-
-            auto& earning = earning_get(budget::to_number<size_t>(input_id));
-
-            add_date_picker(w, budget::to_string(earning.date));
-            add_name_picker(w, earning.name);
-            add_amount_picker(w, budget::to_flat_string(earning.amount));
-            add_account_picker(w, earning.date, budget::to_string(earning.account));
-
-            form_end(w);
-        }
-    }
-
-    page_end(w, req, res);
-}
-
-void earnings_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Earnings")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    if (req.matches.size() == 3) {
-        show_earnings(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
-    } else {
-        show_earnings(w);
-    }
-
-    make_tables_sortable(w);
-
-    page_end(w, req, res);
-}
-
-void all_earnings_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "All Earnings")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-    budget::show_all_earnings(w);
-
-    make_tables_sortable(w);
-
-    page_end(w, req, res);
-}
 
 void portfolio_status_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
@@ -3536,8 +3257,44 @@ std::stringstream budget::start_chart(budget::html_writer& w, const std::string&
     return ss;
 }
 
+std::stringstream budget::start_time_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type, 
+                                           const std::string& id, std::string style) {
+    // Note: Not nice but we are simply injecting zoomType here
+    auto ss = start_chart_base(w, chart_type + "', zoomType: 'x", id, style);
+
+    ss << R"=====(title: {text: ')=====";
+    ss << title;
+    ss << R"=====('},)=====";
+
+    ss << R"=====(rangeSelector: {enabled: true}, )=====";
+
+    return ss;
+}
+
+
 void budget::end_chart(budget::html_writer& w, std::stringstream& ss) {
     ss << R"=====(});)=====";
 
     w.defer_script(ss.str());
+}
+
+void budget::add_account_picker(budget::writer& w, budget::date day, const std::string& default_value) {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_account">Account</label>
+                <select class="form-control" id="input_account" name="input_account">
+    )=====";
+
+    for (auto& account : all_accounts(day.year(), day.month())) {
+        if (budget::to_string(account.id) == default_value) {
+            w << "<option selected value=\"" << account.id << "\">" << account.name << "</option>";
+        } else {
+            w << "<option value=\"" << account.id << "\">" << account.name << "</option>";
+        }
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
 }

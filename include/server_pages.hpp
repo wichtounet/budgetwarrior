@@ -43,10 +43,13 @@ void add_amount_picker(budget::writer& w, const std::string& default_value = "")
 void add_paid_amount_picker(budget::writer& w, const std::string& default_value = "");
 void add_paid_picker(budget::writer& w, bool paid);
 void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false);
+void add_account_picker(budget::writer& w, budget::date day, const std::string& default_value = "");
 
 // Charts
 std::stringstream start_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type,
                               const std::string& id = "container", std::string style = "");
+std::stringstream start_time_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type, 
+                                   const std::string& id = "container", std::string style = "");
 void end_chart(budget::html_writer& w, std::stringstream& ss);
 
 // Pages
@@ -78,5 +81,12 @@ void add_accounts_page(const httplib::Request& req, httplib::Response& res);
 void edit_accounts_page(const httplib::Request& req, httplib::Response& res);
 void archive_accounts_month_page(const httplib::Request& req, httplib::Response& res);
 void archive_accounts_year_page(const httplib::Request& req, httplib::Response& res);
+
+void time_graph_income_page(const httplib::Request& req, httplib::Response& res);
+void time_graph_earnings_page(const httplib::Request& req, httplib::Response& res);
+void add_earnings_page(const httplib::Request& req, httplib::Response& res);
+void edit_earnings_page(const httplib::Request& req, httplib::Response& res);
+void earnings_page(const httplib::Request& req, httplib::Response& res);
+void all_earnings_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget
