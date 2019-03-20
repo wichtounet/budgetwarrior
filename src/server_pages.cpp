@@ -15,7 +15,6 @@
 #include "config.hpp"
 #include "debts.hpp"
 #include "expenses.hpp"
-#include "fortune.hpp"
 #include "objectives.hpp"
 #include "overview.hpp"
 #include "recurring.hpp"
@@ -429,16 +428,6 @@ std::stringstream start_chart_base(budget::html_writer& w, const std::string& ch
     return ss;
 }
 
-std::stringstream start_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
-    auto ss = start_chart_base(w, chart_type, id, style);
-
-    ss << R"=====(title: {text: ')=====";
-    ss << title;
-    ss << R"=====('},)=====";
-
-    return ss;
-}
-
 std::stringstream start_time_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type, const std::string& id = "container", std::string style = "") {
     // Note: Not nice but we are simply injecting zoomType here
     auto ss = start_chart_base(w, chart_type + "', zoomType: 'x", id, style);
@@ -450,57 +439,6 @@ std::stringstream start_time_chart(budget::html_writer& w, const std::string& ti
     ss << R"=====(rangeSelector: {enabled: true}, )=====";
 
     return ss;
-}
-
-void end_chart(budget::html_writer& w, std::stringstream& ss) {
-    ss << R"=====(});)=====";
-
-    w.defer_script(ss.str());
-}
-
-void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false) {
-    if (one_line) {
-        w << R"=====(<div class="form-group row">)=====";
-
-        w << "<label class=\"col-sm-4 col-form-label\" for=\"input_date\">Date</label>";
-
-        w << R"=====(<div class="col-sm-4">)=====";
-    } else {
-        w << R"=====(<div class="form-group">)=====";
-
-        w << "<label for=\"input_date\">Date</label>";
-    }
-
-    auto today = budget::local_day();
-
-    w << R"=====(<input required type="date" class="form-control" id="input_date" name="input_date" value=")=====";
-
-    if (default_value.empty()) {
-        w << today.year() << "-";
-
-        if (today.month() < 10) {
-            w << "0" << today.month().value << "-";
-        } else {
-            w << today.month().value << "-";
-        }
-
-        if (today.day() < 10) {
-            w << "0" << today.day();
-        } else {
-            w << today.day();
-        }
-    } else {
-        w << default_value;
-    }
-
-    w << "\">";
-
-    if (one_line) {
-        w << "</div>";
-        w << "</div>";
-    } else {
-        w << "</div>";
-    }
 }
 
 void add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
@@ -3354,122 +3292,6 @@ void retirement_configure_page(const httplib::Request& req, httplib::Response& r
     page_end(w, req, res);
 }
 
-void list_fortunes_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Objectives List")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-    budget::list_fortunes(w);
-
-    make_tables_sortable(w);
-
-    page_end(w, req, res);
-}
-
-void graph_fortunes_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Fortune")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    auto ss = start_chart(w, "Fortune", "spline");
-
-    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    ss << R"=====(yAxis: { min: 0, title: { text: 'Fortune' }},)=====";
-
-    ss << "series: [";
-
-    ss << "{ name: 'Fortune',";
-    ss << "data: [";
-
-    auto sorted_fortunes = all_fortunes();
-
-    std::sort(sorted_fortunes.begin(), sorted_fortunes.end(),
-              [](const budget::fortune& a, const budget::fortune& b) { return a.check_date < b.check_date; });
-
-    for (auto& value : sorted_fortunes) {
-        auto& date = value.check_date;
-
-        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(value.amount) << "],";
-    }
-
-    ss << "]},";
-
-    ss << "]";
-
-    end_chart(w, ss);
-
-    page_end(w, req, res);
-}
-
-void status_fortunes_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Objectives Status")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-    budget::status_fortunes(w, false);
-
-    make_tables_sortable(w);
-
-    page_end(w, req, res);
-}
-
-void add_fortunes_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "New fortune")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "New fortune" << title_end;
-
-    form_begin(w, "/api/fortunes/add/", "/fortunes/add/");
-
-    add_date_picker(w);
-    add_amount_picker(w);
-
-    form_end(w);
-
-    page_end(w, req, res);
-}
-
-void edit_fortunes_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-
-    if (!page_get_start(req, res, content_stream, "Edit Fortune", {"input_id", "back_page"})){
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    auto input_id = req.get_param_value("input_id");
-
-    if (!fortune_exists(budget::to_number<size_t>(input_id))) {
-        display_error_message(w, "The fortune " + input_id + " does not exist");
-    } else {
-        auto back_page = req.get_param_value("back_page");
-
-        w << title_begin << "Edit fortune " << input_id << title_end;
-
-        form_begin_edit(w, "/api/fortunes/edit/", back_page, input_id);
-
-        auto& fortune = fortune_get(budget::to_number<size_t>(input_id));
-
-        add_date_picker(w, budget::to_string(fortune.check_date));
-        add_amount_picker(w, budget::to_flat_string(fortune.amount));
-
-        form_end(w);
-    }
-
-    page_end(w, req, res);
-}
 
 void recurrings_list_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
@@ -3821,4 +3643,65 @@ void budget::add_paid_amount_picker(budget::writer& w, const std::string& defaul
 
 void budget::add_paid_picker(budget::writer& w, bool paid) {
     add_yes_no_picker(w, "Paid", "input_paid", paid);
+}
+
+void budget::add_date_picker(budget::writer& w, const std::string& default_value, bool one_line) {
+    if (one_line) {
+        w << R"=====(<div class="form-group row">)=====";
+
+        w << "<label class=\"col-sm-4 col-form-label\" for=\"input_date\">Date</label>";
+
+        w << R"=====(<div class="col-sm-4">)=====";
+    } else {
+        w << R"=====(<div class="form-group">)=====";
+
+        w << "<label for=\"input_date\">Date</label>";
+    }
+
+    auto today = budget::local_day();
+
+    w << R"=====(<input required type="date" class="form-control" id="input_date" name="input_date" value=")=====";
+
+    if (default_value.empty()) {
+        w << today.year() << "-";
+
+        if (today.month() < 10) {
+            w << "0" << today.month().value << "-";
+        } else {
+            w << today.month().value << "-";
+        }
+
+        if (today.day() < 10) {
+            w << "0" << today.day();
+        } else {
+            w << today.day();
+        }
+    } else {
+        w << default_value;
+    }
+
+    w << "\">";
+
+    if (one_line) {
+        w << "</div>";
+        w << "</div>";
+    } else {
+        w << "</div>";
+    }
+}
+std::stringstream budget::start_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type,
+                                      const std::string& id, std::string style) {
+    auto ss = start_chart_base(w, chart_type, id, style);
+
+    ss << R"=====(title: {text: ')=====";
+    ss << title;
+    ss << R"=====('},)=====";
+
+    return ss;
+}
+
+void budget::end_chart(budget::html_writer& w, std::stringstream& ss) {
+    ss << R"=====(});)=====";
+
+    w.defer_script(ss.str());
 }

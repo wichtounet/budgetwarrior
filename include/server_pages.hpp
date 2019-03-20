@@ -42,6 +42,12 @@ void add_title_picker(budget::writer& w, const std::string& default_value = "");
 void add_amount_picker(budget::writer& w, const std::string& default_value = "");
 void add_paid_amount_picker(budget::writer& w, const std::string& default_value = "");
 void add_paid_picker(budget::writer& w, bool paid);
+void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false);
+
+// Charts
+std::stringstream start_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type,
+                              const std::string& id = "container", std::string style = "");
+void end_chart(budget::html_writer& w, std::stringstream& ss);
 
 // Pages
 
@@ -57,5 +63,12 @@ void wishes_status_page(const httplib::Request& req, httplib::Response& res);
 void wishes_estimate_page(const httplib::Request& req, httplib::Response& res);
 void add_wishes_page(const httplib::Request& req, httplib::Response& res);
 void edit_wishes_page(const httplib::Request& req, httplib::Response& res);
+
+// Fortunes pages
+void list_fortunes_page(const httplib::Request& req, httplib::Response& res);
+void graph_fortunes_page(const httplib::Request& req, httplib::Response& res);
+void status_fortunes_page(const httplib::Request& req, httplib::Response& res);
+void add_fortunes_page(const httplib::Request& req, httplib::Response& res);
+void edit_fortunes_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget
