@@ -24,6 +24,7 @@
 #include "expenses.hpp"
 #include "writer.hpp"
 #include "currency.hpp"
+#include "share.hpp"
 
 #include <curl/curl.h>
 
@@ -946,34 +947,15 @@ void budget::small_show_asset_values(budget::writer& w){
     budget::money cash;
     budget::money total;
 
-    for(auto& asset : assets.data){
-        auto id = asset.id;
+    for (auto& asset : assets.data) {
+        auto amount = get_current_asset_value(asset);
 
-        size_t asset_value_id = 0;
-        bool asset_value_found = false;
+        if (amount) {
+            contents.push_back({asset.name,
+                                to_string(amount),
+                                asset.currency});
 
-        for (auto& asset_value : asset_values.data) {
-            if (asset_value.asset_id == id) {
-                if(!asset_value_found){
-                    asset_value_found = true;
-                    asset_value_id    = asset_value.id;
-                } else if(asset_value.set_date >= get_asset_value(asset_value_id).set_date){
-                    asset_value_id    = asset_value.id;
-                }
-            }
-        }
-
-        if(asset_value_found){
-            auto& asset_value = get_asset_value(asset_value_id);
-            auto amount       = asset_value.amount;
-
-            if (amount) {
-                contents.push_back({asset.name,
-                                    to_string(amount),
-                                    asset.currency});
-
-                total += amount * exchange_rate(asset.currency);
-            }
+            total += amount * exchange_rate(asset.currency);
         }
     }
 
@@ -1003,46 +985,27 @@ void budget::show_asset_values(budget::writer& w){
     budget::money total;
 
     for(auto& asset : assets.data){
-        auto id = asset.id;
+        auto amount = get_current_asset_value(asset);
 
-        size_t asset_value_id = 0;
-        bool asset_value_found = false;
+        if (amount) {
+            contents.push_back({asset.name,
+                                to_string(amount * (float(asset.int_stocks) / 100.0)),
+                                to_string(amount * (float(asset.dom_stocks) / 100.0)),
+                                to_string(amount * (float(asset.bonds) / 100.0)),
+                                to_string(amount * (float(asset.cash) / 100.0)),
+                                to_string(amount),
+                                asset.currency});
 
-        for (auto& asset_value : asset_values.data) {
-            if (asset_value.asset_id == id) {
-                if(!asset_value_found){
-                    asset_value_found = true;
-                    asset_value_id    = asset_value.id;
-                } else if(asset_value.set_date >= get_asset_value(asset_value_id).set_date){
-                    asset_value_id    = asset_value.id;
-                }
-            }
-        }
+            auto int_stocks_amount = amount * (float(asset.int_stocks) / 100.0);
+            auto dom_stocks_amount = amount * (float(asset.dom_stocks) / 100.0);
+            auto bonds_amount      = amount * (float(asset.bonds) / 100.0);
+            auto cash_amount       = amount * (float(asset.cash) / 100.0);
 
-        if(asset_value_found){
-            auto& asset_value = get_asset_value(asset_value_id);
-            auto amount       = asset_value.amount;
-
-            if (amount) {
-                contents.push_back({asset.name,
-                                    to_string(amount * (float(asset.int_stocks) / 100.0)),
-                                    to_string(amount * (float(asset.dom_stocks) / 100.0)),
-                                    to_string(amount * (float(asset.bonds) / 100.0)),
-                                    to_string(amount * (float(asset.cash) / 100.0)),
-                                    to_string(amount),
-                                    asset.currency});
-
-                auto int_stocks_amount = amount * (float(asset.int_stocks) / 100.0);
-                auto dom_stocks_amount = amount * (float(asset.dom_stocks) / 100.0);
-                auto bonds_amount      = amount * (float(asset.bonds) / 100.0);
-                auto cash_amount       = amount * (float(asset.cash) / 100.0);
-
-                int_stocks += int_stocks_amount * exchange_rate(asset.currency);
-                dom_stocks += dom_stocks_amount * exchange_rate(asset.currency);
-                bonds += bonds_amount * exchange_rate(asset.currency);
-                cash += cash_amount * exchange_rate(asset.currency);
-                total += amount * exchange_rate(asset.currency);
-            }
+            int_stocks += int_stocks_amount * exchange_rate(asset.currency);
+            dom_stocks += dom_stocks_amount * exchange_rate(asset.currency);
+            bonds += bonds_amount * exchange_rate(asset.currency);
+            cash += cash_amount * exchange_rate(asset.currency);
+            total += amount * exchange_rate(asset.currency);
         }
     }
 
@@ -1300,4 +1263,41 @@ budget::money budget::get_net_worth_cash(){
     }
 
     return total;
+}
+
+budget::money budget::get_current_asset_value(budget::asset & asset) {
+    if (asset.share_based) {
+        size_t shares = 0;
+
+        for (auto& asset_share : asset_shares.data) {
+            if (asset_share.asset_id == asset.id) {
+                shares += asset_share.shares;
+            }
+        }
+
+        if (shares) {
+            return budget::money(shares) * share_price(asset.ticker);
+        }
+    } else {
+        size_t asset_value_id  = 0;
+        bool asset_value_found = false;
+
+        for (auto& asset_value : asset_values.data) {
+            if (asset_value.asset_id == asset.id) {
+                if (!asset_value_found) {
+                    asset_value_id = asset_value.id;
+                } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
+                    asset_value_id = asset_value.id;
+                }
+
+                asset_value_found = true;
+            }
+        }
+
+        if (asset_value_found) {
+            return get_asset_value(asset_value_id).amount;
+        }
+    }
+
+    return {};
 }
