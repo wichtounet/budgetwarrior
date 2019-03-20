@@ -96,7 +96,10 @@ void show_asset_values(budget::writer& w);
 void show_asset_portfolio(budget::writer& w);
 void show_asset_rebalance(budget::writer& w);
 
+void list_asset_shares(budget::writer& w);
+
 bool asset_exists(const std::string& asset);
+bool share_asset_exists(const std::string& asset);
 
 budget::asset& get_asset(size_t id);
 budget::asset& get_asset(std::string name);

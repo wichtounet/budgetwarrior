@@ -312,6 +312,16 @@ struct asset_checker {
     }
 };
 
+struct share_asset_checker {
+    bool operator()(const std::string& value){
+        return share_asset_exists(value);
+    }
+
+    std::string message(){
+        return "The asset does not exist or is not share based";
+    }
+};
+
 template<size_t First, size_t Last>
 struct range_checker {
     bool operator()(const size_t& value){
