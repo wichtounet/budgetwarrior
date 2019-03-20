@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "date.hpp"
+
 namespace httplib {
 struct Server;
 struct Response;
@@ -18,6 +20,7 @@ struct Request;
 
 namespace budget {
 
+struct writer;
 struct html_writer;
 
 void load_pages(httplib::Server& server);
@@ -60,6 +63,9 @@ std::stringstream start_time_chart(budget::html_writer& w, const std::string& ti
 void end_chart(budget::html_writer& w, std::stringstream& ss);
 
 // Pages
+
+// Index pages
+void index_page(const httplib::Request& req, httplib::Response& res);
 
 // Debts Pages
 void list_debts_page(const httplib::Request& req, httplib::Response& res);
