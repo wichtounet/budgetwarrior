@@ -760,14 +760,14 @@ void budget::show_asset_portfolio(budget::writer& w){
 
     for (auto& asset : assets.data) {
         if (asset.portfolio) {
-            auto amount = get_current_asset_value(asset);
+            auto amount = get_asset_value(asset);
             total += amount * exchange_rate(asset.currency);
         }
     }
 
     for(auto& asset : assets.data){
         if (asset.portfolio) {
-            auto amount = get_current_asset_value(asset);
+            auto amount = get_asset_value(asset);
 
             if (amount) {
                 auto conv_amount  = amount * exchange_rate(asset.currency);
@@ -803,7 +803,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     for (auto& asset : assets.data) {
         if (asset.portfolio) {
-            auto amount = get_current_asset_value(asset);
+            auto amount = get_asset_value(asset);
             total += amount * exchange_rate(asset.currency);
         }
     }
@@ -812,7 +812,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     for (auto& asset : assets.data) {
         if (asset.portfolio) {
-            auto amount = get_current_asset_value(asset);
+            auto amount = get_asset_value(asset);
 
             if (amount.zero() && asset.portfolio_alloc.zero()) {
                 continue;
@@ -865,7 +865,7 @@ void budget::small_show_asset_values(budget::writer& w){
     budget::money total;
 
     for (auto& asset : assets.data) {
-        auto amount = get_current_asset_value(asset);
+        auto amount = get_asset_value(asset);
 
         if (amount) {
             contents.push_back({asset.name,
@@ -902,7 +902,7 @@ void budget::show_asset_values(budget::writer& w){
     budget::money total;
 
     for(auto& asset : assets.data){
-        auto amount = get_current_asset_value(asset);
+        auto amount = get_asset_value(asset);
 
         if (amount) {
             contents.push_back({asset.name,
@@ -1111,7 +1111,7 @@ budget::money budget::get_portfolio_value(){
 
     for (auto & asset : assets.data) {
         if (asset.portfolio) {
-            total += get_current_asset_value(asset);
+            total += get_asset_value(asset);
         }
     }
 
@@ -1119,29 +1119,14 @@ budget::money budget::get_portfolio_value(){
 }
 
 budget::money budget::get_net_worth(){
-    budget::money total;
-
-    for (auto & asset : assets.data) {
-        total += get_current_asset_value(asset);
-    }
-
-    return total;
+    return get_net_worth(budget::local_day());
 }
 
 budget::money budget::get_net_worth(budget::date d){
-    std::map<size_t, budget::money> asset_amounts;
-
-    for (auto& asset_value : all_sorted_asset_values()) {
-        if (asset_value.set_date <= d) {
-            auto& asset = get_asset(asset_value.asset_id);
-            asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(asset.currency, d);
-        }
-    }
-
     budget::money total;
 
-    for (auto& asset_amount : asset_amounts) {
-        total += asset_amount.second;
+    for (auto & asset : assets.data) {
+        total += get_asset_value(asset, d);
     }
 
     return total;
@@ -1152,14 +1137,14 @@ budget::money budget::get_net_worth_cash(){
 
     for (auto & asset : assets.data) {
         if (asset.cash == budget::money(100)) {
-            total += get_current_asset_value(asset);
+            total += get_asset_value(asset);
         }
     }
 
     return total;
 }
 
-budget::money budget::get_current_asset_value(budget::asset & asset) {
+budget::money budget::get_asset_value(budget::asset & asset, budget::date d) {
     if (asset.share_based) {
         size_t shares = 0;
 
@@ -1170,7 +1155,7 @@ budget::money budget::get_current_asset_value(budget::asset & asset) {
         }
 
         if (shares) {
-            return budget::money(shares) * share_price(asset.ticker);
+            return budget::money(shares) * share_price(asset.ticker, d);
         }
     } else {
         size_t asset_value_id  = 0;
@@ -1178,13 +1163,15 @@ budget::money budget::get_current_asset_value(budget::asset & asset) {
 
         for (auto& asset_value : asset_values.data) {
             if (asset_value.asset_id == asset.id) {
-                if (!asset_value_found) {
-                    asset_value_id = asset_value.id;
-                } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
-                    asset_value_id = asset_value.id;
-                }
+                if (asset_value.set_date <= d) {
+                    if (!asset_value_found) {
+                        asset_value_id = asset_value.id;
+                    } else if (asset_value.set_date >= get_asset_value(asset_value_id).set_date) {
+                        asset_value_id = asset_value.id;
+                    }
 
-                asset_value_found = true;
+                    asset_value_found = true;
+                }
             }
         }
 
@@ -1194,4 +1181,8 @@ budget::money budget::get_current_asset_value(budget::asset & asset) {
     }
 
     return {};
+}
+
+budget::money budget::get_asset_value(budget::asset & asset) {
+    return get_asset_value(asset, budget::local_day());
 }

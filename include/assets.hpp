@@ -145,7 +145,8 @@ budget::money get_net_worth_cash();
 
 budget::money get_net_worth(budget::date d);
 
-budget::money get_current_asset_value(budget::asset & asset);
+budget::money get_asset_value(budget::asset & asset);
+budget::money get_asset_value(budget::asset & asset, budget::date d);
 
 // Filter functions
 
