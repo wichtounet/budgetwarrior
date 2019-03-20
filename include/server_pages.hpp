@@ -128,4 +128,9 @@ void recurrings_list_page(const httplib::Request& req, httplib::Response& res);
 void add_recurrings_page(const httplib::Request& req, httplib::Response& res);
 void edit_recurrings_page(const httplib::Request& req, httplib::Response& res);
 
+// Retirement pages
+void retirement_status_page(const httplib::Request& req, httplib::Response& res);
+void retirement_configure_page(const httplib::Request& req, httplib::Response& res);
+void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Response& res);
+
 } //end of namespace budget

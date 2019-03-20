@@ -20,7 +20,6 @@
 #include "report.hpp"
 #include "summary.hpp"
 #include "version.hpp"
-#include "retirement.hpp"
 #include "writer.hpp"
 #include "currency.hpp"
 
@@ -376,7 +375,6 @@ void display_message(budget::writer& w, const httplib::Request& req) {
     }
 }
 
-
 void replace_all(std::string& source, const std::string& from, const std::string& to) {
     size_t current_pos = 0;
 
@@ -417,18 +415,6 @@ void add_text_picker(budget::writer& w, const std::string& title, const std::str
 
 void add_currency_picker(budget::writer& w, const std::string& default_value = "") {
     add_text_picker(w, "Currency", "input_currency", default_value);
-}
-
-void add_percent_picker(budget::writer& w, const std::string& title, const std::string& name, double default_value = 0.0) {
-    w << R"=====(<div class="form-group">)=====";
-
-    w << "<label for=\"" << name << "\">" << title << "</label>";
-    w << "<input required type=\"number\" min=\"0\" max=\"100\" step=\"0.01\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
-    w << " value=\"" << default_value << "\" ";
-    w << R"=====(
-            >
-         </div>
-    )=====";
 }
 
 void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool one_line = false, const std::string& currency = "") {
@@ -842,52 +828,6 @@ void report_page(const httplib::Request& req, httplib::Response& res) {
 
     page_end(w, req, res);
 }
-
-void retirement_fi_ratio_over_time(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "FI Ratio over time")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    auto values = all_sorted_asset_values();
-
-    if (!values.empty()){
-
-        auto ss = start_time_chart(w, "FI Ratio over time", "line", "fi_time_graph", "");
-
-        ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-        ss << R"=====(yAxis: { min: 0, title: { text: 'FI Ratio' }},)=====";
-        ss << R"=====(legend: { enabled: false },)=====";
-
-        ss << "series: [";
-
-        ss << "{ name: 'FI Ratio %',";
-        ss << "data: [";
-
-        std::vector<budget::money> serie;
-        std::vector<std::string> dates;
-
-        for (size_t i = 0; i < values.size(); ++i) {
-            auto& asset_value = values[i];
-            auto current = asset_value.set_date;
-
-            auto ratio = budget::fi_ratio(current);
-
-            std::string date = "Date.UTC(" + std::to_string(current.year()) + "," + std::to_string(current.month().value - 1) + ", 1)";
-            ss << "[" << date << "," << budget::to_string(100 * ratio) << "],";
-        }
-
-        ss << "]},";
-        ss << "]";
-
-        end_chart(w, ss);
-    }
-
-    page_end(w, req, res);
-}
-
 
 void portfolio_status_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
@@ -1865,62 +1805,6 @@ void current_batch_asset_values_page(const httplib::Request& req, httplib::Respo
         if (amount) {
             add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
         }
-    }
-
-    form_end(w);
-
-    page_end(w, req, res);
-}
-
-void retirement_status_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Retirement status")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "Retirement status" << title_end;
-
-    if(!internal_config_contains("withdrawal_rate")){
-        display_error_message(w, "Not enough information, please configure Retirement Options first");
-        page_end(w, req, res);
-        return;
-    }
-
-    if(!internal_config_contains("expected_roi")){
-        display_error_message(w, "Not enough information, please configure Retirement Options first");
-        page_end(w, req, res);
-        return;
-    }
-
-    budget::retirement_status(w);
-
-    page_end(w, req, res);
-}
-
-void retirement_configure_page(const httplib::Request& req, httplib::Response& res) {
-    std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Retirement configure")) {
-        return;
-    }
-
-    budget::html_writer w(content_stream);
-
-    w << title_begin << "Retirement Options" << title_end;
-
-    form_begin(w, "/api/retirement/configure/", "/retirement/status/");
-
-    if (!internal_config_contains("withdrawal_rate")) {
-        add_percent_picker(w, "Withdrawal Rate [%]", "input_wrate", 4.0);
-    } else {
-        add_percent_picker(w, "Withdrawal Rate [%]", "input_wrate", to_number<double>(internal_config_value("withdrawal_rate")));
-    }
-
-    if (!internal_config_contains("expected_roi")) {
-        add_percent_picker(w, "Annual Return [%]", "input_roi", 5.0);
-    } else {
-        add_percent_picker(w, "Annual Return [%]", "input_roi", to_number<double>(internal_config_value("expected_roi")));
     }
 
     form_end(w);
