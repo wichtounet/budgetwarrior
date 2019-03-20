@@ -129,6 +129,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             asset.cash            = 0;
             asset.portfolio       = false;
             asset.portfolio_alloc = 0;
+            asset.share_based     = false;
+            asset.ticker          = "";
 
             do {
                 edit_money(asset.int_stocks, "Int. Stocks");
@@ -147,14 +149,21 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             std::cout << "Is this part of your portfolio ? [yes/no] ? ";
 
             std::string answer;
-            std::getline(std::cin, answer);
 
-            if (answer == "yes" || answer == "y") {
-                asset.portfolio = true;
-            }
+            std::getline(std::cin, answer);
+            asset.portfolio = answer == "yes" || answer == "y";
 
             if (asset.portfolio) {
                 edit_money(asset.portfolio_alloc, "Portfolio Allocation");
+            }
+
+            std::cout << "Is this asset managed with shares ? [yes/no] ? ";
+
+            std::getline(std::cin, answer);
+            asset.share_based = answer == "yes" || answer == "y";
+
+            if (asset.share_based) {
+                edit_string(asset.ticker, "Ticker", not_empty_checker());
             }
 
             auto id = assets.add(std::move(asset));
@@ -183,9 +192,15 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("Cannot delete special asset " + args[2]);
             }
 
-            for(auto& value : asset_values.data){
-                if(value.asset_id == id){
+            for (auto& value : asset_values.data) {
+                if (value.asset_id == id) {
                     throw budget_exception("There are still asset values linked to asset " + args[2]);
+                }
+            }
+
+            for (auto& share : asset_shares.data) {
+                if (share.asset_id == id) {
+                    throw budget_exception("There are still asset shares linked to asset " + args[2]);
                 }
             }
 
@@ -217,9 +232,9 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             //Verify that there are no OTHER asset with this name
             //in the current set of assets (taking archiving into asset)
 
-            for(auto& other_asset : all_user_assets()){
-                if(other_asset.id != id){
-                    if(other_asset.name == asset.name){
+            for (auto& other_asset : all_user_assets()) {
+                if (other_asset.id != id) {
+                    if (other_asset.name == asset.name) {
                         throw budget_exception("There is already an asset with the name " + asset.name);
                     }
                 }
@@ -241,16 +256,23 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             std::cout << "Is this part of your portfolio ? [yes/no] ? ";
 
             std::string answer;
-            std::getline(std::cin, answer);
 
-            if (answer == "yes" || answer == "y") {
-                asset.portfolio = true;
-            } else {
-                asset.portfolio = false;
-            }
+            std::getline(std::cin, answer);
+            asset.portfolio = answer == "yes" || answer == "y";
 
             if (asset.portfolio) {
                 edit_money(asset.portfolio_alloc, "Portfolio Allocation");
+            } else {
+                asset.portfolio_alloc = 0;
+            }
+
+            std::cout << "Is this asset managed with shares ? [yes/no] ? ";
+
+            std::getline(std::cin, answer);
+            asset.share_based = answer == "yes" || answer == "y";
+
+            if (asset.share_based) {
+                edit_string(asset.ticker, "Ticker");
             } else {
                 asset.portfolio_alloc = 0;
             }
@@ -376,20 +398,22 @@ budget::asset& budget::get_asset(std::string name){
 }
 
 budget::asset& budget::get_desired_allocation(){
-    for(auto& asset : assets.data){
-        if(asset.name == "DESIRED" && asset.currency == "DESIRED"){
+    for (auto& asset : assets.data) {
+        if (asset.name == "DESIRED" && asset.currency == "DESIRED") {
             return asset;
         }
     }
 
     asset asset;
-    asset.guid       = generate_guid();
-    asset.name       = "DESIRED";
-    asset.currency   = "DESIRED";
-    asset.int_stocks = 0;
-    asset.dom_stocks = 0;
-    asset.bonds      = 0;
-    asset.cash       = 0;
+    asset.guid        = generate_guid();
+    asset.name        = "DESIRED";
+    asset.currency    = "DESIRED";
+    asset.int_stocks  = 0;
+    asset.dom_stocks  = 0;
+    asset.bonds       = 0;
+    asset.cash        = 0;
+    asset.share_based = false;
+    asset.portfolio   = false;
 
     auto id = assets.add(std::move(asset));
     return get_asset(id);
@@ -422,7 +446,6 @@ void budget::migrate_assets_4_to_5(){
 
         // Version 5 added support for shares
         asset.share_based = false;
-        asset.ticker      = "EMPTY";
     });
 
     set_assets_changed();
@@ -434,7 +457,7 @@ std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
     return stream << asset.id << ':' << asset.guid << ':' << asset.name << ':'
                   << asset.int_stocks << ':' << asset.dom_stocks << ":" << asset.bonds << ":" << asset.cash << ":"
                   << asset.currency << ":" << asset.portfolio << ":" << asset.portfolio_alloc << ":"
-                  << asset.share_based << ":" << asset.ticker;
+                  << asset.share_based << ":" << (asset.ticker.empty() ? "EMPTY" : asset.ticker);
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
@@ -450,7 +473,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
     asset.portfolio       = to_number<size_t>(parts[8]);
     asset.portfolio_alloc = parse_money(parts[9]);
     asset.share_based     = to_number<size_t>(parts[10]);
-    asset.ticker          = parts[11];
+    asset.ticker          = parts[11] == "EMPTY" ? "" : parts[11];
 
     if(asset.guid == "XXXXX"){
         asset.guid = generate_guid();
@@ -608,7 +631,7 @@ void budget::show_assets(budget::writer& w){
 
     w << title_begin << "Assets " << add_button("assets") << title_end;
 
-    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency", "Portfolio", "Alloc", "Edit"};
+    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency", "Portfolio", "Alloc", "Share", "Ticker", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     // Display the assets
@@ -618,9 +641,12 @@ void budget::show_assets(budget::writer& w){
             continue;
         }
 
-        contents.push_back({to_string(asset.id), asset.name, to_string(asset.int_stocks),
-            to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash),
-            to_string(asset.currency), asset.portfolio ? "Yes" : "No", asset.portfolio ? to_string(asset.portfolio_alloc) : "", "::edit::assets::" + budget::to_string(asset.id)});
+        contents.push_back({to_string(asset.id), asset.name,
+                            to_string(asset.int_stocks), to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash),
+                            to_string(asset.currency),
+                            asset.portfolio ? "Yes" : "No", asset.portfolio ? to_string(asset.portfolio_alloc) : "",
+                            asset.share_based ? "Yes" : "No", asset.share_based ? asset.ticker : "",
+                            "::edit::assets::" + budget::to_string(asset.id)});
     }
 
     w.display_table(columns, contents);
@@ -628,8 +654,8 @@ void budget::show_assets(budget::writer& w){
 
 
 void budget::show_asset_portfolio(budget::writer& w){
-    if (!asset_values.data.size()) {
-        w << "No asset values" << end_of_line;
+    if (!asset_values.data.size() && !asset_shares.data.size()) {
+        w << "No asset values nor shares" << end_of_line;
         return;
     }
 
@@ -712,7 +738,7 @@ void budget::show_asset_portfolio(budget::writer& w){
 }
 
 void budget::show_asset_rebalance(budget::writer& w){
-    if (!asset_values.data.size()) {
+    if (!asset_values.data.size() && !asset_shares.data.size()) {
         w << "No asset values" << end_of_line;
         return;
     }
@@ -813,7 +839,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 }
 
 void budget::small_show_asset_values(budget::writer& w){
-    if (!asset_values.data.size()) {
+    if (!asset_values.data.size() && !asset_shares.data.size()) {
         w << "No asset values" << end_of_line;
         return;
     }
@@ -869,7 +895,7 @@ void budget::small_show_asset_values(budget::writer& w){
 }
 
 void budget::show_asset_values(budget::writer& w){
-    if (!asset_values.data.size()) {
+    if (!asset_values.data.size() && !asset_shares.data.size()) {
         w << "No asset values" << end_of_line;
         return;
     }
