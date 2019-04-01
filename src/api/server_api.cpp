@@ -10,6 +10,7 @@
 #include "api/server_api.hpp"
 #include "api/earnings_api.hpp"
 #include "api/expenses_api.hpp"
+#include "api/accounts_api.hpp"
 
 #include "accounts.hpp"
 #include "assets.hpp"
@@ -29,7 +30,6 @@
 using namespace budget;
 
 namespace {
-
 
 void server_up_api(const httplib::Request& req, httplib::Response& res) {
     if (!api_start(req, res)) {
@@ -64,111 +64,6 @@ void server_version_support_api(const httplib::Request& req, httplib::Response& 
     } else {
         api_success_content(req, res, "no");
     }
-}
-
-void add_accounts_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    if (!parameters_present(req, {"input_name", "input_amount"})) {
-        api_error(req, res, "Invalid parameters");
-        return;
-    }
-
-    account account;
-    account.guid   = budget::generate_guid();
-    account.name   = req.get_param_value("input_name");
-    account.amount = budget::parse_money(req.get_param_value("input_amount"));
-    account.since  = find_new_since();
-    account.until  = budget::date(2099, 12, 31);
-
-    add_account(std::move(account));
-
-    api_success(req, res, "Account " + to_string(account.id) + " has been created", to_string(account.id));
-}
-
-void edit_accounts_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    if (!parameters_present(req, {"input_id", "input_name", "input_amount"})) {
-        api_error(req, res, "Invalid parameters");
-        return;
-    }
-
-    auto id = req.get_param_value("input_id");
-
-    if (!budget::account_exists(budget::to_number<size_t>(id))) {
-        api_error(req, res, "account " + id + " does not exist");
-        return;
-    }
-
-    account& account = account_get(budget::to_number<size_t>(id));
-    account.name     = req.get_param_value("input_name");
-    account.amount   = budget::parse_money(req.get_param_value("input_amount"));
-
-    set_accounts_changed();
-
-    api_success(req, res, "Account " + to_string(account.id) + " has been modified");
-}
-
-void delete_accounts_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    if (!parameters_present(req, {"input_id"})) {
-        api_error(req, res, "Invalid parameters");
-        return;
-    }
-
-    auto id = req.get_param_value("input_id");
-
-    if (!budget::account_exists(budget::to_number<size_t>(id))) {
-        api_error(req, res, "The account " + id + " does not exit");
-        return;
-    }
-
-    budget::account_delete(budget::to_number<size_t>(id));
-
-    api_success(req, res, "Account " + id + " has been deleted");
-}
-
-void list_accounts_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    std::stringstream ss;
-
-    for (auto& account : all_accounts()) {
-        ss << account;
-        ss << std::endl;
-    }
-
-    api_success_content(req, res, ss.str());
-}
-
-void archive_accounts_month_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    budget::archive_accounts_impl(true);
-
-    api_success(req, res, "Accounts have been migrated from the beginning of the month");
-}
-
-void archive_accounts_year_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    budget::archive_accounts_impl(false);
-
-    api_success(req, res, "Accounts have been migrated from the beginning of the year");
 }
 
 void retirement_configure_api(const httplib::Request& req, httplib::Response& res) {
