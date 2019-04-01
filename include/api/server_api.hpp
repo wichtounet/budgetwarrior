@@ -7,12 +7,26 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace httplib {
 struct Server;
+struct Request;
+struct Response;
 };
 
 namespace budget {
 
+// For the server
 void load_api(httplib::Server& server);
+
+// For the API pages
+bool api_start(const httplib::Request& req, httplib::Response& res);
+void api_error(const httplib::Request& req, httplib::Response& res, const std::string& message);
+void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message);
+void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message, const std::string& content);
+void api_success_content(const httplib::Request& req, httplib::Response& res, const std::string& content);
+bool parameters_present(const httplib::Request& req, std::vector<const char*> parameters);
 
 } //end of namespace budget

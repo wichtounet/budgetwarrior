@@ -8,6 +8,7 @@
 #include <set>
 
 #include "api/server_api.hpp"
+#include "api/earnings_api.hpp"
 
 #include "accounts.hpp"
 #include "assets.hpp"
@@ -28,95 +29,6 @@ using namespace budget;
 
 namespace {
 
-bool api_start(const httplib::Request& req, httplib::Response& res) {
-    if (is_secure()) {
-        if (req.has_header("Authorization")) {
-            auto authorization = req.get_header_value("Authorization");
-
-            if (authorization.substr(0, 6) != "Basic ") {
-                res.status = 401;
-                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-                return false;
-            }
-
-            auto sub_authorization = authorization.substr(6, authorization.size());
-            auto decoded           = base64_decode(sub_authorization);
-
-            if (decoded.find(':') == std::string::npos) {
-                res.status = 401;
-                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-                return false;
-            }
-
-            auto username = decoded.substr(0, decoded.find(':'));
-            auto password = decoded.substr(decoded.find(':') + 1, decoded.size());
-
-            if (username != get_web_user()) {
-                res.status = 401;
-                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-                return false;
-            }
-
-            if (password != get_web_password()) {
-                res.status = 401;
-                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-                return false;
-            }
-        } else {
-            res.status = 401;
-            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
-
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message) {
-    if (req.has_param("server")) {
-        auto url = req.get_param_value("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
-        res.set_redirect(url.c_str());
-    } else {
-        res.set_content("Success: " + message, "text/plain");
-    }
-}
-
-void api_success(const httplib::Request& req, httplib::Response& res, const std::string& message, const std::string& content) {
-    if (req.has_param("server")) {
-        auto url = req.get_param_value("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
-        res.set_redirect(url.c_str());
-    } else {
-        res.set_content(content, "text/plain");
-    }
-}
-
-void api_success_content(const httplib::Request& /*req*/, httplib::Response& res, const std::string& content) {
-    res.set_content(content, "text/plain");
-}
-
-void api_error(const httplib::Request& req, httplib::Response& res, const std::string& message) {
-    if (req.has_param("server")) {
-        auto url = req.get_param_value("back_page") + "?error=true&message=" + httplib::detail::encode_url(message);
-        res.set_redirect(url.c_str());
-    } else {
-        res.set_content("Error: " + message, "text/plain");
-    }
-}
-
-bool parameters_present(const httplib::Request& req, std::vector<const char*> parameters) {
-    for (auto& param : parameters) {
-        if (!req.has_param(param)) {
-            return false;
-        }
-    }
-
-    return true;
-}
 
 void server_up_api(const httplib::Request& req, httplib::Response& res) {
     if (!api_start(req, res)) {
@@ -339,93 +251,6 @@ void list_expenses_api(const httplib::Request& req, httplib::Response& res) {
 
     for (auto& expense : all_expenses()) {
         ss << expense;
-        ss << std::endl;
-    }
-
-    api_success_content(req, res, ss.str());
-}
-
-void add_earnings_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    if (!parameters_present(req, {"input_name", "input_date", "input_amount", "input_account"})) {
-        api_error(req, res, "Invalid parameters");
-        return;
-    }
-
-    earning earning;
-    earning.guid    = budget::generate_guid();
-    earning.date    = budget::from_string(req.get_param_value("input_date"));
-    earning.account = budget::to_number<size_t>(req.get_param_value("input_account"));
-    earning.name    = req.get_param_value("input_name");
-    earning.amount  = budget::parse_money(req.get_param_value("input_amount"));
-
-    add_earning(std::move(earning));
-
-    api_success(req, res, "Earning " + to_string(earning.id) + " has been created", to_string(earning.id));
-}
-
-void edit_earnings_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    if (!parameters_present(req, {"input_id", "input_name", "input_date", "input_amount", "input_account"})) {
-        api_error(req, res, "Invalid parameters");
-        return;
-    }
-
-    auto id = req.get_param_value("input_id");
-
-    if (!budget::earning_exists(budget::to_number<size_t>(id))) {
-        api_error(req, res, "Earning " + id + " does not exist");
-        return;
-    }
-
-    earning& earning = earning_get(budget::to_number<size_t>(id));
-    earning.date     = budget::from_string(req.get_param_value("input_date"));
-    earning.account  = budget::to_number<size_t>(req.get_param_value("input_account"));
-    earning.name     = req.get_param_value("input_name");
-    earning.amount   = budget::parse_money(req.get_param_value("input_amount"));
-
-    set_earnings_changed();
-
-    api_success(req, res, "Earning " + to_string(earning.id) + " has been modified");
-}
-
-void delete_earnings_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    if (!parameters_present(req, {"input_id"})) {
-        api_error(req, res, "Invalid parameters");
-        return;
-    }
-
-    auto id = req.get_param_value("input_id");
-
-    if (!budget::earning_exists(budget::to_number<size_t>(id))) {
-        api_error(req, res, "The earning " + id + " does not exit");
-        return;
-    }
-
-    budget::earning_delete(budget::to_number<size_t>(id));
-
-    api_success(req, res, "Earning " + id + " has been deleted");
-}
-
-void list_earnings_api(const httplib::Request& req, httplib::Response& res) {
-    if (!api_start(req, res)) {
-        return;
-    }
-
-    std::stringstream ss;
-
-    for (auto& earning : all_earnings()) {
-        ss << earning;
         ss << std::endl;
     }
 
@@ -1185,4 +1010,94 @@ void budget::load_api(httplib::Server& server) {
     server.post("/api/objectives/edit/", &edit_objectives_api);
     server.post("/api/objectives/delete/", &delete_objectives_api);
     server.get("/api/objectives/list/", &list_objectives_api);
+}
+
+bool budget::api_start(const httplib::Request& req, httplib::Response& res) {
+    if (is_secure()) {
+        if (req.has_header("Authorization")) {
+            auto authorization = req.get_header_value("Authorization");
+
+            if (authorization.substr(0, 6) != "Basic ") {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+
+            auto sub_authorization = authorization.substr(6, authorization.size());
+            auto decoded           = base64_decode(sub_authorization);
+
+            if (decoded.find(':') == std::string::npos) {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+
+            auto username = decoded.substr(0, decoded.find(':'));
+            auto password = decoded.substr(decoded.find(':') + 1, decoded.size());
+
+            if (username != get_web_user()) {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+
+            if (password != get_web_password()) {
+                res.status = 401;
+                res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+                return false;
+            }
+        } else {
+            res.status = 401;
+            res.set_header("WWW-Authenticate", "Basic realm=\"budgetwarrior\"");
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void budget::api_error(const httplib::Request& req, httplib::Response& res, const std::string& message) {
+    if (req.has_param("server")) {
+        auto url = req.get_param_value("back_page") + "?error=true&message=" + httplib::detail::encode_url(message);
+        res.set_redirect(url.c_str());
+    } else {
+        res.set_content("Error: " + message, "text/plain");
+    }
+}
+
+void budget::api_success(const httplib::Request& req, httplib::Response& res, const std::string& message) {
+    if (req.has_param("server")) {
+        auto url = req.get_param_value("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
+        res.set_redirect(url.c_str());
+    } else {
+        res.set_content("Success: " + message, "text/plain");
+    }
+}
+
+void budget::api_success(const httplib::Request& req, httplib::Response& res, const std::string& message, const std::string& content) {
+    if (req.has_param("server")) {
+        auto url = req.get_param_value("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
+        res.set_redirect(url.c_str());
+    } else {
+        res.set_content(content, "text/plain");
+    }
+}
+
+void budget::api_success_content(const httplib::Request& /*req*/, httplib::Response& res, const std::string& content) {
+    res.set_content(content, "text/plain");
+}
+
+bool budget::parameters_present(const httplib::Request& req, std::vector<const char*> parameters) {
+    for (auto& param : parameters) {
+        if (!req.has_param(param)) {
+            return false;
+        }
+    }
+
+    return true;
 }
