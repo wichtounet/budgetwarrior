@@ -150,8 +150,9 @@ struct date {
 
         // Thanks to leap years, this has to be complicated!
 
-        auto y = _year - (_month < 3);
-        return 1 + ((y + y / 4 - y / 100 + y / 400 + t[_month - 1] + _day) % 7);
+        date_type y = _year - (_month < 3);
+        date_type dow = (y + y / 4 - y / 100 + y / 400 + t[_month - 1] + _day) % 7;
+        return dow ? dow : 7;
     }
 
     static date_type days_month(date_type year, date_type month){
