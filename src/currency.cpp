@@ -14,10 +14,27 @@
 #include "assets.hpp" // For get_default_currency
 #include "http.hpp"
 #include "date.hpp"
+#include "config.hpp"
 
 namespace {
 
-std::map<std::tuple<std::string, std::string, std::string>, double> exchanges;
+struct currency_cache_key {
+    std::string date;
+    std::string from;
+    std::string to;
+
+    currency_cache_key(std::string date, std::string from, std::string to) : date(date), from(from), to(to) {}
+
+    friend bool operator<(const currency_cache_key & lhs, const currency_cache_key & rhs){
+        return std::tie(lhs.date, lhs.from, lhs.to) < std::tie(rhs.date, rhs.from, rhs.to);
+    }
+
+    friend bool operator==(const currency_cache_key & lhs, const currency_cache_key & rhs){
+        return std::tie(lhs.date, lhs.from, lhs.to) == std::tie(rhs.date, rhs.from, rhs.to);
+    }
+};
+
+std::map<currency_cache_key, double> exchanges;
 
 // V1 is using free.currencyconverterapi.com
 double get_rate_v1(const std::string& from, const std::string& to){
@@ -93,20 +110,15 @@ void budget::refresh_currency_cache(){
     // Refresh the rates for each value
     for (auto& pair : exchanges) {
         auto& key = pair.first;
-        auto date = std::get<0>(key);
-        auto from = std::get<1>(key);
-        auto to   = std::get<2>(key);
 
-        exchanges[key] = get_rate_v2(from, to, date);
+        exchanges[key] = get_rate_v2(key.from, key.to, key.date);
     }
 
     // Prefetch the current exchange rates
     for (auto & pair : exchanges) {
         auto& key = pair.first;
-        auto from = std::get<1>(key);
-        auto to   = std::get<2>(key);
 
-        exchange_rate(from, to);
+        exchange_rate(key.from, key.to);
     }
 
     std::cout << "INFO: Currency Cache has been refreshed" << std::endl;
@@ -130,8 +142,8 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
         return 1.0;
     } else {
         auto date_str    = budget::date_to_string(d);
-        auto key         = std::make_tuple(date_str, from, to);
-        auto reverse_key = std::make_tuple(date_str, to, from);
+        currency_cache_key key(date_str, from, to);
+        currency_cache_key reverse_key(date_str, to, from);
 
         if (!exchanges.count(key)) {
             auto rate = get_rate_v2(from, to, date_str);
