@@ -145,6 +145,15 @@ struct date {
         return _day;
     }
 
+    date_type day_of_the_week() const {
+        static constexpr const date_type t[12] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+
+        // Thanks to leap years, this has to be complicated!
+
+        auto y = _year - (_month < 3);
+        return 1 + ((y + y / 4 - y / 100 + y / 400 + t[_month - 1] + _day) % 7);
+    }
+
     static date_type days_month(date_type year, date_type month){
         static constexpr const date_type month_days[12] = {31,0,31,30,31,30,31,31,30,31,30,31};
 
