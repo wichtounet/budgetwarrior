@@ -17,7 +17,22 @@
 
 namespace {
 
-std::map<std::tuple<std::string, std::string>, double> share_prices;
+struct share_price_cache_key {
+    std::string date;
+    std::string ticker;
+
+    share_price_cache_key(std::string date, std::string ticker) : date(date), ticker(ticker) {}
+
+    friend bool operator<(const share_price_cache_key & lhs, const share_price_cache_key & rhs){
+        return std::tie(lhs.date, lhs.ticker) < std::tie(rhs.date, rhs.ticker);
+    }
+
+    friend bool operator==(const share_price_cache_key & lhs, const share_price_cache_key & rhs){
+        return std::tie(lhs.date, lhs.ticker) == std::tie(rhs.date, rhs.ticker);
+    }
+};
+
+std::map<share_price_cache_key, double> share_prices;
 
 // V1 is using cloud.iexapis.com
 double get_share_price_v1(const std::string& quote, const std::string& date) {
@@ -99,41 +114,40 @@ budget::date get_valid_date(budget::date d){
 void budget::refresh_share_price_cache(){
     // Refresh the prices for each value
     for (auto& pair : share_prices) {
-        auto& key  = pair.first;
-        auto date  = std::get<0>(key);
-        auto quote = std::get<1>(key);
+        auto& key = pair.first;
 
-        share_prices[key] = get_share_price_v1(quote, date);
+        share_prices[key] = get_share_price_v1(key.ticker, key.date);
     }
 
     // Prefetch the current prices
     for (auto & pair : share_prices) {
-        auto& key  = pair.first;
-        auto quote = std::get<1>(key);
+        auto& key = pair.first;
 
-        share_price(quote);
+        share_price(key.ticker);
     }
 
-    std::cout << "INFO: Share Price Cache has been refreshed" << std::endl;
-    std::cout << "INFO: Share Price Cache has " << share_prices.size() << " entries " << std::endl;
+    if (budget::is_server_running()) {
+        std::cout << "INFO: Share Price Cache has been refreshed" << std::endl;
+        std::cout << "INFO: Share Price Cache has " << share_prices.size() << " entries " << std::endl;
+    }
 }
 
-double budget::share_price(const std::string& quote){
-    return share_price(quote, budget::local_day());
+double budget::share_price(const std::string& ticker){
+    return share_price(ticker, budget::local_day());
 }
 
-double budget::share_price(const std::string& quote, budget::date d){
+double budget::share_price(const std::string& ticker, budget::date d){
     auto date = get_valid_date(d);
 
     auto date_str = budget::date_to_string(date);
-    auto key      = std::make_tuple(date_str, quote);
+    share_price_cache_key key(date_str, ticker);
 
     if (!share_prices.count(key)) {
-        auto price = get_share_price_v1(quote, date_str);
+        auto price = get_share_price_v1(ticker, date_str);
 
         if (budget::is_server_running()) {
             std::cout << "INFO: Share: Price (" << date_str << ")"
-                      << " quote " << quote << " = " << price << std::endl;
+                      << " ticker " << ticker << " = " << price << std::endl;
         }
 
         share_prices[key] = price;
