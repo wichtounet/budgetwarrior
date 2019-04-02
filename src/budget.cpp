@@ -16,6 +16,7 @@
 #include "budget_exception.hpp"
 #include "api.hpp"
 #include "currency.hpp"
+#include "share.hpp"
 
 //The different modules
 #include "debts.hpp"
@@ -254,6 +255,7 @@ int main(int argc, const char* argv[]) {
 
     // Restore the caches
     load_currency_cache();
+    load_share_price_cache();
 
     //Collect all aliases
     aliases_collector collector;
@@ -342,6 +344,7 @@ int main(int argc, const char* argv[]) {
 
     // Save the caches
     save_currency_cache();
+    save_share_price_cache();
 
     save_config();
 

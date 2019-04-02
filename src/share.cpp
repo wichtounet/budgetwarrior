@@ -111,6 +111,56 @@ budget::date get_valid_date(budget::date d){
 
 } // end of anonymous namespace
 
+void budget::load_share_price_cache(){
+    std::string file_path = budget::path_to_budget_file("share_price.cache");
+    std::ifstream file(file_path);
+
+    if (!file.is_open() || !file.good()){
+        std::cout << "INFO: Impossible to load Share Price Cache" << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (file.good() && getline(file, line)) {
+        if (line.empty()) {
+            continue;
+        }
+
+        auto parts = split(line, ':');
+
+        share_price_cache_key key(parts[0], parts[1]);
+        share_prices[key] = budget::to_number<double>(parts[2]);
+    }
+
+    if (budget::is_server_running()) {
+        std::cout << "INFO: Share Price Cache has been loaded from " << file_path << std::endl;
+        std::cout << "INFO: Share Price Cache has " << share_prices.size() << " entries " << std::endl;
+    }
+}
+
+void budget::save_share_price_cache() {
+    std::string file_path = budget::path_to_budget_file("share_price.cache");
+    std::ofstream file(file_path);
+
+    if (!file.is_open() || !file.good()){
+        std::cout << "INFO: Impossible to save Share Price Cache" << std::endl;
+        return;
+    }
+
+    for (auto & pair : share_prices) {
+        if (pair.second != 1.0) {
+            auto& key = pair.first;
+
+            file << key.date << ':' << key.ticker << ':' << pair.second << std::endl;
+        }
+    }
+
+    if (budget::is_server_running()) {
+        std::cout << "INFO: Share Price Cache has been saved to " << file_path << std::endl;
+        std::cout << "INFO: Share Price Cache has " << share_prices.size() << " entries " << std::endl;
+    }
+}
+
 void budget::refresh_share_price_cache(){
     // Refresh the prices for each value
     for (auto& pair : share_prices) {
