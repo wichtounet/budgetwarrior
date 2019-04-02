@@ -18,6 +18,8 @@ double exchange_rate(const std::string& from, budget::date d);
 double exchange_rate(const std::string& from, const std::string& to);
 double exchange_rate(const std::string& from, const std::string& to, budget::date d);
 
+void load_currency_cache();
+void save_currency_cache();
 void refresh_currency_cache();
 
 } //end of namespace budget

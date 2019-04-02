@@ -106,6 +106,56 @@ double get_rate_v2(const std::string& from, const std::string& to, const std::st
 
 } // end of anonymous namespace
 
+void budget::load_currency_cache(){
+    std::string file_path = budget::path_to_budget_file("currency.cache");
+    std::ifstream file(file_path);
+
+    if (!file.is_open() || !file.good()){
+        std::cout << "INFO: Impossible to load Currency Cache" << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (file.good() && getline(file, line)) {
+        if (line.empty()) {
+            continue;
+        }
+
+        auto parts = split(line, ':');
+
+        currency_cache_key key(parts[0], parts[1], parts[2]);
+        exchanges[key] = budget::to_number<double>(parts[3]);
+    }
+
+    if (budget::is_server_running()) {
+        std::cout << "INFO: Currency Cache has been loaded from " << file_path << std::endl;
+        std::cout << "INFO: Currency Cache has " << exchanges.size() << " entries " << std::endl;
+    }
+}
+
+void budget::save_currency_cache() {
+    std::string file_path = budget::path_to_budget_file("currency.cache");
+    std::ofstream file(file_path);
+
+    if (!file.is_open() || !file.good()){
+        std::cout << "INFO: Impossible to save Currency Cache" << std::endl;
+        return;
+    }
+
+    for (auto & pair : exchanges) {
+        if (pair.second != 1.0) {
+            auto& key = pair.first;
+
+            file << key.date << ':' << key.from << ':' << key.to << ':' << pair.second << std::endl;
+        }
+    }
+
+    if (budget::is_server_running()) {
+        std::cout << "INFO: Currency Cache has been saved to " << file_path << std::endl;
+        std::cout << "INFO: Currency Cache has " << exchanges.size() << " entries " << std::endl;
+    }
+}
+
 void budget::refresh_currency_cache(){
     // Refresh the rates for each value
     for (auto& pair : exchanges) {
@@ -121,8 +171,10 @@ void budget::refresh_currency_cache(){
         exchange_rate(key.from, key.to);
     }
 
-    std::cout << "INFO: Currency Cache has been refreshed" << std::endl;
-    std::cout << "INFO: Currency Cache has " << exchanges.size() << " entries " << std::endl;
+    if (budget::is_server_running()) {
+        std::cout << "INFO: Currency Cache has been refreshed" << std::endl;
+        std::cout << "INFO: Currency Cache has " << exchanges.size() << " entries " << std::endl;
+    }
 }
 
 double budget::exchange_rate(const std::string& from){

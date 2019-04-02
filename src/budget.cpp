@@ -15,6 +15,7 @@
 #include "args.hpp"
 #include "budget_exception.hpp"
 #include "api.hpp"
+#include "currency.hpp"
 
 //The different modules
 #include "debts.hpp"
@@ -251,6 +252,9 @@ int main(int argc, const char* argv[]) {
         std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
     }
 
+    // Restore the caches
+    load_currency_cache();
+
     //Collect all aliases
     aliases_collector collector;
     cpp::for_each_tuple_t<modules_tuple>(collector);
@@ -335,6 +339,9 @@ int main(int argc, const char* argv[]) {
 
         code = 2;
     }
+
+    // Save the caches
+    save_currency_cache();
 
     save_config();
 
