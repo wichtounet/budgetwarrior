@@ -18,18 +18,8 @@
 #include "api/fortunes_api.hpp"
 #include "api/assets_api.hpp"
 
-#include "accounts.hpp"
-#include "assets.hpp"
 #include "config.hpp"
-#include "debts.hpp"
-#include "expenses.hpp"
-#include "fortune.hpp"
-#include "guid.hpp"
-#include "objectives.hpp"
-#include "recurring.hpp"
-#include "summary.hpp"
 #include "version.hpp"
-#include "wishes.hpp"
 #include "writer.hpp"
 #include "http.hpp"
 
