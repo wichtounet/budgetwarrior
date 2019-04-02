@@ -68,6 +68,32 @@ double get_share_price_v1(const std::string& quote, const std::string& date) {
     }
 }
 
+budget::date get_valid_date(budget::date d){
+    // We cannot get closing price in the future, so we use the day before date
+    if (d >= budget::local_day()) {
+        auto now = std::chrono::system_clock::now();
+        auto tt  = std::chrono::system_clock::to_time_t(now);
+        auto tm  = *std::localtime(&tt);
+
+        // We make sure that we are on a new U.S: day
+        // TODO This should be done by getting the current time in the U.S.
+        if (tm.tm_hour > 15) {
+            return get_valid_date(budget::local_day() - budget::days(1));
+        } else {
+            return get_valid_date(budget::local_day() - budget::days(2));
+        }
+    }
+
+    auto dow = d.day_of_the_week();
+
+    if (dow == 6 || dow == 7){
+        return get_valid_date(d - budget::days(dow - 5));
+    }
+
+    // TODO Ideally we want to handle holidays
+    return d;
+}
+
 } // end of anonymous namespace
 
 void budget::refresh_share_price_cache(){
@@ -97,13 +123,10 @@ double budget::share_price(const std::string& quote){
 }
 
 double budget::share_price(const std::string& quote, budget::date d){
-    auto date_str = budget::date_to_string(d);
-    auto key      = std::make_tuple(date_str, quote);
+    auto date = get_valid_date(d);
 
-    // We cannot get closing price in the future, so we use the day before date
-    if (d >= budget::local_day()) {
-        return share_price(quote, d - budget::days(1));
-    }
+    auto date_str = budget::date_to_string(date);
+    auto key      = std::make_tuple(date_str, quote);
 
     if (!share_prices.count(key)) {
         auto price = get_share_price_v1(quote, date_str);
