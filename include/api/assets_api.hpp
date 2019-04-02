@@ -24,6 +24,11 @@ void edit_asset_values_api(const httplib::Request& req, httplib::Response& res);
 void delete_asset_values_api(const httplib::Request& req, httplib::Response& res);
 void list_asset_values_api(const httplib::Request& req, httplib::Response& res);
 
+void add_asset_shares_api(const httplib::Request& req, httplib::Response& res);
+void edit_asset_shares_api(const httplib::Request& req, httplib::Response& res);
+void delete_asset_shares_api(const httplib::Request& req, httplib::Response& res);
+void list_asset_shares_api(const httplib::Request& req, httplib::Response& res);
+
 void batch_asset_values_api(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget

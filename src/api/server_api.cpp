@@ -136,6 +136,11 @@ void budget::load_api(httplib::Server& server) {
     server.post("/api/asset_values/delete/", &delete_asset_values_api);
     server.get("/api/asset_values/list/", &list_asset_values_api);
 
+    server.post("/api/asset_shares/add/", &add_asset_shares_api);
+    server.post("/api/asset_shares/edit/", &edit_asset_shares_api);
+    server.post("/api/asset_shares/delete/", &delete_asset_shares_api);
+    server.get("/api/asset_shares/list/", &list_asset_shares_api);
+
     server.post("/api/retirement/configure/", &retirement_configure_api);
 
     server.post("/api/objectives/add/", &add_objectives_api);

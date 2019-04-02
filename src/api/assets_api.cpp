@@ -243,3 +243,90 @@ void budget::batch_asset_values_api(const httplib::Request& req, httplib::Respon
 
     api_success(req, res, "Asset values have been updated");
 }
+
+void budget::add_asset_shares_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_asset", "input_shares", "input_price", "input_date"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    asset_share asset_share;
+    asset_share.guid     = budget::generate_guid();
+    asset_share.asset_id = budget::to_number<size_t>(req.get_param_value("input_asset"));
+    asset_share.shares   = budget::to_number<size_t>(req.get_param_value("input_shares"));
+    asset_share.price    = budget::parse_money(req.get_param_value("input_price"));
+    asset_share.date     = budget::from_string(req.get_param_value("input_date"));
+
+    add_asset_share(std::move(asset_share));
+
+    api_success(req, res, "Asset share " + to_string(asset_share.id) + " has been created", to_string(asset_share.id));
+}
+
+void budget::edit_asset_shares_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_id", "input_asset", "input_shares", "input_price", "input_date"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.get_param_value("input_id");
+
+    if (!budget::asset_share_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "Asset share " + id + " does not exist");
+        return;
+    }
+
+    asset_share& asset_share = asset_share_get(budget::to_number<size_t>(id));
+    asset_share.asset_id     = budget::to_number<size_t>(req.get_param_value("input_asset"));
+    asset_share.shares       = budget::to_number<size_t>(req.get_param_value("input_shares"));
+    asset_share.price        = budget::parse_money(req.get_param_value("input_price"));
+    asset_share.date         = budget::from_string(req.get_param_value("input_date"));
+
+    set_asset_shares_changed();
+
+    api_success(req, res, "Asset " + to_string(asset_share.id) + " has been modified");
+}
+
+void budget::delete_asset_shares_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_id"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.get_param_value("input_id");
+
+    if (!budget::asset_share_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The asset share " + id + " does not exit");
+        return;
+    }
+
+    budget::asset_share_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "The asset share " + id + " has been deleted");
+}
+
+void budget::list_asset_shares_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    std::stringstream ss;
+
+    for (auto& asset_share : all_asset_shares()) {
+        ss << asset_share;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
+}
