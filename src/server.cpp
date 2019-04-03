@@ -35,15 +35,12 @@ namespace {
 bool server_running = false;
 
 httplib::Server * server_ptr = nullptr;
+volatile bool cron = true;
 
 void server_signal_handler(int signum) {
     std::cout << "INFO: Received signal (" << signum << ")" << std::endl;
 
-    // Save the caches
-    save_currency_cache();
-    save_share_price_cache();
-
-    save_config();
+    cron = false;
 
     if (server_ptr) {
         server_ptr->stop();
@@ -91,15 +88,17 @@ void start_server(){
 
 void start_cron_loop(){
     std::cout << "INFO: Started the cron thread" << std::endl;
-    size_t hours = 0;
+    size_t seconds = 0;
 
-    while(true){
+    while(cron){
         using namespace std::chrono_literals;
 
-        std::this_thread::sleep_for(1h);
-        ++hours;
+        std::this_thread::sleep_for(1s);
+        ++seconds;
 
         check_for_recurrings();
+
+        auto hours = seconds / 3600;
 
         // We save the cache once per day
         if (hours % 24 == 0) {
@@ -114,6 +113,8 @@ void start_cron_loop(){
             budget::refresh_currency_cache();
         }
     }
+
+    std::cout << "INFO: Cron Thread has exited" << std::endl;
 }
 
 } //end of anonymous namespace
