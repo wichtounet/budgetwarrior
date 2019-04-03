@@ -96,7 +96,12 @@ void budget::full_batch_asset_values_page(const httplib::Request& req, httplib::
 
     add_date_picker(w, budget::to_string(budget::local_day()), true);
 
-    for (auto& asset : all_user_assets()) {
+    auto assets = all_user_assets().to_vector();
+    std::sort(assets.begin(), assets.end(), [](auto& lhs, auto & rhs) {
+        return lhs.name <= rhs.name;
+    });
+
+    for (auto& asset : assets) {
         if (!asset.share_based) {
             budget::money amount = get_asset_value(asset);
 
@@ -123,7 +128,12 @@ void budget::current_batch_asset_values_page(const httplib::Request& req, httpli
 
     add_date_picker(w, budget::to_string(budget::local_day()), true);
 
-    for (auto& asset : all_user_assets()) {
+    auto assets = all_user_assets().to_vector();
+    std::sort(assets.begin(), assets.end(), [](auto& lhs, auto & rhs) {
+        return lhs.name <= rhs.name;
+    });
+
+    for (auto& asset : assets) {
         if (!asset.share_based) {
             budget::money amount = get_asset_value(asset);
 

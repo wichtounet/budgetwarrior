@@ -72,6 +72,12 @@ struct filter_view {
         return filter_iterator<Iterator, Filter>(last, last, filter);
     }
 
+    auto to_vector() const {
+        std::vector<typename Iterator::value_type> copy;
+        std::copy(first, last, std::back_inserter(copy));
+        return copy;
+    }
+
 private:
     Iterator first;
     Iterator last;
