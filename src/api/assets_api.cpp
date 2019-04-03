@@ -22,7 +22,7 @@ void budget::add_assets_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    if (!parameters_present(req, {"input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc", "input_shared_based"})) {
+    if (!parameters_present(req, {"input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc", "input_share_based"})) {
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -54,7 +54,7 @@ void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    if (!parameters_present(req, {"input_id", "input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc"})) {
+    if (!parameters_present(req, {"input_id", "input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc", "input_share_based"})) {
         api_error(req, res, "Invalid parameters");
         return;
     }
