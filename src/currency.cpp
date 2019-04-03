@@ -157,14 +157,7 @@ void budget::save_currency_cache() {
 }
 
 void budget::refresh_currency_cache(){
-    // Refresh the rates for each value
-    for (auto& pair : exchanges) {
-        auto& key = pair.first;
-
-        exchanges[key] = get_rate_v2(key.from, key.to, key.date);
-    }
-
-    // Prefetch the current exchange rates
+    // Refresh/Prefetch the current exchange rates
     for (auto & pair : exchanges) {
         auto& key = pair.first;
 

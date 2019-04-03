@@ -58,9 +58,6 @@ void start_server(){
 void start_cron_loop(){
     size_t hours = 0;
 
-    auto voo_price = budget::share_price("VOO");
-    std::cout << "Debug: VOO " << voo_price << std::endl;
-
     while(true){
         using namespace std::chrono_literals;
 
@@ -69,7 +66,15 @@ void start_cron_loop(){
 
         check_for_recurrings();
 
-        if(hours % 72 == 0){
+        // We save the cache once per day
+        if (hours % 24 == 0) {
+            save_currency_cache();
+            save_share_price_cache();
+        }
+
+        // Every four hours, we refresh the currency cache
+        // Only current day rates are refreshed
+        if (hours % 4 == 0) {
             std::cout << "Refresh the currency cache" << std::endl;
             budget::refresh_currency_cache();
         }
