@@ -50,3 +50,37 @@ void budget::add_asset_shares_page(const httplib::Request& req, httplib::Respons
 
     page_end(w, req, res);
 }
+
+void budget::edit_asset_shares_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+
+    if (!page_get_start(req, res, content_stream, "Edit asset share", {"input_id", "back_page"})){
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    auto input_id = req.get_param_value("input_id");
+    auto id = budget::to_number<size_t>(input_id);
+
+    if (!asset_share_exists(id)) {
+        display_error_message(w, "The asset share " + input_id + " does not exist");
+    } else {
+        auto back_page = req.get_param_value("back_page");
+
+        w << title_begin << "Edit asset share " << input_id << title_end;
+
+        form_begin_edit(w, "/api/asset_shares/edit/", back_page, input_id);
+
+        auto& asset_share = asset_share_get(id);
+
+        add_asset_picker(w, budget::to_string(asset_share.asset_id));
+        add_integer_picker(w, "shares", "input_shares", budget::to_string(asset_share.shares));
+        add_money_picker(w, "price", "input_price", budget::to_string(asset_share.price));
+        add_date_picker(w, budget::to_string(asset_share.date));
+
+        form_end(w);
+    }
+
+    page_end(w, req, res);
+}

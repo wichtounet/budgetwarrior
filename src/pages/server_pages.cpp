@@ -505,6 +505,7 @@ void budget::load_pages(httplib::Server& server) {
 
     server.get("/asset_shares/list/", &list_asset_shares_page);
     server.get("/asset_shares/add/", &add_asset_shares_page);
+    server.post("/asset_shares/edit/", &edit_asset_shares_page);
 
     server.get("/objectives/list/", &list_objectives_page);
     server.get("/objectives/status/", &status_objectives_page);
