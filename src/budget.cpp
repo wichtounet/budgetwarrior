@@ -253,10 +253,6 @@ int main(int argc, const char* argv[]) {
         std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
     }
 
-    // Restore the caches
-    load_currency_cache();
-    load_share_price_cache();
-
     //Collect all aliases
     aliases_collector collector;
     cpp::for_each_tuple_t<modules_tuple>(collector);
@@ -267,6 +263,10 @@ int main(int argc, const char* argv[]) {
     if(args.size() && args[0] == "server"){
         set_server_running();
     }
+
+    // Restore the caches
+    load_currency_cache();
+    load_share_price_cache();
 
     if (!is_server_running() && is_server_mode()) {
         // 1. Ensure that the server is running
