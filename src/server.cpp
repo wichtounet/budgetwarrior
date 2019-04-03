@@ -36,7 +36,7 @@ bool server_running = false;
 
 httplib::Server * server_ptr = nullptr;
 
-void signal_handler(int signum) {
+void server_signal_handler(int signum) {
     std::cout << "INFO: Received signal (" << signum << ")" << std::endl;
 
     // Save the caches
@@ -58,11 +58,11 @@ void start_server(){
     load_pages(server);
     load_api(server);
 
-    struct sigaction action;
-    memset(&action, 0, sizeof(struct sigaction));
-    action.sa_handler = signal_handler;
-    sigaction(SIGTERM, &action, NULL);
-    sigaction(SIGINT, &action, NULL); 
+    //struct sigaction action;
+    //memset(&action, 0, sizeof(struct sigaction));
+    //action.sa_handler = signal_handler;
+    signal(SIGTERM, server_signal_handler);
+    signal(SIGINT, server_signal_handler);
 
     std::cout << "INFO: Installed the signal handler" << std::endl;
 
