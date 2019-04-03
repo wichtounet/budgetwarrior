@@ -36,7 +36,9 @@ bool server_running = false;
 
 httplib::Server * server_ptr = nullptr;
 
-void signal_handler(int /*signum*/) {
+void signal_handler(int signum) {
+    std::cout << "INFO: Received signal (" << signum << ")" << std::endl;
+
     // Save the caches
     save_currency_cache();
     save_share_price_cache();
