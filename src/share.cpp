@@ -18,10 +18,10 @@
 namespace {
 
 struct share_price_cache_key {
-    std::string date;
+    budget::date date;
     std::string ticker;
 
-    share_price_cache_key(std::string date, std::string ticker) : date(date), ticker(ticker) {}
+    share_price_cache_key(budget::date date, std::string ticker) : date(date), ticker(ticker) {}
 
     friend bool operator<(const share_price_cache_key & lhs, const share_price_cache_key & rhs){
         return std::tie(lhs.date, lhs.ticker) < std::tie(rhs.date, rhs.ticker);
@@ -33,55 +33,6 @@ struct share_price_cache_key {
 };
 
 std::map<share_price_cache_key, double> share_prices;
-
-// V1 is using cloud.iexapis.com
-double get_share_price_v1(const std::string& quote, const std::string& date) {
-    if (!budget::config_contains("iex_cloud_token")) {
-        std::cout << "ERROR: Price(v1): Need IEX cloud token configured to work" << std::endl;
-
-        return  1.0;
-    }
-
-    auto token = budget::config_value("iex_cloud_token");
-
-    httplib::SSLClient cli("cloud.iexapis.com", 443);
-
-    std::string api_complete = "/beta/stock/" + quote + "/chart/date/" + date + "?chartByDay=true&token=" + token;
-
-    auto res = cli.get(api_complete.c_str());
-
-    if (!res) {
-        std::cout << "ERROR: Price(v1): No response" << std::endl;
-        std::cout << "ERROR: Price(v1): URL is " << api_complete << std::endl;
-
-        return  1.0;
-    } else if (res->status != 200) {
-        std::cout << "ERROR: Price(v1): Error response " << res->status << std::endl;
-        std::cout << "ERROR: Price(v1): URL is " << api_complete << std::endl;
-        std::cout << "ERROR: Price(v1): Response is " << res->body << std::endl;
-
-        return  1.0;
-    } else {
-        // Example
-        // [{"date":"2019-03-01","open":174.28,"close":174.97,"high":175.15,"low":172.89,"volume":25886167,"uOpen":174.28,"uClose":174.97,"uHigh":175.15,"uLow":172.89,"uVolume":25886167,"change":1.82,"changePercent":1.0511,"label":"Mar
-        // 1, 19","changeOverTime":172.237624}]
-        auto& buffer      = res->body;
-        std::string start = "\"close\":";
-        std::string stop  = ",\"high\":";
-
-        if (buffer.find(start) == std::string::npos || buffer.find(stop) == std::string::npos) {
-            std::cout << "ERROR: Price(v1): Error parsing share prices" << std::endl;
-            std::cout << "ERROR: Price(v1): URL is " << api_complete << std::endl;
-            std::cout << "ERROR: Price(v1): Response is " << res->body << std::endl;
-
-            return  1.0;
-        } else {
-            std::string ratio_result(buffer.begin() + buffer.find(start) + start.size(), buffer.begin() + buffer.find(stop));
-
-            return atof(ratio_result.c_str());
-        }
-    }
-}
 
 budget::date get_valid_date(budget::date d){
     // We cannot get closing price in the future, so we use the day before date
@@ -105,8 +56,74 @@ budget::date get_valid_date(budget::date d){
         return get_valid_date(d - budget::days(dow - 5));
     }
 
-    // TODO Ideally we want to handle holidays
     return d;
+}
+
+// V1 is using cloud.iexapis.com
+double get_share_price_v1(const std::string& quote, const budget::date& date, int depth = 0) {
+    if (!budget::config_contains("iex_cloud_token")) {
+        std::cout << "ERROR: Price(v1): Need IEX cloud token configured to work" << std::endl;
+
+        return  1.0;
+    }
+
+    auto token = budget::config_value("iex_cloud_token");
+
+    httplib::SSLClient cli("cloud.iexapis.com", 443);
+
+    auto date_str = budget::date_to_string(date);
+    std::string api_complete = "/beta/stock/" + quote + "/chart/date/" + date_str + "?chartByDay=true&token=" + token;
+
+    auto res = cli.get(api_complete.c_str());
+
+    if (!res) {
+        std::cout << "ERROR: Price(v1): No response" << std::endl;
+        std::cout << "ERROR: Price(v1): URL is " << api_complete << std::endl;
+
+        return  1.0;
+    } else if (res->status != 200) {
+        std::cout << "ERROR: Price(v1): Error response " << res->status << std::endl;
+        std::cout << "ERROR: Price(v1): URL is " << api_complete << std::endl;
+        std::cout << "ERROR: Price(v1): Response is " << res->body << std::endl;
+
+        return  1.0;
+    } else {
+        // Pseudo handling of holidays
+        if (res->body == "[]") {
+            if (depth <= 3) {
+                auto next_date = get_valid_date(date - budget::days(1));
+                std::cout << "INFO: Price(v1): Possible holiday, retrying on previous day" << std::endl;
+                std::cout << "INFO: Date was " << date << " retrying with " << next_date << std::endl;
+
+                // Opportunistically check the cache for previous day!
+                share_price_cache_key key(next_date, quote);
+                if (share_prices.count(key)) {
+                    return share_prices[key];
+                } else {
+                    return get_share_price_v1(quote, next_date, depth + 1);
+                }
+            }
+        }
+
+        // Example
+        // [{"date":"2019-03-01","open":174.28,"close":174.97,"high":175.15,"low":172.89,"volume":25886167,"uOpen":174.28,"uClose":174.97,"uHigh":175.15,"uLow":172.89,"uVolume":25886167,"change":1.82,"changePercent":1.0511,"label":"Mar
+        // 1, 19","changeOverTime":172.237624}]
+        auto& buffer      = res->body;
+        std::string start = "\"close\":";
+        std::string stop  = ",\"high\":";
+
+        if (buffer.find(start) == std::string::npos || buffer.find(stop) == std::string::npos) {
+            std::cout << "ERROR: Price(v1): Error parsing share prices" << std::endl;
+            std::cout << "ERROR: Price(v1): URL is " << api_complete << std::endl;
+            std::cout << "ERROR: Price(v1): Response is " << res->body << std::endl;
+
+            return  1.0;
+        } else {
+            std::string ratio_result(buffer.begin() + buffer.find(start) + start.size(), buffer.begin() + buffer.find(stop));
+
+            return atof(ratio_result.c_str());
+        }
+    }
 }
 
 } // end of anonymous namespace
@@ -128,7 +145,7 @@ void budget::load_share_price_cache(){
 
         auto parts = split(line, ':');
 
-        share_price_cache_key key(parts[0], parts[1]);
+        share_price_cache_key key(budget::from_string(parts[0]), parts[1]);
         share_prices[key] = budget::to_number<double>(parts[2]);
     }
 
@@ -151,7 +168,7 @@ void budget::save_share_price_cache() {
         if (pair.second != 1.0) {
             auto& key = pair.first;
 
-            file << key.date << ':' << key.ticker << ':' << pair.second << std::endl;
+            file << budget::date_to_string(key.date) << ':' << key.ticker << ':' << pair.second << std::endl;
         }
     }
 
@@ -189,14 +206,13 @@ double budget::share_price(const std::string& ticker){
 double budget::share_price(const std::string& ticker, budget::date d){
     auto date = get_valid_date(d);
 
-    auto date_str = budget::date_to_string(date);
-    share_price_cache_key key(date_str, ticker);
+    share_price_cache_key key(date, ticker);
 
     if (!share_prices.count(key)) {
-        auto price = get_share_price_v1(ticker, date_str);
+        auto price = get_share_price_v1(ticker, date);
 
         if (budget::is_server_running()) {
-            std::cout << "INFO: Share: Price (" << date_str << ")"
+            std::cout << "INFO: Share: Price (" << date << ")"
                       << " ticker " << ticker << " = " << price << std::endl;
         }
 
