@@ -148,6 +148,9 @@ budget::money get_net_worth(budget::date d);
 budget::money get_asset_value(budget::asset & asset);
 budget::money get_asset_value(budget::asset & asset, budget::date d);
 
+budget::money get_asset_value_conv(budget::asset & asset);
+budget::money get_asset_value_conv(budget::asset & asset, budget::date d);
+
 // Filter functions
 
 inline auto all_user_assets() {
