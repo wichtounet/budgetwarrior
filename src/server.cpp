@@ -34,11 +34,30 @@ namespace {
 
 bool server_running = false;
 
+httplib::Server * server_ptr = nullptr;
+
+void signal_handler(int /*signum*/) {
+    // Save the caches
+    save_currency_cache();
+    save_share_price_cache();
+
+    save_config();
+
+    if (server_ptr) {
+        server_ptr->stop();
+    }
+};
+
 void start_server(){
     httplib::Server server;
 
     load_pages(server);
     load_api(server);
+
+    struct sigaction action;
+    memset(&action, 0, sizeof(struct sigaction));
+    action.sa_handler = signal_handler;
+    sigaction(SIGTERM, &action, NULL);
 
     std::string listen = "localhost";
     size_t port = 8080;
@@ -50,6 +69,8 @@ void start_server(){
     if(config_contains("server_listen")){
         listen = config_value("server_listen");
     }
+
+    server_ptr = &server;
 
     // Listen
     server.listen(listen.c_str(), port);
