@@ -22,7 +22,7 @@ void budget::add_assets_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    if (!parameters_present(req, {"input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc", "input_share_based"})) {
+    if (!parameters_present(req, {"input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc", "input_share_based", "input_ticker"})) {
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -38,6 +38,7 @@ void budget::add_assets_api(const httplib::Request& req, httplib::Response& res)
     asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
     asset.currency        = req.get_param_value("input_currency");
     asset.share_based     = req.get_param_value("input_share_based") == "yes";
+    asset.ticker          = req.get_param_value("input_ticker");
 
     if (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)) {
         api_error(req, res, "The total allocation of the asset is not 100%");
@@ -54,7 +55,7 @@ void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    if (!parameters_present(req, {"input_id", "input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc", "input_share_based"})) {
+    if (!parameters_present(req, {"input_id", "input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc", "input_share_based", "input_ticker"})) {
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -76,6 +77,7 @@ void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res
     asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
     asset.currency        = req.get_param_value("input_currency");
     asset.share_based     = req.get_param_value("input_share_based") == "yes";
+    asset.ticker          = req.get_param_value("input_ticker");
 
     if (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)) {
         api_error(req, res, "The total allocation of the asset is not 100%");
