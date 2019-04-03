@@ -60,6 +60,7 @@ void start_server(){
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_handler = signal_handler;
     sigaction(SIGTERM, &action, NULL);
+    sigaction(SIGINT, &action, NULL);
 
     size_t port = 8080;
     if (config_contains("server_port")) {
