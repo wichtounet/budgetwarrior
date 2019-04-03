@@ -320,6 +320,9 @@ int main(int argc, const char* argv[]) {
 
             internal_config_value("data_version") = to_string(DATA_VERSION);
 
+            // We want to make sure the new data version is set in stone!
+            save_config();
+
             std::cout << "done" << std::endl;
         }
     }
