@@ -760,8 +760,7 @@ void budget::show_asset_portfolio(budget::writer& w){
 
     for (auto& asset : assets.data) {
         if (asset.portfolio) {
-            auto amount = get_asset_value(asset);
-            total += amount * exchange_rate(asset.currency);
+            total += get_asset_value_conv(asset);
         }
     }
 
@@ -803,8 +802,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     for (auto& asset : assets.data) {
         if (asset.portfolio) {
-            auto amount = get_asset_value(asset);
-            total += amount * exchange_rate(asset.currency);
+            total += get_asset_value_conv(asset);
         }
     }
 
