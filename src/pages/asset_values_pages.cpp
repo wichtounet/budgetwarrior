@@ -97,9 +97,11 @@ void budget::full_batch_asset_values_page(const httplib::Request& req, httplib::
     add_date_picker(w, budget::to_string(budget::local_day()), true);
 
     for (auto& asset : all_user_assets()) {
-        budget::money amount = get_asset_value(asset);
+        if (!asset.share_based) {
+            budget::money amount = get_asset_value(asset);
 
-        add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
+            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
+        }
     }
 
     form_end(w);
@@ -122,10 +124,12 @@ void budget::current_batch_asset_values_page(const httplib::Request& req, httpli
     add_date_picker(w, budget::to_string(budget::local_day()), true);
 
     for (auto& asset : all_user_assets()) {
-        budget::money amount = get_asset_value(asset);
+        if (!asset.share_based) {
+            budget::money amount = get_asset_value(asset);
 
-        if (amount) {
-            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
+            if (amount) {
+                add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
+            }
         }
     }
 
