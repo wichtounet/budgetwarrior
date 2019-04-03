@@ -51,6 +51,8 @@ void signal_handler(int signum) {
 };
 
 void start_server(){
+    std::cout << "INFO: Started the server thread" << std::endl;
+
     httplib::Server server;
 
     load_pages(server);
@@ -60,7 +62,9 @@ void start_server(){
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_handler = signal_handler;
     sigaction(SIGTERM, &action, NULL);
-    sigaction(SIGINT, &action, NULL);
+    sigaction(SIGINT, &action, NULL); 
+
+    std::cout << "INFO: Installed the signal handler" << std::endl;
 
     size_t port = 8080;
     if (config_contains("server_port")) {
@@ -75,10 +79,13 @@ void start_server(){
     server_ptr = &server;
 
     // Listen
+    std::cout << "INFO: Server is starting to listen" << std::endl;
     server.listen(listen.c_str(), port);
+    std::cout << "INFO: Server has exited" << std::endl;
 }
 
 void start_cron_loop(){
+    std::cout << "INFO: Started the cron thread" << std::endl;
     size_t hours = 0;
 
     while(true){
@@ -127,7 +134,7 @@ void budget::server_module::load(){
 void budget::server_module::handle(const std::vector<std::string>& args){
     cpp_unused(args);
 
-    std::cout << "Starting the server" << std::endl;
+    std::cout << "Starting the threads" << std::endl;
 
     std::thread server_thread([](){ start_server(); });
     std::thread cron_thread([](){ start_cron_loop(); });
