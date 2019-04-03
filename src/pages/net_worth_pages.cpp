@@ -127,6 +127,31 @@ void budget::assets_card(budget::html_writer& w){
     w << R"=====(</div>)====="; //card
 }
 
+template <typename T> 
+budget::date find_start_date(const T& assets) {
+    budget::date start = budget::local_day();
+
+    //TODO If necessary, avoid double loops
+
+    for (auto & asset : assets) {
+        if (asset.share_based) {
+            for (auto & share : all_asset_shares()) {
+                if (share.asset_id == asset.id) {
+                    start = std::min(share.date, start);
+                }
+            }
+       } else {
+           for (auto & value : all_asset_values()) {
+               if (value.asset_id == asset.id) {
+                   start = std::min(value.set_date, start);
+               }
+           }
+       }
+    }
+
+    return start;
+}
+
 void budget::net_worth_graph(budget::html_writer& w, const std::string style, bool card) {
     // if the user does not use assets, this graph does not make sense
     if(all_assets().empty() || all_asset_values().empty()){
@@ -165,29 +190,19 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
     ss << "{ name: 'Net Worth',";
     ss << "data: [";
 
-    std::map<size_t, budget::money> asset_amounts;
+    auto date     = find_start_date(all_user_assets());
+    auto end_date = budget::local_day();
 
-    auto sorted_asset_values = all_sorted_asset_values();
-
-    auto it  = sorted_asset_values.begin();
-    auto end = sorted_asset_values.end();
-
-    while (it != end) {
-        auto date = it->set_date;
-
-        while (it->set_date == date) {
-            asset_amounts[it->asset_id] = it->amount * exchange_rate(get_asset(it->asset_id).currency, date);
-
-            ++it;
-        }
-
+    while (date <= end_date) {
         budget::money sum;
 
-        for (auto& asset : asset_amounts) {
-            sum += asset.second;
+        for (auto & asset : all_user_assets()) {
+            sum += get_asset_value(asset, date);
         }
 
         ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+
+        date += days(1);
     }
 
     ss << "]},";
