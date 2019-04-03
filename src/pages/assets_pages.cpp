@@ -25,6 +25,10 @@ void add_portfolio_picker(budget::writer& w, bool portfolio) {
     add_yes_no_picker(w, "Part of the portfolio", "input_portfolio", portfolio);
 }
 
+void add_share_based_picker(budget::writer& w, bool share_based) {
+    add_yes_no_picker(w, "Using shares?", "input_share_based", share_based);
+}
+
 } // namespace
 
 void budget::assets_page(const httplib::Request& req, httplib::Response& res) {
@@ -61,6 +65,7 @@ void budget::add_assets_page(const httplib::Request& req, httplib::Response& res
     add_currency_picker(w);
     add_portfolio_picker(w, false);
     add_money_picker(w, "Percent of portfolio (%)", "input_alloc", "");
+    add_share_based_picker(w, false);
 
     form_end(w);
 
@@ -99,6 +104,7 @@ void budget::edit_assets_page(const httplib::Request& req, httplib::Response& re
             add_currency_picker(w, asset.currency);
             add_portfolio_picker(w, asset.portfolio);
             add_money_picker(w, "Percent of portfolio (%)", "input_alloc", budget::to_flat_string(asset.portfolio_alloc));
+            add_share_based_picker(w, asset.share_based);
 
             form_end(w);
         }
