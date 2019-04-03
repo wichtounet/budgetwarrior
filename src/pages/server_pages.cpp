@@ -898,7 +898,7 @@ void budget::add_account_picker(budget::writer& w, budget::date day, const std::
     )=====";
 }
 
-void budget::add_asset_picker(budget::writer& w, const std::string& default_value) {
+void budget::add_share_asset_picker(budget::writer& w, const std::string& default_value) {
     w << R"=====(
             <div class="form-group">
                 <label for="input_asset">Asset</label>
@@ -906,10 +906,35 @@ void budget::add_asset_picker(budget::writer& w, const std::string& default_valu
     )=====";
 
     for (auto& asset : all_user_assets()) {
-        if (budget::to_string(asset.id) == default_value) {
-            w << "<option selected value=\"" << asset.id << "\">" << asset.name << "</option>";
-        } else {
-            w << "<option value=\"" << asset.id << "\">" << asset.name << "</option>";
+        if (asset.share_based) {
+            if (budget::to_string(asset.id) == default_value) {
+                w << "<option selected value=\"" << asset.id << "\">" << asset.name << "</option>";
+            } else {
+                w << "<option value=\"" << asset.id << "\">" << asset.name << "</option>";
+            }
+        }
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
+void budget::add_value_asset_picker(budget::writer& w, const std::string& default_value) {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_asset">Asset</label>
+                <select class="form-control" id="input_asset" name="input_asset">
+    )=====";
+
+    for (auto& asset : all_user_assets()) {
+        if (!asset.share_based) {
+            if (budget::to_string(asset.id) == default_value) {
+                w << "<option selected value=\"" << asset.id << "\">" << asset.name << "</option>";
+            } else {
+                w << "<option value=\"" << asset.id << "\">" << asset.name << "</option>";
+            }
         }
     }
 

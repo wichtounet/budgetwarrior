@@ -49,7 +49,8 @@ void add_yes_no_picker(budget::writer& w, const std::string& title, const std::s
 void add_paid_picker(budget::writer& w, bool paid);
 void add_date_picker(budget::writer& w, const std::string& default_value = "", bool one_line = false);
 void add_account_picker(budget::writer& w, budget::date day, const std::string& default_value = "");
-void add_asset_picker(budget::writer& w, const std::string& default_value = "");
+void add_share_asset_picker(budget::writer& w, const std::string& default_value = "");
+void add_value_asset_picker(budget::writer& w, const std::string& default_value = "");
 void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, 
                       const std::string& default_value, bool one_line = false, const std::string& currency = "");
 void add_integer_picker(budget::writer& w, const std::string& title, const std::string& name,

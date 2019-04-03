@@ -41,7 +41,7 @@ void budget::add_asset_values_page(const httplib::Request& req, httplib::Respons
 
     form_begin(w, "/api/asset_values/add/", "/asset_values/add/");
 
-    add_asset_picker(w);
+    add_value_asset_picker(w);
     add_amount_picker(w);
     add_date_picker(w, budget::to_string(budget::local_day()));
 
@@ -72,7 +72,7 @@ void budget::edit_asset_values_page(const httplib::Request& req, httplib::Respon
 
         auto& asset_value = asset_value_get(budget::to_number<size_t>(input_id));
 
-        add_asset_picker(w, budget::to_string(asset_value.asset_id));
+        add_value_asset_picker(w, budget::to_string(asset_value.asset_id));
         add_amount_picker(w, budget::to_flat_string(asset_value.amount));
         add_date_picker(w, budget::to_string(asset_value.set_date));
 
