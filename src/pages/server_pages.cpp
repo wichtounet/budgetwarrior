@@ -236,6 +236,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/asset_values/batch/current/">Current Batch Update</a>
                   <a class="dropdown-item" href="/asset_values/add/">Set One Asset Value</a>
                   <a class="dropdown-item" href="/asset_shares/list/">Asset Shares</a>
+                  <a class="dropdown-item" href="/asset_shares/add/">Add Asset Shares</a>
                 </div>
               </li>
         )=====";
@@ -503,6 +504,7 @@ void budget::load_pages(httplib::Server& server) {
     server.post("/asset_values/edit/", &edit_asset_values_page);
 
     server.get("/asset_shares/list/", &list_asset_shares_page);
+    server.get("/asset_shares/add/", &add_asset_shares_page);
 
     server.get("/objectives/list/", &list_objectives_page);
     server.get("/objectives/status/", &status_objectives_page);
@@ -914,6 +916,24 @@ void budget::add_asset_picker(budget::writer& w, const std::string& default_valu
                 </select>
             </div>
     )=====";
+}
+
+void budget::add_integer_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
+    w << R"=====(<div class="form-group">)=====";
+
+    w << "<label for=\"" << name << "\">" << title << "</label>";
+
+    w << "<input required type=\"number\" min=\"0\" step=\"1\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+
+    if (default_value.empty()) {
+        w << " placeholder=\"Enter " << title << "\" ";
+    } else {
+        w << " value=\"" << default_value << "\" ";
+    }
+
+    w << ">";
+
+    w << "</div>";
 }
 
 void budget::add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool one_line, const std::string& currency) {

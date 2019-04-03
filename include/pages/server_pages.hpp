@@ -52,6 +52,8 @@ void add_account_picker(budget::writer& w, budget::date day, const std::string& 
 void add_asset_picker(budget::writer& w, const std::string& default_value = "");
 void add_money_picker(budget::writer& w, const std::string& title, const std::string& name, 
                       const std::string& default_value, bool one_line = false, const std::string& currency = "");
+void add_integer_picker(budget::writer& w, const std::string& title, const std::string& name,
+                        const std::string& default_value = "");
 
 // Charts
 std::stringstream start_chart_base(budget::html_writer& w, const std::string& chart_type, 

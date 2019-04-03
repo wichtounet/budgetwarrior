@@ -28,3 +28,25 @@ void budget::list_asset_shares_page(const httplib::Request& req, httplib::Respon
 
     page_end(w, req, res);
 }
+
+void budget::add_asset_shares_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "New asset share")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New asset share" << title_end;
+
+    form_begin(w, "/api/asset_shares/add/", "/asset_shares/add/");
+
+    add_asset_picker(w);
+    add_integer_picker(w, "shares", "input_shares");
+    add_money_picker(w, "price", "input_price", "");
+    add_date_picker(w, budget::to_string(budget::local_day()));
+
+    form_end(w);
+
+    page_end(w, req, res);
+}

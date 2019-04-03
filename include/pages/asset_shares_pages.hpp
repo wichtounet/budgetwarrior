@@ -13,5 +13,6 @@ namespace budget {
 
 // Asset Shares Pages
 void list_asset_shares_page(const httplib::Request& req, httplib::Response& res);
+void add_asset_shares_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget
