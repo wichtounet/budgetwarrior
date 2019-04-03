@@ -61,14 +61,13 @@ void start_server(){
     action.sa_handler = signal_handler;
     sigaction(SIGTERM, &action, NULL);
 
-    std::string listen = "localhost";
     size_t port = 8080;
-
-    if(config_contains("server_port")){
+    if (config_contains("server_port")) {
         port = to_number<size_t>(config_value("server_port"));
     }
 
-    if(config_contains("server_listen")){
+    std::string listen = "localhost";
+    if (config_contains("server_listen")) {
         listen = config_value("server_listen");
     }
 
