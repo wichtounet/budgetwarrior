@@ -145,9 +145,11 @@ budget::money get_net_worth_cash();
 
 budget::money get_net_worth(budget::date d);
 
+// The value of an assert in its own currency
 budget::money get_asset_value(budget::asset & asset);
 budget::money get_asset_value(budget::asset & asset, budget::date d);
 
+// The value of an assert in the default currency
 budget::money get_asset_value_conv(budget::asset & asset);
 budget::money get_asset_value_conv(budget::asset & asset, budget::date d);
 
