@@ -25,6 +25,7 @@
 // Include all the pages
 #include "pages/assets_pages.hpp"
 #include "pages/asset_values_pages.hpp"
+#include "pages/asset_shares_pages.hpp"
 #include "pages/fortunes_pages.hpp"
 #include "pages/wishes_pages.hpp"
 #include "pages/index_pages.hpp"
@@ -234,6 +235,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/asset_values/batch/full/">Full Batch Update</a>
                   <a class="dropdown-item" href="/asset_values/batch/current/">Current Batch Update</a>
                   <a class="dropdown-item" href="/asset_values/add/">Set One Asset Value</a>
+                  <a class="dropdown-item" href="/asset_shares/list/">Asset Shares</a>
                 </div>
               </li>
         )=====";
@@ -499,6 +501,8 @@ void budget::load_pages(httplib::Server& server) {
     server.get("/asset_values/batch/full/", &full_batch_asset_values_page);
     server.get("/asset_values/batch/current/", &current_batch_asset_values_page);
     server.post("/asset_values/edit/", &edit_asset_values_page);
+
+    server.get("/asset_shares/list/", &list_asset_shares_page);
 
     server.get("/objectives/list/", &list_objectives_page);
     server.get("/objectives/status/", &status_objectives_page);
