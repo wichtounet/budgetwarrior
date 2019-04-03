@@ -101,14 +101,14 @@ void start_cron_loop(){
         auto hours = seconds / 3600;
 
         // We save the cache once per day
-        if (hours % 24 == 0) {
+        if (hours && hours % 24 == 0) {
             save_currency_cache();
             save_share_price_cache();
         }
 
         // Every four hours, we refresh the currency cache
         // Only current day rates are refreshed
-        if (hours % 4 == 0) {
+        if (hours && hours % 4 == 0) {
             std::cout << "Refresh the currency cache" << std::endl;
             budget::refresh_currency_cache();
         }
