@@ -1148,7 +1148,9 @@ budget::money budget::get_asset_value(budget::asset & asset, budget::date d) {
 
         for (auto& asset_share : asset_shares.data) {
             if (asset_share.asset_id == asset.id) {
-                shares += asset_share.shares;
+                if (asset_share.date <= d) {
+                    shares += asset_share.shares;
+                }
             }
         }
 
