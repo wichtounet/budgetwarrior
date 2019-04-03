@@ -48,7 +48,18 @@ void server_signal_handler(int signum) {
     if (server_ptr) {
         server_ptr->stop();
     }
-};
+}
+
+void install_signal_handler() {
+    struct sigaction action;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    action.sa_handler = server_signal_handler;
+    sigaction(SIGTERM, &action, NULL);
+    sigaction(SIGINT, &action, NULL);
+
+    std::cout << "INFO: Installed the signal handler" << std::endl;
+}
 
 void start_server(){
     std::cout << "INFO: Started the server thread" << std::endl;
@@ -58,13 +69,7 @@ void start_server(){
     load_pages(server);
     load_api(server);
 
-    //struct sigaction action;
-    //memset(&action, 0, sizeof(struct sigaction));
-    //action.sa_handler = signal_handler;
-    signal(SIGTERM, server_signal_handler);
-    signal(SIGINT, server_signal_handler);
-
-    std::cout << "INFO: Installed the signal handler" << std::endl;
+    install_signal_handler();
 
     size_t port = 8080;
     if (config_contains("server_port")) {
