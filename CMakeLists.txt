@@ -7,24 +7,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(warnings "-Wall -Wextra -Werror")
 
+find_package(OpenSSL REQUIRED)
 
 include_directories(include)
 include_directories(cpp-httplib)
-
-find_package(OpenSSL REQUIRED)
-#if(OPENSSL_FOUND)
-#set(OPENSSL_USE_STATIC_LIBS TRUE)
-#endif()
-
-#if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-#  set(CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup")
-#endif()
-
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 add_subdirectory(src)
-
-
-
-
-

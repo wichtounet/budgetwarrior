@@ -76,17 +76,18 @@ You just have to use make to build it::
 MacOS
 =====
 
-Using CMake and brew, build from sources.  First, use brew to install required dependencies.  Assumes
-you have Xcode command via `xcode-select --install` first. Next download and install brew
-from https://docs.brew.sh
+MacOS support is experimental.  Using CMake and Homebrew, you can build from sources.
 
-Then you can insstall cmake, git and openssl:
+1. First, install Xcode compiler toolchain via `xcode-select --install` if needed.
+
+2. Use Homebrew to install required dependencies. Download and install brew from
+   https://docs.brew.sh if you don't already have it.
 
     $ brew install cmake
-	$ brew install git
-	$ brew install openssl
+    $ brew install git
+    $ brew install openssl
 
-Now build using script after cloning repository:	
+Now build using the provided script after cloning repository:	
 	
     $ git clone --recursive git://github.com/wichtounet/budgetwarrior.git
     $ cd budgetwarrior

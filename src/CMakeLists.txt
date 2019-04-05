@@ -7,9 +7,3 @@ file(GLOB API "api/*.cpp")
 add_executable(budget ${SOURCES} ${PAGES} ${API})
 
 target_link_libraries(budget OpenSSL::SSL)
-
-
-
-
-
-

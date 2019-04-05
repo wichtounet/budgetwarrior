@@ -37,6 +37,7 @@ bool load_configuration(const std::string& path, config_type& configuration){
 
         if (file.is_open() && file.good()) {
             std::string line;
+            std::cout << "INFO: Reading config file " << path << std::endl;
             while (file.good() && getline(file, line)) {
                 // Ignore empty lines
                 if (line.empty()) {
@@ -61,6 +62,8 @@ bool load_configuration(const std::string& path, config_type& configuration){
 
                 configuration[key] = value;
             }
+        } else {
+            std::cerr << "ERROR: Unable to open config file " << path << std::endl;
         }
     }
 
@@ -224,6 +227,22 @@ std::string budget::get_web_password(){
     }
 
     return "1234";
+}
+
+std::string budget::get_server_listen(){
+    if (config_contains("server_listen")) {
+        return config_value("server_listen");
+    }
+
+    return "localhost";
+}
+
+size_t budget::get_server_port(){
+    if (config_contains("server_port")) {
+        return to_number<size_t>(config_value("server_port"));
+    }
+
+    return 8080;
 }
 
 bool budget::is_server_mode(){
