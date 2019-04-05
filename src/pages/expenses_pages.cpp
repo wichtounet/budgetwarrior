@@ -189,7 +189,9 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
     ss << "{ name: '12 months average',";
     ss << "data: [";
 
-    std::array<budget::money, 12> average_12;
+	//budget::money average_12[12];
+    std::vector<budget::money> average_12;
+	average_12.resize(12);
 
     for(size_t i = 0; i < serie.size(); ++i){
         average_12[i % 12] = serie[i];
