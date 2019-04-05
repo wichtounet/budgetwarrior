@@ -76,9 +76,14 @@ You just have to use make to build it::
 MacOS
 =====
 
-Using CMake and brew, build from sources.  First, use brew to install required dependencies.
+Using CMake and brew, build from sources.  First, use brew to install required dependencies.  Assumes
+you have Xcode command via `xcode-select --install` first. Next download and install brew
+from https://docs.brew.sh
 
-    $ brew install cmake git
+Then you can insstall cmake, git and openssl:
+
+    $ brew install cmake
+	$ brew install git
 	$ brew install openssl
 
 Now build using script after cloning repository:	
