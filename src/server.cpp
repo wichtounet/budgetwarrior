@@ -81,7 +81,7 @@ void start_server(){
     server_ptr = &server;
 
     // Listen
-    std::cout << "INFO: Server is starting to listen" << std::endl;
+    std::cout << "INFO: Server is starting to listen on " << listen << std::endl;
     server.listen(listen.c_str(), port);
     std::cout << "INFO: Server has exited" << std::endl;
 }
