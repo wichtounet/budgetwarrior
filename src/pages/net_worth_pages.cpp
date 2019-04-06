@@ -43,6 +43,7 @@ void budget::assets_card(budget::html_writer& w){
         }
     }
 
+    // If one asset has no group, we disable grouping
     if (group_style) {
         for (auto& asset : all_user_assets()) {
             auto pos = asset.name.find(separator);
@@ -127,7 +128,7 @@ void budget::assets_card(budget::html_writer& w){
     w << R"=====(</div>)====="; //card
 }
 
-template <typename T> 
+template <typename T>
 budget::date find_start_date(const T& assets) {
     budget::date start = budget::local_day();
 
