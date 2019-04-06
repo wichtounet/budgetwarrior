@@ -81,13 +81,13 @@ MacOS support is experimental.  Using CMake and Homebrew, you can build from sou
 1. First, install Xcode compiler toolchain via `xcode-select --install` if needed.
 
 2. Use Homebrew to install required dependencies. Download and install brew from
-   https://docs.brew.sh if you don't already have it.
+   https://docs.brew.sh if you don't already have it::
 
     $ brew install cmake
     $ brew install git
     $ brew install openssl
 
-Now build using the provided script after cloning repository:	
+Now build using the provided script after cloning repository::
 	
     $ git clone --recursive git://github.com/wichtounet/budgetwarrior.git
     $ cd budgetwarrior
