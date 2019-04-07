@@ -37,7 +37,6 @@ bool load_configuration(const std::string& path, config_type& configuration){
 
         if (file.is_open() && file.good()) {
             std::string line;
-            std::cout << "INFO: Reading config file " << path << std::endl;
             while (file.good() && getline(file, line)) {
                 // Ignore empty lines
                 if (line.empty()) {
