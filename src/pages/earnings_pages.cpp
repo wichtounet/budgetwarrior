@@ -6,6 +6,7 @@
 //=======================================================================
 
 #include <numeric>
+#include <array>
 
 #include "accounts.hpp"
 #include "earnings.hpp"

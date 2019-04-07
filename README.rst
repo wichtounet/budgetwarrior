@@ -61,11 +61,10 @@ Build from source
 A modern compiler is necessary: GCC >= 4.7 or Clang >= 3.1 You need to set the
 $CXX variable before executing make.
 
-The tool is made for Linux. If there is some interest on using it on Windows, it
-should not take too much work to port it to Windows. Just le met me know (or
-make a Pull Request with the changes ;) ). .
+Linux
+=====
 
-You need libcurl and libuuid installed on your computer to build this project.
+The tool is developed for Linux.  You need libcurl and libuuid installed on your computer to build this project.
 
 You just have to use make to build it::
 
@@ -74,10 +73,39 @@ You just have to use make to build it::
     $ make
     $ sudo make install
 
-Man pages and ZSH/Bash completions are also available.
+MacOS
+=====
+
+MacOS support is experimental.  Using CMake and Homebrew, you can build from sources.
+
+1. First, install Xcode compiler toolchain via `xcode-select --install` if needed.
+
+2. Use Homebrew to install required dependencies. Download and install brew from
+   https://docs.brew.sh if you don't already have it::
+
+    $ brew install cmake
+    $ brew install git
+    $ brew install openssl
+
+Now build using the provided script after cloning repository::
+	
+    $ git clone --recursive git://github.com/wichtounet/budgetwarrior.git
+    $ cd budgetwarrior
+    $ ./build_macos.sh
+    $ make
+
+	
+Windows
+=======
+
+If there is some interest on using it on Windows, it
+should not take too much work to port it to Windows. Just le met me know (or
+make a Pull Request with the changes ;) ). .
 
 Usage
 -----
+
+Man pages and ZSH/Bash completions are also available.
 
 The executable is named 'budget' and allows to perform all the commands.
 

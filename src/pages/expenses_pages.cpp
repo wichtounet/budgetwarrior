@@ -15,6 +15,8 @@
 #include "http.hpp"
 #include "config.hpp"
 
+#include <array>
+
 using namespace budget;
 
 void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::string& title, budget::month month, budget::year year, bool mono, const std::string& style) {

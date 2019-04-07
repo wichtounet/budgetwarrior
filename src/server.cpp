@@ -68,20 +68,12 @@ void start_server(){
 
     install_signal_handler();
 
-    size_t port = 8080;
-    if (config_contains("server_port")) {
-        port = to_number<size_t>(config_value("server_port"));
-    }
-
-    std::string listen = "localhost";
-    if (config_contains("server_listen")) {
-        listen = config_value("server_listen");
-    }
-
+    auto port = get_server_port();
+    auto listen = get_server_listen();
     server_ptr = &server;
 
     // Listen
-    std::cout << "INFO: Server is starting to listen" << std::endl;
+    std::cout << "INFO: Server is starting to listen on " << listen << ':' << port << std::endl;
     server.listen(listen.c_str(), port);
     std::cout << "INFO: Server has exited" << std::endl;
 }
