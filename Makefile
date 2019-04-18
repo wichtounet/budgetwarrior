@@ -43,6 +43,12 @@ install: release_debug
 	install completions/bash $(prefix)/etc/bash_completion.d/budget
 	install completions/zsh $(prefix)/share/zsh/site-functions/_budget
 
+install_light: release_debug
+	@ echo "Installation of budgetwarrior (only binary)"
+	@ echo "==========================================="
+	@ echo ""
+	install release_debug/bin/budget $(bindir)/budget
+
 clean: base_clean
 
 include make-utils/cpp-utils-finalize.mk
