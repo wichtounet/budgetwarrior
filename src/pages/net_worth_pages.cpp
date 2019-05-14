@@ -128,31 +128,6 @@ void budget::assets_card(budget::html_writer& w){
     w << R"=====(</div>)====="; //card
 }
 
-template <typename T>
-budget::date find_start_date(const T& assets) {
-    budget::date start = budget::local_day();
-
-    //TODO If necessary, avoid double loops
-
-    for (auto & asset : assets) {
-        if (asset.share_based) {
-            for (auto & share : all_asset_shares()) {
-                if (share.asset_id == asset.id) {
-                    start = std::min(share.date, start);
-                }
-            }
-       } else {
-           for (auto & value : all_asset_values()) {
-               if (value.asset_id == asset.id) {
-                   start = std::min(value.set_date, start);
-               }
-           }
-       }
-    }
-
-    return start;
-}
-
 void budget::net_worth_graph(budget::html_writer& w, const std::string style, bool card) {
     // if the user does not use assets, this graph does not make sense
     if(all_assets().empty() || all_asset_values().empty()){
@@ -191,7 +166,7 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
     ss << "{ name: 'Net Worth',";
     ss << "data: [";
 
-    auto date     = find_start_date(all_user_assets());
+    auto date     = budget::asset_start_date();
     auto end_date = budget::local_day();
 
     while (date <= end_date) {

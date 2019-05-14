@@ -672,6 +672,30 @@ std::vector<asset_value> budget::all_sorted_asset_values() {
     return sorted_asset_values;
 }
 
+budget::date budget::asset_start_date() {
+    budget::date start = budget::local_day();
+
+    //TODO If necessary, avoid double loops
+
+    for (auto & asset : all_user_assets()) {
+        if (asset.share_based) {
+            for (auto & share : all_asset_shares()) {
+                if (share.asset_id == asset.id) {
+                    start = std::min(share.date, start);
+                }
+            }
+       } else {
+           for (auto & value : all_asset_values()) {
+               if (value.asset_id == asset.id) {
+                   start = std::min(value.set_date, start);
+               }
+           }
+       }
+    }
+
+    return start;
+}
+
 std::vector<asset_share>& budget::all_asset_shares(){
     return asset_shares.data;
 }
