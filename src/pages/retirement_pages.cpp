@@ -97,39 +97,41 @@ void budget::retirement_fi_ratio_over_time(const httplib::Request& req, httplib:
 
     budget::html_writer w(content_stream);
 
-    auto values = all_sorted_asset_values();
-
-    if (!values.empty()){
-
-        auto ss = start_time_chart(w, "FI Ratio over time", "line", "fi_time_graph", "");
-
-        ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-        ss << R"=====(yAxis: { min: 0, title: { text: 'FI Ratio' }},)=====";
-        ss << R"=====(legend: { enabled: false },)=====";
-
-        ss << "series: [";
-
-        ss << "{ name: 'FI Ratio %',";
-        ss << "data: [";
-
-        std::vector<budget::money> serie;
-        std::vector<std::string> dates;
-
-        for (size_t i = 0; i < values.size(); ++i) {
-            auto& asset_value = values[i];
-            auto current = asset_value.set_date;
-
-            auto ratio = budget::fi_ratio(current);
-
-            std::string date = "Date.UTC(" + std::to_string(current.year()) + "," + std::to_string(current.month().value - 1) + ", 1)";
-            ss << "[" << date << "," << budget::to_string(100 * ratio) << "],";
-        }
-
-        ss << "]},";
-        ss << "]";
-
-        end_chart(w, ss);
+    if (all_assets().empty() || all_asset_values().empty()){
+        page_end(w, req, res);
+        return;
     }
+
+    auto ss = start_time_chart(w, "FI Ratio over time", "line", "fi_time_graph", "");
+
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'FI Ratio' }},)=====";
+    ss << R"=====(legend: { enabled: false },)=====";
+
+    ss << "series: [";
+
+    ss << "{ name: 'FI Ratio %',";
+    ss << "data: [";
+
+    std::vector<budget::money> serie;
+    std::vector<std::string> dates;
+
+    auto date     = budget::asset_start_date();
+    auto end_date = budget::local_day();
+
+    while (date <= end_date) {
+        auto ratio = budget::fi_ratio(date);
+
+        std::string datestr = "Date.UTC(" + std::to_string(date.year()) + "," + std::to_string(date.month().value - 1) + ", 1)";
+        ss << "[" << datestr << "," << budget::to_string(100 * ratio) << "],";
+
+        date += days(1);
+    }
+
+    ss << "]},";
+    ss << "]";
+
+    end_chart(w, ss);
 
     page_end(w, req, res);
 }
