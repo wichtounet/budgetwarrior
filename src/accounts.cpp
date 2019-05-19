@@ -61,12 +61,6 @@ std::map<std::string, std::string> budget::account::get_params(){
     params["input_since"]  = budget::to_string(since);
     params["input_until"]  = budget::to_string(until);
 
-    std::string guid;
-    std::string name;
-    money amount;
-    date since;
-    date until;
-
     return params;
 }
 
