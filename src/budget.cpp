@@ -21,6 +21,7 @@
 //The different modules
 #include "debts.hpp"
 #include "accounts.hpp"
+#include "incomes.hpp"
 #include "assets.hpp"
 #include "expenses.hpp"
 #include "overview.hpp"
