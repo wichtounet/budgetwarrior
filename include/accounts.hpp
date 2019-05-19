@@ -73,7 +73,4 @@ date find_new_since();
 
 void archive_accounts_impl(bool month);
 
-budget::money get_base_income();
-budget::money get_base_income(budget::date d);
-
 } //end of namespace budget

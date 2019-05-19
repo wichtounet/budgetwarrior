@@ -563,18 +563,3 @@ budget::date budget::find_new_since(){
 
     return date;
 }
-
-budget::money budget::get_base_income(){
-    auto today = budget::local_day();
-    return get_base_income(today);
-}
-
-budget::money budget::get_base_income(budget::date d){
-    budget::money income;
-
-    for (auto& account : all_accounts(d.year(), d.month())) {
-        income += account.amount;
-    }
-
-    return income;
-}
