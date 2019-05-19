@@ -204,6 +204,16 @@ budget::money budget::get_base_income(){
 }
 
 budget::money budget::get_base_income(budget::date d){
+    // First, we try to get the base income from the incomes module
+
+    for (auto & income : incomes) {
+        if (income.since <= d && income.until >= d) {
+            return income.amount;
+        }
+    }
+
+    // Otherwise, we use the accounts
+
     budget::money income;
 
     for (auto& account : all_accounts(d.year(), d.month())) {
