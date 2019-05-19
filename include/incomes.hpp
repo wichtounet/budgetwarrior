@@ -66,4 +66,6 @@ void show_incomes(budget::writer& w);
 budget::money get_base_income();
 budget::money get_base_income(budget::date d);
 
+budget::income & new_income(budget::money amount, bool print);
+
 } //end of namespace budget

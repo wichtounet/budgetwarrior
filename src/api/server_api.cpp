@@ -11,6 +11,7 @@
 #include "api/earnings_api.hpp"
 #include "api/expenses_api.hpp"
 #include "api/accounts_api.hpp"
+#include "api/incomes_api.hpp"
 #include "api/objectives_api.hpp"
 #include "api/recurrings_api.hpp"
 #include "api/debts_api.hpp"
@@ -94,6 +95,11 @@ void budget::load_api(httplib::Server& server) {
     server.post("/api/accounts/archive/month/", &archive_accounts_month_api);
     server.post("/api/accounts/archive/year/", &archive_accounts_year_api);
     server.get("/api/accounts/list/", &list_accounts_api);
+
+    server.post("/api/incomes/add/", &add_incomes_api);
+    server.post("/api/incomes/edit/", &edit_incomes_api);
+    server.post("/api/incomes/delete/", &delete_incomes_api);
+    server.get("/api/incomes/list/", &list_incomes_api);
 
     server.post("/api/expenses/add/", &add_expenses_api);
     server.post("/api/expenses/edit/", &edit_expenses_api);

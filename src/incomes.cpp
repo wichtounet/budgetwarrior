@@ -62,55 +62,11 @@ void budget::incomes_module::handle(const std::vector<std::string>& args){
         if (subcommand == "show") {
             show_incomes(w);
         } else if (subcommand == "set") {
-            budget::date d = budget::local_day();
+            budget::money amount;
+            edit_money(amount, "Amount", not_negative_checker());
 
-            budget::date since(d.year(), d.month(), 1);
-            budget::date until = budget::date(2099,12,31);
-
-            budget::income new_income;
-            new_income.guid  = generate_guid();
-            new_income.since = since;
-            new_income.until = until;
-
-            edit_money(new_income.amount, "Amount", not_negative_checker());
-
-            if (incomes.size()) {
-                // Try to edit the income from the same month
-                for (auto & income : incomes) {
-                    if (income.since == since && income.until == until) {
-                        income.amount = new_income.amount;
-
-                        if (incomes.edit(income)) {
-                            std::cout << "Income " << income.id << " has been modified" << std::endl;
-                        }
-
-                        return;
-                    }
-                }
-
-                // Edit the previous income
-
-                budget::date date = incomes.data.front().since;
-                size_t id         = incomes.data.front().id;
-
-                for (auto & income : incomes) {
-                    if (income.since > date) {
-                        date = income.since;
-                        id   = income.id;
-                    }
-                }
-
-                auto & previous_income = incomes[id];
-
-                previous_income.until = since - budget::days(1);
-
-                if (incomes.edit(previous_income)) {
-                    std::cout << "Income " << id << " has been modified" << std::endl;
-                }
-            }
-
-            auto id = incomes.add(std::move(new_income));
-            std::cout << "Income " << id << " has been created" << std::endl;
+            auto & new_income = budget::new_income(amount, true);
+            std::cout << "Income " << new_income.id << " has been created" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -221,4 +177,61 @@ budget::money budget::get_base_income(budget::date d){
     }
 
     return income;
+}
+
+budget::income & budget::new_income(budget::money amount, bool print){
+    budget::date d = budget::local_day();
+
+    budget::date since(d.year(), d.month(), 1);
+    budget::date until = budget::date(2099,12,31);
+
+    budget::income new_income;
+    new_income.guid  = generate_guid();
+    new_income.since = since;
+    new_income.until = until;
+    new_income.amount = amount;
+
+    if (incomes.size()) {
+        // Try to edit the income from the same month
+        for (auto & income : incomes) {
+            if (income.since == since && income.until == until) {
+                income.amount = new_income.amount;
+
+                if (incomes.edit(income)) {
+                    if (print) {
+                        std::cout << "Income " << income.id << " has been modified" << std::endl;
+                    }
+                }
+
+                return income;
+            }
+        }
+
+        // Edit the previous income
+
+        budget::date date = incomes.data.front().since;
+        size_t id         = incomes.data.front().id;
+
+        for (auto & income : incomes) {
+            if (income.since > date) {
+                date = income.since;
+                id   = income.id;
+            }
+        }
+
+        auto & previous_income = incomes[id];
+
+        previous_income.until = since - budget::days(1);
+
+        if (incomes.edit(previous_income)) {
+            if (print) {
+                std::cout << "Income " << id << " has been modified" << std::endl;
+            }
+        }
+
+        return previous_income;
+    }
+
+    auto id = incomes.add(std::move(new_income));
+    return incomes[id];
 }
