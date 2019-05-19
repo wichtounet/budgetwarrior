@@ -61,4 +61,6 @@ bool income_exists(size_t id);
 void income_delete(size_t id);
 income& income_get(size_t id);
 
+void show_incomes(budget::writer& w);
+
 } //end of namespace budget

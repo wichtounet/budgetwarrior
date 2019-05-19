@@ -55,16 +55,84 @@ void budget::incomes_module::handle(const std::vector<std::string>& args){
     console_writer w(std::cout);
 
     if(args.size() == 1){
-        // Show current income
+        show_incomes(w);
     } else {
         auto& subcommand = args[1];
 
-        if (subcommand == "set") {
-            // TODO
+        if (subcommand == "show") {
+            show_incomes(w);
+        } else if (subcommand == "set") {
+            budget::date d = budget::local_day();
+
+            budget::date since(d.year(), d.month(), 1);
+            budget::date until = budget::date(2099,12,31);
+
+            budget::income new_income;
+            new_income.guid  = generate_guid();
+            new_income.since = since;
+            new_income.until = until;
+
+            edit_money(new_income.amount, "Amount", not_negative_checker());
+
+            if (incomes.size()) {
+                // Try to edit the income from the same month
+                for (auto & income : incomes) {
+                    if (income.since == since && income.until == until) {
+                        income.amount = new_income.amount;
+
+                        if (incomes.edit(income)) {
+                            std::cout << "Income " << income.id << " has been modified" << std::endl;
+                        }
+
+                        return;
+                    }
+                }
+
+                // Edit the previous income
+
+                budget::date date = incomes.data.front().since;
+                size_t id         = incomes.data.front().id;
+
+                for (auto & income : incomes) {
+                    if (income.since > date) {
+                        date = income.since;
+                        id   = income.id;
+                    }
+                }
+
+                auto & previous_income = incomes[id];
+
+                previous_income.until = since - budget::days(1);
+
+                if (incomes.edit(previous_income)) {
+                    std::cout << "Income " << id << " has been modified" << std::endl;
+                }
+            }
+
+            auto id = incomes.add(std::move(new_income));
+            std::cout << "Income " << id << " has been created" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
     }
+}
+
+void budget::show_incomes(budget::writer& w) {
+    if (!incomes.size()) {
+        w << title_begin << "No income " << add_button("incomes") << title_end;
+        return;
+    }
+
+    w << title_begin << "Incomes " << add_button("incomes") << title_end;
+
+    std::vector<std::string> columns = {"ID", "Amount", "Since", "Until", "Edit"};
+    std::vector<std::vector<std::string>> contents;
+
+    for(auto& income : incomes.data){
+        contents.push_back({to_string(income.id), to_string(income.amount), to_string(income.since), to_string(income.until), "::edit::incomes::" + to_string(income.id)});
+    }
+
+    w.display_table(columns, contents);
 }
 
 void budget::load_incomes(){
