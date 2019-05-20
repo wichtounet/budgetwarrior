@@ -74,7 +74,7 @@ double get_share_price_v1(const std::string& quote, const budget::date& date, in
     auto date_str = budget::date_to_string(date);
     std::string api_complete = "/beta/stock/" + quote + "/chart/date/" + date_str + "?chartByDay=true&token=" + token;
 
-    auto res = cli.get(api_complete.c_str());
+    auto res = cli.Get(api_complete.c_str());
 
     if (!res) {
         std::cout << "ERROR: Price(v1): No response" << std::endl;

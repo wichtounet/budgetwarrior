@@ -28,7 +28,7 @@ budget::api_response base_api_get(Cli& cli, const std::string& api, bool silent)
     httplib::Request req;
     req.method = "GET";
     req.path = api_complete.c_str();
-    req.progress = [](int64_t,int64_t){};
+    req.progress = [](int64_t,int64_t) -> bool { return true; };
 
     req.set_header("Accept", "*/*");
     req.set_header("User-Agent", "cpp-httplib/0.1");
@@ -97,7 +97,7 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
     httplib::Request req;
     req.method = "POST";
     req.path = api_complete.c_str();
-    req.progress = [](int64_t,int64_t){};
+    req.progress = [](int64_t,int64_t) -> bool { return true; };
 
     req.set_header("Host", (server + ":" + server_port).c_str());
     req.set_header("Accept", "*/*");
