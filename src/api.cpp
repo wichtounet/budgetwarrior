@@ -30,7 +30,6 @@ budget::api_response base_api_get(Cli& cli, const std::string& api, bool silent)
     req.path = api_complete.c_str();
     req.progress = [](int64_t,int64_t){};
 
-    req.set_header("Host", (server + ":" + server_port).c_str());
     req.set_header("Accept", "*/*");
     req.set_header("User-Agent", "cpp-httplib/0.1");
 
@@ -38,7 +37,8 @@ budget::api_response base_api_get(Cli& cli, const std::string& api, bool silent)
         auto user = budget::get_web_user();
         auto password = budget::get_web_password();
 
-        req.set_header("Authorization", ("Basic " + budget::base64_encode(user + ":" + password)).c_str());
+        std::string authorization = "Basic " + budget::base64_encode(user + ":" + password);
+        req.set_header("Authorization", authorization.c_str());
     }
 
     auto base_res = std::make_shared<httplib::Response>();
@@ -148,7 +148,7 @@ budget::api_response budget::api_get(const std::string& api, bool silent) {
     auto server      = config_value("server_url");
     auto server_port = config_value("server_port");
 
-    if(is_server_ssl()){
+    if (is_server_ssl()) {
         httplib::SSLClient cli(server.c_str(), budget::to_number<size_t>(server_port));
 
         return base_api_get(cli, api, silent);
