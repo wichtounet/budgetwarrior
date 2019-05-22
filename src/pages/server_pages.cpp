@@ -32,6 +32,7 @@
 #include "pages/report_pages.hpp"
 #include "pages/debts_pages.hpp"
 #include "pages/accounts_pages.hpp"
+#include "pages/incomes_pages.hpp"
 #include "pages/expenses_pages.hpp"
 #include "pages/earnings_pages.hpp"
 #include "pages/retirement_pages.hpp"
