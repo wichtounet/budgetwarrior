@@ -81,6 +81,8 @@ void budget::show_incomes(budget::writer& w) {
 
     w << title_begin << "Incomes " << add_button("incomes") << title_end;
 
+    w << p_begin << "Current income: " << get_base_income() << " " << get_default_currency() << p_end;
+
     std::vector<std::string> columns = {"ID", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
