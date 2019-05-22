@@ -284,6 +284,8 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/accounts/add/">Add Account</a>
                   <a class="dropdown-item" href="/accounts/archive/month/">Archive Account (month)</a>
                   <a class="dropdown-item" href="/accounts/archive/year/">Archive Account (year)</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="/incomes/">Incomes</a>
                 </div>
               </li>
         )=====";
@@ -458,6 +460,8 @@ void budget::load_pages(httplib::Server& server) {
     server.Post("/accounts/edit/", &edit_accounts_page);
     server.Get("/accounts/archive/month/", &archive_accounts_month_page);
     server.Get("/accounts/archive/year/", &archive_accounts_year_page);
+
+    server.Get("/incomes/", &incomes_page);
 
     server.Get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
     server.Get("/expenses/", &expenses_page);
