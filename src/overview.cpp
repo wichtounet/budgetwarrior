@@ -21,6 +21,7 @@
 #include "earnings.hpp"
 #include "budget_exception.hpp"
 #include "config.hpp"
+#include "incomes.hpp"
 #include "writer.hpp"
 
 using namespace budget;
@@ -500,6 +501,7 @@ constexpr const std::array<std::pair<const char*, const char*>, 1> budget::modul
 
 void budget::overview_module::load(){
     load_accounts();
+    load_incomes();
     load_expenses();
     load_earnings();
 }
@@ -919,13 +921,13 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     std::vector<budget::money> balances;
     std::vector<budget::money> local_balances;
 
-    budget::money income;
+    budget::money income = get_base_income(budget::date(year, month, 1));
 
     for(size_t i = 0; i < accounts.size(); ++i){
         balances.push_back(total_budgets[i] - total_expenses[i] + total_earnings[i]);
         local_balances.push_back(accounts[i].amount - total_expenses[i] + total_earnings[i]);
 
-        income += accounts[i].amount + total_earnings[i];
+        income += total_earnings[i];
     }
 
     add_recap_line(contents, "Balance", balances, [](const budget::money& m){ return format_money(m);});
@@ -940,7 +942,7 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
 
     double savings_rate = 0.0;
 
-    if(total_local_balance.value > 0){
+    if (total_local_balance.value > 0) {
         savings_rate = 100 * (total_local_balance.dollars() / double(income.dollars()));
     }
 

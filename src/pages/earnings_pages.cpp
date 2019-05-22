@@ -10,6 +10,7 @@
 
 #include "accounts.hpp"
 #include "earnings.hpp"
+#include "incomes.hpp"
 
 #include "writer.hpp"
 #include "pages/earnings_pages.hpp"
