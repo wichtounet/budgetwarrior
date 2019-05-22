@@ -75,11 +75,11 @@ void budget::incomes_module::handle(const std::vector<std::string>& args){
 
 void budget::show_incomes(budget::writer& w) {
     if (!incomes.size()) {
-        w << title_begin << "No income " << add_button("incomes") << title_end;
+        w << title_begin << "No income " << set_button("incomes") << title_end;
         return;
     }
 
-    w << title_begin << "Incomes " << add_button("incomes") << title_end;
+    w << title_begin << "Incomes " << set_button("incomes") << title_end;
 
     w << p_begin << "Current income: " << get_base_income() << " " << get_default_currency() << p_end;
 
