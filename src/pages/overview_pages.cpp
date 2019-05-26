@@ -14,6 +14,7 @@
 #include "pages/overview_pages.hpp"
 #include "http.hpp"
 #include "config.hpp"
+#include "compute.hpp"
 
 using namespace budget;
 
@@ -152,29 +153,13 @@ void budget::time_graph_savings_rate_page(const httplib::Request& req, httplib::
         for (unsigned short i = sm; i < last; ++i) {
             budget::month month = i;
 
-            budget::money income;
-            budget::money expenses;
+            auto status = budget::compute_month_status(year, month);
 
-            for (auto& account : all_accounts(year, month)) {
-                income += account.amount;
-            }
+            auto savings = status.income - status.expenses;
+            auto savings_rate = 0.0;
 
-            for (auto& earning : all_earnings()) {
-                if (earning.date.year() == year && earning.date.month() == month) {
-                    income += earning.amount;
-                }
-            }
-
-            for (auto& expense : all_expenses()) {
-                if (expense.date.year() == year && expense.date.month() == month) {
-                    expenses += expense.amount;
-                }
-            }
-
-            auto savings_rate = (income - expenses) / income;
-
-            if (savings_rate < 0) {
-                savings_rate = 0;
+            if (savings.dollars() > 0) {
+                savings_rate = savings / status.income;
             }
 
             std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(month.value - 1) + ", 1)";
