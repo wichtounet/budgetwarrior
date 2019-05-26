@@ -708,12 +708,12 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         generate_total_line<true, false>(contents, totals, year, sm);
     }
 
-    if(last){
+    if (last) {
         contents.push_back({"Previous Year"});
 
         budget::money total;
 
-        for(unsigned short i = sm; i < 13; ++i){
+        for (unsigned short i = sm; i < 13; ++i) {
             budget::month m = i;
 
             auto status = compute_month_status(year - 1, m);
@@ -726,7 +726,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         contents.back().push_back(format_money(total));
         contents.back().push_back(format_money(total / 12));
 
-        if(current){
+        if (current) {
             contents.back().push_back(format_money(total));
             contents.back().push_back(format_money(total / 12));
         }
@@ -743,10 +743,11 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
             auto status = compute_month_status(year, m);
 
+            auto savings        = status.income - status.expenses;
             double savings_rate = 0.0;
 
-            if (status.balance.dollars() > 0) {
-                savings_rate = 100.0 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+            if (savings.dollars() > 0) {
+                savings_rate = 100.0 * (savings / status.income);
             }
 
             contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
