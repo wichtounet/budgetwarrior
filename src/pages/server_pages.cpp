@@ -287,6 +287,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/accounts/archive/year/">Archive Account (year)</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="/incomes/">Incomes</a>
+                  <a class="dropdown-item" href="/incomes/set/">Set Income</a>
                 </div>
               </li>
         )=====";
