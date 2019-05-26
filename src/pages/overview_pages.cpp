@@ -145,7 +145,7 @@ void budget::time_graph_savings_rate_page(const httplib::Request& req, httplib::
         auto sm = start_month(year);
         auto last = 13;
 
-        if(year == budget::local_day().year()){
+        if (year == budget::local_day().year()) {
             last = budget::local_day().month() + 1;
         }
 
