@@ -940,10 +940,11 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     auto total_balance = std::accumulate(balances.begin(), balances.end(), budget::money());
     auto total_local_balance = std::accumulate(local_balances.begin(), local_balances.end(), budget::money());
 
+    budget::money savings = income - total_all_expenses;
     double savings_rate = 0.0;
 
-    if (total_local_balance.value > 0) {
-        savings_rate = 100 * (total_local_balance.dollars() / double(income.dollars()));
+    if (savings.value > 0) {
+        savings_rate = 100 * (savings / income);
     }
 
     auto avg_status = budget::compute_avg_month_status(year, month);
