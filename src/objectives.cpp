@@ -412,10 +412,11 @@ std::string budget::get_status(const budget::status& status, const budget::objec
     } else if (objective.source == "earnings") {
         basis = status.earnings;
     } else if (objective.source == "savings_rate") {
+        auto savings        = status.income - status.expenses;
         double savings_rate = 0.0;
 
-        if(status.balance.dollars() > 0){
-            savings_rate = 100 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+        if (savings.dollars() > 0) {
+            savings_rate = 100 * (savings / status.income);
         }
 
         basis = budget::money(int(savings_rate));
