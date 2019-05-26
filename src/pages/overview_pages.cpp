@@ -139,7 +139,7 @@ void budget::time_graph_savings_rate_page(const httplib::Request& req, httplib::
 
     auto sy = start_year();
 
-    for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
+    for (unsigned short j = sy; j <= budget::local_day().year(); ++j) {
         budget::year year = j;
 
         auto sm = start_month(year);
@@ -149,31 +149,31 @@ void budget::time_graph_savings_rate_page(const httplib::Request& req, httplib::
             last = budget::local_day().month() + 1;
         }
 
-        for(unsigned short i = sm; i < last; ++i){
+        for (unsigned short i = sm; i < last; ++i) {
             budget::month month = i;
 
             budget::money income;
             budget::money expenses;
 
-            for(auto& account : all_accounts(year, month)){
+            for (auto& account : all_accounts(year, month)) {
                 income += account.amount;
             }
 
-            for(auto& earning : all_earnings()){
-                if(earning.date.year() == year && earning.date.month() == month){
+            for (auto& earning : all_earnings()) {
+                if (earning.date.year() == year && earning.date.month() == month) {
                     income += earning.amount;
                 }
             }
 
-            for(auto& expense : all_expenses()){
-                if(expense.date.year() == year && expense.date.month() == month){
+            for (auto& expense : all_expenses()) {
+                if (expense.date.year() == year && expense.date.month() == month) {
                     expenses += expense.amount;
                 }
             }
 
             auto savings_rate = (income - expenses) / income;
 
-            if(savings_rate < 0){
+            if (savings_rate < 0) {
                 savings_rate = 0;
             }
 
@@ -194,12 +194,12 @@ void budget::time_graph_savings_rate_page(const httplib::Request& req, httplib::
     std::array<float, 12> average_12;
     average_12.fill(0.0f);
 
-    for(size_t i = 0; i < serie.size(); ++i){
+    for (size_t i = 0; i < serie.size(); ++i) {
         average_12[i % 12] = serie[i];
 
         auto average = std::accumulate(average_12.begin(), average_12.end(), 0.0f);
 
-        if(i < 12){
+        if (i < 12) {
             average = average / float(i + 1);
         } else {
             average = average / 12.f;
