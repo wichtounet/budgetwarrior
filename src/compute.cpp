@@ -52,11 +52,12 @@ budget::status budget::compute_month_status(month month) {
 budget::status budget::compute_month_status(year year, month month) {
     budget::status status;
 
-    status.expenses = accumulate_amount(all_expenses_month(year, month));
-    status.earnings = accumulate_amount(all_earnings_month(year, month));
-    status.budget   = accumulate_amount(all_accounts(year, month));
-    status.balance  = status.budget + status.earnings - status.expenses;
-    status.income   = get_base_income(budget::date(year, month, 1)) + status.earnings;
+    status.expenses    = accumulate_amount(all_expenses_month(year, month));
+    status.earnings    = accumulate_amount(all_earnings_month(year, month));
+    status.budget      = accumulate_amount(all_accounts(year, month));
+    status.balance     = status.budget + status.earnings - status.expenses;
+    status.base_income = get_base_income(budget::date(year, month, 1));
+    status.income      = status.base_income + status.earnings;
 
     return status;
 }

@@ -782,13 +782,13 @@ void budget::show_asset_portfolio(budget::writer& w){
 
     budget::money total;
 
-    for (auto& asset : assets.data) {
+    for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
             total += get_asset_value_conv(asset);
         }
     }
 
-    for(auto& asset : assets.data){
+    for(auto& asset : all_user_assets()){
         if (asset.portfolio) {
             auto amount = get_asset_value(asset);
 
@@ -824,7 +824,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     budget::money total;
 
-    for (auto& asset : assets.data) {
+    for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
             total += get_asset_value_conv(asset);
         }
@@ -832,7 +832,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     budget::money total_rebalance;
 
-    for (auto& asset : assets.data) {
+    for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
             auto amount = get_asset_value(asset);
 
@@ -886,7 +886,7 @@ void budget::small_show_asset_values(budget::writer& w){
     budget::money cash;
     budget::money total;
 
-    for (auto& asset : assets.data) {
+    for (auto& asset : all_user_assets()) {
         auto amount = get_asset_value(asset);
 
         if (amount) {
@@ -923,7 +923,7 @@ void budget::show_asset_values(budget::writer& w){
     budget::money cash;
     budget::money total;
 
-    for(auto& asset : assets.data){
+    for(auto& asset : all_user_assets()){
         auto amount = get_asset_value(asset);
 
         if (amount) {
@@ -1131,7 +1131,7 @@ void budget::list_asset_shares(budget::writer& w){
 budget::money budget::get_portfolio_value(){
     budget::money total;
 
-    for (auto & asset : assets.data) {
+    for (auto & asset : all_user_assets()) {
         if (asset.portfolio) {
             total += get_asset_value_conv(asset);
         }
@@ -1147,7 +1147,7 @@ budget::money budget::get_net_worth(){
 budget::money budget::get_net_worth(budget::date d){
     budget::money total;
 
-    for (auto & asset : assets.data) {
+    for (auto & asset : all_user_assets()) {
         total += get_asset_value_conv(asset, d);
     }
 
@@ -1157,7 +1157,7 @@ budget::money budget::get_net_worth(budget::date d){
 budget::money budget::get_net_worth_cash(){
     budget::money total;
 
-    for (auto & asset : assets.data) {
+    for (auto & asset : all_user_assets()) {
         if (asset.cash == budget::money(100)) {
             total += get_asset_value_conv(asset);
         }
