@@ -183,7 +183,9 @@ double budget::exchange_rate(const std::string& from, budget::date d){
 }
 
 double budget::exchange_rate(const std::string& from, const std::string& to, budget::date d){
-    if(from == to){
+    assert(from != "DESIRED" && to != "DESIRED");
+
+    if (from == to) {
         return 1.0;
     } else {
         auto date_str    = budget::date_to_string(d);
