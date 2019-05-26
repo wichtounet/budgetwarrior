@@ -12,5 +12,6 @@
 namespace budget {
 
 void incomes_page(const httplib::Request& req, httplib::Response& res);
+void set_incomes_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget

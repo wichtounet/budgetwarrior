@@ -463,6 +463,7 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/accounts/archive/year/", &archive_accounts_year_page);
 
     server.Get("/incomes/", &incomes_page);
+    server.Get("/incomes/set/", &set_incomes_page);
 
     server.Get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
     server.Get("/expenses/", &expenses_page);
