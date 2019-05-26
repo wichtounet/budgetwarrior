@@ -230,8 +230,6 @@ budget::income & budget::new_income(budget::money amount, bool print){
                 std::cout << "Income " << id << " has been modified" << std::endl;
             }
         }
-
-        return previous_income;
     }
 
     auto id = incomes.add(std::move(new_income));
