@@ -11,6 +11,7 @@
 #include "expenses.hpp"
 #include "earnings.hpp"
 #include "accounts.hpp"
+#include "incomes.hpp"
 
 budget::status budget::compute_year_status() {
     auto today = budget::local_day();
@@ -55,6 +56,7 @@ budget::status budget::compute_month_status(year year, month month) {
     status.earnings = accumulate_amount(all_earnings_month(year, month));
     status.budget   = accumulate_amount(all_accounts(year, month));
     status.balance  = status.budget + status.earnings - status.expenses;
+    status.income   = get_base_income(budget::date(year, month, 1));
 
     return status;
 }

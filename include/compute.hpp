@@ -17,6 +17,7 @@ struct status {
     budget::money earnings;
     budget::money budget;
     budget::money balance;
+    budget::money income;
 
     status add_expense(budget::money expense){
         auto new_status = *this;
