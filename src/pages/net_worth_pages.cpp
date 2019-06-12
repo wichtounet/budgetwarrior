@@ -173,7 +173,7 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
         budget::money sum;
 
         for (auto & asset : all_user_assets()) {
-            sum += get_asset_value(asset, date);
+            sum += get_asset_value_conv(asset, date);
         }
 
         ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
