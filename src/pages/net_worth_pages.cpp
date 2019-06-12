@@ -489,32 +489,20 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
 
     ss << "series: [";
 
-    auto sorted_asset_values = all_sorted_asset_values();
-
     for (auto& currency : currencies) {
         ss << "{ name: '" << currency << "',";
         ss << "data: [";
 
-        std::map<size_t, budget::money> asset_amounts;
+        auto date     = budget::asset_start_date();
+        auto end_date = budget::local_day();
 
-        auto it  = sorted_asset_values.begin();
-        auto end = sorted_asset_values.end();
-
-        while (it != end) {
-            auto date = it->set_date;
-
-            while (it->set_date == date) {
-                if (get_asset(it->asset_id).currency == currency) {
-                    asset_amounts[it->asset_id] = it->amount * exchange_rate(get_asset(it->asset_id).currency, date);
-                }
-
-                ++it;
-            }
-
+        while (date <= end_date) {
             budget::money sum;
 
-            for (auto& asset : asset_amounts) {
-                sum += asset.second;
+            for (auto & asset : all_user_assets()) {
+                if (asset.currency == currency) {
+                    sum += get_asset_value_conv(asset, date);
+                }
             }
 
             ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
@@ -543,18 +531,12 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
         ss2 << "{ name: '" << currency << "',";
         ss2 << "y: ";
 
-        std::map<size_t, budget::money> asset_amounts;
-
-        for (auto& asset_value : sorted_asset_values) {
-            if (get_asset(asset_value.asset_id).currency == currency) {
-                asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(get_asset(asset_value.asset_id).currency);
-            }
-        }
-
         budget::money sum;
 
-        for (auto& asset : asset_amounts) {
-            sum += asset.second;
+        for (auto & asset : all_user_assets()) {
+            if (asset.currency == currency) {
+                sum += get_asset_value_conv(asset);
+            }
         }
 
         ss2 << budget::to_flat_string(sum);
