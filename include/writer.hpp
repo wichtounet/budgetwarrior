@@ -52,6 +52,13 @@ struct add_button {
             : module(module) {}
 };
 
+struct set_button {
+    std::string module;
+
+    set_button(std::string module)
+            : module(module) {}
+};
+
 struct writer {
     virtual writer& operator<<(const std::string& value) = 0;
     virtual writer& operator<<(const double& value) = 0;
@@ -77,6 +84,10 @@ struct writer {
     }
 
     virtual writer& operator<<(const add_button&){
+        return *this;
+    }
+
+    virtual writer& operator<<(const set_button&){
         return *this;
     }
 
@@ -128,6 +139,7 @@ struct html_writer : writer {
     virtual writer& operator<<(const year_month_selector& m) override;
     virtual writer& operator<<(const year_selector& m) override;
     virtual writer& operator<<(const add_button& m) override;
+    virtual writer& operator<<(const set_button& m) override;
 
     virtual bool is_web() override;
 

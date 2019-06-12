@@ -344,6 +344,21 @@ budget::writer& budget::html_writer::operator<<(const budget::add_button& b) {
     return *this;
 }
 
+budget::writer& budget::html_writer::operator<<(const budget::set_button& b) {
+    if (title_started) {
+        os << "</h2>";  // end of the title
+        os << "</div>"; // end of the col
+    }
+
+    title_started = false;
+
+    os << R"======(<div class="col-auto">)======";
+    os << "<a href=\"/" << b.module << "/set/\" class=\"btn btn-info\" role=\"button\">Set</a>\n";
+    os << R"======(</div>)======";
+
+    return *this;
+}
+
 void budget::html_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left, size_t foot){
     cpp_assert(groups > 0, "There must be at least 1 group");
     cpp_unused(left);

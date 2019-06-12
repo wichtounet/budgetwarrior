@@ -42,7 +42,7 @@ double get_rate_v1(const std::string& from, const std::string& to){
 
     std::string api_complete = "/api/v3/convert?q=" + from + "_" + to + "&compact=ultra";
 
-    auto res = cli.get(api_complete.c_str());
+    auto res = cli.Get(api_complete.c_str());
 
     if (!res) {
         std::cout << "Error accessing exchange rates (no response), setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
@@ -73,7 +73,7 @@ double get_rate_v2(const std::string& from, const std::string& to, const std::st
 
     std::string api_complete = "/" + date + "?symbols=" + to + "&base=" + from;
 
-    auto res = cli.get(api_complete.c_str());
+    auto res = cli.Get(api_complete.c_str());
 
     if (!res) {
         std::cout << "ERROR: Currency(v2): No response, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
@@ -183,7 +183,9 @@ double budget::exchange_rate(const std::string& from, budget::date d){
 }
 
 double budget::exchange_rate(const std::string& from, const std::string& to, budget::date d){
-    if(from == to){
+    assert(from != "DESIRED" && to != "DESIRED");
+
+    if (from == to) {
         return 1.0;
     } else {
         auto date_str    = budget::date_to_string(d);

@@ -672,6 +672,30 @@ std::vector<asset_value> budget::all_sorted_asset_values() {
     return sorted_asset_values;
 }
 
+budget::date budget::asset_start_date() {
+    budget::date start = budget::local_day();
+
+    //TODO If necessary, avoid double loops
+
+    for (auto & asset : all_user_assets()) {
+        if (asset.share_based) {
+            for (auto & share : all_asset_shares()) {
+                if (share.asset_id == asset.id) {
+                    start = std::min(share.date, start);
+                }
+            }
+       } else {
+           for (auto & value : all_asset_values()) {
+               if (value.asset_id == asset.id) {
+                   start = std::min(value.set_date, start);
+               }
+           }
+       }
+    }
+
+    return start;
+}
+
 std::vector<asset_share>& budget::all_asset_shares(){
     return asset_shares.data;
 }
@@ -758,13 +782,13 @@ void budget::show_asset_portfolio(budget::writer& w){
 
     budget::money total;
 
-    for (auto& asset : assets.data) {
+    for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
             total += get_asset_value_conv(asset);
         }
     }
 
-    for(auto& asset : assets.data){
+    for(auto& asset : all_user_assets()){
         if (asset.portfolio) {
             auto amount = get_asset_value(asset);
 
@@ -800,7 +824,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     budget::money total;
 
-    for (auto& asset : assets.data) {
+    for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
             total += get_asset_value_conv(asset);
         }
@@ -808,7 +832,7 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     budget::money total_rebalance;
 
-    for (auto& asset : assets.data) {
+    for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
             auto amount = get_asset_value(asset);
 
@@ -862,7 +886,7 @@ void budget::small_show_asset_values(budget::writer& w){
     budget::money cash;
     budget::money total;
 
-    for (auto& asset : assets.data) {
+    for (auto& asset : all_user_assets()) {
         auto amount = get_asset_value(asset);
 
         if (amount) {
@@ -899,7 +923,7 @@ void budget::show_asset_values(budget::writer& w){
     budget::money cash;
     budget::money total;
 
-    for(auto& asset : assets.data){
+    for(auto& asset : all_user_assets()){
         auto amount = get_asset_value(asset);
 
         if (amount) {
@@ -1107,7 +1131,7 @@ void budget::list_asset_shares(budget::writer& w){
 budget::money budget::get_portfolio_value(){
     budget::money total;
 
-    for (auto & asset : assets.data) {
+    for (auto & asset : all_user_assets()) {
         if (asset.portfolio) {
             total += get_asset_value_conv(asset);
         }
@@ -1123,7 +1147,7 @@ budget::money budget::get_net_worth(){
 budget::money budget::get_net_worth(budget::date d){
     budget::money total;
 
-    for (auto & asset : assets.data) {
+    for (auto & asset : all_user_assets()) {
         total += get_asset_value_conv(asset, d);
     }
 
@@ -1133,7 +1157,7 @@ budget::money budget::get_net_worth(budget::date d){
 budget::money budget::get_net_worth_cash(){
     budget::money total;
 
-    for (auto & asset : assets.data) {
+    for (auto & asset : all_user_assets()) {
         if (asset.cash == budget::money(100)) {
             total += get_asset_value_conv(asset);
         }

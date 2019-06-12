@@ -19,10 +19,11 @@
 #include "earnings.hpp"
 #include "expenses.hpp"
 #include "accounts.hpp"
+#include "incomes.hpp"
 
 using namespace budget;
 
-namespace { 
+namespace {
 
 budget::money monthly_income(budget::month month, budget::year year) {
     std::map<size_t, budget::money> account_sum;

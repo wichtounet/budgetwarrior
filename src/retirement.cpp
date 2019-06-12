@@ -17,6 +17,7 @@
 #include "config.hpp"
 #include "console.hpp"
 #include "writer.hpp"
+#include "incomes.hpp"
 
 using namespace budget;
 

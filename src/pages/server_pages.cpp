@@ -32,6 +32,7 @@
 #include "pages/report_pages.hpp"
 #include "pages/debts_pages.hpp"
 #include "pages/accounts_pages.hpp"
+#include "pages/incomes_pages.hpp"
 #include "pages/expenses_pages.hpp"
 #include "pages/earnings_pages.hpp"
 #include "pages/retirement_pages.hpp"
@@ -284,6 +285,9 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/accounts/add/">Add Account</a>
                   <a class="dropdown-item" href="/accounts/archive/month/">Archive Account (month)</a>
                   <a class="dropdown-item" href="/accounts/archive/year/">Archive Account (year)</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="/incomes/">Incomes</a>
+                  <a class="dropdown-item" href="/incomes/set/">Set Income</a>
                 </div>
               </li>
         )=====";
@@ -437,105 +441,108 @@ bool validate_parameters(std::stringstream& content_stream, const httplib::Reque
 
 void budget::load_pages(httplib::Server& server) {
     // Declare all the pages
-    server.get("/", &index_page);
+    server.Get("/", &index_page);
 
-    server.get("/overview/year/", &overview_year_page);
-    server.get(R"(/overview/year/(\d+)/)", &overview_year_page);
-    server.get("/overview/", &overview_page);
-    server.get(R"(/overview/(\d+)/(\d+)/)", &overview_page);
-    server.get("/overview/aggregate/year/", &overview_aggregate_year_page);
-    server.get(R"(/overview/aggregate/year/(\d+)/)", &overview_aggregate_year_page);
-    server.get("/overview/aggregate/month/", &overview_aggregate_month_page);
-    server.get(R"(/overview/aggregate/month/(\d+)/(\d+)/)", &overview_aggregate_month_page);
-    server.get("/overview/aggregate/all/", &overview_aggregate_all_page);
-    server.get("/overview/savings/time/", &time_graph_savings_rate_page);
+    server.Get("/overview/year/", &overview_year_page);
+    server.Get(R"(/overview/year/(\d+)/)", &overview_year_page);
+    server.Get("/overview/", &overview_page);
+    server.Get(R"(/overview/(\d+)/(\d+)/)", &overview_page);
+    server.Get("/overview/aggregate/year/", &overview_aggregate_year_page);
+    server.Get(R"(/overview/aggregate/year/(\d+)/)", &overview_aggregate_year_page);
+    server.Get("/overview/aggregate/month/", &overview_aggregate_month_page);
+    server.Get(R"(/overview/aggregate/month/(\d+)/(\d+)/)", &overview_aggregate_month_page);
+    server.Get("/overview/aggregate/all/", &overview_aggregate_all_page);
+    server.Get("/overview/savings/time/", &time_graph_savings_rate_page);
 
-    server.get("/report/", &report_page);
+    server.Get("/report/", &report_page);
 
-    server.get("/accounts/", &accounts_page);
-    server.get("/accounts/all/", &all_accounts_page);
-    server.get("/accounts/add/", &add_accounts_page);
-    server.post("/accounts/edit/", &edit_accounts_page);
-    server.get("/accounts/archive/month/", &archive_accounts_month_page);
-    server.get("/accounts/archive/year/", &archive_accounts_year_page);
+    server.Get("/accounts/", &accounts_page);
+    server.Get("/accounts/all/", &all_accounts_page);
+    server.Get("/accounts/add/", &add_accounts_page);
+    server.Post("/accounts/edit/", &edit_accounts_page);
+    server.Get("/accounts/archive/month/", &archive_accounts_month_page);
+    server.Get("/accounts/archive/year/", &archive_accounts_year_page);
 
-    server.get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
-    server.get("/expenses/", &expenses_page);
-    server.get("/expenses/search/", &search_expenses_page);
+    server.Get("/incomes/", &incomes_page);
+    server.Get("/incomes/set/", &set_incomes_page);
 
-    server.get(R"(/expenses/breakdown/month/(\d+)/(\d+)/)", &month_breakdown_expenses_page);
-    server.get("/expenses/breakdown/month/", &month_breakdown_expenses_page);
+    server.Get(R"(/expenses/(\d+)/(\d+)/)", &expenses_page);
+    server.Get("/expenses/", &expenses_page);
+    server.Get("/expenses/search/", &search_expenses_page);
 
-    server.get(R"(/expenses/breakdown/year/(\d+)/)", &year_breakdown_expenses_page);
-    server.get("/expenses/breakdown/year/", &year_breakdown_expenses_page);
+    server.Get(R"(/expenses/breakdown/month/(\d+)/(\d+)/)", &month_breakdown_expenses_page);
+    server.Get("/expenses/breakdown/month/", &month_breakdown_expenses_page);
 
-    server.get("/expenses/time/", &time_graph_expenses_page);
-    server.get("/expenses/all/", &all_expenses_page);
-    server.get("/expenses/add/", &add_expenses_page);
-    server.post("/expenses/edit/", &edit_expenses_page);
+    server.Get(R"(/expenses/breakdown/year/(\d+)/)", &year_breakdown_expenses_page);
+    server.Get("/expenses/breakdown/year/", &year_breakdown_expenses_page);
 
-    server.get(R"(/earnings/(\d+)/(\d+)/)", &earnings_page);
-    server.get("/earnings/", &earnings_page);
+    server.Get("/expenses/time/", &time_graph_expenses_page);
+    server.Get("/expenses/all/", &all_expenses_page);
+    server.Get("/expenses/add/", &add_expenses_page);
+    server.Post("/expenses/edit/", &edit_expenses_page);
 
-    server.get("/earnings/time/", &time_graph_earnings_page);
-    server.get("/income/time/", &time_graph_income_page);
-    server.get("/earnings/all/", &all_earnings_page);
-    server.get("/earnings/add/", &add_earnings_page);
-    server.post("/earnings/edit/", &edit_earnings_page);
+    server.Get(R"(/earnings/(\d+)/(\d+)/)", &earnings_page);
+    server.Get("/earnings/", &earnings_page);
 
-    server.get("/portfolio/status/", &portfolio_status_page);
-    server.get("/portfolio/graph/", &portfolio_graph_page);
-    server.get("/portfolio/currency/", &portfolio_currency_page);
-    server.get("/portfolio/allocation/", &portfolio_allocation_page);
-    server.get("/rebalance/", &rebalance_page);
-    server.get("/assets/", &assets_page);
-    server.get("/net_worth/status/", &net_worth_status_page);
-    server.get("/net_worth/status/small/", &net_worth_small_status_page); // Not in the menu for now
-    server.get("/net_worth/graph/", &net_worth_graph_page);
-    server.get("/net_worth/currency/", &net_worth_currency_page);
-    server.get("/net_worth/allocation/", &net_worth_allocation_page);
-    server.get("/assets/add/", &add_assets_page);
-    server.post("/assets/edit/", &edit_assets_page);
+    server.Get("/earnings/time/", &time_graph_earnings_page);
+    server.Get("/income/time/", &time_graph_income_page);
+    server.Get("/earnings/all/", &all_earnings_page);
+    server.Get("/earnings/add/", &add_earnings_page);
+    server.Post("/earnings/edit/", &edit_earnings_page);
 
-    server.get("/asset_values/list/", &list_asset_values_page);
-    server.get("/asset_values/add/", &add_asset_values_page);
-    server.get("/asset_values/batch/full/", &full_batch_asset_values_page);
-    server.get("/asset_values/batch/current/", &current_batch_asset_values_page);
-    server.post("/asset_values/edit/", &edit_asset_values_page);
+    server.Get("/portfolio/status/", &portfolio_status_page);
+    server.Get("/portfolio/graph/", &portfolio_graph_page);
+    server.Get("/portfolio/currency/", &portfolio_currency_page);
+    server.Get("/portfolio/allocation/", &portfolio_allocation_page);
+    server.Get("/rebalance/", &rebalance_page);
+    server.Get("/assets/", &assets_page);
+    server.Get("/net_worth/status/", &net_worth_status_page);
+    server.Get("/net_worth/status/small/", &net_worth_small_status_page); // Not in the menu for now
+    server.Get("/net_worth/graph/", &net_worth_graph_page);
+    server.Get("/net_worth/currency/", &net_worth_currency_page);
+    server.Get("/net_worth/allocation/", &net_worth_allocation_page);
+    server.Get("/assets/add/", &add_assets_page);
+    server.Post("/assets/edit/", &edit_assets_page);
 
-    server.get("/asset_shares/list/", &list_asset_shares_page);
-    server.get("/asset_shares/add/", &add_asset_shares_page);
-    server.post("/asset_shares/edit/", &edit_asset_shares_page);
+    server.Get("/asset_values/list/", &list_asset_values_page);
+    server.Get("/asset_values/add/", &add_asset_values_page);
+    server.Get("/asset_values/batch/full/", &full_batch_asset_values_page);
+    server.Get("/asset_values/batch/current/", &current_batch_asset_values_page);
+    server.Post("/asset_values/edit/", &edit_asset_values_page);
 
-    server.get("/objectives/list/", &list_objectives_page);
-    server.get("/objectives/status/", &status_objectives_page);
-    server.get("/objectives/add/", &add_objectives_page);
-    server.post("/objectives/edit/", &edit_objectives_page);
+    server.Get("/asset_shares/list/", &list_asset_shares_page);
+    server.Get("/asset_shares/add/", &add_asset_shares_page);
+    server.Post("/asset_shares/edit/", &edit_asset_shares_page);
 
-    server.get("/wishes/list/", &wishes_list_page);
-    server.get("/wishes/status/", &wishes_status_page);
-    server.get("/wishes/estimate/", &wishes_estimate_page);
-    server.get("/wishes/add/", &add_wishes_page);
-    server.post("/wishes/edit/", &edit_wishes_page);
+    server.Get("/objectives/list/", &list_objectives_page);
+    server.Get("/objectives/status/", &status_objectives_page);
+    server.Get("/objectives/add/", &add_objectives_page);
+    server.Post("/objectives/edit/", &edit_objectives_page);
 
-    server.get("/retirement/status/", &retirement_status_page);
-    server.get("/retirement/configure/", &retirement_configure_page);
-    server.get("/retirement/fi/", &retirement_fi_ratio_over_time);
+    server.Get("/wishes/list/", &wishes_list_page);
+    server.Get("/wishes/status/", &wishes_status_page);
+    server.Get("/wishes/estimate/", &wishes_estimate_page);
+    server.Get("/wishes/add/", &add_wishes_page);
+    server.Post("/wishes/edit/", &edit_wishes_page);
 
-    server.get("/recurrings/list/", &recurrings_list_page);
-    server.get("/recurrings/add/", &add_recurrings_page);
-    server.post("/recurrings/edit/", &edit_recurrings_page);
+    server.Get("/retirement/status/", &retirement_status_page);
+    server.Get("/retirement/configure/", &retirement_configure_page);
+    server.Get("/retirement/fi/", &retirement_fi_ratio_over_time);
 
-    server.get("/debts/list/", &budget::list_debts_page);
-    server.get("/debts/all/", &budget::all_debts_page);
-    server.get("/debts/add/", &budget::add_debts_page);
-    server.post("/debts/edit/", &budget::edit_debts_page);
+    server.Get("/recurrings/list/", &recurrings_list_page);
+    server.Get("/recurrings/add/", &add_recurrings_page);
+    server.Post("/recurrings/edit/", &edit_recurrings_page);
 
-    server.get("/fortunes/graph/", &graph_fortunes_page);
-    server.get("/fortunes/status/", &status_fortunes_page);
-    server.get("/fortunes/list/", &list_fortunes_page);
-    server.get("/fortunes/add/", &add_fortunes_page);
-    server.post("/fortunes/edit/", &edit_fortunes_page);
+    server.Get("/debts/list/", &budget::list_debts_page);
+    server.Get("/debts/all/", &budget::all_debts_page);
+    server.Get("/debts/add/", &budget::add_debts_page);
+    server.Post("/debts/edit/", &budget::edit_debts_page);
+
+    server.Get("/fortunes/graph/", &graph_fortunes_page);
+    server.Get("/fortunes/status/", &status_fortunes_page);
+    server.Get("/fortunes/list/", &list_fortunes_page);
+    server.Get("/fortunes/add/", &add_fortunes_page);
+    server.Post("/fortunes/edit/", &edit_fortunes_page);
 
     // Handle error
 
@@ -857,7 +864,7 @@ std::stringstream budget::start_chart(budget::html_writer& w, const std::string&
     return ss;
 }
 
-std::stringstream budget::start_time_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type, 
+std::stringstream budget::start_time_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type,
                                            const std::string& id, std::string style) {
     // Note: Not nice but we are simply injecting zoomType here
     auto ss = start_chart_base(w, chart_type + "', zoomType: 'x", id, style);

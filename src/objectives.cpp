@@ -177,15 +177,16 @@ int budget::compute_success(const budget::status& status, const budget::objectiv
     auto amount = objective.amount;
 
     budget::money basis;
-    if(objective.source == "expenses"){
+    if (objective.source == "expenses") {
         basis = status.expenses;
     } else if (objective.source == "earnings") {
         basis = status.earnings;
     } else if (objective.source == "savings_rate") {
+        auto savings        = status.income - status.expenses;
         double savings_rate = 0.0;
 
-        if(status.balance.dollars() > 0){
-            savings_rate = 100 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+        if (savings.dollars() > 0) {
+            savings_rate = 100 * (savings / status.income);
         }
 
         basis = budget::money(int(savings_rate));
@@ -194,12 +195,12 @@ int budget::compute_success(const budget::status& status, const budget::objectiv
     }
 
     int success = 0;
-    if(objective.op == "min"){
+    if (objective.op == "min") {
         auto percent = basis.dollars() / static_cast<double>(amount.dollars());
-        success = percent * 100;
-    } else if(objective.op == "max"){
+        success      = percent * 100;
+    } else if (objective.op == "max") {
         auto percent = amount.dollars() / static_cast<double>(basis.dollars());
-        success = percent * 100;
+        success      = percent * 100;
     }
 
     success = std::max(0, success);

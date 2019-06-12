@@ -11,6 +11,7 @@
 #include "api/earnings_api.hpp"
 #include "api/expenses_api.hpp"
 #include "api/accounts_api.hpp"
+#include "api/incomes_api.hpp"
 #include "api/objectives_api.hpp"
 #include "api/recurrings_api.hpp"
 #include "api/debts_api.hpp"
@@ -84,69 +85,74 @@ void retirement_configure_api(const httplib::Request& req, httplib::Response& re
 } //end of anonymous namespace
 
 void budget::load_api(httplib::Server& server) {
-    server.get("/api/server/up/", &server_up_api);
-    server.get("/api/server/version/", &server_version_api);
-    server.post("/api/server/version/support/", &server_version_support_api);
+    server.Get("/api/server/up/", &server_up_api);
+    server.Get("/api/server/version/", &server_version_api);
+    server.Post("/api/server/version/support/", &server_version_support_api);
 
-    server.post("/api/accounts/add/", &add_accounts_api);
-    server.post("/api/accounts/edit/", &edit_accounts_api);
-    server.post("/api/accounts/delete/", &delete_accounts_api);
-    server.post("/api/accounts/archive/month/", &archive_accounts_month_api);
-    server.post("/api/accounts/archive/year/", &archive_accounts_year_api);
-    server.get("/api/accounts/list/", &list_accounts_api);
+    server.Post("/api/accounts/add/", &add_accounts_api);
+    server.Post("/api/accounts/edit/", &edit_accounts_api);
+    server.Post("/api/accounts/delete/", &delete_accounts_api);
+    server.Post("/api/accounts/archive/month/", &archive_accounts_month_api);
+    server.Post("/api/accounts/archive/year/", &archive_accounts_year_api);
+    server.Get("/api/accounts/list/", &list_accounts_api);
 
-    server.post("/api/expenses/add/", &add_expenses_api);
-    server.post("/api/expenses/edit/", &edit_expenses_api);
-    server.post("/api/expenses/delete/", &delete_expenses_api);
-    server.get("/api/expenses/list/", &list_expenses_api);
+    server.Post("/api/incomes/add/", &add_incomes_api);
+    server.Post("/api/incomes/edit/", &edit_incomes_api);
+    server.Post("/api/incomes/delete/", &delete_incomes_api);
+    server.Get("/api/incomes/list/", &list_incomes_api);
 
-    server.post("/api/earnings/add/", &add_earnings_api);
-    server.post("/api/earnings/edit/", &edit_earnings_api);
-    server.post("/api/earnings/delete/", &delete_earnings_api);
-    server.get("/api/earnings/list/", &list_earnings_api);
+    server.Post("/api/expenses/add/", &add_expenses_api);
+    server.Post("/api/expenses/edit/", &edit_expenses_api);
+    server.Post("/api/expenses/delete/", &delete_expenses_api);
+    server.Get("/api/expenses/list/", &list_expenses_api);
 
-    server.post("/api/recurrings/add/", &add_recurrings_api);
-    server.post("/api/recurrings/edit/", &edit_recurrings_api);
-    server.post("/api/recurrings/delete/", &delete_recurrings_api);
-    server.get("/api/recurrings/list/", &list_recurrings_api);
+    server.Post("/api/earnings/add/", &add_earnings_api);
+    server.Post("/api/earnings/edit/", &edit_earnings_api);
+    server.Post("/api/earnings/delete/", &delete_earnings_api);
+    server.Get("/api/earnings/list/", &list_earnings_api);
 
-    server.post("/api/debts/add/", &add_debts_api);
-    server.post("/api/debts/edit/", &edit_debts_api);
-    server.post("/api/debts/delete/", &delete_debts_api);
-    server.get("/api/debts/list/", &list_debts_api);
+    server.Post("/api/recurrings/add/", &add_recurrings_api);
+    server.Post("/api/recurrings/edit/", &edit_recurrings_api);
+    server.Post("/api/recurrings/delete/", &delete_recurrings_api);
+    server.Get("/api/recurrings/list/", &list_recurrings_api);
 
-    server.post("/api/fortunes/add/", &add_fortunes_api);
-    server.post("/api/fortunes/edit/", &edit_fortunes_api);
-    server.post("/api/fortunes/delete/", &delete_fortunes_api);
-    server.get("/api/fortunes/list/", &list_fortunes_api);
+    server.Post("/api/debts/add/", &add_debts_api);
+    server.Post("/api/debts/edit/", &edit_debts_api);
+    server.Post("/api/debts/delete/", &delete_debts_api);
+    server.Get("/api/debts/list/", &list_debts_api);
 
-    server.post("/api/wishes/add/", &add_wishes_api);
-    server.post("/api/wishes/edit/", &edit_wishes_api);
-    server.post("/api/wishes/delete/", &delete_wishes_api);
-    server.get("/api/wishes/list/", &list_wishes_api);
+    server.Post("/api/fortunes/add/", &add_fortunes_api);
+    server.Post("/api/fortunes/edit/", &edit_fortunes_api);
+    server.Post("/api/fortunes/delete/", &delete_fortunes_api);
+    server.Get("/api/fortunes/list/", &list_fortunes_api);
 
-    server.post("/api/assets/add/", &add_assets_api);
-    server.post("/api/assets/edit/", &edit_assets_api);
-    server.post("/api/assets/delete/", &delete_assets_api);
-    server.get("/api/assets/list/", &list_assets_api);
+    server.Post("/api/wishes/add/", &add_wishes_api);
+    server.Post("/api/wishes/edit/", &edit_wishes_api);
+    server.Post("/api/wishes/delete/", &delete_wishes_api);
+    server.Get("/api/wishes/list/", &list_wishes_api);
 
-    server.post("/api/asset_values/add/", &add_asset_values_api);
-    server.post("/api/asset_values/edit/", &edit_asset_values_api);
-    server.post("/api/asset_values/batch/", &batch_asset_values_api);
-    server.post("/api/asset_values/delete/", &delete_asset_values_api);
-    server.get("/api/asset_values/list/", &list_asset_values_api);
+    server.Post("/api/assets/add/", &add_assets_api);
+    server.Post("/api/assets/edit/", &edit_assets_api);
+    server.Post("/api/assets/delete/", &delete_assets_api);
+    server.Get("/api/assets/list/", &list_assets_api);
 
-    server.post("/api/asset_shares/add/", &add_asset_shares_api);
-    server.post("/api/asset_shares/edit/", &edit_asset_shares_api);
-    server.post("/api/asset_shares/delete/", &delete_asset_shares_api);
-    server.get("/api/asset_shares/list/", &list_asset_shares_api);
+    server.Post("/api/asset_values/add/", &add_asset_values_api);
+    server.Post("/api/asset_values/edit/", &edit_asset_values_api);
+    server.Post("/api/asset_values/batch/", &batch_asset_values_api);
+    server.Post("/api/asset_values/delete/", &delete_asset_values_api);
+    server.Get("/api/asset_values/list/", &list_asset_values_api);
 
-    server.post("/api/retirement/configure/", &retirement_configure_api);
+    server.Post("/api/asset_shares/add/", &add_asset_shares_api);
+    server.Post("/api/asset_shares/edit/", &edit_asset_shares_api);
+    server.Post("/api/asset_shares/delete/", &delete_asset_shares_api);
+    server.Get("/api/asset_shares/list/", &list_asset_shares_api);
 
-    server.post("/api/objectives/add/", &add_objectives_api);
-    server.post("/api/objectives/edit/", &edit_objectives_api);
-    server.post("/api/objectives/delete/", &delete_objectives_api);
-    server.get("/api/objectives/list/", &list_objectives_api);
+    server.Post("/api/retirement/configure/", &retirement_configure_api);
+
+    server.Post("/api/objectives/add/", &add_objectives_api);
+    server.Post("/api/objectives/edit/", &edit_objectives_api);
+    server.Post("/api/objectives/delete/", &delete_objectives_api);
+    server.Get("/api/objectives/list/", &list_objectives_api);
 }
 
 bool budget::api_start(const httplib::Request& req, httplib::Response& res) {

@@ -61,12 +61,6 @@ std::map<std::string, std::string> budget::account::get_params(){
     params["input_since"]  = budget::to_string(since);
     params["input_until"]  = budget::to_string(until);
 
-    std::string guid;
-    std::string name;
-    money amount;
-    date since;
-    date until;
-
     return params;
 }
 
@@ -568,19 +562,4 @@ budget::date budget::find_new_since(){
     }
 
     return date;
-}
-
-budget::money budget::get_base_income(){
-    auto today = budget::local_day();
-    return get_base_income(today);
-}
-
-budget::money budget::get_base_income(budget::date d){
-    budget::money income;
-
-    for (auto& account : all_accounts(d.year(), d.month())) {
-        income += account.amount;
-    }
-
-    return income;
 }
