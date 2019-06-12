@@ -506,6 +506,8 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
             }
 
             ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+
+            date += days(1);
         }
 
         ss << "]},";
