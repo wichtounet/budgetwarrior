@@ -111,7 +111,6 @@ budget::asset& get_desired_allocation();
 
 std::vector<budget::asset>& all_assets();
 std::vector<budget::asset_value>& all_asset_values();
-std::vector<budget::asset_value> all_sorted_asset_values();
 std::vector<budget::asset_share>& all_asset_shares();
 
 budget::date asset_start_date();

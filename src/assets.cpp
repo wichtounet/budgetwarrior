@@ -663,15 +663,6 @@ std::vector<asset_value>& budget::all_asset_values(){
     return asset_values.data;
 }
 
-std::vector<asset_value> budget::all_sorted_asset_values() {
-    auto sorted_asset_values = all_asset_values();
-
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
-
-    return sorted_asset_values;
-}
-
 budget::date budget::asset_start_date() {
     budget::date start = budget::local_day();
 
