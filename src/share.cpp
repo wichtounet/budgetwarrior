@@ -265,7 +265,7 @@ void budget::refresh_share_price_cache(){
     for (auto& pair : share_prices) {
         auto& key = pair.first;
 
-        share_prices[key] = get_share_price_v1(key.ticker, key.date);
+        share_prices[key] = get_share_price_v2(key.ticker, key.date);
     }
 
     // Prefetch the current prices
@@ -291,7 +291,7 @@ double budget::share_price(const std::string& ticker, budget::date d){
     share_price_cache_key key(date, ticker);
 
     if (!share_prices.count(key)) {
-        auto price = get_share_price_v1(ticker, date);
+        auto price = get_share_price_v2(ticker, date);
 
         if (budget::is_server_running()) {
             std::cout << "INFO: Share: Price (" << date << ")"
