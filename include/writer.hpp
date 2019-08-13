@@ -45,6 +45,14 @@ struct year_selector {
             : page(page), current_year(current_year) {}
 };
 
+struct asset_selector {
+    std::string page;
+    std::size_t current_asset;
+
+    asset_selector(std::string page, std::size_t current_asset)
+            : page(page), current_asset(current_asset) {}
+};
+
 struct add_button {
     std::string module;
 
@@ -80,6 +88,10 @@ struct writer {
     }
 
     virtual writer& operator<<(const year_selector&){
+        return *this;
+    }
+
+    virtual writer& operator<<(const asset_selector&){
         return *this;
     }
 
@@ -138,6 +150,7 @@ struct html_writer : writer {
     virtual writer& operator<<(const title_end_t& m) override;
     virtual writer& operator<<(const year_month_selector& m) override;
     virtual writer& operator<<(const year_selector& m) override;
+    virtual writer& operator<<(const asset_selector& m) override;
     virtual writer& operator<<(const add_button& m) override;
     virtual writer& operator<<(const set_button& m) override;
 

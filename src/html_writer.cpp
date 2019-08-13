@@ -277,7 +277,6 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
     return *this;
 }
 
-
 budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) {
     if (title_started) {
         os << "</h2>";  // end of the title
@@ -318,6 +317,50 @@ budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) 
     std::stringstream ss;
 
     ss << "$('#year_selector').change(function(){";
+    ss << "var selected = $(this).find(':selected');";
+    ss << "window.location = \"/" << m.page << "/" << "\" + selected.val() + \"/\";";
+    ss << "})";
+
+    defer_script(ss.str());
+
+    use_module("open-iconic");
+
+    return *this;
+}
+
+budget::writer& budget::html_writer::operator<<(const budget::asset_selector& m) {
+    if (title_started) {
+        os << "</h2>";  // end of the title
+        os << "</div>"; // end of the col
+    }
+
+    title_started = false;
+
+    os << R"======(<div class="col selector text-right">)======";
+
+    // TODO This is wildly incorrect
+    auto previous_asset = m.current_asset - 1;
+    auto next_asset     = m.current_asset + 1;
+
+    os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_asset << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
+    os << "<select aria-label=\"Year\" id=\"asset_selector\">";
+
+    for(auto asset : all_user_assets()){
+        if(asset.id == m.current_asset){
+            os << "<option value=" << asset.id << " selected>" << asset.name << "</option>";
+        } else {
+            os << "<option value=" << asset.id << ">" << asset.name << "</option>";
+        }
+    }
+
+    os << "</select>";
+    os << "<a aria-label=\"Next\" href=\"/" << m.page << "/" << next_asset << "/\"><span class=\"oi oi-arrow-thick-right\"></span></a>";
+
+    os << "</div>";
+
+    std::stringstream ss;
+
+    ss << "$('#asset_selector').change(function(){";
     ss << "var selected = $(this).find(':selected');";
     ss << "window.location = \"/" << m.page << "/" << "\" + selected.val() + \"/\";";
     ss << "})";
