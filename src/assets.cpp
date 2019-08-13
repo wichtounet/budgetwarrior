@@ -392,6 +392,12 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     std::cout << "Asset Share " << id << " has been created" << std::endl;
                 } else if (subsubcommand == "list") {
                     list_asset_shares(w);
+                } else if (subsubcommand == "test") {
+                    enough_args(args, 4);
+
+                    auto quote = args[3];
+
+                    std::cout << quote << ":" << budget::share_price(quote) << std::endl;
                 } else if(subsubcommand == "edit"){
                     enough_args(args, 4);
 
