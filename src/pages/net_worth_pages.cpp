@@ -128,6 +128,60 @@ void budget::assets_card(budget::html_writer& w){
     w << R"=====(</div>)====="; //card
 }
 
+void budget::asset_graph_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Asset Graph")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    if (req.matches.size() == 2) {
+        w << title_begin << "Asset Graph" << budget::asset_selector{"asset/graph", to_number<size_t>(req.matches[1])} << title_end;
+        asset_graph(w, "", get_asset(to_number<size_t>(req.matches[1])));
+    } else {
+        w << title_begin << "Asset Graph" << budget::asset_selector{"asset/graph", 0} << title_end;
+        asset_graph(w, "", *all_user_assets().begin());
+    }
+
+    page_end(w, req, res);
+}
+
+void budget::asset_graph(budget::html_writer& w, const std::string style, asset& asset) {
+   auto ss = start_time_chart(w, asset.name, "area", "asset_graph", style);
+
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+    ss << R"=====(legend: { enabled: false },)=====";
+
+    ss << R"=====(subtitle: {)=====";
+    ss << "text: '" << get_asset_value(asset) << " " << asset.currency << "',";
+    ss << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
+    ss << R"=====(},)=====";
+
+    ss << "series: [";
+
+    ss << "{ name: 'Value',";
+    ss << "data: [";
+
+    auto date     = budget::asset_start_date(asset);
+    auto end_date = budget::local_day();
+
+    while (date <= end_date) {
+        auto sum = get_asset_value_conv(asset, date);
+
+        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+
+        date += days(1);
+    }
+
+    ss << "]},";
+
+    ss << "]";
+
+    end_chart(w, ss);
+}
+
 void budget::net_worth_graph(budget::html_writer& w, const std::string style, bool card) {
     // if the user does not use assets, this graph does not make sense
     if(all_assets().empty() || all_asset_values().empty()){

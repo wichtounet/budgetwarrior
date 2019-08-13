@@ -503,6 +503,8 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/net_worth/allocation/", &net_worth_allocation_page);
     server.Get("/assets/add/", &add_assets_page);
     server.Post("/assets/edit/", &edit_assets_page);
+    server.Get(R"(/assets/graph/(\d+)/(\d+)/)", &asset_graph_page);
+    server.Get("/assets/graph/", &asset_graph_page);
 
     server.Get("/asset_values/list/", &list_asset_values_page);
     server.Get("/asset_values/add/", &add_asset_values_page);

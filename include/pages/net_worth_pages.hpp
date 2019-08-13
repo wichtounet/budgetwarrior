@@ -11,6 +11,8 @@
 
 namespace budget {
 
+struct asset;
+
 // Net Worth Pages
 void assets_card(budget::html_writer& w);
 void net_worth_graph(budget::html_writer& w, const std::string style = "", bool card = false);
@@ -24,5 +26,8 @@ void portfolio_status_page(const httplib::Request& req, httplib::Response& res);
 void portfolio_currency_page(const httplib::Request& req, httplib::Response& res);
 void portfolio_graph_page(const httplib::Request& req, httplib::Response& res);
 void rebalance_page(const httplib::Request& req, httplib::Response& res);
+
+void asset_graph(budget::html_writer& w, const std::string style, asset& asset);
+void asset_graph_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget
