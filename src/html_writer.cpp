@@ -347,15 +347,16 @@ budget::writer& budget::html_writer::operator<<(const budget::asset_selector& m)
         auto & asset = assets[i];
 
         if (asset.id == m.current_asset) {
-            next_asset = (i + 1) % assets.size();
-            previous_asset = i > 0 ? i - 1 : assets.size() - 1;
+            next_asset = assets[(i + 1) % assets.size()].id;
+            previous_asset = assets[i > 0 ? i - 1 : assets.size() - 1].id;
+            break;
         }
     }
 
     os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_asset << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
     os << "<select aria-label=\"Year\" id=\"asset_selector\">";
 
-    for(auto asset : all_user_assets()){
+    for(auto asset : assets){
         if(asset.id == m.current_asset){
             os << "<option value=" << asset.id << " selected>" << asset.name << "</option>";
         } else {
