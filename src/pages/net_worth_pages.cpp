@@ -137,10 +137,10 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
     budget::html_writer w(content_stream);
 
     if (req.matches.size() == 2) {
-        w << title_begin << "Asset Graph" << budget::asset_selector{"asset/graph", to_number<size_t>(req.matches[1])} << title_end;
+        w << title_begin << "Asset Graph" << budget::asset_selector{"assets/graph", to_number<size_t>(req.matches[1])} << title_end;
         asset_graph(w, "", get_asset(to_number<size_t>(req.matches[1])));
     } else {
-        w << title_begin << "Asset Graph" << budget::asset_selector{"asset/graph", 0} << title_end;
+        w << title_begin << "Asset Graph" << budget::asset_selector{"assets/graph", 0} << title_end;
         asset_graph(w, "", *all_user_assets().begin());
     }
 
