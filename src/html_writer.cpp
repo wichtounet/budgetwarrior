@@ -338,9 +338,19 @@ budget::writer& budget::html_writer::operator<<(const budget::asset_selector& m)
 
     os << R"======(<div class="col selector text-right">)======";
 
-    // TODO This is wildly incorrect
-    auto previous_asset = m.current_asset - 1;
-    auto next_asset     = m.current_asset + 1;
+    auto assets = all_user_assets().to_vector();
+
+    size_t previous_asset = 0;
+    size_t next_asset = 0;
+
+    for (size_t i = 0; i < assets.size(); ++i) {
+        auto & asset = assets[i];
+
+        if (asset.id == m.current_asset) {
+            next_asset = (i + 1) % assets.size();
+            previous_asset = i > 0 ? i - 1 : assets.size() - 1;
+        }
+    }
 
     os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_asset << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
     os << "<select aria-label=\"Year\" id=\"asset_selector\">";
