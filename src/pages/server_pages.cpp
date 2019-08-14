@@ -232,6 +232,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/portfolio/currency/">Portfolio Currency</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                   <a class="dropdown-item" href="/assets/add/">Add Asset</a>
+                  <a class="dropdown-item" href="/assets/graph/">Asset Graph</a>
                   <a class="dropdown-item" href="/asset_values/list/">Asset Values</a>
                   <a class="dropdown-item" href="/asset_values/batch/full/">Full Batch Update</a>
                   <a class="dropdown-item" href="/asset_values/batch/current/">Current Batch Update</a>
