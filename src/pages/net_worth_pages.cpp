@@ -184,7 +184,7 @@ void budget::asset_graph(budget::html_writer& w, const std::string style, asset&
 
 void budget::net_worth_graph(budget::html_writer& w, const std::string style, bool card) {
     // if the user does not use assets, this graph does not make sense
-    if(all_assets().empty() || all_asset_values().empty()){
+    if (all_assets().empty() || all_asset_values().empty()) {
         return;
     }
 
@@ -209,8 +209,11 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
     ss << R"=====(legend: { enabled: false },)=====";
 
     if (!card) {
+        auto current_net_worth   = get_net_worth();
+        auto now                 = budget::local_day();
+        auto beginning_net_worth = get_net_worth({now.year(), 1, 1});
         ss << R"=====(subtitle: {)=====";
-        ss << "text: '" << get_net_worth() << " __currency__',";
+        ss << "text: '" << current_net_worth << " __currency__ (YTD: " << 100.0 * ((1 / (current_net_worth / beginning_net_worth)) - 1) << "%)',";
         ss << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
         ss << R"=====(},)=====";
     }
