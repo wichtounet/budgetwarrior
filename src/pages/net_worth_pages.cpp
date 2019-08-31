@@ -188,13 +188,18 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
         return;
     }
 
+    auto current_net_worth   = get_net_worth();
+    auto now                 = budget::local_day();
+    auto beginning_net_worth = get_net_worth({now.year(), 1, 1});
+    auto ytd_growth          = 100.0 * ((1 / (beginning_net_worth / current_net_worth)) - 1);
+
     if (card) {
         w << R"=====(<div class="card">)=====";
 
         w << R"=====(<div class="card-header card-header-primary">)=====";
         w << R"=====(<div class="float-left">Net Worth</div>)=====";
         w << R"=====(<div class="float-right">)=====";
-        w << get_net_worth() << " __currency__";
+        w << current_net_worth << " __currency__ (YTD: " << ytd_growth << "%)";
         w << R"=====(</div>)=====";
         w << R"=====(<div class="clearfix"></div>)=====";
         w << R"=====(</div>)====="; // card-header
@@ -209,11 +214,8 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
     ss << R"=====(legend: { enabled: false },)=====";
 
     if (!card) {
-        auto current_net_worth   = get_net_worth();
-        auto now                 = budget::local_day();
-        auto beginning_net_worth = get_net_worth({now.year(), 1, 1});
         ss << R"=====(subtitle: {)=====";
-        ss << "text: '" << current_net_worth << " __currency__ (YTD: " << 100.0 * ((1 / (current_net_worth / beginning_net_worth)) - 1) << "%)',";
+        ss << "text: '" << current_net_worth << " __currency__ (YTD: " << ytd_growth << "%)',";
         ss << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
         ss << R"=====(},)=====";
     }
