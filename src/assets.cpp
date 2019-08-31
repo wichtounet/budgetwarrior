@@ -392,6 +392,12 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     std::cout << "Asset Share " << id << " has been created" << std::endl;
                 } else if (subsubcommand == "list") {
                     list_asset_shares(w);
+                } else if (subsubcommand == "test") {
+                    enough_args(args, 4);
+
+                    auto quote = args[3];
+
+                    std::cout << quote << ":" << budget::share_price(quote) << std::endl;
                 } else if(subsubcommand == "edit"){
                     enough_args(args, 4);
 
@@ -663,13 +669,24 @@ std::vector<asset_value>& budget::all_asset_values(){
     return asset_values.data;
 }
 
-std::vector<asset_value> budget::all_sorted_asset_values() {
-    auto sorted_asset_values = all_asset_values();
+budget::date budget::asset_start_date(const budget::asset& asset) {
+    budget::date start = budget::local_day();
 
-    std::sort(sorted_asset_values.begin(), sorted_asset_values.end(),
-              [](const budget::asset_value& a, const budget::asset_value& b) { return a.set_date < b.set_date; });
+    if (asset.share_based) {
+        for (auto & share : all_asset_shares()) {
+            if (share.asset_id == asset.id) {
+                start = std::min(share.date, start);
+            }
+        }
+   } else {
+       for (auto & value : all_asset_values()) {
+           if (value.asset_id == asset.id) {
+               start = std::min(value.set_date, start);
+           }
+       }
+   }
 
-    return sorted_asset_values;
+    return start;
 }
 
 budget::date budget::asset_start_date() {
@@ -678,19 +695,7 @@ budget::date budget::asset_start_date() {
     //TODO If necessary, avoid double loops
 
     for (auto & asset : all_user_assets()) {
-        if (asset.share_based) {
-            for (auto & share : all_asset_shares()) {
-                if (share.asset_id == asset.id) {
-                    start = std::min(share.date, start);
-                }
-            }
-       } else {
-           for (auto & value : all_asset_values()) {
-               if (value.asset_id == asset.id) {
-                   start = std::min(value.set_date, start);
-               }
-           }
-       }
+        start = std::min(asset_start_date(asset), start);
     }
 
     return start;

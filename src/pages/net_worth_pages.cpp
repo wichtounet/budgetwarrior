@@ -128,6 +128,60 @@ void budget::assets_card(budget::html_writer& w){
     w << R"=====(</div>)====="; //card
 }
 
+void budget::asset_graph_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Asset Graph")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    if (req.matches.size() == 2) {
+        w << title_begin << "Asset Graph" << budget::asset_selector{"assets/graph", to_number<size_t>(req.matches[1])} << title_end;
+        asset_graph(w, "", get_asset(to_number<size_t>(req.matches[1])));
+    } else {
+        w << title_begin << "Asset Graph" << budget::asset_selector{"assets/graph", 0} << title_end;
+        asset_graph(w, "", *all_user_assets().begin());
+    }
+
+    page_end(w, req, res);
+}
+
+void budget::asset_graph(budget::html_writer& w, const std::string style, asset& asset) {
+   auto ss = start_time_chart(w, asset.name, "area", "asset_graph", style);
+
+    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+    ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
+    ss << R"=====(legend: { enabled: false },)=====";
+
+    ss << R"=====(subtitle: {)=====";
+    ss << "text: '" << get_asset_value(asset) << " " << asset.currency << "',";
+    ss << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
+    ss << R"=====(},)=====";
+
+    ss << "series: [";
+
+    ss << "{ name: 'Value',";
+    ss << "data: [";
+
+    auto date     = budget::asset_start_date(asset);
+    auto end_date = budget::local_day();
+
+    while (date <= end_date) {
+        auto sum = get_asset_value_conv(asset, date);
+
+        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+
+        date += days(1);
+    }
+
+    ss << "]},";
+
+    ss << "]";
+
+    end_chart(w, ss);
+}
+
 void budget::net_worth_graph(budget::html_writer& w, const std::string style, bool card) {
     // if the user does not use assets, this graph does not make sense
     if(all_assets().empty() || all_asset_values().empty()){
@@ -173,7 +227,7 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
         budget::money sum;
 
         for (auto & asset : all_user_assets()) {
-            sum += get_asset_value(asset, date);
+            sum += get_asset_value_conv(asset, date);
         }
 
         ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
@@ -251,51 +305,39 @@ void budget::net_worth_allocation_page(const httplib::Request& req, httplib::Res
 
     ss << "series: [";
 
-    auto sorted_asset_values = all_sorted_asset_values();
-
-    for(size_t i = 0; i < names.size(); ++i){
+    for (size_t i = 0; i < names.size(); ++i) {
         ss << "{ name: '" << names[i] << "',";
         ss << "data: [";
 
-        std::map<size_t, budget::money> asset_amounts;
+        auto date     = budget::asset_start_date();
+        auto end_date = budget::local_day();
 
-        auto it  = sorted_asset_values.begin();
-        auto end = sorted_asset_values.end();
+        while (date <= end_date) {
+            budget::money sum;
 
-        while (it != end) {
-            auto date = it->set_date;
-
-            while (it->set_date == date) {
-                auto& asset = get_asset(it->asset_id);
-
-                auto amount = it->amount * exchange_rate(asset.currency, date);
+            for (auto & asset : all_user_assets()) {
+                auto value = get_asset_value_conv(asset, date);
 
                 if(i == 0 && asset.int_stocks){
-                    asset_amounts[it->asset_id] = amount * (float(asset.int_stocks) / 100.0f);
+                    sum += value * (float(asset.int_stocks) / 100.0f);
                 }
 
                 if(i == 1 && asset.dom_stocks){
-                    asset_amounts[it->asset_id] = amount * (float(asset.dom_stocks) / 100.0f);
+                    sum += value * (float(asset.dom_stocks) / 100.0f);
                 }
 
                 if(i == 2 && asset.bonds){
-                    asset_amounts[it->asset_id] = amount * (float(asset.bonds) / 100.0f);
+                    sum += value * (float(asset.bonds) / 100.0f);
                 }
 
                 if(i == 3 && asset.cash){
-                    asset_amounts[it->asset_id] = amount * (float(asset.cash) / 100.0f);
+                    sum += value * (float(asset.cash) / 100.0f);
                 }
-
-                ++it;
-            }
-
-            budget::money sum;
-
-            for (auto& asset : asset_amounts) {
-                sum += asset.second;
             }
 
             ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+
+            date += days(1);
         }
 
         ss << "]},";
@@ -321,34 +363,26 @@ void budget::net_worth_allocation_page(const httplib::Request& req, httplib::Res
         ss2 << "{ name: '" << names[i] << "',";
         ss2 << "y: ";
 
-        std::map<size_t, budget::money> asset_amounts;
-
-        for (auto& asset_value : sorted_asset_values) {
-            auto& asset = get_asset(asset_value.asset_id);
-
-            auto amount = asset_value.amount * exchange_rate(asset.currency);
-
-            if(i == 0 && asset.int_stocks){
-                asset_amounts[asset_value.asset_id] = amount * (float(asset.int_stocks) / 100.0f);
-            }
-
-            if(i == 1 && asset.dom_stocks){
-                asset_amounts[asset_value.asset_id] = amount * (float(asset.dom_stocks) / 100.0f);
-            }
-
-            if(i == 2 && asset.bonds){
-                asset_amounts[asset_value.asset_id] = amount * (float(asset.bonds) / 100.0f);
-            }
-
-            if(i == 3 && asset.cash){
-                asset_amounts[asset_value.asset_id] = amount * (float(asset.cash) / 100.0f);
-            }
-        }
-
         budget::money sum;
 
-        for (auto& asset : asset_amounts) {
-            sum += asset.second;
+        for (auto & asset : all_user_assets()){
+            auto amount = get_asset_value_conv(asset);
+
+            if (i == 0 && asset.int_stocks) {
+                sum += amount * (float(asset.int_stocks) / 100.0f);
+            }
+
+            if (i == 1 && asset.dom_stocks) {
+                sum += amount * (float(asset.dom_stocks) / 100.0f);
+            }
+
+            if (i == 2 && asset.bonds) {
+                sum += amount * (float(asset.bonds) / 100.0f);
+            }
+
+            if (i == 3 && asset.cash) {
+                sum += amount * (float(asset.cash) / 100.0f);
+            }
         }
 
         ss2 << budget::to_flat_string(sum);
@@ -386,53 +420,41 @@ void budget::portfolio_allocation_page(const httplib::Request& req, httplib::Res
 
     ss << "series: [";
 
-    auto sorted_asset_values = all_sorted_asset_values();
-
-    for(size_t i = 0; i < names.size(); ++i){
+    for (size_t i = 0; i < names.size(); ++i) {
         ss << "{ name: '" << names[i] << "',";
         ss << "data: [";
 
-        std::map<size_t, budget::money> asset_amounts;
+        auto date     = budget::asset_start_date();
+        auto end_date = budget::local_day();
 
-        auto it  = sorted_asset_values.begin();
-        auto end = sorted_asset_values.end();
-
-        while (it != end) {
-            auto date = it->set_date;
-
-            while (it->set_date == date) {
-                auto& asset = get_asset(it->asset_id);
-
-                if(asset.portfolio){
-                    auto amount = it->amount * exchange_rate(asset.currency, date);
-
-                    if(i == 0 && asset.int_stocks){
-                        asset_amounts[it->asset_id] = amount * (float(asset.int_stocks) / 100.0f);
-                    }
-
-                    if(i == 1 && asset.dom_stocks){
-                        asset_amounts[it->asset_id] = amount * (float(asset.dom_stocks) / 100.0f);
-                    }
-
-                    if(i == 2 && asset.bonds){
-                        asset_amounts[it->asset_id] = amount * (float(asset.bonds) / 100.0f);
-                    }
-
-                    if(i == 3 && asset.cash){
-                        asset_amounts[it->asset_id] = amount * (float(asset.cash) / 100.0f);
-                    }
-                }
-
-                ++it;
-            }
-
+        while (date <= end_date) {
             budget::money sum;
 
-            for (auto& asset : asset_amounts) {
-                sum += asset.second;
+            for (auto & asset : all_user_assets()) {
+                if (asset.portfolio) {
+                    auto value = get_asset_value_conv(asset, date);
+
+                    if (i == 0 && asset.int_stocks) {
+                        sum += value * (float(asset.int_stocks) / 100.0f);
+                    }
+
+                    if (i == 1 && asset.dom_stocks) {
+                        sum += value * (float(asset.dom_stocks) / 100.0f);
+                    }
+
+                    if (i == 2 && asset.bonds) {
+                        sum += value * (float(asset.bonds) / 100.0f);
+                    }
+
+                    if (i == 3 && asset.cash) {
+                        sum += value * (float(asset.cash) / 100.0f);
+                    }
+                }
             }
 
             ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+
+            date += days(1);
         }
 
         ss << "]},";
@@ -454,40 +476,32 @@ void budget::portfolio_allocation_page(const httplib::Request& req, httplib::Res
     ss2 << "colorByPoint: true,";
     ss2 << "data: [";
 
-    for(size_t i = 0; i < names.size(); ++i){
+    for (size_t i = 0; i < names.size(); ++i) {
         ss2 << "{ name: '" << names[i] << "',";
         ss2 << "y: ";
 
-        std::map<size_t, budget::money> asset_amounts;
-
-        for (auto& asset_value : sorted_asset_values) {
-            auto& asset = get_asset(asset_value.asset_id);
-
-            if(asset.portfolio){
-                auto amount = asset_value.amount * exchange_rate(asset.currency);
-
-                if(i == 0 && asset.int_stocks){
-                    asset_amounts[asset_value.asset_id] = amount * (float(asset.int_stocks) / 100.0f);
-                }
-
-                if(i == 1 && asset.dom_stocks){
-                    asset_amounts[asset_value.asset_id] = amount * (float(asset.dom_stocks) / 100.0f);
-                }
-
-                if(i == 2 && asset.bonds){
-                    asset_amounts[asset_value.asset_id] = amount * (float(asset.bonds) / 100.0f);
-                }
-
-                if(i == 3 && asset.cash){
-                    asset_amounts[asset_value.asset_id] = amount * (float(asset.cash) / 100.0f);
-                }
-            }
-        }
-
         budget::money sum;
 
-        for (auto& asset : asset_amounts) {
-            sum += asset.second;
+        for (auto & asset : all_user_assets()) {
+            if (asset.portfolio) {
+                auto value = get_asset_value_conv(asset);
+
+                if (i == 0 && asset.int_stocks) {
+                    sum += value * (float(asset.int_stocks) / 100.0f);
+                }
+
+                if (i == 1 && asset.dom_stocks) {
+                    sum += value * (float(asset.dom_stocks) / 100.0f);
+                }
+
+                if (i == 2 && asset.bonds) {
+                    sum += value * (float(asset.bonds) / 100.0f);
+                }
+
+                if (i == 3 && asset.cash) {
+                    sum += value * (float(asset.cash) / 100.0f);
+                }
+            }
         }
 
         ss2 << budget::to_flat_string(sum);
@@ -529,35 +543,25 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
 
     ss << "series: [";
 
-    auto sorted_asset_values = all_sorted_asset_values();
-
     for (auto& currency : currencies) {
         ss << "{ name: '" << currency << "',";
         ss << "data: [";
 
-        std::map<size_t, budget::money> asset_amounts;
+        auto date     = budget::asset_start_date();
+        auto end_date = budget::local_day();
 
-        auto it  = sorted_asset_values.begin();
-        auto end = sorted_asset_values.end();
-
-        while (it != end) {
-            auto date = it->set_date;
-
-            while (it->set_date == date) {
-                if (get_asset(it->asset_id).currency == currency) {
-                    asset_amounts[it->asset_id] = it->amount * exchange_rate(get_asset(it->asset_id).currency, date);
-                }
-
-                ++it;
-            }
-
+        while (date <= end_date) {
             budget::money sum;
 
-            for (auto& asset : asset_amounts) {
-                sum += asset.second;
+            for (auto & asset : all_user_assets()) {
+                if (asset.currency == currency) {
+                    sum += get_asset_value_conv(asset, date);
+                }
             }
 
             ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+
+            date += days(1);
         }
 
         ss << "]},";
@@ -583,18 +587,12 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
         ss2 << "{ name: '" << currency << "',";
         ss2 << "y: ";
 
-        std::map<size_t, budget::money> asset_amounts;
-
-        for (auto& asset_value : sorted_asset_values) {
-            if (get_asset(asset_value.asset_id).currency == currency) {
-                asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(get_asset(asset_value.asset_id).currency);
-            }
-        }
-
         budget::money sum;
 
-        for (auto& asset : asset_amounts) {
-            sum += asset.second;
+        for (auto & asset : all_user_assets()) {
+            if (asset.currency == currency) {
+                sum += get_asset_value_conv(asset);
+            }
         }
 
         ss2 << budget::to_flat_string(sum);
@@ -652,37 +650,25 @@ void budget::portfolio_currency_page(const httplib::Request& req, httplib::Respo
 
     ss << "series: [";
 
-    auto sorted_asset_values = all_sorted_asset_values();
-
     for (auto& currency : currencies) {
         ss << "{ name: '" << currency << "',";
         ss << "data: [";
 
-        std::map<size_t, budget::money> asset_amounts;
+        auto date     = budget::asset_start_date();
+        auto end_date = budget::local_day();
 
-        auto it  = sorted_asset_values.begin();
-        auto end = sorted_asset_values.end();
-
-        while (it != end) {
-            auto date = it->set_date;
-
-            while (it->set_date == date) {
-                auto& asset = get_asset(it->asset_id);
-
-                if (asset.currency == currency && asset.portfolio) {
-                    asset_amounts[it->asset_id] = it->amount * exchange_rate(asset.currency, date);
-                }
-
-                ++it;
-            }
-
+        while (date <= end_date) {
             budget::money sum;
 
-            for (auto& asset : asset_amounts) {
-                sum += asset.second;
+            for (auto & asset : all_user_assets()) {
+                if (asset.portfolio && asset.currency == currency) {
+                    sum += get_asset_value_conv(asset, date);
+                }
             }
 
             ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+
+            date += days(1);
         }
 
         ss << "]},";
@@ -708,20 +694,12 @@ void budget::portfolio_currency_page(const httplib::Request& req, httplib::Respo
         ss2 << "{ name: '" << currency << "',";
         ss2 << "y: ";
 
-        std::map<size_t, budget::money> asset_amounts;
-
-        for (auto& asset_value : sorted_asset_values) {
-            auto& asset = get_asset(asset_value.asset_id);
-
-            if (asset.currency == currency && asset.portfolio) {
-                asset_amounts[asset_value.asset_id] = asset_value.amount * exchange_rate(asset.currency);
-            }
-        }
-
         budget::money sum;
 
-        for (auto& asset : asset_amounts) {
-            sum += asset.second;
+        for (auto & asset : all_user_assets()) {
+            if (asset.portfolio && asset.currency == currency) {
+                sum += get_asset_value_conv(asset);
+            }
         }
 
         ss2 << budget::to_flat_string(sum);
@@ -761,33 +739,21 @@ void budget::portfolio_graph_page(const httplib::Request& req, httplib::Response
     ss << "{ name: 'Portfolio',";
     ss << "data: [";
 
-    std::map<size_t, budget::money> asset_amounts;
+    auto date     = budget::asset_start_date();
+    auto end_date = budget::local_day();
 
-    auto sorted_asset_values = all_sorted_asset_values();
-
-    auto it  = sorted_asset_values.begin();
-    auto end = sorted_asset_values.end();
-
-    while (it != end) {
-        auto date = it->set_date;
-
-        while (it->set_date == date) {
-            auto& asset = get_asset(it->asset_id);
-
-            if (asset.portfolio) {
-                asset_amounts[it->asset_id] = it->amount * exchange_rate(asset.currency, date);
-            }
-
-            ++it;
-        }
-
+    while (date <= end_date) {
         budget::money sum;
 
-        for (auto& asset : asset_amounts) {
-            sum += asset.second;
+        for (auto & asset : all_user_assets()) {
+            if (asset.portfolio) {
+                sum += get_asset_value_conv(asset, date);
+            }
         }
 
         ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+
+        date += days(1);
     }
 
     ss << "]},";

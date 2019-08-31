@@ -8,6 +8,9 @@
 #include <tuple>
 #include <utility>
 #include <iostream>
+#include <sstream>
+
+#include "cpp_utils/string.hpp"
 
 #include "share.hpp"
 #include "config.hpp"
@@ -57,6 +60,85 @@ budget::date get_valid_date(budget::date d){
     }
 
     return d;
+}
+
+// V2 is using alpha_vantage
+double get_share_price_v2(const std::string& quote, const budget::date& date, int /*depth*/ = 0) {
+    if (!budget::config_contains("alpha_vantage_api_key")) {
+        std::cout << "ERROR: Price(v2): Need Alpha Vantage API KEY configured to work" << std::endl;
+
+        return  1.0;
+    }
+
+    auto api_key = budget::config_value("alpha_vantage_api_key");
+
+    //https://www.alphavantage.co/query\?function\=TIME_SERIES_DAILY\&symbol\=CHDVD.SWI\&interval\=5min\&apikey\=API_KEY
+
+    httplib::SSLClient cli("www.alphavantage.co", 443);
+
+    auto date_str = budget::date_to_string(date);
+    std::string api_complete = "/query?function=TIME_SERIES_DAILY&symbol=" + quote + "&outputsize=full&apikey=" + api_key;
+
+    auto res = cli.Get(api_complete.c_str());
+
+    if (!res) {
+        std::cout << "ERROR: Price(v2): No response" << std::endl;
+        std::cout << "ERROR: Price(v2): URL is " << api_complete << std::endl;
+
+        return  1.0;
+    } else if (res->status != 200) {
+        std::cout << "ERROR: Price(v2): Error response " << res->status << std::endl;
+        std::cout << "ERROR: Price(v2): URL is " << api_complete << std::endl;
+        std::cout << "ERROR: Price(v2): Response is " << res->body << std::endl;
+
+        return  1.0;
+    } else {
+        std::stringstream bodyreader(res->body);
+
+        std::vector<std::string> lines;
+
+        bool data = false;
+        std::string line;
+        while(std::getline(bodyreader, line)) {
+            cpp::trim(line);
+            if (line.size() <= 3) {
+                continue;
+            }
+
+            if (line.find("Time Series") != std::string::npos) {
+                data = true;
+            } else if(data) {
+                lines.emplace_back(line);
+            }
+        }
+
+        for (size_t i = 0; i < lines.size(); i += 6){
+            std::string date_str(lines[i].begin() + 1, lines[i].begin() + 11);
+            std::string value(lines[i+4].begin() + 13, lines[i+4].end() - 2);
+
+            share_price_cache_key key(budget::from_string(date_str), quote);
+            share_prices[key] = budget::to_number<float>(value);
+        }
+
+        share_price_cache_key key(date, quote);
+        if (share_prices.count(key) ){
+            return share_prices[key];
+        } else {
+            for (size_t i = 0; i < 4; ++i){
+                auto next_date = get_valid_date(date - budget::days(1));
+                std::cout << "INFO: Price(v2): Possible holiday, retrying on previous day" << std::endl;
+                std::cout << "INFO: Date was " << date << " retrying with " << next_date << std::endl;
+
+                // Opportunistically check the cache for previous day!
+                share_price_cache_key key(next_date, quote);
+                if (share_prices.count(key)) {
+                    return share_prices[key];
+                }
+            }
+        }
+
+        return 1.0;
+    }
 }
 
 // V1 is using cloud.iexapis.com
@@ -183,7 +265,7 @@ void budget::refresh_share_price_cache(){
     for (auto& pair : share_prices) {
         auto& key = pair.first;
 
-        share_prices[key] = get_share_price_v1(key.ticker, key.date);
+        share_prices[key] = get_share_price_v2(key.ticker, key.date);
     }
 
     // Prefetch the current prices
@@ -209,7 +291,7 @@ double budget::share_price(const std::string& ticker, budget::date d){
     share_price_cache_key key(date, ticker);
 
     if (!share_prices.count(key)) {
-        auto price = get_share_price_v1(ticker, date);
+        auto price = get_share_price_v2(ticker, date);
 
         if (budget::is_server_running()) {
             std::cout << "INFO: Share: Price (" << date << ")"

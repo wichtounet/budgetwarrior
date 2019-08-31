@@ -111,10 +111,10 @@ budget::asset& get_desired_allocation();
 
 std::vector<budget::asset>& all_assets();
 std::vector<budget::asset_value>& all_asset_values();
-std::vector<budget::asset_value> all_sorted_asset_values();
 std::vector<budget::asset_share>& all_asset_shares();
 
 budget::date asset_start_date();
+budget::date asset_start_date(const asset& asset);
 
 void set_assets_next_id(size_t next_id);
 void set_asset_values_next_id(size_t next_id);

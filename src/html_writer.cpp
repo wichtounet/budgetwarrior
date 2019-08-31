@@ -277,7 +277,6 @@ budget::writer& budget::html_writer::operator<<(const budget::year_month_selecto
     return *this;
 }
 
-
 budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) {
     if (title_started) {
         os << "</h2>";  // end of the title
@@ -318,6 +317,61 @@ budget::writer& budget::html_writer::operator<<(const budget::year_selector& m) 
     std::stringstream ss;
 
     ss << "$('#year_selector').change(function(){";
+    ss << "var selected = $(this).find(':selected');";
+    ss << "window.location = \"/" << m.page << "/" << "\" + selected.val() + \"/\";";
+    ss << "})";
+
+    defer_script(ss.str());
+
+    use_module("open-iconic");
+
+    return *this;
+}
+
+budget::writer& budget::html_writer::operator<<(const budget::asset_selector& m) {
+    if (title_started) {
+        os << "</h2>";  // end of the title
+        os << "</div>"; // end of the col
+    }
+
+    title_started = false;
+
+    os << R"======(<div class="col selector text-right">)======";
+
+    auto assets = all_user_assets().to_vector();
+
+    size_t previous_asset = 0;
+    size_t next_asset = 0;
+
+    for (size_t i = 0; i < assets.size(); ++i) {
+        auto & asset = assets[i];
+
+        if (asset.id == m.current_asset) {
+            next_asset = assets[(i + 1) % assets.size()].id;
+            previous_asset = assets[i > 0 ? i - 1 : assets.size() - 1].id;
+            break;
+        }
+    }
+
+    os << "<a aria-label=\"Previous\" href=\"/" << m.page << "/" << previous_asset << "/\"><span class=\"oi oi-arrow-thick-left\"></span></a>";
+    os << "<select aria-label=\"Year\" id=\"asset_selector\">";
+
+    for(auto asset : assets){
+        if(asset.id == m.current_asset){
+            os << "<option value=" << asset.id << " selected>" << asset.name << "</option>";
+        } else {
+            os << "<option value=" << asset.id << ">" << asset.name << "</option>";
+        }
+    }
+
+    os << "</select>";
+    os << "<a aria-label=\"Next\" href=\"/" << m.page << "/" << next_asset << "/\"><span class=\"oi oi-arrow-thick-right\"></span></a>";
+
+    os << "</div>";
+
+    std::stringstream ss;
+
+    ss << "$('#asset_selector').change(function(){";
     ss << "var selected = $(this).find(':selected');";
     ss << "window.location = \"/" << m.page << "/" << "\" + selected.val() + \"/\";";
     ss << "})";

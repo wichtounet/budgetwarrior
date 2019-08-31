@@ -11,6 +11,8 @@ namespace budget {
 
 template <typename Iterator, typename Filter>
 struct filter_iterator {
+    using value_type = typename Iterator::value_type;
+
     filter_iterator(Iterator first, Iterator last, Filter filter)
             : first(first), last(last), filter(filter) {
         while(this->first != this->last && !this->filter(*this->first)){
@@ -74,7 +76,15 @@ struct filter_view {
 
     auto to_vector() const {
         std::vector<typename Iterator::value_type> copy;
-        std::copy(first, last, std::back_inserter(copy));
+
+        auto it  = this->begin();
+        auto end = this->end();
+
+        while (it != end) {
+            copy.push_back(*it);
+            ++it;
+        }
+
         return copy;
     }
 

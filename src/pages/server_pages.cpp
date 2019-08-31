@@ -232,6 +232,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/portfolio/currency/">Portfolio Currency</a>
                   <a class="dropdown-item" href="/rebalance/">Rebalance</a>
                   <a class="dropdown-item" href="/assets/add/">Add Asset</a>
+                  <a class="dropdown-item" href="/assets/graph/">Asset Graph</a>
                   <a class="dropdown-item" href="/asset_values/list/">Asset Values</a>
                   <a class="dropdown-item" href="/asset_values/batch/full/">Full Batch Update</a>
                   <a class="dropdown-item" href="/asset_values/batch/current/">Current Batch Update</a>
@@ -503,6 +504,8 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/net_worth/allocation/", &net_worth_allocation_page);
     server.Get("/assets/add/", &add_assets_page);
     server.Post("/assets/edit/", &edit_assets_page);
+    server.Get(R"(/assets/graph/(\d+)/)", &asset_graph_page);
+    server.Get("/assets/graph/", &asset_graph_page);
 
     server.Get("/asset_values/list/", &list_asset_values_page);
     server.Get("/asset_values/add/", &add_asset_values_page);
