@@ -136,12 +136,38 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
 
     budget::html_writer w(content_stream);
 
+    auto& asset = req.matches.size() == 2 
+        ? get_asset(to_number<size_t>(req.matches[1])) 
+        : *all_user_assets().begin();
+
     if (req.matches.size() == 2) {
         w << title_begin << "Asset Graph" << budget::asset_selector{"assets/graph", to_number<size_t>(req.matches[1])} << title_end;
-        asset_graph(w, "", get_asset(to_number<size_t>(req.matches[1])));
     } else {
         w << title_begin << "Asset Graph" << budget::asset_selector{"assets/graph", 0} << title_end;
-        asset_graph(w, "", *all_user_assets().begin());
+    }
+
+    asset_graph(w, "", asset);
+
+    // Display additional information for share-based assets
+    if (asset.share_based) {
+        size_t shares = 0;
+        budget::money average_price;
+
+        for (auto& share : all_asset_shares()) {
+            if (share.asset_id == asset.id) {
+                shares += share.shares;
+                average_price += (float) share.shares * share.price;
+            }
+        }
+
+        average_price /= shares;
+
+        auto current_price = get_asset_value(asset);
+
+        w << p_begin << "Number of shares: " << shares << p_end;
+        w << p_begin << "Average price: " << average_price << p_end;
+        w << p_begin << "Current price: " << current_price << p_end;
+        w << p_begin << "ROI: " << 1.0f / (average_price / current_price) << p_end;
     }
 
     page_end(w, req, res);
