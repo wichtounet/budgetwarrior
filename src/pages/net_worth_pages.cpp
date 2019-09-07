@@ -162,12 +162,12 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
 
         average_price /= shares;
 
-        auto current_price = get_asset_value(asset);
+        auto current_price = share_price(asset.ticker);
 
         w << p_begin << "Number of shares: " << shares << p_end;
         w << p_begin << "Average price: " << average_price << p_end;
         w << p_begin << "Current price: " << current_price << p_end;
-        w << p_begin << "ROI: " << 1.0f / (average_price / current_price) << p_end;
+        w << p_begin << "ROI: " << (100.0f / (average_price / current_price)) - 100.0f << p_end;
     }
 
     page_end(w, req, res);
