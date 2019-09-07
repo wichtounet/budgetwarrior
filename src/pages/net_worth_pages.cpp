@@ -182,18 +182,23 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
         float err = 1e+100;
 
         while (err > 0.001f) {
-            float total_f_xirr =0;
-            float total_df_xirr =0;
+            float total_f_xirr  = 0;
+            float total_df_xirr = 0;
 
             for (auto& share : all_asset_shares()) {
                 if (share.asset_id == asset.id) {
-                    auto days = share.date - first_date;
-                    auto payment = (float) share.shares * (float) share.price;
+                    auto days    = first_date - share.date;
+                    auto payment = (float)share.shares * (float)share.price;
 
                     total_f_xirr += payment * std::pow(1.0f + x0, (days / 365.0f));
                     total_df_xirr += (days / 365.0f) * payment * std::pow(1.0f + x0, (days / 365.0f) - 1.0f);
                 }
             }
+
+            // Add the current value
+            auto days    = first_date - budget::local_day();
+            total_f_xirr += -((float) current_price) * std::pow(1.0f + x0, (days / 365.0f));
+            total_df_xirr += (days / 365.0f) * (float) current_price * std::pow(1.0f + x0, (days / 365.0f) - 1.0f);
 
             x1  = x0 - total_f_xirr / total_df_xirr;
             err = (x1 - x0) > 0 ? (x1 - x0) : -(x1 - x0);
