@@ -16,6 +16,7 @@
 #include "http.hpp"
 #include "currency.hpp"
 #include "config.hpp"
+#include "share.hpp"
 
 using namespace budget;
 
@@ -153,21 +154,53 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
         size_t shares = 0;
         budget::money average_price;
 
+        auto current_price = budget::money(1) * share_price(asset.ticker);
+        budget::date first_date;
+        bool first_date_set = false;
+
         for (auto& share : all_asset_shares()) {
             if (share.asset_id == asset.id) {
                 shares += share.shares;
                 average_price += (float) share.shares * share.price;
+
+                if (!first_date_set) {
+                    first_date     = share.date;
+                    first_date_set = true;
+                }
             }
         }
 
         average_price /= shares;
 
-        auto current_price = share_price(asset.ticker);
-
         w << p_begin << "Number of shares: " << shares << p_end;
         w << p_begin << "Average price: " << average_price << p_end;
         w << p_begin << "Current price: " << current_price << p_end;
         w << p_begin << "ROI: " << (100.0f / (average_price / current_price)) - 100.0f << p_end;
+
+        float x0  = 0.1;
+        float x1  = 0.0;
+        float err = 1e+100;
+
+        while (err > 0.001f) {
+            float total_f_xirr =0;
+            float total_df_xirr =0;
+
+            for (auto& share : all_asset_shares()) {
+                if (share.asset_id == asset.id) {
+                    auto days = share.date - first_date;
+                    auto payment = (float) share.shares * (float) share.price;
+
+                    total_f_xirr += payment * std::pow(1.0f + x0, (days / 365.0f));
+                    total_df_xirr += (days / 365.0f) * payment * std::pow(1.0f + x0, (days / 365.0f) - 1.0f);
+                }
+            }
+
+            x1  = x0 - total_f_xirr / total_df_xirr;
+            err = (x1 - x0) > 0 ? (x1 - x0) : -(x1 - x0);
+            x0  = x1;
+        }
+
+        w << p_begin << "XIRR: " << x0 << p_end;
     }
 
     page_end(w, req, res);
