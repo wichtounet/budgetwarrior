@@ -155,6 +155,10 @@ budget::money get_asset_value(budget::asset & asset, budget::date d);
 budget::money get_asset_value_conv(budget::asset & asset);
 budget::money get_asset_value_conv(budget::asset & asset, budget::date d);
 
+// The value of an assert in a specific currency
+budget::money get_asset_value_conv(budget::asset & asset, const std::string& currency);
+budget::money get_asset_value_conv(budget::asset & asset, budget::date d, const std::string& currency);
+
 // Filter functions
 
 inline auto all_user_assets() {

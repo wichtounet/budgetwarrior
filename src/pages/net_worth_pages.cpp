@@ -612,7 +612,19 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
 
     end_chart(w, ss);
 
-    // 2. Display the current currency breakdown
+    // 2. Display the value in each currency
+
+    for (auto& currency : currencies) {
+        budget::money net_worth;
+
+        for (auto & asset : all_user_assets()) {
+            net_worth += get_asset_value_conv(asset, currency);
+        }
+
+        w << p_begin << "Net worth in " << currency << " : " << net_worth << " " << currency << p_end;
+    }
+
+    // 3. Display the current currency breakdown
 
     auto ss2 = start_chart(w, "Current Currency Breakdown", "pie", "currency_breakdown_graph");
 
