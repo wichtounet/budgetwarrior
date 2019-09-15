@@ -137,8 +137,8 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
 
     budget::html_writer w(content_stream);
 
-    auto& asset = req.matches.size() == 2 
-        ? get_asset(to_number<size_t>(req.matches[1])) 
+    auto& asset = req.matches.size() == 2
+        ? get_asset(to_number<size_t>(req.matches[1]))
         : *all_user_assets().begin();
 
     if (req.matches.size() == 2) {
@@ -184,7 +184,7 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
 }
 
 void budget::asset_graph(budget::html_writer& w, const std::string style, asset& asset) {
-   auto ss = start_time_chart(w, asset.name, "area", "asset_graph", style);
+   auto ss = start_time_chart(w, asset.name + "(" + asset.currency + ")", "area", "asset_graph", style);
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
     ss << R"=====(yAxis: { min: 0, title: { text: 'Net Worth' }},)=====";
@@ -204,7 +204,7 @@ void budget::asset_graph(budget::html_writer& w, const std::string style, asset&
     auto end_date = budget::local_day();
 
     while (date <= end_date) {
-        auto sum = get_asset_value_conv(asset, date);
+        auto sum = get_asset_value(asset, date);
 
         ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
 
