@@ -132,14 +132,10 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
         for(unsigned short i = sm; i < last; ++i){
             budget::month month = i;
 
-            budget::money sum;
+            budget::money sum = get_base_income(budget::date(year, month, 2));
 
-            for(auto& account : all_accounts(year, month)){
-                sum += account.amount;
-            }
-
-            for(auto& earning : all_earnings()){
-                if(earning.date.year() == year && earning.date.month() == month){
+            for (auto& earning : all_earnings()) {
+                if (earning.date.year() == year && earning.date.month() == month) {
                     sum += earning.amount;
                 }
             }
