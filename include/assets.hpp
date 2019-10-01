@@ -50,6 +50,10 @@ struct asset {
     money total_allocation() const {
         return int_stocks + dom_stocks + bonds + cash;
     }
+
+    bool is_cash() const {
+        return cash == budget::money(100);
+    }
 };
 
 // Used to set the value of the asset
@@ -94,7 +98,7 @@ void list_asset_values(budget::writer& w);
 void small_show_asset_values(budget::writer& w);
 void show_asset_values(budget::writer& w);
 void show_asset_portfolio(budget::writer& w);
-void show_asset_rebalance(budget::writer& w);
+void show_asset_rebalance(budget::writer& w, bool nocash = false);
 
 void list_asset_shares(budget::writer& w);
 

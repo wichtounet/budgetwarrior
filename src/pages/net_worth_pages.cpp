@@ -818,7 +818,7 @@ void budget::portfolio_graph_page(const httplib::Request& req, httplib::Response
     page_end(w, req, res);
 }
 
-void budget::rebalance_page(const httplib::Request& req, httplib::Response& res) {
+void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bool nocash) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Rebalance")) {
         return;
@@ -827,7 +827,7 @@ void budget::rebalance_page(const httplib::Request& req, httplib::Response& res)
     // 1. Display the rebalance table
 
     budget::html_writer w(content_stream);
-    budget::show_asset_rebalance(w);
+    budget::show_asset_rebalance(w, nocash);
 
     make_tables_sortable(w);
 
@@ -974,3 +974,10 @@ void budget::rebalance_page(const httplib::Request& req, httplib::Response& res)
     page_end(w, req, res);
 }
 
+void budget::rebalance_page(const httplib::Request& req, httplib::Response& res) {
+    rebalance_page_base(req, res, false);
+}
+
+void budget::rebalance_nocash_page(const httplib::Request& req, httplib::Response& res) {
+    rebalance_page_base(req, res, true);
+}

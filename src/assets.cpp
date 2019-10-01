@@ -816,7 +816,7 @@ void budget::show_asset_portfolio(budget::writer& w){
     w.display_table(columns, contents, 1, {}, 1, 2);
 }
 
-void budget::show_asset_rebalance(budget::writer& w){
+void budget::show_asset_rebalance(budget::writer& w, bool nocash){
     if (!asset_values.data.size() && !asset_shares.data.size()) {
         w << "No asset values" << end_of_line;
         return;
@@ -831,6 +831,10 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
+            if (nocash && asset.is_cash()) {
+                continue;
+            }
+
             total += get_asset_value_conv(asset);
         }
     }
@@ -839,6 +843,10 @@ void budget::show_asset_rebalance(budget::writer& w){
 
     for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
+            if (nocash && asset.is_cash()) {
+                continue;
+            }
+
             auto amount = get_asset_value(asset);
 
             if (amount.zero() && asset.portfolio_alloc.zero()) {

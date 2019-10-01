@@ -496,6 +496,7 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/portfolio/currency/", &portfolio_currency_page);
     server.Get("/portfolio/allocation/", &portfolio_allocation_page);
     server.Get("/rebalance/", &rebalance_page);
+    server.Get("/rebalance/nocash/", &rebalance_nocash_page);
     server.Get("/assets/", &assets_page);
     server.Get("/net_worth/status/", &net_worth_status_page);
     server.Get("/net_worth/status/small/", &net_worth_small_status_page); // Not in the menu for now
