@@ -843,6 +843,9 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
 
     for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
+            if (nocash && asset.is_cash()) {
+                continue;
+            }
             asset_amounts[asset.id] = get_asset_value(asset);
         }
     }
@@ -852,6 +855,10 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
     std::map<size_t, size_t> colors;
 
     for (auto& asset : all_user_assets()) {
+        if (nocash && asset.is_cash()) {
+            continue;
+        }
+
         if (asset.portfolio && (asset_amounts[asset.id] || asset.portfolio_alloc)) {
             if (!colors.count(asset.id)) {
                 auto c           = colors.size();
