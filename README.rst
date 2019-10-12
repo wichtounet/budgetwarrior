@@ -92,7 +92,6 @@ Now build using the provided script after cloning repository::
     $ git clone --recursive git://github.com/wichtounet/budgetwarrior.git
     $ cd budgetwarrior
     $ ./build_macos.sh
-    $ make
 
 	
 Windows
