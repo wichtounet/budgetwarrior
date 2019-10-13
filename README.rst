@@ -93,7 +93,10 @@ Now build using the provided script after cloning repository::
     $ cd budgetwarrior
     $ ./build_macos.sh
 
-	
+To install the resulting, compiled program::
+  
+    $ cd ./build && make install
+
 Windows
 =======
 
