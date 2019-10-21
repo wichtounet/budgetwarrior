@@ -42,7 +42,7 @@ void budget::add_asset_shares_page(const httplib::Request& req, httplib::Respons
     form_begin(w, "/api/asset_shares/add/", "/asset_shares/add/");
 
     add_share_asset_picker(w);
-    add_integer_picker(w, "shares", "input_shares");
+    add_integer_picker(w, "shares", "input_shares", true);
     add_money_picker(w, "price", "input_price", "");
     add_date_picker(w, budget::to_string(budget::local_day()));
 
@@ -75,7 +75,7 @@ void budget::edit_asset_shares_page(const httplib::Request& req, httplib::Respon
         auto& asset_share = asset_share_get(id);
 
         add_share_asset_picker(w, budget::to_string(asset_share.asset_id));
-        add_integer_picker(w, "shares", "input_shares", budget::to_string(asset_share.shares));
+        add_integer_picker(w, "shares", "input_shares", true, budget::to_string(asset_share.shares));
         add_money_picker(w, "price", "input_price", budget::to_string(asset_share.price));
         add_date_picker(w, budget::to_string(asset_share.date));
 

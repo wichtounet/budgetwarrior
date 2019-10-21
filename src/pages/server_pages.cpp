@@ -955,12 +955,16 @@ void budget::add_value_asset_picker(budget::writer& w, const std::string& defaul
     )=====";
 }
 
-void budget::add_integer_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
+void budget::add_integer_picker(budget::writer& w, const std::string& title, const std::string& name, bool negative, const std::string& default_value) {
     w << R"=====(<div class="form-group">)=====";
 
     w << "<label for=\"" << name << "\">" << title << "</label>";
 
-    w << "<input required type=\"number\" min=\"0\" step=\"1\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    if (negative) {
+        w << "<input required type=\"number\" step=\"1\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    } else {
+        w << "<input required type=\"number\" min=\"0\" step=\"1\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    }
 
     if (default_value.empty()) {
         w << " placeholder=\"Enter " << title << "\" ";
