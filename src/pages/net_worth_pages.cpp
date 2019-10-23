@@ -151,7 +151,7 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
 
     // Display additional information for share-based assets
     if (asset.share_based) {
-        int64_t owned_shares = 0;
+        int64_t bought_shares = 0;
         int64_t sold_shares  = 0;
 
         budget::money average_buy_price;
@@ -163,15 +163,14 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
 
         for (auto& share : all_asset_shares()) {
             if (share.asset_id == asset.id) {
-                owned_shares += share.shares;
-
                 if (share.is_buy()) {
+                    bought_shares += share.shares;
                     average_buy_price += (float)share.shares * share.price;
                 }
 
                 if (share.is_sell()) {
                     sold_shares += -share.shares;
-                    average_sell_price += -((float)share.shares * share.price);
+                    average_sell_price += (float)-share.shares * share.price;
                 }
 
                 if (!first_date_set) {
@@ -181,7 +180,10 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
             }
         }
 
-        average_buy_price /= owned_shares;
+        average_buy_price /= bought_shares;
+        average_sell_price /= sold_shares;
+
+        auto owned_shares = bought_shares - sold_shares;
 
         w << p_begin << "Number of shares: " << owned_shares << p_end;
         w << p_begin << "Average price: " << average_buy_price << p_end;
@@ -195,7 +197,7 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
         // TODO This is not entirely correct, since this should use
         // the date of sold and buy to have the correct profit
         if (sold_shares) {
-            w << p_begin << "Number of shares: " << sold_shares << p_end;
+            w << p_begin << "Sold shares: " << sold_shares << p_end;
             w << p_begin << "Average sold price: " << average_sell_price << p_end;
             w << p_begin << "Realized profit: " << (float) sold_shares * (average_sell_price - average_buy_price) << p_end;
         }
