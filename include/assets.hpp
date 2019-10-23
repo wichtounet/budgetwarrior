@@ -72,11 +72,19 @@ struct asset_share {
     size_t id;
     std::string guid;
     size_t asset_id;
-    size_t shares;       // The number of shares
+    int64_t shares;      // The number of shares
     budget::money price; // The purchase price
     budget::date date;   // The purchase date
 
     std::map<std::string, std::string> get_params();
+
+    bool is_buy() const {
+        return shares >= 0;
+    }
+
+    bool is_sell() const {
+        return shares < 0;
+    }
 };
 
 std::ostream& operator<<(std::ostream& stream, const asset& asset);
