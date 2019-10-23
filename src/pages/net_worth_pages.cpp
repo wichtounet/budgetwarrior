@@ -151,8 +151,8 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
 
     // Display additional information for share-based assets
     if (asset.share_based) {
-        size_t owned_shares = 0;
-        size_t sold_shares  = 0;
+        int64_t owned_shares = 0;
+        int64_t sold_shares  = 0;
 
         budget::money average_buy_price;
         budget::money average_sell_price;
@@ -170,8 +170,8 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
                 }
 
                 if (share.is_sell()) {
-                    sold_shares += share.shares;
-                    average_sell_price += (float)share.shares * share.price;
+                    sold_shares += -share.shares;
+                    average_sell_price += -((float)share.shares * share.price);
                 }
 
                 if (!first_date_set) {
