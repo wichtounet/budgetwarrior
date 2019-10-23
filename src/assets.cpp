@@ -1181,7 +1181,7 @@ budget::money budget::get_net_worth_cash(){
 
 budget::money budget::get_asset_value(budget::asset & asset, budget::date d) {
     if (asset.share_based) {
-        size_t shares = 0;
+        int64_t shares = 0;
 
         for (auto& asset_share : asset_shares.data) {
             if (asset_share.asset_id == asset.id) {
@@ -1191,7 +1191,7 @@ budget::money budget::get_asset_value(budget::asset & asset, budget::date d) {
             }
         }
 
-        if (shares) {
+        if (shares > 1) {
             return budget::money(shares) * share_price(asset.ticker, d);
         }
     } else {
