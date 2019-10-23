@@ -202,7 +202,7 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
             w << p_begin << "Sold shares: " << sold_shares << p_end;
             w << p_begin << "Average sold price: " << average_sell_price << p_end;
             w << p_begin << "Realized profit: " << (float) sold_shares * (average_sell_price - average_buy_price) << p_end;
-            w << p_begin << "Realized ROI: " << (100.0f / (average_sell_price / average_buy_price)) - 100.0f << "%" << p_end;
+            w << p_begin << "Realized ROI: " << (100.0f / (average_buy_price / average_sell_price)) - 100.0f << "%" << p_end;
         }
     }
 
