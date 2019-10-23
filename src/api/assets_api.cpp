@@ -259,7 +259,7 @@ void budget::add_asset_shares_api(const httplib::Request& req, httplib::Response
     asset_share asset_share;
     asset_share.guid     = budget::generate_guid();
     asset_share.asset_id = budget::to_number<size_t>(req.get_param_value("input_asset"));
-    asset_share.shares   = budget::to_number<size_t>(req.get_param_value("input_shares"));
+    asset_share.shares   = budget::to_number<int64_t>(req.get_param_value("input_shares"));
     asset_share.price    = budget::parse_money(req.get_param_value("input_price"));
     asset_share.date     = budget::from_string(req.get_param_value("input_date"));
 
@@ -287,7 +287,7 @@ void budget::edit_asset_shares_api(const httplib::Request& req, httplib::Respons
 
     asset_share& asset_share = asset_share_get(budget::to_number<size_t>(id));
     asset_share.asset_id     = budget::to_number<size_t>(req.get_param_value("input_asset"));
-    asset_share.shares       = budget::to_number<size_t>(req.get_param_value("input_shares"));
+    asset_share.shares       = budget::to_number<int64_t>(req.get_param_value("input_shares"));
     asset_share.price        = budget::parse_money(req.get_param_value("input_price"));
     asset_share.date         = budget::from_string(req.get_param_value("input_date"));
 
