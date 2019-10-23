@@ -197,6 +197,7 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
         // TODO This is not entirely correct, since this should use
         // the date of sold and buy to have the correct profit
         if (sold_shares) {
+            w << p_begin << p_end;
             w << p_begin << "Sold shares: " << sold_shares << p_end;
             w << p_begin << "Average sold price: " << average_sell_price << p_end;
             w << p_begin << "Realized profit: " << (float) sold_shares * (average_sell_price - average_buy_price) << p_end;
