@@ -181,7 +181,6 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
         }
 
         average_buy_price /= bought_shares;
-        average_sell_price /= sold_shares;
 
         auto owned_shares = bought_shares - sold_shares;
 
@@ -197,6 +196,8 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
         // TODO This is not entirely correct, since this should use
         // the date of sold and buy to have the correct profit
         if (sold_shares) {
+            average_sell_price /= sold_shares;
+
             w << p_begin << p_end;
             w << p_begin << "Sold shares: " << sold_shares << p_end;
             w << p_begin << "Average sold price: " << average_sell_price << p_end;
