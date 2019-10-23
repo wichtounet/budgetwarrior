@@ -166,6 +166,23 @@ void edit_number(size_t& ref, const std::string& title, Checker... checkers){
 }
 
 template<typename ...Checker>
+void edit_number(int64_t& ref, const std::string& title, Checker... checkers){
+    bool checked;
+    do {
+        std::string answer;
+
+        std::cout << title << " [" << ref << "]: ";
+        std::getline(std::cin, answer);
+
+        if (!answer.empty()) {
+            ref = to_number<int64_t>(answer);
+        }
+
+        checked = check(ref, checkers...);
+    } while(!checked);
+}
+
+template<typename ...Checker>
 void edit_double(double& ref, const std::string& title, Checker... checkers){
     bool checked;
     do {
