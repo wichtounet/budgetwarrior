@@ -9,6 +9,8 @@
 #include <utility>
 #include <iostream>
 #include <sstream>
+#include <map>
+#include <set>
 
 #include "cpp_utils/string.hpp"
 
@@ -282,11 +284,16 @@ void budget::refresh_share_price_cache(){
 }
 
 void budget::prefetch_share_price_cache(){
-    // Prefetch the current prices
-    for (auto & pair : share_prices) {
-        auto& key = pair.first;
+    std::set<std::string> tickers;
 
-        share_price(key.ticker);
+    // Collect all the tickers
+    for (auto & pair : share_prices) {
+        tickers.insert(pair.first.ticker);
+    }
+
+    // Prefetch the current prices
+    for (auto & ticker : tickers) {
+        share_price(ticker);
     }
 
     if (budget::is_server_running()) {
