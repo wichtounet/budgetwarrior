@@ -281,6 +281,20 @@ void budget::refresh_share_price_cache(){
     }
 }
 
+void budget::prefetch_share_price_cache(){
+    // Prefetch the current prices
+    for (auto & pair : share_prices) {
+        auto& key = pair.first;
+
+        share_price(key.ticker);
+    }
+
+    if (budget::is_server_running()) {
+        std::cout << "INFO: Share Price Cache has been prefetched" << std::endl;
+        std::cout << "INFO: Share Price Cache has " << share_prices.size() << " entries " << std::endl;
+    }
+}
+
 double budget::share_price(const std::string& ticker){
     return share_price(ticker, budget::local_day());
 }

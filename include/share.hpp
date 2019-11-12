@@ -19,5 +19,6 @@ double share_price(const std::string& quote, budget::date d);
 void refresh_share_price_cache();
 void load_share_price_cache();
 void save_share_price_cache();
+void prefetch_share_price_cache();
 
 } //end of namespace budget

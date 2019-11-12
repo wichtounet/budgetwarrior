@@ -103,6 +103,10 @@ void start_cron_loop(){
             std::cout << "Refresh the currency cache" << std::endl;
             budget::refresh_currency_cache();
         }
+
+        // Every hour, we try to prefetch value for new days
+        std::cout << "Prefetch the share cache" << std::endl;
+        budget::prefetch_share_price_cache();
     }
 
     std::cout << "INFO: Cron Thread has exited" << std::endl;
