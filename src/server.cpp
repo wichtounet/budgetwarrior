@@ -81,27 +81,25 @@ void start_server(){
 
 void start_cron_loop(){
     std::cout << "INFO: Started the cron thread" << std::endl;
-    size_t seconds = 0;
+    size_t hours = 0;
 
     while(cron){
         using namespace std::chrono_literals;
 
-        std::this_thread::sleep_for(1s);
-        ++seconds;
+        std::this_thread::sleep_for(1h);
+        ++hours;
 
         check_for_recurrings();
 
-        auto hours = seconds / 3600;
-
         // We save the cache once per day
-        if (hours && hours % 24 == 0) {
+        if (hours % 24 == 0) {
             save_currency_cache();
             save_share_price_cache();
         }
 
         // Every four hours, we refresh the currency cache
         // Only current day rates are refreshed
-        if (hours && hours % 4 == 0) {
+        if (hours % 4 == 0) {
             std::cout << "Refresh the currency cache" << std::endl;
             budget::refresh_currency_cache();
         }
