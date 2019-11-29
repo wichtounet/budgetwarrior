@@ -263,7 +263,7 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
         w << R"=====(<div class="card-header card-header-primary">)=====";
         w << R"=====(<div class="float-left">Net Worth</div>)=====";
         w << R"=====(<div class="float-right">)=====";
-        w << current_net_worth << " __currency__ (YTD: " << ytd_growth << "% " << mtd_growth << "%)";
+        w << current_net_worth << " __currency__ (YTD: " << ytd_growth << "% MTD: " << mtd_growth << "%)";
         w << R"=====(</div>)=====";
         w << R"=====(<div class="clearfix"></div>)=====";
         w << R"=====(</div>)====="; // card-header
@@ -279,7 +279,7 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
 
     if (!card) {
         ss << R"=====(subtitle: {)=====";
-        ss << "text: '" << current_net_worth << " __currency__ (YTD: " << ytd_growth << "% " << mtd_growth << "%)',";
+        ss << "text: '" << current_net_worth << " __currency__ (YTD: " << ytd_growth << "% MTD: " << mtd_growth << "%)',";
         ss << R"=====(floating:true, align:"right", verticalAlign: "top", style: { fontWeight: "bold", fontSize: "inherit" })=====";
         ss << R"=====(},)=====";
     }
