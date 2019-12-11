@@ -485,7 +485,7 @@ void budget::load_pages(httplib::Server& server) {
 
     server.Get(R"(/earnings/(\d+)/(\d+)/)", &earnings_page);
     server.Get("/earnings/", &earnings_page);
-    server.Get("/earnings/search/", &search_expenses_page);
+    server.Get("/earnings/search/", &search_earnings_page);
 
     server.Get("/earnings/time/", &time_graph_earnings_page);
     server.Get("/income/time/", &time_graph_income_page);
