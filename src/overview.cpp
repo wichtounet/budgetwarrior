@@ -215,14 +215,14 @@ struct icompare_str {
     }
 };
 
-template<typename Functor>
-void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
-    std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_expenses;
+template<typename Data, typename Functor>
+void aggregate_overview(Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
+    std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_data;
 
-    //Accumulate all the expenses
-    for(auto& expense : all_expenses()){
-        if(func(expense)){
-            auto name = expense.name;
+    //Accumulate all the data
+    for(auto& data : data){
+        if(func(data)){
+            auto name = data.name;
 
             if(name[name.size() - 1] == ' '){
                 name.erase(name.size() - 1, name.size());
@@ -236,19 +236,19 @@ void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const
             }
 
             if(full){
-                acc_expenses["All accounts"][name] += expense.amount;
+                acc_data["All accounts"][name] += data.amount;
             } else {
-                auto& account = get_account(expense.account);
-                acc_expenses[account.name][name] += expense.amount;
+                auto& account = get_account(data.account);
+                acc_data[account.name][name] += data.amount;
             }
         }
     }
 
     for (auto& account : current_accounts()) {
-        auto it = acc_expenses.find(account.name);
+        auto it = acc_data.find(account.name);
 
-        if (it == acc_expenses.end()) {
-            acc_expenses[account.name];
+        if (it == acc_data.end()) {
+            acc_data[account.name];
         }
     }
 
@@ -259,39 +259,39 @@ void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const
     std::vector<std::vector<std::string>> contents;
 
     for(auto& account : current_accounts()){
-        auto& expenses = acc_expenses[account.name];
+        auto& items = acc_data[account.name];
 
         auto column = columns.size();
         columns.push_back(account.name);
         size_t row = 0;
 
-        typedef std::pair<std::string, budget::money> s_expense;
-        std::vector<s_expense> sorted_expenses;
+        typedef std::pair<std::string, budget::money> s_items;
+        std::vector<s_items> sorted_data;
 
-        for(auto& expense : expenses){
-            sorted_expenses.push_back(std::make_pair(expense.first, expense.second));
+        for(auto& data : items){
+            sorted_data.push_back(std::make_pair(data.first, data.second));
         }
 
-        std::sort(sorted_expenses.begin(), sorted_expenses.end(),
-            [](const s_expense& a, const s_expense& b){ return a.second > b.second; });
+        std::sort(sorted_data.begin(), sorted_data.end(),
+            [](const s_items& a, const s_items& b){ return a.second > b.second; });
 
-        for(auto& expense : sorted_expenses){
+        for(auto& data : sorted_data){
             if(contents.size() <= row){
-                contents.emplace_back(acc_expenses.size() * 2, "");
+                contents.emplace_back(acc_data.size() * 2, "");
             }
 
-            contents[row][column * 2] = expense.first;
-            contents[row][column * 2 + 1] = to_string(expense.second);
+            contents[row][column * 2] = data.first;
+            contents[row][column * 2 + 1] = to_string(data.second);
 
-            totals[account.name] += expense.second;
-            total += expense.second;
+            totals[account.name] += data.second;
+            total += data.second;
 
             ++row;
         }
     }
 
-    contents.emplace_back(acc_expenses.size() * 2, "");
-    contents.emplace_back(acc_expenses.size() * 2, "");
+    contents.emplace_back(acc_data.size() * 2, "");
+    contents.emplace_back(acc_data.size() * 2, "");
 
     size_t i = 0;
 
@@ -302,7 +302,7 @@ void aggregate_overview(budget::writer& w, bool full, bool disable_groups, const
         i++;
     }
 
-    contents.emplace_back(acc_expenses.size() * 2, "");
+    contents.emplace_back(acc_data.size() * 2, "");
 
     i = 0;
 
@@ -1006,7 +1006,11 @@ void budget::aggregate_all_overview(budget::writer& w, bool full, bool disable_g
 
     w << title_begin << "Aggregate overview of all time" << title_end;
 
-    aggregate_overview(w, full, disable_groups, separator, [](const budget::expense& /*expense*/){ return true; });
+    w << p_begin << "Expenses" << p_end;
+    aggregate_overview(all_expenses(), w, full, disable_groups, separator, [](const budget::expense& /*expense*/){ return true; });
+
+    w << p_begin << "Earnings" << p_end;
+    aggregate_overview(all_earnings(), w, full, disable_groups, separator, [](const budget::earning& /*earning*/){ return true; });
 }
 
 void budget::aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year){
@@ -1016,11 +1020,19 @@ void budget::aggregate_year_overview(budget::writer& w, bool full, bool disable_
 
     w << title_begin << "Aggregate overview of " << year << year_selector{"overview/aggregate/year", year} << title_end;
 
-    aggregate_overview(w, full, disable_groups, separator, [year](const budget::expense& expense){ return expense.date.year() == year; });
+    w << p_begin << "Expenses" << p_end;
+    aggregate_overview(all_expenses(), w, full, disable_groups, separator, [year](const budget::expense& expense){ return expense.date.year() == year; });
+
+    w << p_begin << "Earnings" << p_end;
+    aggregate_overview(all_earnings(), w, full, disable_groups, separator, [year](const budget::earning& earning){ return earning.date.year() == year; });
 }
 
 void budget::aggregate_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::month month, budget::year year){
     w << title_begin << "Aggregate overview of " << month << " " << year << year_month_selector{"overview/aggregate/month", year, month} << title_end;
 
-    aggregate_overview(w, full, disable_groups, separator, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
+    w << p_begin << "Expenses" << p_end;
+    aggregate_overview(all_expenses(), w, full, disable_groups, separator, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
+
+    w << p_begin << "Earnings" << p_end;
+    aggregate_overview(all_earnings(), w, full, disable_groups, separator, [month,year](const budget::earning& earning){ return earning.date.month() == month && earning.date.year() == year; });
 }
