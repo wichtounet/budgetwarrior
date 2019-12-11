@@ -16,9 +16,10 @@ void time_graph_earnings_page(const httplib::Request& req, httplib::Response& re
 void add_earnings_page(const httplib::Request& req, httplib::Response& res);
 void edit_earnings_page(const httplib::Request& req, httplib::Response& res);
 void earnings_page(const httplib::Request& req, httplib::Response& res);
+void search_earnings_page(const httplib::Request& req, httplib::Response& res);
 void all_earnings_page(const httplib::Request& req, httplib::Response& res);
 void month_breakdown_income_graph(budget::html_writer& w, const std::string& title,
-                                  budget::month month, budget::year year, bool mono = false, 
+                                  budget::month month, budget::year year, bool mono = false,
                                   const std::string& style = "");
 
 } //end of namespace budget

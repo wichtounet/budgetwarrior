@@ -336,3 +336,28 @@ void budget::all_earnings_page(const httplib::Request& req, httplib::Response& r
 
     page_end(w, req, res);
 }
+
+void budget::search_earnings_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Search Earnings")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    page_form_begin(w, "/earnings/search/");
+
+    add_name_picker(w);
+
+    form_end(w);
+
+    if(req.has_param("input_name")){
+        auto search = req.get_param_value("input_name");
+
+        search_earnings(search, w);
+    }
+
+    make_tables_sortable(w);
+
+    page_end(w, req, res);
+}

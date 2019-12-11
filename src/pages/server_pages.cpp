@@ -268,6 +268,7 @@ std::string header(const std::string& title, bool menu = true) {
                 <div class="dropdown-menu" aria-labelledby="dropdown04">
                   <a class="dropdown-item" href="/earnings/add/">Add Earning</a>
                   <a class="dropdown-item" href="/earnings/">Earnings</a>
+                  <a class="dropdown-item" href="/earnings/search/">Search</a>
                   <a class="dropdown-item" href="/earnings/all/">All Earnings</a>
                   <a class="dropdown-item" href="/earnings/time/">Earnings over time</a>
                   <a class="dropdown-item" href="/income/time/">Income over time</a>
@@ -484,6 +485,7 @@ void budget::load_pages(httplib::Server& server) {
 
     server.Get(R"(/earnings/(\d+)/(\d+)/)", &earnings_page);
     server.Get("/earnings/", &earnings_page);
+    server.Get("/earnings/search/", &search_expenses_page);
 
     server.Get("/earnings/time/", &time_graph_earnings_page);
     server.Get("/income/time/", &time_graph_income_page);

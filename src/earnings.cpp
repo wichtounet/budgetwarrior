@@ -188,6 +188,39 @@ void budget::show_all_earnings(budget::writer& w){
     w.display_table(columns, contents);
 }
 
+void budget::search_earnings(const std::string& search, budget::writer& w){
+    w << title_begin << "Results" << title_end;
+
+    std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
+    std::vector<std::vector<std::string>> contents;
+
+    money total;
+    size_t count = 0;
+
+    auto l_search = search;
+    std::transform(l_search.begin(), l_search.end(), l_search.begin(), ::tolower);
+
+    for(auto& earning : earnings.data){
+        auto l_name = earning.name;
+        std::transform(l_name.begin(), l_name.end(), l_name.begin(), ::tolower);
+
+        if(l_name.find(l_search) != std::string::npos){
+            contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount), "::edit::earnings::" + to_string(earning.id)});
+
+            total += earning.amount;
+            ++count;
+        }
+    }
+
+    if(count == 0){
+        w << "No earnings found" << end_of_line;
+    } else {
+        contents.push_back({"", "", "", "Total", to_string(total), ""});
+
+        w.display_table(columns, contents, 1, {}, 0, 1);
+    }
+}
+
 void budget::show_earnings(budget::month month, budget::year year, budget::writer& w){
     w << title_begin << "Earnings of " << month << " " << year << " "
       << add_button("earnings")

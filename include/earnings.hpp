@@ -62,6 +62,7 @@ void show_all_earnings(budget::writer& w);
 void show_earnings(budget::month month, budget::year year, budget::writer& w);
 void show_earnings(budget::month month, budget::writer& w);
 void show_earnings(budget::writer& w);
+void search_earnings(const std::string& search, budget::writer& w);
 
 // Filter functions
 
