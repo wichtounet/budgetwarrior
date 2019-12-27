@@ -194,11 +194,7 @@ struct data_handler {
                    data.end());
 
         if (is_server_mode()) {
-            std::map<std::string, std::string> params;
-
-            params["input_id"] = budget::to_string(id);
-
-            auto res = budget::api_get(std::string("/") + get_module() + "/delete/", params);
+            auto res = budget::api_get(std::string("/") + get_module() + "/delete/?input_id=" + budget::to_string(id));
 
             if (!res.success) {
                 std::cerr << "error: Failed to delete from " << get_module() << std::endl;
