@@ -198,7 +198,7 @@ struct data_handler {
 
             params["input_id"] = budget::to_string(id);
 
-            auto res = budget::api_post(std::string("/") + get_module() + "/delete/", params);
+            auto res = budget::api_get(std::string("/") + get_module() + "/delete/", params);
 
             if (!res.success) {
                 std::cerr << "error: Failed to delete from " << get_module() << std::endl;

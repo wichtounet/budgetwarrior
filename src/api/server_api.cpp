@@ -91,67 +91,67 @@ void budget::load_api(httplib::Server& server) {
 
     server.Post("/api/accounts/add/", &add_accounts_api);
     server.Post("/api/accounts/edit/", &edit_accounts_api);
-    server.Post("/api/accounts/delete/", &delete_accounts_api);
+    server.Get("/api/accounts/delete/", &delete_accounts_api);
     server.Post("/api/accounts/archive/month/", &archive_accounts_month_api);
     server.Post("/api/accounts/archive/year/", &archive_accounts_year_api);
     server.Get("/api/accounts/list/", &list_accounts_api);
 
     server.Post("/api/incomes/add/", &add_incomes_api);
     server.Post("/api/incomes/edit/", &edit_incomes_api);
-    server.Post("/api/incomes/delete/", &delete_incomes_api);
+    server.Get("/api/incomes/delete/", &delete_incomes_api);
     server.Get("/api/incomes/list/", &list_incomes_api);
 
     server.Post("/api/expenses/add/", &add_expenses_api);
     server.Post("/api/expenses/edit/", &edit_expenses_api);
-    server.Post("/api/expenses/delete/", &delete_expenses_api);
+    server.Get("/api/expenses/delete/", &delete_expenses_api);
     server.Get("/api/expenses/list/", &list_expenses_api);
 
     server.Post("/api/earnings/add/", &add_earnings_api);
     server.Post("/api/earnings/edit/", &edit_earnings_api);
-    server.Post("/api/earnings/delete/", &delete_earnings_api);
+    server.Get("/api/earnings/delete/", &delete_earnings_api);
     server.Get("/api/earnings/list/", &list_earnings_api);
 
     server.Post("/api/recurrings/add/", &add_recurrings_api);
     server.Post("/api/recurrings/edit/", &edit_recurrings_api);
-    server.Post("/api/recurrings/delete/", &delete_recurrings_api);
+    server.Get("/api/recurrings/delete/", &delete_recurrings_api);
     server.Get("/api/recurrings/list/", &list_recurrings_api);
 
     server.Post("/api/debts/add/", &add_debts_api);
     server.Post("/api/debts/edit/", &edit_debts_api);
-    server.Post("/api/debts/delete/", &delete_debts_api);
+    server.Get("/api/debts/delete/", &delete_debts_api);
     server.Get("/api/debts/list/", &list_debts_api);
 
     server.Post("/api/fortunes/add/", &add_fortunes_api);
     server.Post("/api/fortunes/edit/", &edit_fortunes_api);
-    server.Post("/api/fortunes/delete/", &delete_fortunes_api);
+    server.Get("/api/fortunes/delete/", &delete_fortunes_api);
     server.Get("/api/fortunes/list/", &list_fortunes_api);
 
     server.Post("/api/wishes/add/", &add_wishes_api);
     server.Post("/api/wishes/edit/", &edit_wishes_api);
-    server.Post("/api/wishes/delete/", &delete_wishes_api);
+    server.Get("/api/wishes/delete/", &delete_wishes_api);
     server.Get("/api/wishes/list/", &list_wishes_api);
 
     server.Post("/api/assets/add/", &add_assets_api);
     server.Post("/api/assets/edit/", &edit_assets_api);
-    server.Post("/api/assets/delete/", &delete_assets_api);
+    server.Get("/api/assets/delete/", &delete_assets_api);
     server.Get("/api/assets/list/", &list_assets_api);
 
     server.Post("/api/asset_values/add/", &add_asset_values_api);
     server.Post("/api/asset_values/edit/", &edit_asset_values_api);
     server.Post("/api/asset_values/batch/", &batch_asset_values_api);
-    server.Post("/api/asset_values/delete/", &delete_asset_values_api);
+    server.Get("/api/asset_values/delete/", &delete_asset_values_api);
     server.Get("/api/asset_values/list/", &list_asset_values_api);
 
     server.Post("/api/asset_shares/add/", &add_asset_shares_api);
     server.Post("/api/asset_shares/edit/", &edit_asset_shares_api);
-    server.Post("/api/asset_shares/delete/", &delete_asset_shares_api);
+    server.Get("/api/asset_shares/delete/", &delete_asset_shares_api);
     server.Get("/api/asset_shares/list/", &list_asset_shares_api);
 
     server.Post("/api/retirement/configure/", &retirement_configure_api);
 
     server.Post("/api/objectives/add/", &add_objectives_api);
     server.Post("/api/objectives/edit/", &edit_objectives_api);
-    server.Post("/api/objectives/delete/", &delete_objectives_api);
+    server.Get("/api/objectives/delete/", &delete_objectives_api);
     server.Get("/api/objectives/list/", &list_objectives_api);
 }
 
