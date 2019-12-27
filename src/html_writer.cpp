@@ -31,17 +31,14 @@ std::string success_to_string(int success) {
 std::string edit_to_string(const std::string& module, const std::string& id){
     std::stringstream ss;
 
+    std::string delete_url = "/api/" + module + "/delete/?server=yes&back_page=__budget_this_page__&input_id=" + id;
+
     // Add the delete button
-    ss << R"=====(<form class="small-form-inline" method="POST" action="/api/)=====";
-    ss << module;
-    ss << R"=====(/delete/">)=====";
-    ss << R"=====(<input type="hidden" name="server" value="yes">)=====";
-    ss << R"=====(<input type="hidden" name="back_page" value="__budget_this_page__">)=====";
-    ss << R"=====(<input type="hidden" name="input_id" value=")=====";
-    ss << id;
+    ss << R"=====(<a href=")=====";
+    ss << delete_url;
     ss << R"=====(">)=====";
-    ss << R"=====(<button type="submit" aria-label="Delete" class="btn btn-sm btn-danger oi oi-circle-x"></button>)=====";
-    ss << R"=====(</form>)=====";
+    ss << R"=====(<button type="button" aria-label="Delete" class="btn btn-sm btn-danger oi oi-circle-x"></button>)=====";
+    ss << R"=====(</a>)=====";
 
     // Add the edit button
     ss << R"=====(<form class="small-form-inline" method="POST" action="/)=====";
