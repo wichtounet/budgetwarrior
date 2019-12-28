@@ -461,7 +461,7 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/accounts/", &accounts_page);
     server.Get("/accounts/all/", &all_accounts_page);
     server.Get("/accounts/add/", &add_accounts_page);
-    server.Post("/accounts/edit/", &edit_accounts_page);
+    server.Get("/accounts/edit/", &edit_accounts_page);
     server.Get("/accounts/archive/month/", &archive_accounts_month_page);
     server.Get("/accounts/archive/year/", &archive_accounts_year_page);
 
@@ -481,7 +481,7 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/expenses/time/", &time_graph_expenses_page);
     server.Get("/expenses/all/", &all_expenses_page);
     server.Get("/expenses/add/", &add_expenses_page);
-    server.Post("/expenses/edit/", &edit_expenses_page);
+    server.Get("/expenses/edit/", &edit_expenses_page);
 
     server.Get(R"(/earnings/(\d+)/(\d+)/)", &earnings_page);
     server.Get("/earnings/", &earnings_page);
@@ -491,7 +491,7 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/income/time/", &time_graph_income_page);
     server.Get("/earnings/all/", &all_earnings_page);
     server.Get("/earnings/add/", &add_earnings_page);
-    server.Post("/earnings/edit/", &edit_earnings_page);
+    server.Get("/earnings/edit/", &edit_earnings_page);
 
     server.Get("/portfolio/status/", &portfolio_status_page);
     server.Get("/portfolio/graph/", &portfolio_graph_page);
@@ -506,7 +506,7 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/net_worth/currency/", &net_worth_currency_page);
     server.Get("/net_worth/allocation/", &net_worth_allocation_page);
     server.Get("/assets/add/", &add_assets_page);
-    server.Post("/assets/edit/", &edit_assets_page);
+    server.Get("/assets/edit/", &edit_assets_page);
     server.Get(R"(/assets/graph/(\d+)/)", &asset_graph_page);
     server.Get("/assets/graph/", &asset_graph_page);
 
@@ -514,22 +514,22 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/asset_values/add/", &add_asset_values_page);
     server.Get("/asset_values/batch/full/", &full_batch_asset_values_page);
     server.Get("/asset_values/batch/current/", &current_batch_asset_values_page);
-    server.Post("/asset_values/edit/", &edit_asset_values_page);
+    server.Get("/asset_values/edit/", &edit_asset_values_page);
 
     server.Get("/asset_shares/list/", &list_asset_shares_page);
     server.Get("/asset_shares/add/", &add_asset_shares_page);
-    server.Post("/asset_shares/edit/", &edit_asset_shares_page);
+    server.Get("/asset_shares/edit/", &edit_asset_shares_page);
 
     server.Get("/objectives/list/", &list_objectives_page);
     server.Get("/objectives/status/", &status_objectives_page);
     server.Get("/objectives/add/", &add_objectives_page);
-    server.Post("/objectives/edit/", &edit_objectives_page);
+    server.Get("/objectives/edit/", &edit_objectives_page);
 
     server.Get("/wishes/list/", &wishes_list_page);
     server.Get("/wishes/status/", &wishes_status_page);
     server.Get("/wishes/estimate/", &wishes_estimate_page);
     server.Get("/wishes/add/", &add_wishes_page);
-    server.Post("/wishes/edit/", &edit_wishes_page);
+    server.Get("/wishes/edit/", &edit_wishes_page);
 
     server.Get("/retirement/status/", &retirement_status_page);
     server.Get("/retirement/configure/", &retirement_configure_page);
@@ -537,18 +537,18 @@ void budget::load_pages(httplib::Server& server) {
 
     server.Get("/recurrings/list/", &recurrings_list_page);
     server.Get("/recurrings/add/", &add_recurrings_page);
-    server.Post("/recurrings/edit/", &edit_recurrings_page);
+    server.Get("/recurrings/edit/", &edit_recurrings_page);
 
     server.Get("/debts/list/", &budget::list_debts_page);
     server.Get("/debts/all/", &budget::all_debts_page);
     server.Get("/debts/add/", &budget::add_debts_page);
-    server.Post("/debts/edit/", &budget::edit_debts_page);
+    server.Get("/debts/edit/", &budget::edit_debts_page);
 
     server.Get("/fortunes/graph/", &graph_fortunes_page);
     server.Get("/fortunes/status/", &status_fortunes_page);
     server.Get("/fortunes/list/", &list_fortunes_page);
     server.Get("/fortunes/add/", &add_fortunes_page);
-    server.Post("/fortunes/edit/", &edit_fortunes_page);
+    server.Get("/fortunes/edit/", &edit_fortunes_page);
 
     // Handle error
 

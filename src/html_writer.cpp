@@ -32,6 +32,7 @@ std::string edit_to_string(const std::string& module, const std::string& id){
     std::stringstream ss;
 
     std::string delete_url = "/api/" + module + "/delete/?server=yes&back_page=__budget_this_page__&input_id=" + id;
+    std::string edit_url = "/api/" + module + "/edit/?server=yes&back_page=__budget_this_page__&input_id=" + id;
 
     // Add the delete button
     ss << R"=====(<a href=")=====";
@@ -41,16 +42,11 @@ std::string edit_to_string(const std::string& module, const std::string& id){
     ss << R"=====(</a>)=====";
 
     // Add the edit button
-    ss << R"=====(<form class="small-form-inline" method="POST" action="/)=====";
-    ss << module;
-    ss << R"=====(/edit/">)=====";
-    ss << R"=====(<input type="hidden" name="server" value="yes">)=====";
-    ss << R"=====(<input type="hidden" name="back_page" value="__budget_this_page__">)=====";
-    ss << R"=====(<input type="hidden" name="input_id" value=")=====";
-    ss << id;
+    ss << R"=====(<a href=")=====";
+    ss << edit_url;
     ss << R"=====(">)=====";
     ss << R"=====(<button type="submit" aria-label="Edit" class="btn btn-sm btn-warning oi oi-pencil"></button>)=====";
-    ss << R"=====(</form>)=====";
+    ss << R"=====(</a>)=====";
 
     return ss.str();
 }
