@@ -32,7 +32,7 @@ std::string edit_to_string(const std::string& module, const std::string& id){
     std::stringstream ss;
 
     std::string delete_url = "/api/" + module + "/delete/?server=yes&back_page=__budget_this_page__&input_id=" + id;
-    std::string edit_url = "/api/" + module + "/edit/?server=yes&back_page=__budget_this_page__&input_id=" + id;
+    std::string edit_url = "/" + module + "/edit/?server=yes&back_page=__budget_this_page__&input_id=" + id;
 
     // Add the delete button
     ss << R"=====(<a href=")=====";
