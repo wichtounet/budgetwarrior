@@ -48,25 +48,9 @@ double running_savings_rate(budget::date sd = budget::local_day()){
 
         budget::money expenses;
 
-        for (auto& expense : all_expenses()) {
-            if (expense.date.year() == d.year() && expense.date.month() == d.month()) {
-                expenses += expense.amount;
-            }
-        }
-
-        budget::money earnings;
-
-        for (auto& earning : all_earnings()) {
-            if (earning.date.year() == d.year() && earning.date.month() == d.month()) {
-                earnings += earning.amount;
-            }
-        }
-
-        budget::money income;
-
-        for (auto& account : all_accounts(d.year(), d.month())){
-            income += account.amount;
-        }
+        auto expenses = accumulate_amount(all_expenses_month(d.year(), d.month()));
+        auto earnings = accumulate_amount(all_earnings_month(d.year(), d.month()));
+        auto income   = get_base_income(d);
 
         auto balance = income + earnings - expenses;
         auto local   = balance / (income + earnings);
