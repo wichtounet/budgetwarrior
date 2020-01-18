@@ -91,5 +91,5 @@ budget::status budget::compute_avg_month_status(year year, month month) {
         avg_status.balance /= month.value - 1;
     }
 
-    return std::move(avg_status);
+    return avg_status;
 }

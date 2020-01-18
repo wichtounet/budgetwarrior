@@ -26,7 +26,7 @@ struct status {
         new_status.expenses += expense;
         new_status.balance -= expense;
 
-        return std::move(new_status);
+        return new_status;
     }
 
     status add_earning(budget::money earning){
@@ -35,7 +35,7 @@ struct status {
         new_status.earnings += earning;
         new_status.balance += earning;
 
-        return std::move(new_status);
+        return new_status;
     }
 };
 
