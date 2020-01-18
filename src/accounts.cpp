@@ -455,7 +455,7 @@ std::vector<account> budget::all_accounts(budget::year year, budget::month month
         }
     }
 
-    return std::move(accounts);
+    return accounts;
 }
 
 void budget::set_accounts_changed(){
