@@ -133,6 +133,16 @@ struct date {
         //Nothing else
     }
 
+    date& operator=(const date& rhs) {
+        if (this != &rhs) {
+            _year  = rhs._year;
+            _month = rhs._month;
+            _day   = rhs._day;
+        }
+
+        return *this;
+    }
+
     budget::year year() const {
         return _year;
     }
