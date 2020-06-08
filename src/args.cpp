@@ -39,7 +39,7 @@ std::vector<std::string> budget::parse_args(int argc, const char* argv[], const 
         args.push_back(arg);
     }
 
-    return std::move(args);
+    return args;
 }
 
 void budget::enough_args(const std::vector<std::string>& args, size_t min){
