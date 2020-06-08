@@ -954,6 +954,16 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     std::vector<std::vector<std::string>> second_contents;
 
     second_contents.emplace_back(std::vector<std::string>{"Total expenses", budget::to_string(total_all_expenses)});
+
+    if (config_contains("taxes_account")) {
+       auto taxes_account = config_value("taxes_account");
+
+       if (account_exists(taxes_account)) {
+           auto expenses_no_taxes = total_all_expenses - total_expenses[indexes[taxes_account]];
+           second_contents.emplace_back(std::vector<std::string>{"Expenses w/o taxes", budget::to_string(expenses_no_taxes)});
+       }
+    }
+
     second_contents.emplace_back(std::vector<std::string>{"Avg expenses", budget::to_string(avg_status.expenses)});
     second_contents.emplace_back(std::vector<std::string>{"Total earnings", budget::to_string(total_all_earnings)});
     second_contents.emplace_back(std::vector<std::string>{"Avg earnings", budget::to_string(avg_status.earnings)});
