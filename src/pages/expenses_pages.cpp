@@ -213,6 +213,89 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
 
     end_chart(w, ss);
 
+    // If configured as such, we create a second graph without taxes
+
+    if (config_contains("taxes_account")) {
+        auto taxes_account = config_value("taxes_account");
+
+        if (account_exists(taxes_account)) {
+            auto ss = start_time_chart(w, "Expenses w/o taxes over time", "line", "expenses_no_taxes_time_graph", "");
+
+            ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+            ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Expenses W/O Taxes' }},)=====";
+            ss << R"=====(legend: { enabled: false },)=====";
+
+            ss << "series: [";
+
+            ss << "{ name: 'Monthly expenses W/O Taxes',";
+            ss << "data: [";
+
+            std::vector<budget::money> serie;
+            std::vector<std::string> dates;
+
+            auto sy = start_year();
+
+            for (unsigned short j = sy; j <= budget::local_day().year(); ++j) {
+                budget::year year = j;
+
+                auto sm   = start_month(year);
+                auto last = 13;
+
+                if (year == budget::local_day().year()) {
+                    last = budget::local_day().month() + 1;
+                }
+
+                for (unsigned short i = sm; i < last; ++i) {
+                    budget::month month = i;
+
+                    budget::money sum;
+
+                    for (auto& expense : all_expenses()) {
+                        if (expense.date.year() == year && expense.date.month() == month) {
+                            if (get_account(expense.account).name != taxes_account) {
+                                sum += expense.amount;
+                            }
+                        }
+                    }
+
+                    std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(month.value - 1) + ", 1)";
+
+                    serie.push_back(sum);
+                    dates.push_back(date);
+
+                    ss << "[" << date << "," << budget::to_flat_string(sum) << "],";
+                }
+            }
+
+            ss << "]},";
+
+            ss << "{ name: '12 months average',";
+            ss << "data: [";
+
+            std::array<budget::money, 12> average_12;
+
+            for (size_t i = 0; i < serie.size(); ++i) {
+                average_12[i % 12] = serie[i];
+
+                auto average = std::accumulate(average_12.begin(), average_12.end(), budget::money());
+
+                if (i < 12) {
+                    average = average / int(i + 1);
+                } else {
+                    average = average / 12;
+                }
+
+                ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
+            }
+
+            ss << "]},";
+
+            ss << "]";
+
+            end_chart(w, ss);
+        }
+    }
+
     page_end(w, req, res);
 }
 
