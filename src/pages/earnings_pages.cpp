@@ -134,10 +134,8 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
 
             budget::money sum = get_base_income(budget::date(year, month, 2));
 
-            for (auto& earning : all_earnings()) {
-                if (earning.date.year() == year && earning.date.month() == month) {
-                    sum += earning.amount;
-                }
+            for (auto& earning : all_earnings_month(year, month)) {
+                sum += earning.amount;
             }
 
             std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(month.value - 1) + ", 1)";
@@ -215,10 +213,8 @@ void budget::time_graph_earnings_page(const httplib::Request& req, httplib::Resp
 
             budget::money sum;
 
-            for(auto& earning : all_earnings()){
-                if(earning.date.year() == year && earning.date.month() == month){
-                    sum += earning.amount;
-                }
+            for (auto& earning : all_earnings_month(year, month)) {
+                sum += earning.amount;
             }
 
             ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << budget::to_flat_string(sum) << "],";

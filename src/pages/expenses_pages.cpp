@@ -171,10 +171,8 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
 
             budget::money sum;
 
-            for(auto& expense : all_expenses()){
-                if(expense.date.year() == year && expense.date.month() == month){
-                    sum += expense.amount;
-                }
+            for (auto& expense : all_expenses_month(year, month)) {
+                sum += expense.amount;
             }
 
             std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(month.value - 1) + ", 1)";
@@ -250,11 +248,9 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
 
                     budget::money sum;
 
-                    for (auto& expense : all_expenses()) {
-                        if (expense.date.year() == year && expense.date.month() == month) {
-                            if (get_account(expense.account).name != taxes_account) {
-                                sum += expense.amount;
-                            }
+                    for (auto& expense : all_expenses_month(year, month)) {
+                        if (get_account(expense.account).name != taxes_account) {
+                            sum += expense.amount;
                         }
                     }
 
@@ -368,10 +364,8 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
     std::map<std::string, budget::money> account_sum;
 
-    for (auto& expense : all_expenses()) {
-        if (expense.date.year() == year) {
-            account_sum[get_account(expense.account).name] += expense.amount;
-        }
+    for (auto& expense : all_expenses_year(year)) {
+        account_sum[get_account(expense.account).name] += expense.amount;
     }
 
     for (auto& sum : account_sum) {

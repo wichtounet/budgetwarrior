@@ -66,6 +66,12 @@ void search_earnings(const std::string& search, budget::writer& w);
 
 // Filter functions
 
+inline auto all_earnings_year(budget::year year) {
+    return make_filter_view(begin(all_earnings()), end(all_earnings()), [=](const earning& e) {
+        return e.date.year() == year;
+    });
+}
+
 inline auto all_earnings_month(budget::year year, budget::month month) {
     return make_filter_view(begin(all_earnings()), end(all_earnings()), [=](const earning& e) {
         return e.date.year() == year && e.date.month() == month;

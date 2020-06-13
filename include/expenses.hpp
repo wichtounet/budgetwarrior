@@ -69,6 +69,12 @@ void search_expenses(const std::string& search, budget::writer& w);
 
 // Filter functions
 
+inline auto all_expenses_year(budget::year year) {
+    return make_filter_view(begin(all_expenses()), end(all_expenses()), [=](const expense& e) {
+        return e.date.year() == year;
+    });
+}
+
 inline auto all_expenses_month(budget::year year, budget::month month) {
     return make_filter_view(begin(all_expenses()), end(all_expenses()), [=](const expense& e) {
         return e.date.year() == year && e.date.month() == month;
