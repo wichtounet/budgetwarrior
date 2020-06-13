@@ -890,6 +890,31 @@ void budget::end_chart(budget::html_writer& w, std::stringstream& ss) {
     w.defer_script(ss.str());
 }
 
+void budget::add_average_12_serie(std::stringstream& ss,
+                                 std::vector<budget::money> serie,
+                                 std::vector<std::string> dates) {
+    ss << "{ name: '12 months average',";
+    ss << "data: [";
+
+    std::array<budget::money, 12> average_12;
+
+    for (size_t i = 0; i < serie.size(); ++i) {
+        average_12[i % 12] = serie[i];
+
+        auto average = std::accumulate(average_12.begin(), average_12.end(), budget::money());
+
+        if (i < 12) {
+            average = average / int(i + 1);
+        } else {
+            average = average / 12;
+        }
+
+        ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
+    }
+
+    ss << "]},";
+}
+
 void budget::add_account_picker(budget::writer& w, budget::date day, const std::string& default_value) {
     w << R"=====(
             <div class="form-group">

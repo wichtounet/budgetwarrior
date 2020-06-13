@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "date.hpp"
+#include "money.hpp"
 
 namespace httplib {
 struct Server;
@@ -64,5 +65,8 @@ std::stringstream start_chart(budget::html_writer& w, const std::string& title, 
 std::stringstream start_time_chart(budget::html_writer& w, const std::string& title, const std::string& chart_type,
                                    const std::string& id = "container", std::string style = "");
 void end_chart(budget::html_writer& w, std::stringstream& ss);
+void add_average_12_serie(std::stringstream& ss,
+                         std::vector<budget::money> serie,
+                         std::vector<std::string> dates);
 
 } //end of namespace budget

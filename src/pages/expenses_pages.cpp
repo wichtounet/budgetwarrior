@@ -186,26 +186,7 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
 
     ss << "]},";
 
-    ss << "{ name: '12 months average',";
-    ss << "data: [";
-
-    std::array<budget::money, 12> average_12;
-
-    for(size_t i = 0; i < serie.size(); ++i){
-        average_12[i % 12] = serie[i];
-
-        auto average = std::accumulate(average_12.begin(), average_12.end(), budget::money());
-
-        if(i < 12){
-            average = average / int(i + 1);
-        } else {
-            average = average / 12;
-        }
-
-        ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
-    }
-
-    ss << "]},";
+    add_average_12_serie(ss, serie, dates);
 
     ss << "]";
 
@@ -265,26 +246,7 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
 
             ss << "]},";
 
-            ss << "{ name: '12 months average',";
-            ss << "data: [";
-
-            std::array<budget::money, 12> average_12;
-
-            for (size_t i = 0; i < serie.size(); ++i) {
-                average_12[i % 12] = serie[i];
-
-                auto average = std::accumulate(average_12.begin(), average_12.end(), budget::money());
-
-                if (i < 12) {
-                    average = average / int(i + 1);
-                } else {
-                    average = average / 12;
-                }
-
-                ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
-            }
-
-            ss << "]},";
+            add_average_12_serie(ss, serie, dates);
 
             ss << "]";
 
