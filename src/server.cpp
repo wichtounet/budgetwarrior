@@ -59,7 +59,7 @@ void install_signal_handler() {
     std::cout << "INFO: Installed the signal handler" << std::endl;
 }
 
-void start_server(){
+bool start_server(){
     std::cout << "INFO: Started the server thread" << std::endl;
 
     httplib::Server server;
@@ -75,8 +75,13 @@ void start_server(){
 
     // Listen
     std::cout << "INFO: Server is starting to listen on " << listen << ':' << port << std::endl;
-    server.listen(listen.c_str(), port);
-    std::cout << "INFO: Server has exited" << std::endl;
+    if (!server.listen(listen.c_str(), port)) {
+        std::cerr << "INFO: Server failed to start" << std::endl;
+        return false;
+    }
+
+    std::cout << "INFO: Server has exited normally" << std::endl;
+    return true;
 }
 
 void start_cron_loop(){
@@ -138,10 +143,16 @@ void budget::server_module::handle(const std::vector<std::string>& args){
 
     std::cout << "Starting the threads" << std::endl;
 
-    std::thread server_thread([](){ start_server(); });
+    volatile bool success = false;
+    std::thread server_thread([&success](){ success = start_server(); });
     std::thread cron_thread([](){ start_cron_loop(); });
 
     server_thread.join();
+
+    if (!success) {
+        cron = false;
+    }
+
     cron_thread.join();
 }
 
