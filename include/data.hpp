@@ -162,7 +162,8 @@ struct data_handler {
         }
     }
 
-    size_t add(T&& entry) {
+    template <typename TT>
+    size_t add(TT&& entry) {
         if (is_server_mode()) {
             auto params = entry.get_params();
 
