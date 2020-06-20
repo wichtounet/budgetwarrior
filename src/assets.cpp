@@ -59,17 +59,6 @@ std::vector<std::string> get_share_asset_names(){
     return asset_names;
 }
 
-void update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc) {
-    for (auto & c : asset.classes) {
-        if (c.first == clas.id) {
-            c.second = alloc;
-            return;
-        }
-    }
-
-    asset.classes.emplace_back(clas.id, alloc);
-}
-
 } //end of anonymous namespace
 
 std::map<std::string, std::string> budget::asset_class::get_params(){
@@ -1468,6 +1457,17 @@ budget::money budget::get_asset_value_conv(budget::asset & asset, budget::date d
     return amount * exchange_rate(asset.currency, currency, d);
 }
 
+void budget::update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc) {
+    for (auto & c : asset.classes) {
+        if (c.first == clas.id) {
+            c.second = alloc;
+            return;
+        }
+    }
+
+    asset.classes.emplace_back(clas.id, alloc);
+}
+
 budget::money budget::get_asset_class_allocation(budget::asset& asset, budget::asset_class & clas) {
     for (auto & c : asset.classes) {
         if (c.first == clas.id) {
@@ -1477,4 +1477,3 @@ budget::money budget::get_asset_class_allocation(budget::asset& asset, budget::a
 
     return {};
 }
-

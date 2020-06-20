@@ -22,7 +22,7 @@ void budget::add_assets_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    if (!parameters_present(req, {"input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc", "input_share_based", "input_ticker"})) {
+    if (!parameters_present(req, {"input_name", "input_portfolio", "input_alloc", "input_share_based", "input_ticker"})) {
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -30,17 +30,22 @@ void budget::add_assets_api(const httplib::Request& req, httplib::Response& res)
     asset asset;
     asset.guid            = budget::generate_guid();
     asset.name            = req.get_param_value("input_name");
-    asset.int_stocks      = budget::parse_money(req.get_param_value("input_int_stocks"));
-    asset.dom_stocks      = budget::parse_money(req.get_param_value("input_dom_stocks"));
-    asset.bonds           = budget::parse_money(req.get_param_value("input_bonds"));
-    asset.cash            = budget::parse_money(req.get_param_value("input_cash"));
+
+    for (auto& clas : all_asset_classes()) {
+        auto param_name = "input_class_" + to_string(clas.id);
+
+        if (req.has_param(param_name.c_str())) {
+            update_asset_class_allocation(asset, clas, budget::parse_money(req.get_param_value(param_name.c_str())));
+        }
+    }
+
     asset.portfolio       = req.get_param_value("input_portfolio") == "yes";
     asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
     asset.currency        = req.get_param_value("input_currency");
     asset.share_based     = req.get_param_value("input_share_based") == "yes";
     asset.ticker          = req.get_param_value("input_ticker");
 
-    if (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)) {
+    if (asset.total_allocation() != money(100)) {
         api_error(req, res, "The total allocation of the asset is not 100%");
         return;
     }
@@ -55,7 +60,7 @@ void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    if (!parameters_present(req, {"input_id", "input_name", "input_int_stocks", "input_dom_stocks", "input_bonds", "input_cash", "input_portfolio", "input_alloc", "input_share_based", "input_ticker"})) {
+    if (!parameters_present(req, {"input_id", "input_name", "input_portfolio", "input_alloc", "input_share_based", "input_ticker"})) {
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -69,17 +74,22 @@ void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res
 
     asset& asset          = asset_get(budget::to_number<size_t>(id));
     asset.name            = req.get_param_value("input_name");
-    asset.int_stocks      = budget::parse_money(req.get_param_value("input_int_stocks"));
-    asset.dom_stocks      = budget::parse_money(req.get_param_value("input_dom_stocks"));
-    asset.bonds           = budget::parse_money(req.get_param_value("input_bonds"));
-    asset.cash            = budget::parse_money(req.get_param_value("input_cash"));
+
+    for (auto& clas : all_asset_classes()) {
+        auto param_name = "input_class_" + to_string(clas.id);
+
+        if (req.has_param(param_name.c_str())) {
+            update_asset_class_allocation(asset, clas, budget::parse_money(req.get_param_value(param_name.c_str())));
+        }
+    }
+
     asset.portfolio       = req.get_param_value("input_portfolio") == "yes";
     asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
     asset.currency        = req.get_param_value("input_currency");
     asset.share_based     = req.get_param_value("input_share_based") == "yes";
     asset.ticker          = req.get_param_value("input_ticker");
 
-    if (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)) {
+    if (asset.total_allocation() != money(100)) {
         api_error(req, res, "The total allocation of the asset is not 100%");
         return;
     }

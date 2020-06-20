@@ -218,6 +218,7 @@ budget::money get_asset_value_conv(budget::asset & asset, const std::string& cur
 budget::money get_asset_value_conv(budget::asset & asset, budget::date d, const std::string& currency);
 
 // Utilities for assets
+void update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc);
 budget::money get_asset_class_allocation(budget::asset& asset, budget::asset_class & clas);
 
 // Filter functions

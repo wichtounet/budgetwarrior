@@ -58,10 +58,11 @@ void budget::add_assets_page(const httplib::Request& req, httplib::Response& res
     form_begin(w, "/api/assets/add/", "/assets/add/");
 
     add_name_picker(w);
-    add_money_picker(w, "International Stocks (%)", "input_int_stocks", "");
-    add_money_picker(w, "Domestic Stocks (%)", "input_dom_stocks", "");
-    add_money_picker(w, "Bonds (%)", "input_bonds", "");
-    add_money_picker(w, "Cash (%)", "input_cash", "");
+
+    for (auto & clas : all_asset_classes()) {
+        add_money_picker(w, clas.name + " (%)", "input_class_" + to_string(clas.id), "");
+    }
+
     add_currency_picker(w);
     add_portfolio_picker(w, false);
     add_money_picker(w, "Percent of portfolio (%)", "input_alloc", "");
@@ -98,10 +99,11 @@ void budget::edit_assets_page(const httplib::Request& req, httplib::Response& re
             auto& asset = asset_get(budget::to_number<size_t>(input_id));
 
             add_name_picker(w, asset.name);
-            add_money_picker(w, "International Stocks (%)", "input_int_stocks", budget::to_flat_string(asset.int_stocks));
-            add_money_picker(w, "Domestic Stocks (%)", "input_dom_stocks", budget::to_flat_string(asset.dom_stocks));
-            add_money_picker(w, "Bonds (%)", "input_bonds", budget::to_flat_string(asset.bonds));
-            add_money_picker(w, "Cash (%)", "input_cash", budget::to_flat_string(asset.cash));
+
+            for (auto & clas : all_asset_classes()) {
+                add_money_picker(w, clas.name + " (%)", "input_class_" + to_string(clas.id), budget::to_flat_string(get_asset_class_allocation(asset, clas)));
+            }
+
             add_currency_picker(w, asset.currency);
             add_portfolio_picker(w, asset.portfolio);
             add_money_picker(w, "Percent of portfolio (%)", "input_alloc", budget::to_flat_string(asset.portfolio_alloc));
