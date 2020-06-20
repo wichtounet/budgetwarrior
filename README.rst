@@ -73,6 +73,11 @@ You just have to use make to build it::
     $ make
     $ sudo make install
 
+If you want to install the man pages and the shell completion files, you can
+do so with::
+
+    $ sudo make install_extra
+
 MacOS
 =====
 
@@ -94,7 +99,7 @@ Now build using the provided script after cloning repository::
     $ ./build_macos.sh
 
 To install the resulting, compiled program::
-  
+
     $ cd ./build && make install
 
 Windows

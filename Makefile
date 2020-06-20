@@ -34,20 +34,21 @@ prefix = /usr/local
 bindir = $(prefix)/bin
 mandir = $(prefix)/share/man
 
+install_extra:
+	@ echo "Installation of budgetwarrior extra"
+	@ echo "============================="
+	@ echo ""
+	install budget.man $(mandir)/man3/budget.3
+	install completions/bash $(prefix)/etc/bash_completion.d/budget
+	install completions/zsh $(prefix)/share/zsh/site-functions/_budget
+
 install: release_debug
 	@ echo "Installation of budgetwarrior"
 	@ echo "============================="
 	@ echo ""
-	install budget.man $(mandir)/man3/budget.3
 	install release_debug/bin/budget $(bindir)/budget
-	install completions/bash $(prefix)/etc/bash_completion.d/budget
-	install completions/zsh $(prefix)/share/zsh/site-functions/_budget
 
-install_light: release_debug
-	@ echo "Installation of budgetwarrior (only binary)"
-	@ echo "==========================================="
-	@ echo ""
-	install release_debug/bin/budget $(bindir)/budget
+install_light: install
 
 clean: base_clean
 
