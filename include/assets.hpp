@@ -31,6 +31,16 @@ struct module_traits<assets_module> {
     static constexpr const char* command = "asset";
 };
 
+// An asset class
+struct asset_class {
+    size_t id;
+    std::string guid;
+    std::string name;
+
+    std::map<std::string, std::string> get_params();
+};
+
+// An asset
 struct asset {
     size_t id;
     std::string guid;
@@ -87,6 +97,9 @@ struct asset_share {
     }
 };
 
+std::ostream& operator<<(std::ostream& stream, const asset_class& c);
+void operator>>(const std::vector<std::string>& parts, asset_class& c);
+
 std::ostream& operator<<(std::ostream& stream, const asset& asset);
 void operator>>(const std::vector<std::string>& parts, asset& asset);
 
@@ -110,8 +123,13 @@ void show_asset_rebalance(budget::writer& w, bool nocash = false);
 
 void list_asset_shares(budget::writer& w);
 
+bool asset_class_exists(const std::string& name);
+
 bool asset_exists(const std::string& asset);
 bool share_asset_exists(const std::string& asset);
+
+budget::asset_class& get_asset_class(size_t id);
+budget::asset_class& get_asset_class(const std::string & name);
 
 budget::asset& get_asset(size_t id);
 budget::asset& get_asset(std::string name);
@@ -121,6 +139,7 @@ budget::asset_share& get_asset_share(size_t id);
 
 budget::asset& get_desired_allocation();
 
+std::vector<budget::asset_class>& all_asset_classes();
 std::vector<budget::asset>& all_assets();
 std::vector<budget::asset_value>& all_asset_values();
 std::vector<budget::asset_share>& all_asset_shares();
@@ -128,15 +147,22 @@ std::vector<budget::asset_share>& all_asset_shares();
 budget::date asset_start_date();
 budget::date asset_start_date(const asset& asset);
 
+void set_asset_class_next_id(size_t next_id);
 void set_assets_next_id(size_t next_id);
 void set_asset_values_next_id(size_t next_id);
 void set_asset_shares_next_id(size_t next_id);
 
+void set_asset_classes_changed();
 void set_assets_changed();
 void set_asset_values_changed();
 void set_asset_shares_changed();
 
 std::string get_default_currency();
+
+void add_asset_class(asset_class&& c);
+bool asset_class_exists(size_t id);
+void asset_class_delete(size_t id);
+asset_class& asset_class_get(size_t id);
 
 void add_asset(asset&& asset);
 bool asset_exists(size_t id);
