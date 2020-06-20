@@ -70,16 +70,6 @@ void update_asset_class_allocation(budget::asset& asset, budget::asset_class & c
     asset.classes.emplace_back(clas.id, alloc);
 }
 
-budget::money get_asset_class_allocation(budget::asset& asset, budget::asset_class & clas) {
-    for (auto & c : asset.classes) {
-        if (c.first == clas.id) {
-            return c.second;
-        }
-    }
-
-    return {};
-}
-
 } //end of anonymous namespace
 
 std::map<std::string, std::string> budget::asset_class::get_params(){
@@ -1484,3 +1474,14 @@ budget::money budget::get_asset_value_conv(budget::asset & asset, budget::date d
     auto amount = get_asset_value(asset, d);
     return amount * exchange_rate(asset.currency, currency, d);
 }
+
+budget::money budget::get_asset_class_allocation(budget::asset& asset, budget::asset_class & clas) {
+    for (auto & c : asset.classes) {
+        if (c.first == clas.id) {
+            return c.second;
+        }
+    }
+
+    return {};
+}
+
