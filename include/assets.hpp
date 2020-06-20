@@ -40,6 +40,9 @@ struct asset_class {
     std::map<std::string, std::string> get_params();
 };
 
+budget::asset_class& get_asset_class(size_t id);
+budget::asset_class& get_asset_class(const std::string & name);
+
 // An asset
 struct asset {
     size_t id;
@@ -71,7 +74,17 @@ struct asset {
     }
 
     bool is_cash() const {
-        return cash == budget::money(100);
+        for (auto& clas : classes) {
+            if (get_asset_class(clas.first).name == "cash") {
+                return clas.second == budget::money(100);
+            }
+
+            if (get_asset_class(clas.first).name == "Cash") {
+                return clas.second == budget::money(100);
+            }
+        }
+
+        return false;
     }
 };
 
@@ -137,9 +150,6 @@ bool asset_class_exists(const std::string& name);
 
 bool asset_exists(const std::string& asset);
 bool share_asset_exists(const std::string& asset);
-
-budget::asset_class& get_asset_class(size_t id);
-budget::asset_class& get_asset_class(const std::string & name);
 
 budget::asset& get_asset(size_t id);
 budget::asset& get_asset(std::string name);
