@@ -59,6 +59,27 @@ std::vector<std::string> get_share_asset_names(){
     return asset_names;
 }
 
+void update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc) {
+    for (auto & c : asset.classes) {
+        if (c.first == clas.id) {
+            c.second = alloc;
+            return;
+        }
+    }
+
+    asset.classes.emplace_back(clas.id, alloc);
+}
+
+budget::money get_asset_class_allocation(budget::asset& asset, budget::asset_class & clas) {
+    for (auto & c : asset.classes) {
+        if (c.first == clas.id) {
+            return c.second;
+        }
+    }
+
+    return {};
+}
+
 } //end of anonymous namespace
 
 std::map<std::string, std::string> budget::asset_class::get_params(){
@@ -77,15 +98,16 @@ std::map<std::string, std::string> budget::asset::get_params(){
     params["input_id"]              = budget::to_string(id);
     params["input_guid"]            = guid;
     params["input_name"]            = name;
-    params["input_int_stocks"]      = budget::to_string(int_stocks);
-    params["input_dom_stocks"]      = budget::to_string(dom_stocks);
-    params["input_bonds"]           = budget::to_string(bonds);
-    params["input_cash"]            = budget::to_string(cash);
     params["input_currency"]        = currency;
     params["input_portfolio"]       = portfolio ? "true" : "false";
     params["input_portfolio_alloc"] = budget::to_string(portfolio_alloc);
     params["input_shared_based"]    = share_based ? "true" : "false";
     params["input_ticker"]          = ticker;
+
+    // The asset classes allocation
+    for (auto & clas : classes) {
+        params["input_class_" + to_string(clas.first)] = budget::to_string(clas.second);
+    }
 
     return params;
 }
@@ -147,25 +169,22 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("An asset with this name already exists");
             }
 
-            asset.int_stocks      = 0;
-            asset.dom_stocks      = 0;
-            asset.bonds           = 0;
-            asset.cash            = 0;
             asset.portfolio       = false;
             asset.portfolio_alloc = 0;
             asset.share_based     = false;
             asset.ticker          = "";
 
             do {
-                edit_money(asset.int_stocks, "Int. Stocks");
-                edit_money(asset.dom_stocks, "Dom. Stocks");
-                edit_money(asset.bonds, "Bonds");
-                edit_money(asset.cash, "Cash");
+                for (auto & clas : all_asset_classes()) {
+                    budget::money alloc = get_asset_class_allocation(asset, clas);
+                    edit_money(alloc, clas.name);
+                    update_asset_class_allocation(asset, clas, alloc);
+                }
 
-                if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)){
+                if (asset.total_allocation() != money(100)) {
                     std::cout << "The distribution must account to 100%" << std::endl;
                 }
-            } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100));
+            } while (asset.total_allocation() != money(100));
 
             asset.currency = budget::get_default_currency();
             edit_string(asset.currency, "Currency", not_empty_checker());
@@ -265,15 +284,16 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             }
 
             do {
-                edit_money(asset.int_stocks, "Int. Stocks");
-                edit_money(asset.dom_stocks, "Dom. Stocks");
-                edit_money(asset.bonds, "Bonds");
-                edit_money(asset.cash, "Cash");
-
-                if(asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100)){
-                    std::cout << "The distribution must asset to 100%" << std::endl;
+                for (auto & clas : all_asset_classes()) {
+                    budget::money alloc = get_asset_class_allocation(asset, clas);
+                    edit_money(alloc, clas.name);
+                    update_asset_class_allocation(asset, clas, alloc);
                 }
-            } while (asset.int_stocks + asset.dom_stocks + asset.bonds + asset.cash != money(100));
+
+                if (asset.total_allocation() != money(100)) {
+                    std::cout << "The distribution must account to 100%" << std::endl;
+                }
+            } while (asset.total_allocation() != money(100));
 
             edit_string(asset.currency, "Currency", not_empty_checker());
 
@@ -451,15 +471,16 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             auto& desired = get_desired_allocation();
 
             do {
-                edit_money(desired.int_stocks, "Int. Stocks");
-                edit_money(desired.dom_stocks, "Dom. Stocks");
-                edit_money(desired.bonds, "Bonds");
-                edit_money(desired.cash, "Cash");
+                for (auto & clas : all_asset_classes()) {
+                    budget::money alloc = get_asset_class_allocation(desired, clas);
+                    edit_money(alloc, clas.name);
+                    update_asset_class_allocation(desired, clas, alloc);
+                }
 
-                if(desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != money(100)){
+                if (desired.total_allocation() != money(100)) {
                     std::cout << "The distribution must account to 100%" << std::endl;
                 }
-            } while (desired.int_stocks + desired.dom_stocks + desired.bonds + desired.cash != money(100));
+            } while (desired.total_allocation() != money(100));
 
             if (assets.edit(desired)) {
                 std::cout << "The distribution has been modified" << std::endl;
@@ -1043,10 +1064,6 @@ void budget::small_show_asset_values(budget::writer& w){
     std::vector<std::string> columns = {"Name", "Value", "Currency"};
     std::vector<std::vector<std::string>> contents;
 
-    budget::money int_stocks;
-    budget::money dom_stocks;
-    budget::money bonds;
-    budget::money cash;
     budget::money total;
 
     for (auto& asset : all_user_assets()) {
