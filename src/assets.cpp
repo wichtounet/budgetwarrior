@@ -868,7 +868,19 @@ void budget::show_assets(budget::writer& w){
 
     w << title_begin << "Assets " << add_button("assets") << title_end;
 
-    std::vector<std::string> columns = {"ID", "Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Currency", "Portfolio", "Alloc", "Share", "Ticker", "Edit"};
+    std::vector<std::string> columns = {"ID", "Name"};
+
+    for (auto & clas : all_asset_classes()) {
+        columns.emplace_back(clas.name);
+    }
+
+    columns.emplace_back("Currency");
+    columns.emplace_back("Portfolio");
+    columns.emplace_back("Alloc");
+    columns.emplace_back("Share");
+    columns.emplace_back("Ticker");
+    columns.emplace_back("Edit");
+
     std::vector<std::vector<std::string>> contents;
 
     // Display the assets
@@ -878,17 +890,39 @@ void budget::show_assets(budget::writer& w){
             continue;
         }
 
-        contents.push_back({to_string(asset.id), asset.name,
-                            to_string(asset.int_stocks), to_string(asset.dom_stocks), to_string(asset.bonds), to_string(asset.cash),
-                            to_string(asset.currency),
-                            asset.portfolio ? "Yes" : "No", asset.portfolio ? to_string(asset.portfolio_alloc) : "",
-                            asset.share_based ? "Yes" : "No", asset.share_based ? asset.ticker : "",
-                            "::edit::assets::" + budget::to_string(asset.id)});
+        std::vector<std::string> line;
+
+        line.emplace_back(to_string(asset.id));
+        line.emplace_back(asset.name);
+
+        for (auto& clas : all_asset_classes()) {
+            bool found = false;
+
+            for (auto& c : asset.classes) {
+                if (c.first == clas.id) {
+                    line.emplace_back(to_string(c.second));
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                line.emplace_back("0.00");
+            }
+        }
+
+        line.emplace_back(to_string(asset.currency));
+        line.emplace_back(asset.portfolio ? "Yes" : "No");
+        line.emplace_back(asset.portfolio ? to_string(asset.portfolio_alloc) : "");
+        line.emplace_back(asset.share_based ? "Yes" : "No");
+        line.emplace_back(asset.share_based ? asset.ticker : "");
+        line.emplace_back("::edit::assets::" + budget::to_string(asset.id));
+
+        contents.emplace_back(std::move(line));
     }
 
     w.display_table(columns, contents);
 }
-
 
 void budget::show_asset_portfolio(budget::writer& w){
     if (!asset_values.data.size() && !asset_shares.data.size()) {
