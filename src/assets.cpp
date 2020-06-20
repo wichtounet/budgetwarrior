@@ -647,7 +647,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
     asset.portfolio       = to_number<size_t>(parts[4]);
     asset.portfolio_alloc = parse_money(parts[5]);
     asset.share_based     = to_number<size_t>(parts[6]);
-    asset.ticker          = parts[10] == "EMPTY" ? "" : parts[10];
+    asset.ticker          = parts[7] == "EMPTY" ? "" : parts[7];
 
     if(asset.guid == "XXXXX"){
         asset.guid = generate_guid();
@@ -663,7 +663,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
         asset.name = parts[2];
     }
 
-    auto assets_parts = split(parts[11], ':');
+    auto assets_parts = split(parts[8], ';');
     for (size_t i = 0; i + 1 < assets_parts.size(); i += 2) {
         auto id    = to_number<size_t>(assets_parts[i]);
         auto alloc = parse_money(assets_parts[i + 1]);
@@ -859,6 +859,7 @@ std::string to_percent(double p){
 
     return ss.str();
 }
+
 void budget::show_assets(budget::writer& w){
     if (!assets.data.size()) {
         w << "No assets" << end_of_line;
