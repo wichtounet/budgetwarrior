@@ -1185,14 +1185,7 @@ void budget::show_asset_values(budget::writer& w){
         line3.emplace_back("Difference (need)");
 
         for (auto& clas : all_asset_classes()) {
-            budget::money desired_alloc;
-
-            for (auto& c : desired.classes) {
-                if (c.first == clas.id) {
-                    desired_alloc = c.second;
-                    break;
-                }
-            }
+            auto desired_alloc = get_asset_class_allocation(desired, clas);
 
             line1.emplace_back(to_string(desired_alloc));
             line2.emplace_back(to_string(total * (float(desired_alloc) / 100.0)));
