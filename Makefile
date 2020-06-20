@@ -30,7 +30,7 @@ sonar: release
 	cppcheck --xml-version=2 --enable=all --std=c++11 src include 2> cppcheck_report.xml
 	/opt/sonar-runner/bin/sonar-runner
 
-prefix = /usr/local
+prefix ?= /usr/local
 bindir = $(prefix)/bin
 mandir = $(prefix)/share/man
 
