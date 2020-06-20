@@ -544,10 +544,6 @@ budget::asset& budget::get_desired_allocation(){
     asset.guid        = generate_guid();
     asset.name        = "DESIRED";
     asset.currency    = "DESIRED";
-    asset.int_stocks  = 0;
-    asset.dom_stocks  = 0;
-    asset.bonds       = 0;
-    asset.cash        = 0;
     asset.share_based = false;
     asset.portfolio   = false;
 
@@ -1094,100 +1090,156 @@ void budget::show_asset_values(budget::writer& w){
 
     w << title_begin << "Net Worth" << title_end;
 
-    std::vector<std::string> columns = {"Name", "Int. Stocks", "Dom. Stocks", "Bonds", "Cash", "Total", "Currency"};
+    std::vector<std::string> columns = {"Name"};
+
+    for (auto & clas : all_asset_classes()) {
+        columns.emplace_back(clas.name);
+    }
+
+    columns.emplace_back("Total");
+    columns.emplace_back("Currency");
+
     std::vector<std::vector<std::string>> contents;
 
-    budget::money int_stocks;
-    budget::money dom_stocks;
-    budget::money bonds;
-    budget::money cash;
+    std::map<std::string, budget::money> classes;
+
     budget::money total;
 
     for(auto& asset : all_user_assets()){
         auto amount = get_asset_value(asset);
 
         if (amount) {
-            contents.push_back({asset.name,
-                                to_string(amount * (float(asset.int_stocks) / 100.0)),
-                                to_string(amount * (float(asset.dom_stocks) / 100.0)),
-                                to_string(amount * (float(asset.bonds) / 100.0)),
-                                to_string(amount * (float(asset.cash) / 100.0)),
-                                to_string(amount),
-                                asset.currency});
+            std::vector<std::string> line;
 
-            auto int_stocks_amount = amount * (float(asset.int_stocks) / 100.0);
-            auto dom_stocks_amount = amount * (float(asset.dom_stocks) / 100.0);
-            auto bonds_amount      = amount * (float(asset.bonds) / 100.0);
-            auto cash_amount       = amount * (float(asset.cash) / 100.0);
+            line.emplace_back(asset.name);
 
-            int_stocks += int_stocks_amount * exchange_rate(asset.currency);
-            dom_stocks += dom_stocks_amount * exchange_rate(asset.currency);
-            bonds += bonds_amount * exchange_rate(asset.currency);
-            cash += cash_amount * exchange_rate(asset.currency);
+            for (auto& clas : all_asset_classes()) {
+                bool found = false;
+
+                for (auto& c : asset.classes) {
+                    if (c.first == clas.id) {
+                        auto class_amount = amount  * (float(c.second) / 100.0);
+                        line.emplace_back(to_string(class_amount));
+                        classes[clas.name] += class_amount * exchange_rate(asset.currency);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    line.emplace_back("0.00");
+                }
+            }
+
+            line.emplace_back(to_string(amount));
+            line.emplace_back(asset.currency);
+
+            contents.emplace_back(std::move(line));
+
             total += amount * exchange_rate(asset.currency);
         }
     }
 
-    auto total_no_cash = int_stocks + dom_stocks + bonds;
+    contents.emplace_back(columns.size(), "");
+
+    {
+        std::vector<std::string> line;
+
+        line.emplace_back("Total");
+
+        for (auto& clas : all_asset_classes()) {
+            if (classes.count(clas.name)) {
+                line.emplace_back(budget::to_string(classes[clas.name]));
+            } else {
+                line.emplace_back("0.00");
+            }
+        }
+
+        line.emplace_back(budget::to_string(total));
+        line.emplace_back(budget::get_default_currency());
+
+        contents.emplace_back(std::move(line));
+    }
 
     contents.emplace_back(columns.size(), "");
 
-    contents.push_back({"Total",
-                        to_string(int_stocks),
-                        to_string(dom_stocks),
-                        to_string(bonds),
-                        to_string(cash),
-                        to_string(total),
-                        budget::get_default_currency()});
+    {
+        std::vector<std::string> line;
 
-    contents.emplace_back(columns.size(), "");
+        line.emplace_back("Distribution");
 
-    contents.push_back({"Distribution (w/ cash)",
-                        to_string_precision(100 * int_stocks.dollars() / (double)total.dollars(), 2),
-                        to_string_precision(100 * dom_stocks.dollars() / (double)total.dollars(), 2),
-                        to_string_precision(100 * bonds.dollars() / (double)total.dollars(), 2),
-                        to_string_precision(100 * cash.dollars() / (double)total.dollars(), 2),
-                        to_string(100),
-                        ""});
+        for (auto& clas : all_asset_classes()) {
+            if (classes.count(clas.name)) {
+                auto amount = classes[clas.name];
+                line.emplace_back(budget::to_string_precision(100 * amount.dollars() / (double) total.dollars(), 2));
+            } else {
+                line.emplace_back("0");
+            }
+        }
 
-    contents.push_back({"Distribution (w/o cash)",
-                        to_string_precision(100 * int_stocks.dollars() / (double)total_no_cash.dollars(), 2),
-                        to_string_precision(100 * dom_stocks.dollars() / (double)total_no_cash.dollars(), 2),
-                        to_string_precision(100 * bonds.dollars() / (double)total_no_cash.dollars(), 2),
-                        to_string(0),
-                        to_string(100),
-                        ""});
+        line.emplace_back("100");
+        line.emplace_back("");
+
+        contents.emplace_back(std::move(line));
+    }
 
     decltype(auto) desired = get_desired_allocation();
 
     if (desired.total_allocation()) {
-        contents.push_back({"Desired Distribution",
-                            to_string(desired.int_stocks),
-                            to_string(desired.dom_stocks),
-                            to_string(desired.bonds),
-                            to_string(desired.cash),
-                            to_string(100),
-                            ""});
+        std::vector<std::string> line1;
+        std::vector<std::string> line2;
+        std::vector<std::string> line3;
 
-        contents.push_back({"Desired Total",
-                            to_string(total * (float(desired.int_stocks) / 100.0)),
-                            to_string(total * (float(desired.dom_stocks) / 100.0)),
-                            to_string(total * (float(desired.bonds) / 100.0)),
-                            to_string(total * (float(desired.cash) / 100.0)),
-                            to_string(total),
-                            get_default_currency()});
+        line1.emplace_back("Desired Distribution");
+        line2.emplace_back("Desired Total");
+        line3.emplace_back("Difference (need)");
 
-        contents.push_back({"Difference (need)",
-                            to_string(total * (float(desired.int_stocks) / 100.0) - int_stocks),
-                            to_string(total * (float(desired.dom_stocks) / 100.0) - dom_stocks),
-                            to_string(total * (float(desired.bonds) / 100.0) - bonds),
-                            to_string(total * (float(desired.cash) / 100.0) - cash),
-                            to_string(budget::money{}),
-                            get_default_currency()});
+        for (auto& clas : all_asset_classes()) {
+            budget::money desired_alloc;
+
+            for (auto& c : desired.classes) {
+                if (c.first == clas.id) {
+                    desired_alloc = c.second;
+                    break;
+                }
+            }
+
+            line1.emplace_back(to_string(desired_alloc));
+            line2.emplace_back(to_string(total * (float(desired_alloc) / 100.0)));
+
+            if (classes.count(clas.name)) {
+                line3.emplace_back(to_string(total * (float(desired_alloc) / 100.0) - classes[clas.name]));
+            } else {
+                line3.emplace_back(to_string(total * (float(desired_alloc) / 100.0)));
+            }
+        }
+
+        line1.emplace_back("100");
+        line1.emplace_back("");
+
+        line2.emplace_back(to_string(total));
+        line2.emplace_back(get_default_currency());
+
+        line3.emplace_back("0.00");
+        line3.emplace_back(get_default_currency());
+
+        contents.emplace_back(std::move(line1));
+        contents.emplace_back(std::move(line2));
+        contents.emplace_back(std::move(line3));
     }
 
-    contents.push_back({"", "", "", "", "", "", ""});
-    contents.push_back({"Net Worth", "", "", "", "", budget::to_string(total), get_default_currency()});
+    {
+        contents.emplace_back(columns.size(), "");
+    }
+
+    {
+        std::vector<std::string> line(columns.size(), "");
+        line[0] = "Net Worth";
+        line[line.size() - 2] = budget::to_string(total);
+        line[line.size() - 1] = get_default_currency();
+        contents.emplace_back(std::move(line));
+
+    }
 
     // Display the table
 
