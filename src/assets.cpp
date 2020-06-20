@@ -568,6 +568,46 @@ void budget::migrate_assets_4_to_5(){
     assets.save();
 }
 
+void budget::migrate_assets_5_to_6(){
+    asset_class class_int_stocks{0, generate_guid(), "Int. Stocks"};
+    asset_class class_dom_stocks{0, generate_guid(), "Dom. Stocks"};
+    asset_class class_bonds{0, generate_guid(), "Bonds"};
+    asset_class class_cash{0, generate_guid(), "Cash"};
+
+    asset_classes.add(class_int_stocks);
+    asset_classes.add(class_dom_stocks);
+    asset_classes.add(class_bonds);
+    asset_classes.add(class_cash);
+
+    // Load asset with version 5
+    assets.load([&](const std::vector<std::string>& parts, asset& asset){
+        asset.id              = to_number<size_t>(parts[0]);
+        asset.guid            = parts[1];
+        asset.name = parts[2];
+        auto int_stocks      = parse_money(parts[3]);
+        auto dom_stocks      = parse_money(parts[4]);
+        auto bonds           = parse_money(parts[5]);
+        auto cash            = parse_money(parts[6]);
+        asset.currency        = parts[7];
+        asset.portfolio       = to_number<size_t>(parts[8]);
+        asset.portfolio_alloc = parse_money(parts[9]);
+        asset.share_based     = to_number<size_t>(parts[10]);
+        asset.ticker          = parts[11] == "EMPTY" ? "" : parts[11];
+
+        // Version 6 added support for asset classes
+        asset.classes.emplace_back(class_int_stocks.id, int_stocks);
+        asset.classes.emplace_back(class_dom_stocks.id, dom_stocks);
+        asset.classes.emplace_back(class_bonds.id, bonds);
+        asset.classes.emplace_back(class_cash.id, cash);
+    });
+
+    set_asset_classes_changed();
+    set_assets_changed();
+
+    asset_classes.save();
+    assets.save();
+}
+
 std::ostream& budget::operator<<(std::ostream& stream, const asset_class& asset){
     return stream << asset.id << ':' << asset.guid << ':' << asset.name << ':';
 }
@@ -583,10 +623,19 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_class& clas
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
+    std::string classes;
+
+    for (auto& allocation : asset.classes) {
+        classes += budget::to_string(allocation.first) + ";" + budget::to_string(allocation.second) + ";";
+    }
+
+    if (classes.empty()) {
+        classes = "EMPTY";
+    }
+
     return stream << asset.id << ':' << asset.guid << ':' << asset.name << ':'
-                  << asset.int_stocks << ':' << asset.dom_stocks << ":" << asset.bonds << ":" << asset.cash << ":"
                   << asset.currency << ":" << asset.portfolio << ":" << asset.portfolio_alloc << ":"
-                  << asset.share_based << ":" << (asset.ticker.empty() ? "EMPTY" : asset.ticker);
+                  << asset.share_based << ":" << (asset.ticker.empty() ? "EMPTY" : asset.ticker) << ":" << classes;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
@@ -594,15 +643,11 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
 
     asset.id              = to_number<size_t>(parts[0]);
     asset.guid            = parts[1];
-    asset.int_stocks      = parse_money(parts[3]);
-    asset.dom_stocks      = parse_money(parts[4]);
-    asset.bonds           = parse_money(parts[5]);
-    asset.cash            = parse_money(parts[6]);
-    asset.currency        = parts[7];
-    asset.portfolio       = to_number<size_t>(parts[8]);
-    asset.portfolio_alloc = parse_money(parts[9]);
-    asset.share_based     = to_number<size_t>(parts[10]);
-    asset.ticker          = parts[11] == "EMPTY" ? "" : parts[11];
+    asset.currency        = parts[3];
+    asset.portfolio       = to_number<size_t>(parts[4]);
+    asset.portfolio_alloc = parse_money(parts[5]);
+    asset.share_based     = to_number<size_t>(parts[6]);
+    asset.ticker          = parts[10] == "EMPTY" ? "" : parts[10];
 
     if(asset.guid == "XXXXX"){
         asset.guid = generate_guid();
@@ -616,6 +661,13 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
         }
     } else {
         asset.name = parts[2];
+    }
+
+    auto assets_parts = split(parts[11], ':');
+    for (size_t i = 0; i + 1 < assets_parts.size(); i += 2) {
+        auto id    = to_number<size_t>(assets_parts[i]);
+        auto alloc = parse_money(assets_parts[i + 1]);
+        asset.classes.emplace_back(id, alloc);
     }
 }
 

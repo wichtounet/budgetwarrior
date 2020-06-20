@@ -45,15 +45,18 @@ struct asset {
     size_t id;
     std::string guid;
     std::string name;
-    money int_stocks;
-    money dom_stocks;
-    money bonds;
-    money cash;
     std::string currency;
     bool portfolio;
     money portfolio_alloc;
     bool share_based;
     std::string ticker;
+    std::vector<std::pair<size_t, money>> classes;
+
+    // Legacy fields, to be removed
+    money int_stocks;
+    money dom_stocks;
+    money bonds;
+    money cash;
 
     std::map<std::string, std::string> get_params();
 
@@ -113,6 +116,7 @@ void load_assets();
 void save_assets();
 
 void migrate_assets_4_to_5();
+void migrate_assets_5_to_6();
 
 void show_assets(budget::writer& w);
 void list_asset_values(budget::writer& w);

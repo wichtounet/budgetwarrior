@@ -316,8 +316,11 @@ int main(int argc, const char* argv[]) {
             }
 
             if (old_data_version <= 4 && DATA_VERSION >= 5) {
-                //migrate_debts_3_to_4();
                 migrate_assets_4_to_5();
+            }
+
+            if (old_data_version <= 5 && DATA_VERSION >= 6) {
+                migrate_assets_5_to_6();
             }
 
             internal_config_value("data_version") = to_string(DATA_VERSION);
