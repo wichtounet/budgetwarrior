@@ -61,7 +61,13 @@ struct asset {
     std::map<std::string, std::string> get_params();
 
     money total_allocation() const {
-        return int_stocks + dom_stocks + bonds + cash;
+        money total;
+
+        for (auto& clas : classes) {
+            total += clas.second;
+        }
+
+        return total;
     }
 
     bool is_cash() const {
