@@ -303,6 +303,76 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             if (assets.edit(asset)) {
                 std::cout << "Asset " << id << " has been modified" << std::endl;
             }
+        } else if(subcommand == "class"){
+            if(args.size() == 2){
+                budget::show_asset_classes(w);
+            } else {
+                auto& subsubcommand = args[2];
+
+                if(subsubcommand == "add"){
+                    asset_class clas;
+                    clas.guid = generate_guid();
+
+                    edit_string(clas.name, "Name", not_empty_checker());
+
+                    if (asset_class_exists(clas.name)) {
+                        throw budget_exception("This asset class already exists");
+                    }
+
+                    auto id = asset_classes.add(std::move(clas));
+                    std::cout << "Asset Clas " << id << " has been created" << std::endl;
+                } else if(subsubcommand == "edit"){
+                    size_t id = 0;
+
+                    enough_args(args, 4);
+
+                    id = to_number<size_t>(args[3]);
+
+                    if (!asset_class_exists(id)) {
+                        throw budget_exception("This asset class does not exist");
+                    }
+
+                    auto & clas = asset_classes[id];
+
+                    edit_string(clas.name, "Name", not_empty_checker());
+
+                    for (auto & other_class : all_asset_classes()) {
+                        if (other_class.id != id && other_class.name == clas.name) {
+                            throw budget_exception("This asset class already exists");
+                        }
+                    }
+
+                    if (asset_classes.edit(clas)) {
+                        std::cout << "Asset Class " << id << " has been modified" << std::endl;
+                    }
+                } else if (subsubcommand == "delete") {
+                    size_t id = 0;
+
+                    enough_args(args, 4);
+
+                    id = to_number<size_t>(args[3]);
+
+                    if (!asset_class_exists(id)) {
+                        throw budget_exception("This asset class does not exist");
+                    }
+
+                    auto & clas = asset_classes[id];
+
+                    for (auto & asset : all_assets()) {
+                        if (get_asset_class_allocation(asset, clas)) {
+                            throw budget_exception("Cannot delete an asset class that is still used");
+                        }
+                    }
+
+                    asset_classes.remove(id);
+
+                    std::cout << "Asset class " << id << " has been deleted" << std::endl;
+                } else if(subsubcommand == "show"){
+                    budget::show_asset_classes(w);
+                } else {
+                    throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
+                }
+            }
         } else if(subcommand == "value"){
             if(args.size() == 2){
                 budget::show_asset_values(w);
@@ -854,6 +924,33 @@ std::string to_percent(double p){
     ss << std::setprecision(4) << p << "%";
 
     return ss.str();
+}
+
+void budget::show_asset_classes(budget::writer& w){
+    if (!asset_classes.data.size()) {
+        w << "No asset classes" << end_of_line;
+        return;
+    }
+
+    w << title_begin << "Asset Classes" << add_button("asset_classes") << title_end;
+
+    std::vector<std::string> columns = {"ID", "Name", "Edit"};
+
+    std::vector<std::vector<std::string>> contents;
+
+    // Display the asset classes
+
+    for(auto& clas : asset_classes.data){
+        std::vector<std::string> line;
+
+        line.emplace_back(to_string(clas.id));
+        line.emplace_back(clas.name);
+        line.emplace_back("::edit::asset_classes::" + budget::to_string(clas.id));
+
+        contents.emplace_back(std::move(line));
+    }
+
+    w.display_table(columns, contents);
 }
 
 void budget::show_assets(budget::writer& w){

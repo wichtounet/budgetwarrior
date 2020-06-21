@@ -137,6 +137,8 @@ void save_assets();
 void migrate_assets_4_to_5();
 void migrate_assets_5_to_6();
 
+void show_asset_classes(budget::writer& w);
+
 void show_assets(budget::writer& w);
 void list_asset_values(budget::writer& w);
 void small_show_asset_values(budget::writer& w);
