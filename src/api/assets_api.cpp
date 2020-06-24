@@ -342,3 +342,95 @@ void budget::list_asset_shares_api(const httplib::Request& req, httplib::Respons
 
     api_success_content(req, res, ss.str());
 }
+
+// Asset Classes
+
+void budget::add_asset_classes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_name"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    asset_class asset_class;
+    asset_class.guid = budget::generate_guid();
+    asset_class.name = req.get_param_value("input_name");
+
+    add_asset_class(std::move(asset_class));
+
+    api_success(req, res, "Asset class " + to_string(asset_class.id) + " has been created", to_string(asset_class.id));
+}
+
+void budget::edit_asset_classes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_id", "input_name"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.get_param_value("input_id");
+
+    if (!budget::asset_class_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "Asset class " + id + " does not exist");
+        return;
+    }
+
+    asset_class& asset_class = asset_class_get(budget::to_number<size_t>(id));
+    asset_class.name         = req.get_param_value("input_name");
+
+    set_asset_classes_changed();
+
+    api_success(req, res, "Asset Class " + to_string(asset_class.id) + " has been modified");
+}
+
+void budget::delete_asset_classes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_id"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.get_param_value("input_id");
+
+    if (!budget::asset_class_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The asset class " + id + " does not exit");
+        return;
+    }
+
+    auto clas = asset_class_get(budget::to_number<size_t>(id));
+
+    for (auto & asset : all_assets()) {
+        if (get_asset_class_allocation(asset, clas)) {
+            api_error(req, res, "Cannot delete an asset class that is still used");
+            return;
+        }
+    }
+
+    budget::asset_class_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "The asset class " + id + " has been deleted");
+}
+
+void budget::list_asset_classes_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    std::stringstream ss;
+
+    for (auto& asset_class : all_asset_classes()) {
+        ss << asset_class;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
+}

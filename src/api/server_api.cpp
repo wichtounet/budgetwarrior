@@ -147,6 +147,11 @@ void budget::load_api(httplib::Server& server) {
     server.Get("/api/asset_shares/delete/", &delete_asset_shares_api);
     server.Get("/api/asset_shares/list/", &list_asset_shares_api);
 
+    server.Post("/api/asset_classes/add/", &add_asset_classes_api);
+    server.Post("/api/asset_classes/edit/", &edit_asset_classes_api);
+    server.Get("/api/asset_classes/delete/", &delete_asset_classes_api);
+    server.Get("/api/asset_classes/list/", &list_asset_classes_api);
+
     server.Post("/api/retirement/configure/", &retirement_configure_api);
 
     server.Post("/api/objectives/add/", &add_objectives_api);

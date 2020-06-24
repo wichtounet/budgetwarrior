@@ -28,3 +28,53 @@ void budget::list_asset_classes_page(const httplib::Request& req, httplib::Respo
 
     page_end(w, req, res);
 }
+
+void budget::add_asset_classes_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "New asset class")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    w << title_begin << "New asset class" << title_end;
+
+    form_begin(w, "/api/asset_classes/add/", "/asset_classes/add/");
+
+    add_name_picker(w);
+
+    form_end(w);
+
+    page_end(w, req, res);
+}
+
+void budget::edit_asset_classes_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+
+    if (!page_get_start(req, res, content_stream, "Edit asset class", {"input_id", "back_page"})){
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    auto input_id = req.get_param_value("input_id");
+    auto id = budget::to_number<size_t>(input_id);
+
+    if (!asset_class_exists(id)) {
+        display_error_message(w, "The asset class " + input_id + " does not exist");
+    } else {
+        auto back_page = req.get_param_value("back_page");
+
+        w << title_begin << "Edit asset class " << input_id << title_end;
+
+        form_begin_edit(w, "/api/asset_classes/edit/", back_page, input_id);
+
+        auto& asset_class = asset_class_get(id);
+
+        add_name_picker(w, asset_class.name);
+
+        form_end(w);
+    }
+
+    page_end(w, req, res);
+}
