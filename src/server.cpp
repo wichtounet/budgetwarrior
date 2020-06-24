@@ -7,6 +7,8 @@
 
 #include <set>
 #include <thread>
+#include <thread>
+#include <condition_variable>
 
 #include "cpp_utils/assert.hpp"
 
@@ -38,6 +40,9 @@ bool server_running = false;
 httplib::Server * server_ptr = nullptr;
 volatile bool cron = true;
 
+std::mutex lock;
+std::condition_variable cv;
+
 void server_signal_handler(int signum) {
     std::cout << "INFO: Received signal (" << signum << ")" << std::endl;
 
@@ -46,6 +51,8 @@ void server_signal_handler(int signum) {
     if (server_ptr) {
         server_ptr->stop();
     }
+
+    cv.notify_all();
 }
 
 void install_signal_handler() {
@@ -91,7 +98,15 @@ void start_cron_loop(){
     while(cron){
         using namespace std::chrono_literals;
 
-        std::this_thread::sleep_for(1h);
+        {
+            std::unique_lock<std::mutex> lk(lock);
+            cv.wait_for(lk, 1h);
+
+            if (!cron) {
+                break;
+            }
+        }
+
         ++hours;
 
         check_for_recurrings();
