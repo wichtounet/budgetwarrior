@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "config.hpp"
 #include "compute.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
@@ -36,6 +37,14 @@ budget::status budget::compute_year_status(year year, month month) {
 
     status.balance = status.budget + status.earnings - status.expenses;
 
+    if (config_contains("taxes_account")) {
+        auto taxes_account = config_value("taxes_account");
+
+        if (account_exists(taxes_account)) {
+            status.taxes = accumulate_amount(all_expenses_between(taxes_account, year, sm, month));
+        }
+    }
+
     return status;
 }
 
@@ -58,6 +67,14 @@ budget::status budget::compute_month_status(year year, month month) {
     status.balance     = status.budget + status.earnings - status.expenses;
     status.base_income = get_base_income(budget::date(year, month, 1));
     status.income      = status.base_income + status.earnings;
+
+    if (config_contains("taxes_account")) {
+        auto taxes_account = config_value("taxes_account");
+
+        if (account_exists(taxes_account)) {
+            status.taxes = accumulate_amount(all_expenses_month(taxes_account, year, month));
+        }
+    }
 
     return status;
 }
@@ -82,10 +99,12 @@ budget::status budget::compute_avg_month_status(year year, month month) {
         avg_status.earnings += status.earnings;
         avg_status.budget += status.budget;
         avg_status.balance += status.balance;
+        avg_status.taxes += status.taxes;
     }
 
     if (month.value > 1) {
         avg_status.expenses /= month.value - 1;
+        avg_status.taxes /= month.value - 1;
         avg_status.earnings /= month.value - 1;
         avg_status.budget /= month.value - 1;
         avg_status.balance /= month.value - 1;

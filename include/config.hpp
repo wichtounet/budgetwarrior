@@ -7,6 +7,9 @@
 
 #pragma once
 
+#include <cstdlib>
+#include <string>
+
 namespace budget {
 
 const size_t DATA_VERSION = 6;

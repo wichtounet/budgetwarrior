@@ -14,6 +14,7 @@ namespace budget {
 
 struct status {
     budget::money expenses;
+    budget::money taxes;
     budget::money earnings;
     budget::money budget;
     budget::money balance;
