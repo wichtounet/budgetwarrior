@@ -212,6 +212,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/overview/aggregate/all/">Aggregate All</a>
                   <a class="dropdown-item" href="/report/">Report</a>
                   <a class="dropdown-item" href="/overview/savings/time/">Savings rate over time</a>
+                  <a class="dropdown-item" href="/overview/tax/time/">Tax rate over time</a>
                 </div>
               </li>
         )=====";
@@ -458,6 +459,7 @@ void budget::load_pages(httplib::Server& server) {
     server.Get(R"(/overview/aggregate/month/(\d+)/(\d+)/)", &overview_aggregate_month_page);
     server.Get("/overview/aggregate/all/", &overview_aggregate_all_page);
     server.Get("/overview/savings/time/", &time_graph_savings_rate_page);
+    server.Get("/overview/tax/time/", &time_graph_tax_rate_page);
 
     server.Get("/report/", &report_page);
 
