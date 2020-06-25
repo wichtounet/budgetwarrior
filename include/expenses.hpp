@@ -16,6 +16,7 @@
 #include "date.hpp"
 #include "writer_fwd.hpp"
 #include "filter_iterator.hpp"
+#include "accounts.hpp"
 
 namespace budget {
 
@@ -87,9 +88,21 @@ inline auto all_expenses_month(size_t account_id, budget::year year, budget::mon
     });
 }
 
+inline auto all_expenses_month(const std::string & account_name, budget::year year, budget::month month) {
+    return make_filter_view(begin(all_expenses()), end(all_expenses()), [=](const expense& e) {
+        return account_get(e.account).name == account_name && e.date.year() == year && e.date.month() == month;
+    });
+}
+
 inline auto all_expenses_between(budget::year year, budget::month sm, budget::month month) {
     return make_filter_view(begin(all_expenses()), end(all_expenses()), [=](const expense& e) {
         return e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
+    });
+}
+
+inline auto all_expenses_between(const std::string & account_name, budget::year year, budget::month sm, budget::month month) {
+    return make_filter_view(begin(all_expenses()), end(all_expenses()), [=](const expense& e) {
+        return account_get(e.account).name == account_name && e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
     });
 }
 
