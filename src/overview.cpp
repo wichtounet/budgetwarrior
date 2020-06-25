@@ -972,6 +972,18 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     second_contents.emplace_back(std::vector<std::string>{"Avg Local Balance", budget::format_money(avg_status.balance)});
     second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(savings_rate) + "%"});
 
+    if (config_contains("taxes_account")) {
+       auto taxes_account = config_value("taxes_account");
+
+       if (account_exists(taxes_account)) {
+           auto taxes = total_expenses[indexes[taxes_account]];
+
+            double tax_rate = 100 * (taxes / income);
+
+           second_contents.emplace_back(std::vector<std::string>{"Tax Rate", budget::to_string(tax_rate) + "%"});
+       }
+    }
+
     writer.display_table(second_columns, second_contents, 1, {}, accounts.size() * 9 + 1);
 }
 
