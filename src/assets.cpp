@@ -928,9 +928,7 @@ void budget::small_show_asset_values(budget::writer& w){
         auto amount = get_asset_value(asset);
 
         if (amount) {
-            contents.push_back({asset.name,
-                                to_string(amount),
-                                asset.currency});
+            contents.push_back({asset.name, to_string(amount), asset.currency});
 
             total += amount * exchange_rate(asset.currency);
         }
