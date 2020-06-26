@@ -134,6 +134,9 @@ void operator>>(const std::vector<std::string>& parts, asset_share& asset);
 void load_asset_classes();
 void save_asset_classes();
 
+void load_asset_shares();
+void save_asset_shares();
+
 void load_assets();
 void save_assets();
 
@@ -190,17 +193,18 @@ bool asset_class_exists(size_t id);
 void asset_class_delete(size_t id);
 asset_class& asset_class_get(size_t id);
 
-void add_asset(asset&& asset);
+void add_asset(asset& asset);
 bool asset_exists(size_t id);
 void asset_delete(size_t id);
 asset& asset_get(size_t id);
 
-void add_asset_value(asset_value&& asset_value);
+void add_asset_value(asset_value& asset_value);
 bool asset_value_exists(size_t id);
 void asset_value_delete(size_t id);
 asset_value& asset_value_get(size_t id);
 
-void add_asset_share(asset_share&& asset_share);
+size_t add_asset_share(asset_share& asset_share);
+bool edit_asset_share(asset_share& c);
 bool asset_share_exists(size_t id);
 void asset_share_delete(size_t id);
 asset_share& asset_share_get(size_t id);

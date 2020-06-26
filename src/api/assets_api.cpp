@@ -50,7 +50,7 @@ void budget::add_assets_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    add_asset(std::move(asset));
+    add_asset(asset);
 
     api_success(req, res, "asset " + to_string(asset.id) + " has been created", to_string(asset.id));
 }
@@ -152,7 +152,7 @@ void budget::add_asset_values_api(const httplib::Request& req, httplib::Response
     asset_value.asset_id = budget::to_number<size_t>(req.get_param_value("input_asset"));
     asset_value.set_date = budget::from_string(req.get_param_value("input_date"));
 
-    add_asset_value(std::move(asset_value));
+    add_asset_value(asset_value);
 
     api_success(req, res, "Asset value " + to_string(asset_value.id) + " has been created", to_string(asset_value.id));
 }
@@ -248,7 +248,7 @@ void budget::batch_asset_values_api(const httplib::Request& req, httplib::Respon
                 asset_value.asset_id = asset.id;
                 asset_value.set_date = budget::from_string(req.get_param_value("input_date"));
 
-                add_asset_value(std::move(asset_value));
+                add_asset_value(asset_value);
             }
         }
     }
@@ -273,7 +273,7 @@ void budget::add_asset_shares_api(const httplib::Request& req, httplib::Response
     asset_share.price    = budget::parse_money(req.get_param_value("input_price"));
     asset_share.date     = budget::from_string(req.get_param_value("input_date"));
 
-    add_asset_share(std::move(asset_share));
+    add_asset_share(asset_share);
 
     api_success(req, res, "Asset share " + to_string(asset_share.id) + " has been created", to_string(asset_share.id));
 }
