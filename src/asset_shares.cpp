@@ -10,19 +10,9 @@
 
 #include "assets.hpp"
 #include "budget_exception.hpp"
-//#include "args.hpp"
 #include "data.hpp"
 #include "guid.hpp"
-//#include "config.hpp"
-//#include "utils.hpp"
-//#include "console.hpp"
-//#include "earnings.hpp"
-//#include "expenses.hpp"
 #include "writer.hpp"
-//#include "currency.hpp"
-//#include "share.hpp"
-
-#include <curl/curl.h>
 
 using namespace budget;
 

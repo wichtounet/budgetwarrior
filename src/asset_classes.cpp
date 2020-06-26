@@ -141,7 +141,7 @@ bool budget::edit_asset_class(asset_class& c) {
 }
 
 size_t budget::add_asset_class(budget::asset_class& asset){
-    return asset_classes.add(std::forward<budget::asset_class>(asset));
+    return asset_classes.add(asset);
 }
 
 void budget::update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc) {
