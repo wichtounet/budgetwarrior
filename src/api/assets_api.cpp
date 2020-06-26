@@ -359,7 +359,7 @@ void budget::add_asset_classes_api(const httplib::Request& req, httplib::Respons
     asset_class.guid = budget::generate_guid();
     asset_class.name = req.get_param_value("input_name");
 
-    add_asset_class(std::move(asset_class));
+    add_asset_class(asset_class);
 
     api_success(req, res, "Asset class " + to_string(asset_class.id) + " has been created", to_string(asset_class.id));
 }

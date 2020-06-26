@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <fstream>
+
 #include "cpp_utils/assert.hpp"
 
 #include "config.hpp"

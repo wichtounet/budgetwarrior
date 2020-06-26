@@ -32,7 +32,6 @@ using namespace budget;
 
 namespace {
 
-static data_handler<asset_class> asset_classes { "asset_classes", "asset_classes.data" };
 static data_handler<asset> assets { "assets", "assets.data" };
 static data_handler<asset_value> asset_values { "asset_values", "asset_values.data" };
 static data_handler<asset_share> asset_shares { "asset_shares", "asset_shares.data" };
@@ -60,16 +59,6 @@ std::vector<std::string> get_share_asset_names(){
 }
 
 } //end of anonymous namespace
-
-std::map<std::string, std::string> budget::asset_class::get_params(){
-    std::map<std::string, std::string> params;
-
-    params["input_id"]              = budget::to_string(id);
-    params["input_guid"]            = guid;
-    params["input_name"]            = name;
-
-    return params;
-}
 
 std::map<std::string, std::string> budget::asset::get_params(){
     std::map<std::string, std::string> params;
@@ -319,7 +308,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                         throw budget_exception("This asset class already exists");
                     }
 
-                    auto id = asset_classes.add(std::move(clas));
+                    auto id = add_asset_class(clas);
                     std::cout << "Asset Clas " << id << " has been created" << std::endl;
                 } else if(subsubcommand == "edit"){
                     size_t id = 0;
@@ -332,7 +321,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                         throw budget_exception("This asset class does not exist");
                     }
 
-                    auto & clas = asset_classes[id];
+                    auto & clas = asset_class_get(id);
 
                     edit_string(clas.name, "Name", not_empty_checker());
 
@@ -342,7 +331,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                         }
                     }
 
-                    if (asset_classes.edit(clas)) {
+                    if (edit_asset_class(clas)) {
                         std::cout << "Asset Class " << id << " has been modified" << std::endl;
                     }
                 } else if (subsubcommand == "delete") {
@@ -356,7 +345,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                         throw budget_exception("This asset class does not exist");
                     }
 
-                    auto & clas = asset_classes[id];
+                    auto & clas = asset_class_get(id);
 
                     for (auto & asset : all_assets()) {
                         if (get_asset_class_allocation(asset, clas)) {
@@ -364,7 +353,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                         }
                     }
 
-                    asset_classes.remove(id);
+                    asset_class_delete(id);
 
                     std::cout << "Asset class " << id << " has been deleted" << std::endl;
                 } else if(subsubcommand == "show"){
@@ -541,31 +530,17 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::load_assets(){
-    asset_classes.load();
+    load_asset_classes();
     assets.load();
     asset_values.load();
     asset_shares.load();
 }
 
 void budget::save_assets(){
-    asset_classes.save();
+    save_asset_classes();
     assets.save();
     asset_values.save();
     asset_shares.save();
-}
-
-budget::asset_class& budget::get_asset_class(size_t id){
-    return asset_classes[id];
-}
-
-budget::asset_class& budget::get_asset_class(const std::string & name){
-    for (auto& c : asset_classes.data) {
-        if (c.name == name) {
-            return c;
-        }
-    }
-
-    cpp_unreachable("The asset class does not exist");
 }
 
 budget::asset& budget::get_asset(size_t id){
@@ -640,10 +615,10 @@ void budget::migrate_assets_5_to_6(){
     asset_class class_bonds{0, generate_guid(), "Bonds"};
     asset_class class_cash{0, generate_guid(), "Cash"};
 
-    asset_classes.add(class_int_stocks);
-    asset_classes.add(class_dom_stocks);
-    asset_classes.add(class_bonds);
-    asset_classes.add(class_cash);
+    add_asset_class(class_int_stocks);
+    add_asset_class(class_dom_stocks);
+    add_asset_class(class_bonds);
+    add_asset_class(class_cash);
 
     // Load asset with version 5
     assets.load([&](const std::vector<std::string>& parts, asset& asset){
@@ -670,22 +645,8 @@ void budget::migrate_assets_5_to_6(){
     set_asset_classes_changed();
     set_assets_changed();
 
-    asset_classes.save();
+    save_asset_classes();
     assets.save();
-}
-
-std::ostream& budget::operator<<(std::ostream& stream, const asset_class& asset){
-    return stream << asset.id << ':' << asset.guid << ':' << asset.name << ':';
-}
-
-void budget::operator>>(const std::vector<std::string>& parts, asset_class& clas){
-    clas.id   = to_number<size_t>(parts[0]);
-    clas.guid = parts[1];
-    clas.name = parts[2];
-
-    if (clas.guid == "XXXXX") {
-        clas.guid = generate_guid();
-    }
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
@@ -800,16 +761,6 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_share& asse
     }
 }
 
-bool budget::asset_class_exists(const std::string& name){
-    for (auto& clas : asset_classes.data) {
-        if (clas.name == name) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool budget::asset_exists(const std::string& name){
     for (auto& asset : assets.data) {
         if (asset.name == name) {
@@ -828,10 +779,6 @@ bool budget::share_asset_exists(const std::string& name){
     }
 
     return false;
-}
-
-std::vector<asset_class>& budget::all_asset_classes(){
-    return asset_classes.data;
 }
 
 std::vector<asset>& budget::all_assets(){
@@ -878,10 +825,6 @@ std::vector<asset_share>& budget::all_asset_shares(){
     return asset_shares.data;
 }
 
-void budget::set_asset_classes_changed(){
-    asset_classes.set_changed();
-}
-
 void budget::set_assets_changed(){
     assets.set_changed();
 }
@@ -892,10 +835,6 @@ void budget::set_asset_values_changed(){
 
 void budget::set_asset_shares_changed(){
     asset_shares.set_changed();
-}
-
-void budget::set_asset_class_next_id(size_t next_id){
-    asset_classes.next_id = next_id;
 }
 
 void budget::set_assets_next_id(size_t next_id){
@@ -924,33 +863,6 @@ std::string to_percent(double p){
     ss << std::setprecision(4) << p << "%";
 
     return ss.str();
-}
-
-void budget::show_asset_classes(budget::writer& w){
-    if (!asset_classes.data.size()) {
-        w << "No asset classes" << end_of_line;
-        return;
-    }
-
-    w << title_begin << "Asset Classes" << add_button("asset_classes") << title_end;
-
-    std::vector<std::string> columns = {"ID", "Name", "Edit"};
-
-    std::vector<std::vector<std::string>> contents;
-
-    // Display the asset classes
-
-    for(auto& clas : asset_classes.data){
-        std::vector<std::string> line;
-
-        line.emplace_back(to_string(clas.id));
-        line.emplace_back(clas.name);
-        line.emplace_back("::edit::asset_classes::" + budget::to_string(clas.id));
-
-        contents.emplace_back(std::move(line));
-    }
-
-    w.display_table(columns, contents);
 }
 
 void budget::show_assets(budget::writer& w){
@@ -1319,30 +1231,6 @@ void budget::show_asset_values(budget::writer& w){
     }
 }
 
-bool budget::asset_class_exists(size_t id){
-    return asset_classes.exists(id);
-}
-
-void budget::asset_class_delete(size_t id) {
-    if (!asset_classes.exists(id)) {
-        throw budget_exception("There are no class asset with id ");
-    }
-
-    asset_classes.remove(id);
-}
-
-asset_class& budget::asset_class_get(size_t id) {
-    if (!asset_classes.exists(id)) {
-        throw budget_exception("There are no asset class with id ");
-    }
-
-    return asset_classes[id];
-}
-
-void budget::add_asset_class(budget::asset_class&& asset){
-    asset_classes.add(std::forward<budget::asset_class>(asset));
-}
-
 bool budget::asset_exists(size_t id){
     return assets.exists(id);
 }
@@ -1552,25 +1440,4 @@ budget::money budget::get_asset_value_conv(budget::asset & asset, const std::str
 budget::money budget::get_asset_value_conv(budget::asset & asset, budget::date d, const std::string& currency) {
     auto amount = get_asset_value(asset, d);
     return amount * exchange_rate(asset.currency, currency, d);
-}
-
-void budget::update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc) {
-    for (auto & c : asset.classes) {
-        if (c.first == clas.id) {
-            c.second = alloc;
-            return;
-        }
-    }
-
-    asset.classes.emplace_back(clas.id, alloc);
-}
-
-budget::money budget::get_asset_class_allocation(budget::asset& asset, budget::asset_class & clas) {
-    for (auto & c : asset.classes) {
-        if (c.first == clas.id) {
-            return c.second;
-        }
-    }
-
-    return {};
 }

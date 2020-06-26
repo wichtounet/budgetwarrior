@@ -131,6 +131,9 @@ void operator>>(const std::vector<std::string>& parts, asset_value& asset);
 std::ostream& operator<<(std::ostream& stream, const asset_share& asset);
 void operator>>(const std::vector<std::string>& parts, asset_share& asset);
 
+void load_asset_classes();
+void save_asset_classes();
+
 void load_assets();
 void save_assets();
 
@@ -181,7 +184,8 @@ void set_asset_shares_changed();
 
 std::string get_default_currency();
 
-void add_asset_class(asset_class&& c);
+size_t add_asset_class(asset_class& c);
+bool edit_asset_class(asset_class& c);
 bool asset_class_exists(size_t id);
 void asset_class_delete(size_t id);
 asset_class& asset_class_get(size_t id);
