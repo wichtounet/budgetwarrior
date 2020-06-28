@@ -33,9 +33,11 @@ budget::status budget::compute_year_status(year year, month month) {
 
     for (unsigned short i = sm; i <= month; ++i) {
         status.budget += accumulate_amount(all_accounts(year, i));
+        status.base_income += get_base_income(budget::date(year, i, 1));
     }
 
     status.balance = status.budget + status.earnings - status.expenses;
+    status.income = status.base_income + status.earnings;
 
     if (config_contains("taxes_account")) {
         auto taxes_account = config_value("taxes_account");
