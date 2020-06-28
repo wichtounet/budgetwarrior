@@ -191,7 +191,7 @@ int budget::compute_success(const budget::status& status, const budget::objectiv
 
         basis = budget::money(int(savings_rate));
     } else {
-        basis = status.balance;
+        basis = status.savings;
     }
 
     int success = 0;
@@ -421,7 +421,7 @@ std::string budget::get_status(const budget::status& status, const budget::objec
 
         basis = budget::money(int(savings_rate));
     } else {
-        basis = status.balance;
+        basis = status.savings;
     }
 
     result += to_string(basis.dollars());
