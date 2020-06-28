@@ -37,7 +37,8 @@ budget::status budget::compute_year_status(year year, month month) {
     }
 
     status.balance = status.budget + status.earnings - status.expenses;
-    status.income = status.base_income + status.earnings;
+    status.income  = status.base_income + status.earnings;
+    status.savings = status.income - status.earnings;
 
     if (config_contains("taxes_account")) {
         auto taxes_account = config_value("taxes_account");
@@ -69,6 +70,7 @@ budget::status budget::compute_month_status(year year, month month) {
     status.balance     = status.budget + status.earnings - status.expenses;
     status.base_income = get_base_income(budget::date(year, month, 1));
     status.income      = status.base_income + status.earnings;
+    status.savings     = status.income - status.expenses;
 
     if (config_contains("taxes_account")) {
         auto taxes_account = config_value("taxes_account");
@@ -102,6 +104,7 @@ budget::status budget::compute_avg_month_status(year year, month month) {
         avg_status.budget += status.budget;
         avg_status.balance += status.balance;
         avg_status.taxes += status.taxes;
+        avg_status.savings += status.savings;
     }
 
     if (month.value > 1) {
@@ -110,6 +113,7 @@ budget::status budget::compute_avg_month_status(year year, month month) {
         avg_status.earnings /= month.value - 1;
         avg_status.budget /= month.value - 1;
         avg_status.balance /= month.value - 1;
+        avg_status.savings /= month.value - 1;
     }
 
     return avg_status;
