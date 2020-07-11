@@ -412,7 +412,12 @@ void replace_all(std::string& source, const std::string& from, const std::string
 }
 
 void filter_html(std::string& html, const httplib::Request& req) {
-    replace_all(html, "__budget_this_page__", req.path);
+    if (req.has_param("input_name")) {
+        replace_all(html, "__budget_this_page__", base64_encode(req.path + "?input_name=" + req.get_param_value("input_name")));
+    } else {
+        replace_all(html, "__budget_this_page__", base64_encode(req.path));
+    }
+
     replace_all(html, "__currency__", get_default_currency());
 }
 

@@ -211,7 +211,15 @@ bool budget::api_start(const httplib::Request& req, httplib::Response& res) {
 
 void budget::api_error(const httplib::Request& req, httplib::Response& res, const std::string& message) {
     if (req.has_param("server")) {
-        auto url = req.get_param_value("back_page") + "?error=true&message=" + httplib::detail::encode_url(message);
+        auto back_page = base64_decode(req.get_param_value("back_page"));
+
+        std::string url;
+        if (back_page.find('?') == std::string::npos) {
+            url = back_page + "?error=true&message=" + httplib::detail::encode_url(message);
+        } else {
+            url = back_page + "&error=true&message=" + httplib::detail::encode_url(message);
+        }
+
         res.set_redirect(url.c_str());
     } else {
         res.set_content("Error: " + message, "text/plain");
@@ -220,7 +228,15 @@ void budget::api_error(const httplib::Request& req, httplib::Response& res, cons
 
 void budget::api_success(const httplib::Request& req, httplib::Response& res, const std::string& message) {
     if (req.has_param("server")) {
-        auto url = req.get_param_value("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
+        auto back_page = base64_decode(req.get_param_value("back_page"));
+
+        std::string url;
+        if (back_page.find('?') == std::string::npos) {
+            url = back_page + "?success=true&message=" + httplib::detail::encode_url(message);
+        } else {
+            url = back_page + "&success=true&message=" + httplib::detail::encode_url(message);
+        }
+
         res.set_redirect(url.c_str());
     } else {
         res.set_content("Success: " + message, "text/plain");
@@ -229,7 +245,15 @@ void budget::api_success(const httplib::Request& req, httplib::Response& res, co
 
 void budget::api_success(const httplib::Request& req, httplib::Response& res, const std::string& message, const std::string& content) {
     if (req.has_param("server")) {
-        auto url = req.get_param_value("back_page") + "?success=true&message=" + httplib::detail::encode_url(message);
+        auto back_page = base64_decode(req.get_param_value("back_page"));
+
+        std::string url;
+        if (back_page.find('?') == std::string::npos) {
+            url = back_page + "?success=true&message=" + httplib::detail::encode_url(message);
+        } else {
+            url = back_page + "&success=true&message=" + httplib::detail::encode_url(message);
+        }
+
         res.set_redirect(url.c_str());
     } else {
         res.set_content(content, "text/plain");
