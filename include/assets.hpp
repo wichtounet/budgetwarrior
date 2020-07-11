@@ -95,6 +95,7 @@ struct asset_value {
     size_t asset_id;
     budget::money amount;
     budget::date set_date;
+    bool liability;
 
     std::map<std::string, std::string> get_params();
 };

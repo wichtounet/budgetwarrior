@@ -147,10 +147,11 @@ void budget::add_asset_values_api(const httplib::Request& req, httplib::Response
     }
 
     asset_value asset_value;
-    asset_value.guid     = budget::generate_guid();
-    asset_value.amount   = budget::parse_money(req.get_param_value("input_amount"));
-    asset_value.asset_id = budget::to_number<size_t>(req.get_param_value("input_asset"));
-    asset_value.set_date = budget::from_string(req.get_param_value("input_date"));
+    asset_value.guid      = budget::generate_guid();
+    asset_value.amount    = budget::parse_money(req.get_param_value("input_amount"));
+    asset_value.asset_id  = budget::to_number<size_t>(req.get_param_value("input_asset"));
+    asset_value.set_date  = budget::from_string(req.get_param_value("input_date"));
+    asset_value.liability = req.get_param_value("input_liability") == "true";
 
     add_asset_value(asset_value);
 
@@ -178,6 +179,7 @@ void budget::edit_asset_values_api(const httplib::Request& req, httplib::Respons
     asset_value.amount       = budget::parse_money(req.get_param_value("input_amount"));
     asset_value.asset_id     = budget::to_number<size_t>(req.get_param_value("input_asset"));
     asset_value.set_date     = budget::from_string(req.get_param_value("input_date"));
+    asset_value.liability = req.get_param_value("input_liability") == "true";
 
     set_asset_values_changed();
 
@@ -247,6 +249,7 @@ void budget::batch_asset_values_api(const httplib::Request& req, httplib::Respon
                 asset_value.amount   = new_amount;
                 asset_value.asset_id = asset.id;
                 asset_value.set_date = budget::from_string(req.get_param_value("input_date"));
+                asset_value.liability = false;
 
                 add_asset_value(asset_value);
             }

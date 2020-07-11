@@ -44,6 +44,7 @@ std::map<std::string, std::string> budget::asset_value::get_params(){
     params["input_asset_id"] = budget::to_string(asset_id);
     params["input_amount"]   = budget::to_string(amount);
     params["input_set_date"] = budget::to_string(set_date);
+    params["input_liability"] = liability ? "true" : "false";
 
     return params;
 }
@@ -66,7 +67,8 @@ std::ostream& budget::operator<<(std::ostream& stream, const asset_value& asset_
         << ':' << asset_value.guid
         << ':' << asset_value.asset_id
         << ":" << asset_value.amount
-        << ":" << to_string(asset_value.set_date);
+        << ":" << to_string(asset_value.set_date)
+        << ":" << asset_value.liability;
 }
 
 void budget::operator>>(const std::vector<std::string>& parts, asset_value& asset_value){
@@ -85,6 +87,12 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_value& asse
         asset_value.amount = budget::random_money(1000, 50000);
     } else {
         asset_value.amount = parse_money(parts[3]);
+    }
+
+    if (parts.size() > 5) {
+        asset_value.liability = to_number<size_t>(parts[5]);
+    } else {
+        asset_value.liability = false;
     }
 }
 
@@ -140,7 +148,9 @@ void budget::list_asset_values(budget::writer& w){
     // Display the asset values
 
     for(auto& value : asset_values.data){
-        contents.push_back({to_string(value.id), get_asset(value.asset_id).name, to_string(value.amount), to_string(value.set_date), "::edit::asset_values::" + budget::to_string(value.id)});
+        if (!value.liability) {
+            contents.push_back({to_string(value.id), get_asset(value.asset_id).name, to_string(value.amount), to_string(value.set_date), "::edit::asset_values::" + budget::to_string(value.id)});
+        }
     }
 
     w.display_table(columns, contents);

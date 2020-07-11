@@ -173,7 +173,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             }
 
             for (auto& value : all_asset_values()) {
-                if (value.asset_id == id) {
+                if (!value.liability && value.asset_id == id) {
                     throw budget_exception("There are still asset values linked to asset " + args[2]);
                 }
             }
@@ -340,6 +340,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 if(subsubcommand == "set"){
                     asset_value asset_value;
                     asset_value.guid = generate_guid();
+                    asset_value.liability = false;
 
                     std::string asset_name;
                     edit_string_complete(asset_name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
@@ -371,6 +372,10 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                     auto& value = asset_value_get(id);
 
+                    if (value.liability) {
+                        throw budget_exception("Cannot edit liability value from the asset module");
+                    }
+
                     std::string asset_name = get_asset(value.asset_id).name;
                     edit_string_complete(asset_name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
                     value.asset_id = get_asset(asset_name).id;
@@ -390,6 +395,10 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                     if (!assets.exists(id)) {
                         throw budget_exception("There are no asset value with id " + args[2]);
+                    }
+
+                    if (value.liability) {
+                        throw budget_exception("Cannot edit liability value from the asset module");
                     }
 
                     asset_value_delete(id);
@@ -694,7 +703,7 @@ budget::date budget::asset_start_date(const budget::asset& asset) {
         }
    } else {
        for (auto & value : all_asset_values()) {
-           if (value.asset_id == asset.id) {
+           if (!value.liability && value.asset_id == asset.id) {
                start = std::min(value.set_date, start);
            }
        }
@@ -1185,7 +1194,7 @@ budget::money budget::get_asset_value(budget::asset & asset, budget::date d) {
         bool asset_value_found = false;
 
         for (auto& asset_value : all_asset_values()) {
-            if (asset_value.asset_id == asset.id) {
+            if (!asset_value.liability && asset_value.asset_id == asset.id) {
                 if (asset_value.set_date <= d) {
                     if (!asset_value_found) {
                         asset_value_id = asset_value.id;
