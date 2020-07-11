@@ -56,10 +56,12 @@ std::map<std::string, std::string> budget::liability::get_params(){
 
 void budget::liabilities_module::load(){
     load_liabilities();
+    load_asset_values();
 }
 
 void budget::liabilities_module::unload(){
     save_liabilities();
+    save_asset_values();
 }
 
 void budget::liabilities_module::handle(const std::vector<std::string>& args){
@@ -153,7 +155,7 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
             }
         } else if (subcommand == "value") {
             if (args.size() == 2) {
-                budget::show_asset_values(w);
+                budget::show_asset_values(w, true);
             } else {
                 auto& subsubcommand = args[2];
 
@@ -174,9 +176,9 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
                     auto id = add_asset_value(asset_value);
                     std::cout << "Asset Value " << id << " has been created" << std::endl;
                 } else if (subsubcommand == "show") {
-                    budget::show_asset_values(w);
+                    show_asset_values(w, true);
                 } else if (subsubcommand == "list") {
-                    list_asset_values(w);
+                    list_asset_values(w, true);
                 } else if (subsubcommand == "edit") {
                     size_t id = 0;
 

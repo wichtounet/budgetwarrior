@@ -13,20 +13,11 @@
 #include <random>
 
 #include "assets.hpp"
+#include "liabilities.hpp"
 #include "budget_exception.hpp"
-//#include "args.hpp"
 #include "data.hpp"
 #include "guid.hpp"
-//#include "config.hpp"
-//#include "utils.hpp"
-//#include "console.hpp"
-//#include "earnings.hpp"
-//#include "expenses.hpp"
 #include "writer.hpp"
-//#include "currency.hpp"
-//#include "share.hpp"
-
-//#include <curl/curl.h>
 
 using namespace budget;
 
@@ -136,7 +127,7 @@ bool budget::edit_asset_value(asset_value& asset_value) {
     return asset_values.edit(asset_value);
 }
 
-void budget::list_asset_values(budget::writer& w){
+void budget::list_asset_values(budget::writer& w, bool liability){
     if (!asset_values.data.size()) {
         w << "No asset values" << end_of_line;
         return;
@@ -148,8 +139,12 @@ void budget::list_asset_values(budget::writer& w){
     // Display the asset values
 
     for(auto& value : asset_values.data){
-        if (!value.liability) {
-            contents.push_back({to_string(value.id), get_asset(value.asset_id).name, to_string(value.amount), to_string(value.set_date), "::edit::asset_values::" + budget::to_string(value.id)});
+        if (value.liability == liability) {
+            if (liability) {
+                contents.push_back({to_string(value.id), get_liability(value.asset_id).name, to_string(value.amount), to_string(value.set_date), "::edit::asset_values::" + budget::to_string(value.id)});
+            } else {
+                contents.push_back({to_string(value.id), get_asset(value.asset_id).name, to_string(value.amount), to_string(value.set_date), "::edit::asset_values::" + budget::to_string(value.id)});
+            }
         }
     }
 

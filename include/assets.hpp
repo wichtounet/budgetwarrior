@@ -150,9 +150,9 @@ void migrate_assets_5_to_6();
 void show_asset_classes(budget::writer& w);
 
 void show_assets(budget::writer& w);
-void list_asset_values(budget::writer& w);
+void list_asset_values(budget::writer& w, bool liability = false);
 void small_show_asset_values(budget::writer& w);
-void show_asset_values(budget::writer& w);
+void show_asset_values(budget::writer& w, bool liability = false);
 void show_asset_portfolio(budget::writer& w);
 void show_asset_rebalance(budget::writer& w, bool nocash = false);
 
