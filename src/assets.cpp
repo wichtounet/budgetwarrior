@@ -397,6 +397,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                         throw budget_exception("There are no asset value with id " + args[2]);
                     }
 
+                    auto& value = asset_value_get(id);
+
                     if (value.liability) {
                         throw budget_exception("Cannot edit liability value from the asset module");
                     }

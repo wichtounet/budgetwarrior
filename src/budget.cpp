@@ -23,6 +23,7 @@
 #include "accounts.hpp"
 #include "incomes.hpp"
 #include "assets.hpp"
+#include "liabilities.hpp"
 #include "expenses.hpp"
 #include "overview.hpp"
 #include "summary.hpp"
@@ -53,6 +54,7 @@ typedef std::tuple<
             budget::accounts_module,
             budget::incomes_module,
             budget::assets_module,
+            budget::liabilities_module,
             budget::earnings_module,
             budget::recurring_module,
             budget::fortune_module,

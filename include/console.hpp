@@ -15,6 +15,7 @@
 #include "date.hpp"
 #include "accounts.hpp"
 #include "assets.hpp"
+#include "liabilities.hpp"
 
 namespace budget {
 
@@ -326,6 +327,16 @@ struct asset_checker {
 
     std::string message(){
         return "The asset does not exist";
+    }
+};
+
+struct liability_checker {
+    bool operator()(const std::string& value){
+        return liability_exists(value);
+    }
+
+    std::string message(){
+        return "The liability does not exist";
     }
 };
 
