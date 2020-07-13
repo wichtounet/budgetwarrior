@@ -65,6 +65,11 @@ bool is_server_ssl();
 bool is_fortune_disabled();
 
 /*!
+ * \brief Indicates if the debts module is disabled.
+ */
+bool is_debts_disabled();
+
+/*!
  * \brief Indicates if net worth should be used instead of fortune
  * for computation.
  *

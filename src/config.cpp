@@ -277,6 +277,10 @@ bool budget::is_fortune_disabled(){
     return config_contains("disable_fortune") && config_value("disable_fortune") == "true";
 }
 
+bool budget::is_debts_disabled(){
+    return config_contains("disable_debts") && config_value("disable_debts") == "true";
+}
+
 bool budget::net_worth_over_fortune(){
     // If the fortune module is disabled, use net worth
     if (config_contains("disable_fortune")) {
