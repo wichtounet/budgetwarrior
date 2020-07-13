@@ -250,11 +250,7 @@ bool budget::is_server_mode(){
         return false;
     }
 
-    if (config_contains("server_mode")) {
-        return config_value("server_mode") == "true";
-    }
-
-    return false;
+    return config_contains_and_true("server_mode");
 }
 
 bool budget::is_secure(){
@@ -270,23 +266,21 @@ bool budget::is_server_ssl(){
         return config_value("server_ssl") == "true";
     }
 
-    return false;
+    return config_contains_and_true("server_ssl");
 }
 
 bool budget::is_fortune_disabled(){
-    return config_contains("disable_fortune") && config_value("disable_fortune") == "true";
+    return config_contains_and_true("disable_fortune");
 }
 
 bool budget::is_debts_disabled(){
-    return config_contains("disable_debts") && config_value("disable_debts") == "true";
+    return config_contains_and_true("disable_debts");
 }
 
 bool budget::net_worth_over_fortune(){
     // If the fortune module is disabled, use net worth
-    if (config_contains("disable_fortune")) {
-        if(config_value("disable_fortune") == "true"){
-            return true;
-        }
+    if (config_contains_and_true("disable_fortune")) {
+        return true;
     }
 
     // By default, fortune is the thing being taken into account
