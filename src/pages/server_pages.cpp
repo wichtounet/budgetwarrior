@@ -362,10 +362,20 @@ std::string header(const std::string& title, bool menu = true) {
                 <div class="dropdown-menu" aria-labelledby="dropdown_others">
                   <a class="dropdown-item" href="/recurrings/list/">List Recurrings</a>
                   <a class="dropdown-item" href="/recurrings/add/">Add Recurring Expense</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="/debts/add/">Add Debt</a>
-                  <a class="dropdown-item" href="/debts/list/">List Debts</a>
-                  <a class="dropdown-item" href="/debts/all/">All Debts</a>
+        )=====";
+
+        if (budget::is_debts_disabled()) {
+            stream << R"=====(
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="/debts/add/">Add Debt</a>
+                      <a class="dropdown-item" href="/debts/list/">List Debts</a>
+                      <a class="dropdown-item" href="/debts/all/">All Debts</a>
+                    </div>
+                  </li>
+            )=====";
+        }
+
+        stream << R"=====(
                 </div>
               </li>
         )=====";
