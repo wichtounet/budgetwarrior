@@ -706,7 +706,7 @@ void budget::form_begin(budget::writer& w, const std::string& action, const std:
     w << R"=====(">)=====";
     w << R"=====(<input type="hidden" name="server" value="yes">)=====";
     w << R"=====(<input type="hidden" name="back_page" value=")=====";
-    w << back_page;
+    w << html_base64_encode(back_page);
     w << R"=====(">)=====";
 }
 
