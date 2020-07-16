@@ -143,3 +143,19 @@ std::string budget::base64_encode(const std::string& in){
 
     return out;
 }
+
+std::string budget::html_base64_decode(const std::string& in) {
+    auto out = in;
+
+    std::replace(out.begin(), out.end(), '_', '=');
+
+    return base64_decode(out);
+}
+
+std::string budget::html_base64_encode(const std::string& in){
+    auto out = base64_encode(in);
+
+    std::replace(out.begin(), out.end(), '=', '_');
+
+    return out;
+}

@@ -67,4 +67,7 @@ std::vector<std::string> &split(const std::string &s, char delim, std::vector<st
 std::string base64_decode(const std::string& in);
 std::string base64_encode(const std::string& in);
 
+std::string html_base64_decode(const std::string& in);
+std::string html_base64_encode(const std::string& in);
+
 } //end of namespace budget

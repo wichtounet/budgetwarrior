@@ -211,7 +211,7 @@ bool budget::api_start(const httplib::Request& req, httplib::Response& res) {
 
 void budget::api_error(const httplib::Request& req, httplib::Response& res, const std::string& message) {
     if (req.has_param("server")) {
-        auto back_page = base64_decode(req.get_param_value("back_page"));
+        auto back_page = html_base64_decode(req.get_param_value("back_page"));
 
         std::string url;
         if (back_page.find('?') == std::string::npos) {
@@ -228,7 +228,7 @@ void budget::api_error(const httplib::Request& req, httplib::Response& res, cons
 
 void budget::api_success(const httplib::Request& req, httplib::Response& res, const std::string& message) {
     if (req.has_param("server")) {
-        auto back_page = base64_decode(req.get_param_value("back_page"));
+        auto back_page = html_base64_decode(req.get_param_value("back_page"));
 
         std::string url;
         if (back_page.find('?') == std::string::npos) {
@@ -245,7 +245,7 @@ void budget::api_success(const httplib::Request& req, httplib::Response& res, co
 
 void budget::api_success(const httplib::Request& req, httplib::Response& res, const std::string& message, const std::string& content) {
     if (req.has_param("server")) {
-        auto back_page = base64_decode(req.get_param_value("back_page"));
+        auto back_page = html_base64_decode(req.get_param_value("back_page"));
 
         std::string url;
         if (back_page.find('?') == std::string::npos) {
