@@ -17,5 +17,6 @@ void add_asset_values_page(const httplib::Request& req, httplib::Response& res);
 void edit_asset_values_page(const httplib::Request& req, httplib::Response& res);
 void full_batch_asset_values_page(const httplib::Request& req, httplib::Response& res);
 void current_batch_asset_values_page(const httplib::Request& req, httplib::Response& res);
+void add_asset_values_liability_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget

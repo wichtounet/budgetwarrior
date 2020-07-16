@@ -8,6 +8,7 @@
 #include "cpp_utils/assert.hpp"
 
 #include "assets.hpp"
+#include "liabilities.hpp"
 
 #include "writer.hpp"
 #include "pages/asset_values_pages.hpp"
@@ -144,6 +145,31 @@ void budget::current_batch_asset_values_page(const httplib::Request& req, httpli
     }
 
     form_end(w);
+
+    page_end(w, req, res);
+}
+
+void budget::add_asset_values_liability_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "New liability asset value")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    if (all_liabilities().empty()) {
+        w << title_begin << "No liabilities" << title_end;
+    } else {
+        w << title_begin << "New liability asset value" << title_end;
+
+        form_begin(w, "/api/asset_values/add/", "/asset_values/add/liability/");
+
+        add_liability_picker(w);
+        add_amount_picker(w);
+        add_date_picker(w, budget::to_string(budget::local_day()));
+
+        form_end(w);
+    }
 
     page_end(w, req, res);
 }

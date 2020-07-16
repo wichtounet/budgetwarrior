@@ -12,6 +12,7 @@
 
 #include "accounts.hpp"
 #include "assets.hpp"
+#include "liabilities.hpp"
 #include "config.hpp"
 #include "debts.hpp"
 #include "expenses.hpp"
@@ -245,6 +246,8 @@ std::string header(const std::string& title, bool menu = true) {
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="/liabilities/">Liabilities</a>
                   <a class="dropdown-item" href="/liabilities/add/">Add Liability</a>
+                  <a class="dropdown-item" href="/asset_values/add/liability/">Set One Liability Value</a>
+                  <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="/asset_classes/list/">Asset Classes</a>
                   <a class="dropdown-item" href="/asset_classes/add/">Add Asset Class</a>
                 </div>
@@ -536,6 +539,7 @@ void budget::load_pages(httplib::Server& server) {
 
     server.Get("/asset_values/list/", &list_asset_values_page);
     server.Get("/asset_values/add/", &add_asset_values_page);
+    server.Get("/asset_values/add/liability/", &add_asset_values_liability_page);
     server.Get("/asset_values/batch/full/", &full_batch_asset_values_page);
     server.Get("/asset_values/batch/current/", &current_batch_asset_values_page);
     server.Get("/asset_values/edit/", &edit_asset_values_page);
@@ -726,7 +730,7 @@ void budget::page_form_begin(budget::writer& w, const std::string& action) {
 }
 
 void budget::form_begin_edit(budget::writer& w, const std::string& action, const std::string& back_page, const std::string& input_id) {
-    form_begin(w, action, back_page);
+    form_begin(w, action, html_base64_decode(back_page));
 
     w << R"=====(<input type="hidden" name="input_id" value=")=====";
     w << input_id;
@@ -1012,6 +1016,28 @@ void budget::add_value_asset_picker(budget::writer& w, const std::string& defaul
     w << R"=====(
                 </select>
             </div>
+    )=====";
+}
+
+void budget::add_liability_picker(budget::writer& w, const std::string& default_value) {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_asset">Liability</label>
+                <select class="form-control" id="input_asset" name="input_asset">
+    )=====";
+
+    for (auto& liability : all_liabilities()) {
+        if (budget::to_string(liability.id) == default_value) {
+            w << "<option selected value=\"" << liability.id << "\">" << liability.name << "</option>";
+        } else {
+            w << "<option value=\"" << liability.id << "\">" << liability.name << "</option>";
+        }
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+            <input type="hidden" name="input_liability" value="true" />
     )=====";
 }
 

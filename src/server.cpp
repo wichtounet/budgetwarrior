@@ -18,6 +18,7 @@
 #include "accounts.hpp"
 #include "incomes.hpp"
 #include "assets.hpp"
+#include "liabilities.hpp"
 #include "config.hpp"
 #include "objectives.hpp"
 #include "wishes.hpp"
@@ -145,6 +146,7 @@ void budget::server_module::load(){
     load_expenses();
     load_earnings();
     load_assets();
+    load_liabilities();
     load_objectives();
     load_wishes();
     load_fortunes();
