@@ -27,6 +27,7 @@
 #include "pages/asset_values_pages.hpp"
 #include "pages/asset_shares_pages.hpp"
 #include "pages/asset_classes_pages.hpp"
+#include "pages/liabilities_pages.hpp"
 #include "pages/fortunes_pages.hpp"
 #include "pages/wishes_pages.hpp"
 #include "pages/index_pages.hpp"
@@ -241,6 +242,9 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/asset_values/add/">Set One Asset Value</a>
                   <a class="dropdown-item" href="/asset_shares/list/">Asset Shares</a>
                   <a class="dropdown-item" href="/asset_shares/add/">Add Asset Share</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="/liabilities/">Liabilities</a>
+                  <a class="dropdown-item" href="/liabilities/add/">Add Liability</a>
                   <a class="dropdown-item" href="/asset_classes/list/">Asset Classes</a>
                   <a class="dropdown-item" href="/asset_classes/add/">Add Asset Class</a>
                 </div>
@@ -543,6 +547,11 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/asset_classes/list/", &list_asset_classes_page);
     server.Get("/asset_classes/add/", &add_asset_classes_page);
     server.Get("/asset_classes/edit/", &edit_asset_classes_page);
+
+    server.Get("/liabilities/", &list_liabilities_page);
+    server.Get("/liabilities/list/", &list_liabilities_page);
+    server.Get("/liabilities/add/", &add_liabilities_page);
+    server.Get("/liabilities/edit/", &edit_liabilities_page);
 
     server.Get("/objectives/list/", &list_objectives_page);
     server.Get("/objectives/status/", &status_objectives_page);

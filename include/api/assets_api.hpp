@@ -34,6 +34,11 @@ void edit_asset_classes_api(const httplib::Request& req, httplib::Response& res)
 void delete_asset_classes_api(const httplib::Request& req, httplib::Response& res);
 void list_asset_classes_api(const httplib::Request& req, httplib::Response& res);
 
+void add_liabilities_api(const httplib::Request& req, httplib::Response& res);
+void edit_liabilities_api(const httplib::Request& req, httplib::Response& res);
+void delete_liabilities_api(const httplib::Request& req, httplib::Response& res);
+void list_liabilities_api(const httplib::Request& req, httplib::Response& res);
+
 void batch_asset_values_api(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget

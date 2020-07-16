@@ -11,6 +11,7 @@
 #include "api/assets_api.hpp"
 
 #include "assets.hpp"
+#include "liabilities.hpp"
 #include "accounts.hpp"
 #include "guid.hpp"
 #include "http.hpp"
@@ -432,6 +433,91 @@ void budget::list_asset_classes_api(const httplib::Request& req, httplib::Respon
 
     for (auto& asset_class : all_asset_classes()) {
         ss << asset_class;
+        ss << std::endl;
+    }
+
+    api_success_content(req, res, ss.str());
+}
+
+// Liabilities
+
+void budget::add_liabilities_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_name", "input_currency"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    liability liability;
+    liability.guid     = budget::generate_guid();
+    liability.name     = req.get_param_value("input_name");
+    liability.currency = req.get_param_value("input_currency");
+
+    add_liability(liability);
+
+    api_success(req, res, "Liability " + to_string(liability.id) + " has been created", to_string(liability.id));
+}
+
+void budget::edit_liabilities_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_id", "input_name", "input_currency"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.get_param_value("input_id");
+
+    if (!budget::liability_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "Liability " + id + " does not exist");
+        return;
+    }
+
+    liability& liability = get_liability(budget::to_number<size_t>(id));
+    liability.name       = req.get_param_value("input_name");
+    liability.currency   = req.get_param_value("input_currency");
+
+    set_liabilities_changed();
+
+    api_success(req, res, "Liability " + to_string(liability.id) + " has been modified");
+}
+
+void budget::delete_liabilities_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    if (!parameters_present(req, {"input_id"})) {
+        api_error(req, res, "Invalid parameters");
+        return;
+    }
+
+    auto id = req.get_param_value("input_id");
+
+    if (!budget::liability_exists(budget::to_number<size_t>(id))) {
+        api_error(req, res, "The Liability " + id + " does not exit");
+        return;
+    }
+
+    budget::liability_delete(budget::to_number<size_t>(id));
+
+    api_success(req, res, "The liability " + id + " has been deleted");
+}
+
+void budget::list_liabilities_api(const httplib::Request& req, httplib::Response& res) {
+    if (!api_start(req, res)) {
+        return;
+    }
+
+    std::stringstream ss;
+
+    for (auto& liability : all_liabilities()) {
+        ss << liability;
         ss << std::endl;
     }
 
