@@ -975,7 +975,8 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         std::map<std::string, budget::money> classes;
 
-        budget::money total;
+        budget::money assets_total;
+        budget::money liabilities_total;
 
         for(auto& asset : all_user_assets()){
             auto amount = get_asset_value(asset);
@@ -1008,7 +1009,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
                 contents.emplace_back(std::move(line));
 
-                total += amount * exchange_rate(asset.currency);
+                assets_total += amount * exchange_rate(asset.currency);
             }
         }
 
@@ -1027,7 +1028,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
                 }
             }
 
-            line.emplace_back(budget::to_string(total));
+            line.emplace_back(budget::to_string(assets_total));
             line.emplace_back(budget::get_default_currency());
 
             contents.emplace_back(std::move(line));
@@ -1043,7 +1044,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             for (auto& clas : all_asset_classes()) {
                 if (classes.count(clas.name)) {
                     auto amount = classes[clas.name];
-                    line.emplace_back(budget::to_string_precision(100 * amount.dollars() / (double) total.dollars(), 2));
+                    line.emplace_back(budget::to_string_precision(100 * amount.dollars() / (double) assets_total.dollars(), 2));
                 } else {
                     line.emplace_back("0");
                 }
@@ -1070,19 +1071,19 @@ void budget::show_asset_values(budget::writer& w, bool liability){
                 auto desired_alloc = get_asset_class_allocation(desired, clas);
 
                 line1.emplace_back(to_string(desired_alloc));
-                line2.emplace_back(to_string(total * (float(desired_alloc) / 100.0)));
+                line2.emplace_back(to_string(assets_total * (float(desired_alloc) / 100.0)));
 
                 if (classes.count(clas.name)) {
-                    line3.emplace_back(to_string(total * (float(desired_alloc) / 100.0) - classes[clas.name]));
+                    line3.emplace_back(to_string(assets_total * (float(desired_alloc) / 100.0) - classes[clas.name]));
                 } else {
-                    line3.emplace_back(to_string(total * (float(desired_alloc) / 100.0)));
+                    line3.emplace_back(to_string(assets_total * (float(desired_alloc) / 100.0)));
                 }
             }
 
             line1.emplace_back("100");
             line1.emplace_back("");
 
-            line2.emplace_back(to_string(total));
+            line2.emplace_back(to_string(assets_total));
             line2.emplace_back(get_default_currency());
 
             line3.emplace_back("0.00");
@@ -1093,14 +1094,52 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             contents.emplace_back(std::move(line3));
         }
 
+        if (all_liabilities().size()) {
+            contents.emplace_back(columns.size(), "");
+
+            for (auto & liability : all_liabilities()) {
+                auto amount = get_liability_value(liability);
+
+                if (amount) {
+                    std::vector<std::string> line(columns.size(), "");
+                    line[0] = liability.name;
+                    line[line.size() - 2] = budget::to_string(amount);
+                    line[line.size() - 1] = liability.currency;
+                    contents.emplace_back(std::move(line));
+
+                    liabilities_total += amount * exchange_rate(liability.currency);
+                }
+            }
+        }
+
         {
             contents.emplace_back(columns.size(), "");
         }
 
         {
             std::vector<std::string> line(columns.size(), "");
+            line[0] = "Assets";
+            line[line.size() - 2] = budget::to_string(assets_total);
+            line[line.size() - 1] = get_default_currency();
+            contents.emplace_back(std::move(line));
+
+        }
+
+        {
+            std::vector<std::string> line(columns.size(), "");
+            line[0] = "Liabilities";
+            line[line.size() - 2] = budget::to_string(liabilities_total);
+            line[line.size() - 1] = get_default_currency();
+            contents.emplace_back(std::move(line));
+
+        }
+
+        budget::money net_worth = assets_total - liabilities_total;
+
+        {
+            std::vector<std::string> line(columns.size(), "");
             line[0] = "Net Worth";
-            line[line.size() - 2] = budget::to_string(total);
+            line[line.size() - 2] = budget::to_string(net_worth);
             line[line.size() - 1] = get_default_currency();
             contents.emplace_back(std::move(line));
 
