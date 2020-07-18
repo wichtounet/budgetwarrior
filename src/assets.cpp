@@ -13,6 +13,7 @@
 #include <random>
 
 #include "assets.hpp"
+#include "liabilities.hpp"
 #include "budget_exception.hpp"
 #include "args.hpp"
 #include "data.hpp"
@@ -1242,6 +1243,10 @@ budget::money budget::get_net_worth(budget::date d){
 
     for (auto & asset : all_user_assets()) {
         total += get_asset_value_conv(asset, d);
+    }
+
+    for (auto & asset : all_liabilities()) {
+        total -= get_liability_value_conv(asset, d);
     }
 
     return total;
