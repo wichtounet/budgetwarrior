@@ -10,6 +10,7 @@
 #include "cpp_utils/assert.hpp"
 
 #include "assets.hpp"
+#include "liabilities.hpp"
 
 #include "writer.hpp"
 #include "pages/net_worth_pages.hpp"
@@ -250,12 +251,12 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
         return;
     }
 
-    auto current_net_worth   = get_net_worth();
-    auto now                 = budget::local_day();
-    auto y_net_worth = get_net_worth({now.year(), 1, 1});
-    auto m_net_worth = get_net_worth(now - days(now.day() - 1));
-    auto ytd_growth          = 100.0 * ((1 / (y_net_worth / current_net_worth)) - 1);
-    auto mtd_growth          = 100.0 * ((1 / (m_net_worth / current_net_worth)) - 1);
+    auto current_net_worth = get_net_worth();
+    auto now               = budget::local_day();
+    auto y_net_worth       = get_net_worth({now.year(), 1, 1});
+    auto m_net_worth       = get_net_worth(now - days(now.day() - 1));
+    auto ytd_growth        = 100.0 * ((1 / (y_net_worth / current_net_worth)) - 1);
+    auto mtd_growth        = 100.0 * ((1 / (m_net_worth / current_net_worth)) - 1);
 
     if (card) {
         w << R"=====(<div class="card">)=====";
@@ -297,6 +298,10 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
 
         for (auto & asset : all_user_assets()) {
             sum += get_asset_value_conv(asset, date);
+        }
+
+        for (auto & asset : all_liabilities()) {
+            sum -= get_liability_value_conv(asset, date);
         }
 
         ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
