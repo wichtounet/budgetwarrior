@@ -1256,8 +1256,13 @@ budget::money budget::get_net_worth_cash(){
     budget::money total;
 
     for (auto & asset : all_user_assets()) {
-        if (asset.cash == budget::money(100)) {
-            total += get_asset_value_conv(asset);
+        for (auto [clas_id, alloc] : asset.classes) {
+            if (alloc == budget::money(100)) {
+                auto & name = get_asset_class(clas_id).name;
+                if (name == "cash" || name == "Cash") {
+                    total += get_asset_value_conv(asset);
+                }
+            }
         }
     }
 
