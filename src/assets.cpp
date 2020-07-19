@@ -68,8 +68,8 @@ std::map<std::string, std::string> budget::asset::get_params(){
     params["input_ticker"]          = ticker;
 
     // The asset classes allocation
-    for (auto & clas : classes) {
-        params["input_class_" + to_string(clas.first)] = budget::to_string(clas.second);
+    for (auto & [clas_id, alloc] : classes) {
+        params["input_class_" + to_string(clas_id)] = budget::to_string(alloc);
     }
 
     return params;
@@ -625,8 +625,8 @@ void budget::migrate_assets_5_to_6(){
 std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
     std::string classes;
 
-    for (auto& allocation : asset.classes) {
-        classes += budget::to_string(allocation.first) + ";" + budget::to_string(allocation.second) + ";";
+    for (auto& [clas_id, alloc] : asset.classes) {
+        classes += budget::to_string(clas_id) + ";" + budget::to_string(alloc) + ";";
     }
 
     if (classes.empty()) {
@@ -789,9 +789,9 @@ void budget::show_assets(budget::writer& w){
         for (auto& clas : all_asset_classes()) {
             bool found = false;
 
-            for (auto& c : asset.classes) {
-                if (c.first == clas.id) {
-                    line.emplace_back(to_string(c.second));
+            for (auto& [class_id, alloc] : asset.classes) {
+                if (class_id == clas.id) {
+                    line.emplace_back(to_string(alloc));
                     found = true;
                     break;
                 }
@@ -990,9 +990,9 @@ void budget::show_asset_values(budget::writer& w, bool liability){
                 for (auto& clas : all_asset_classes()) {
                     bool found = false;
 
-                    for (auto& c : asset.classes) {
-                        if (c.first == clas.id) {
-                            auto class_amount = amount  * (float(c.second) / 100.0);
+                    for (auto& [class_id, alloc] : asset.classes) {
+                        if (class_id == clas.id) {
+                            auto class_amount = amount  * (float(alloc) / 100.0);
                             line.emplace_back(to_string(class_amount));
                             classes[clas.name] += class_amount * exchange_rate(asset.currency);
                             found = true;
@@ -1256,13 +1256,8 @@ budget::money budget::get_net_worth_cash(){
     budget::money total;
 
     for (auto & asset : all_user_assets()) {
-        for (auto [clas_id, alloc] : asset.classes) {
-            if (alloc == budget::money(100)) {
-                auto & name = get_asset_class(clas_id).name;
-                if (name == "cash" || name == "Cash") {
-                    total += get_asset_value_conv(asset);
-                }
-            }
+        if (asset.is_cash()) {
+            total += get_asset_value_conv(asset);
         }
     }
 

@@ -849,9 +849,9 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
     current_ss << "var current_pie_colors = (function () {";
     current_ss << "var colors = [];";
 
-    for (auto& asset_amount : asset_amounts) {
-        if (asset_amount.second) {
-            current_ss << "colors.push(current_base_colors[" << colors[asset_amount.first] << "]);";
+    for (auto& [asset_id, amount] : asset_amounts) {
+        if (amount) {
+            current_ss << "colors.push(current_base_colors[" << colors[asset_id] << "]);";
         }
     }
 
@@ -871,11 +871,9 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
 
     budget::money sum;
 
-    for (auto& asset_amount : asset_amounts) {
-        auto amount = asset_amount.second;
-
+    for (auto& [asset_id, amount] : asset_amounts) {
         if (amount) {
-            auto& asset      = get_asset(asset_amount.first);
+            auto& asset      = get_asset(asset_id);
             auto conv_amount = amount * exchange_rate(asset.currency);
 
             ss << "{ name: '" << asset.name << "',";

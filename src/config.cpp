@@ -72,8 +72,8 @@ bool load_configuration(const std::string& path, config_type& configuration){
 void save_configuration(const std::string& path, const config_type& configuration){
     std::ofstream file(path);
 
-    for(auto& entry : configuration){
-        file << entry.first << "=" << entry.second << std::endl;
+    for(auto& [key, value] : configuration){
+        file << key << "=" << value << std::endl;
     }
 }
 

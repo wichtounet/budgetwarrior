@@ -33,8 +33,6 @@ std::string exec_command(const std::string& command) {
 
 } //end of anonymous namespace
 
-constexpr const std::array<std::pair<const char*, const char*>, 1> budget::module_traits<budget::versioning_module>::aliases;
-
 void budget::versioning_module::handle(const std::vector<std::string>& args){
     // versioning does not make sense in server mode
     if (is_server_mode()) {

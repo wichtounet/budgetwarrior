@@ -142,11 +142,9 @@ void budget::save_currency_cache() {
         return;
     }
 
-    for (auto & pair : exchanges) {
-        if (pair.second != 1.0) {
-            auto& key = pair.first;
-
-            file << key.date << ':' << key.from << ':' << key.to << ':' << pair.second << std::endl;
+    for (auto & [key, value] : exchanges) {
+        if (value != 1.0) {
+            file << key.date << ':' << key.from << ':' << key.to << ':' << value << std::endl;
         }
     }
 

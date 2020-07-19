@@ -36,8 +36,8 @@ budget::money monthly_income(budget::month month, budget::year year) {
 
     budget::money total = get_base_income();
 
-    for (auto& sum : account_sum) {
-        total += sum.second;
+    for (auto& [id, sum] : account_sum) {
+        total += sum;
     }
 
     return total;
@@ -54,8 +54,8 @@ budget::money monthly_spending(budget::month month, budget::year year) {
 
     budget::money total;
 
-    for (auto& sum : account_sum) {
-        total += sum.second;
+    for (auto& [id, sum] : account_sum) {
+        total += sum;
     }
 
     return total;

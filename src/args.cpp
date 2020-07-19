@@ -21,9 +21,9 @@ std::vector<std::string> budget::parse_args(int argc, const char* argv[], const 
         if(i == 0){
             bool found_alias = false;
 
-            for(auto& alias : aliases){
-                if(alias.first == arg){
-                    auto parts = split(alias.second, ' ');
+            for(auto& [alias_source, alias_target] : aliases){
+                if(alias_source == arg){
+                    auto parts = split(alias_target, ' ');
 
                     std::copy(parts.begin(), parts.end(), std::back_inserter(args));
 

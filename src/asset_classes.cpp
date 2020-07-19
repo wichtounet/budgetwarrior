@@ -145,9 +145,9 @@ size_t budget::add_asset_class(budget::asset_class& asset){
 }
 
 void budget::update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc) {
-    for (auto & c : asset.classes) {
-        if (c.first == clas.id) {
-            c.second = alloc;
+    for (auto & [class_id, class_alloc] : asset.classes) {
+        if (class_id == clas.id) {
+            class_alloc = alloc;
             return;
         }
     }
@@ -156,9 +156,9 @@ void budget::update_asset_class_allocation(budget::asset& asset, budget::asset_c
 }
 
 budget::money budget::get_asset_class_allocation(budget::asset& asset, budget::asset_class & clas) {
-    for (auto & c : asset.classes) {
-        if (c.first == clas.id) {
-            return c.second;
+    for (auto & [class_id, class_alloc] : asset.classes) {
+        if (class_id == clas.id) {
+            return class_alloc;
         }
     }
 

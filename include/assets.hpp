@@ -66,21 +66,21 @@ struct asset {
     money total_allocation() const {
         money total;
 
-        for (auto& clas : classes) {
-            total += clas.second;
+        for (auto& [class_id, alloc] : classes) {
+            total += alloc;
         }
 
         return total;
     }
 
     bool is_cash() const {
-        for (auto& clas : classes) {
-            if (get_asset_class(clas.first).name == "cash") {
-                return clas.second == budget::money(100);
+        for (auto& [class_id, alloc] : classes) {
+            if (get_asset_class(class_id).name == "cash") {
+                return alloc == budget::money(100);
             }
 
-            if (get_asset_class(clas.first).name == "Cash") {
-                return clas.second == budget::money(100);
+            if (get_asset_class(class_id).name == "Cash") {
+                return alloc == budget::money(100);
             }
         }
 

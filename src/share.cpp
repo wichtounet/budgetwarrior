@@ -248,11 +248,9 @@ void budget::save_share_price_cache() {
         return;
     }
 
-    for (auto & pair : share_prices) {
-        if (pair.second != 1.0) {
-            auto& key = pair.first;
-
-            file << budget::date_to_string(key.date) << ':' << key.ticker << ':' << pair.second << std::endl;
+    for (auto & [key, value] : share_prices) {
+        if (value != 1.0) {
+            file << budget::date_to_string(key.date) << ':' << key.ticker << ':' << value << std::endl;
         }
     }
 
@@ -264,16 +262,12 @@ void budget::save_share_price_cache() {
 
 void budget::refresh_share_price_cache(){
     // Refresh the prices for each value
-    for (auto& pair : share_prices) {
-        auto& key = pair.first;
-
+    for (auto & [key, value] : share_prices) {
         share_prices[key] = get_share_price_v2(key.ticker, key.date);
     }
 
     // Prefetch the current prices
-    for (auto & pair : share_prices) {
-        auto& key = pair.first;
-
+    for (auto & [key, value] : share_prices) {
         share_price(key.ticker);
     }
 
@@ -287,8 +281,8 @@ void budget::prefetch_share_price_cache(){
     std::set<std::string> tickers;
 
     // Collect all the tickers
-    for (auto & pair : share_prices) {
-        tickers.insert(pair.first.ticker);
+    for (auto & [key, value] : share_prices) {
+        tickers.insert(key.ticker);
     }
 
     // Prefetch the current prices

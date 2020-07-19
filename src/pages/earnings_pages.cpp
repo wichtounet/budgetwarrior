@@ -61,13 +61,13 @@ void budget::month_breakdown_income_graph(budget::html_writer& w, const std::str
         ss << "},";
     }
 
-    for (auto& sum : account_sum) {
+    for (auto& [id, amount] : account_sum) {
         ss << "{";
-        ss << "name: '" << get_account(sum.first).name << "',";
-        ss << "y: " << budget::to_flat_string(sum.second);
+        ss << "name: '" << get_account(id).name << "',";
+        ss << "y: " << budget::to_flat_string(amount);
         ss << "},";
 
-        total += sum.second;
+        total += amount;
     }
 
     ss << "]},";

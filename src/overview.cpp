@@ -268,23 +268,23 @@ void aggregate_overview(Data & data, budget::writer& w, bool full, bool disable_
         typedef std::pair<std::string, budget::money> s_items;
         std::vector<s_items> sorted_data;
 
-        for(auto& data : items){
-            sorted_data.push_back(std::make_pair(data.first, data.second));
+        for(auto& [name, amount] : items){
+            sorted_data.push_back(std::make_pair(name, amount));
         }
 
         std::sort(sorted_data.begin(), sorted_data.end(),
             [](const s_items& a, const s_items& b){ return a.second > b.second; });
 
-        for(auto& data : sorted_data){
+        for(auto& [name, amount] : sorted_data){
             if(contents.size() <= row){
                 contents.emplace_back(acc_data.size() * 2, "");
             }
 
-            contents[row][column * 2] = data.first;
-            contents[row][column * 2 + 1] = to_string(data.second);
+            contents[row][column * 2] = name;
+            contents[row][column * 2 + 1] = to_string(amount);
 
-            totals[account.name] += data.second;
-            total += data.second;
+            totals[account.name] += amount;
+            total += amount;
 
             ++row;
         }

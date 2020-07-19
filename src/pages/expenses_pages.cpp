@@ -54,13 +54,13 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
 
     budget::money total;
 
-    for (auto& sum : account_sum) {
+    for (auto& [id, amount] : account_sum) {
         ss << "{";
-        ss << "name: '" << get_account(sum.first).name << "',";
-        ss << "y: " << budget::to_flat_string(sum.second);
+        ss << "name: '" << get_account(id).name << "',";
+        ss << "y: " << budget::to_flat_string(amount);
         ss << "},";
 
-        total += sum.second;
+        total += amount;
     }
 
     ss << "]},";
@@ -330,10 +330,10 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
         account_sum[get_account(expense.account).name] += expense.amount;
     }
 
-    for (auto& sum : account_sum) {
+    for (auto& [name, amount] : account_sum) {
         ss << "{";
-        ss << "name: '" << sum.first << "',";
-        ss << "y: " << budget::to_flat_string(sum.second);
+        ss << "name: '" << name << "',";
+        ss << "y: " << budget::to_flat_string(amount);
         ss << "},";
     }
 

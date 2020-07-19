@@ -79,13 +79,13 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
     std::string api_complete = "/api" + api;
 
     std::string query;
-    for (auto it = params.begin(); it != params.end(); ++it) {
-        if (it != params.begin()) {
+    for (auto & [key, value] : params) {
+        if (!query.empty()) {
             query += "&";
         }
-        query += it->first;
+        query += key;
         query += "=";
-        query += it->second;
+        query += value;
     }
 
     // Add some form of identification
