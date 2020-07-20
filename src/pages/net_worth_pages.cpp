@@ -573,6 +573,12 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
                 }
             }
 
+            for (auto & liability : all_liabilities()) {
+                if (liability.currency == currency) {
+                    sum -= get_liability_value_conv(liability, date);
+                }
+            }
+
             ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
 
             date += days(1);
@@ -592,6 +598,10 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
 
         for (auto & asset : all_user_assets()) {
             net_worth += get_asset_value_conv(asset, currency);
+        }
+
+        for (auto & liability : all_liabilities()) {
+            net_worth -= get_liability_value_conv(liability, currency);
         }
 
         w << p_begin << "Net worth in " << currency << " : " << net_worth << " " << currency << p_end;
