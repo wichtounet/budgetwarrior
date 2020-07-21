@@ -69,5 +69,8 @@ void end_chart(budget::html_writer& w, std::stringstream& ss);
 void add_average_12_serie(std::stringstream& ss,
                          std::vector<budget::money> serie,
                          std::vector<std::string> dates);
+void add_average_5_serie(std::stringstream& ss,
+                         std::vector<budget::money> serie,
+                         std::vector<std::string> dates);
 
 } //end of namespace budget

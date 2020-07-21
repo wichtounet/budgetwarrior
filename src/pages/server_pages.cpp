@@ -952,6 +952,31 @@ void budget::add_average_12_serie(std::stringstream& ss,
     ss << "]},";
 }
 
+void budget::add_average_5_serie(std::stringstream& ss,
+                                 std::vector<budget::money> serie,
+                                 std::vector<std::string> dates) {
+    ss << "{ name: '5 year average',";
+    ss << "data: [";
+
+    std::array<budget::money, 5> average_5;
+
+    for (size_t i = 0; i < serie.size(); ++i) {
+        average_5[i % 5] = serie[i];
+
+        auto average = std::accumulate(average_5.begin(), average_5.end(), budget::money());
+
+        if (i < 5) {
+            average = average / int(i + 1);
+        } else {
+            average = average / 5;
+        }
+
+        ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
+    }
+
+    ss << "]},";
+}
+
 void budget::add_account_picker(budget::writer& w, budget::date day, const std::string& default_value) {
     w << R"=====(
             <div class="form-group">

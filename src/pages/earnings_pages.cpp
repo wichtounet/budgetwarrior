@@ -103,57 +103,115 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
 
     budget::html_writer w(content_stream);
 
-    auto ss = start_time_chart(w, "Income over time", "line", "income_time_graph", "");
+    {
+        auto ss = start_time_chart(w, "Income over time", "line", "income_time_graph", "");
 
-    ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
-    ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Income' }},)=====";
-    ss << R"=====(legend: { enabled: false },)=====";
+        ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+        ss << R"=====(yAxis: { min: 0, title: { text: 'Monthly Income' }},)=====";
+        ss << R"=====(legend: { enabled: false },)=====";
 
-    ss << "series: [";
+        ss << "series: [";
 
-    ss << "{ name: 'Monthly income',";
-    ss << "data: [";
+        ss << "{ name: 'Monthly income',";
+        ss << "data: [";
 
-    std::vector<budget::money> serie;
-    std::vector<std::string> dates;
+        std::vector<budget::money> serie;
+        std::vector<std::string> dates;
 
-    auto sy = start_year();
+        auto sy = start_year();
 
-    for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
-        budget::year year = j;
+        for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
+            budget::year year = j;
 
-        auto sm = start_month(year);
-        auto last = 13;
+            auto sm = start_month(year);
+            auto last = 13;
 
-        if(year == budget::local_day().year()){
-            last = budget::local_day().month() + 1;
-        }
-
-        for(unsigned short i = sm; i < last; ++i){
-            budget::month month = i;
-
-            budget::money sum = get_base_income(budget::date(year, month, 2));
-
-            for (auto& earning : all_earnings_month(year, month)) {
-                sum += earning.amount;
+            if(year == budget::local_day().year()){
+                last = budget::local_day().month() + 1;
             }
 
-            std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(month.value - 1) + ", 1)";
+            for(unsigned short i = sm; i < last; ++i){
+                budget::month month = i;
+
+                budget::money sum = get_base_income(budget::date(year, month, 2));
+
+                for (auto& earning : all_earnings_month(year, month)) {
+                    sum += earning.amount;
+                }
+
+                std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(month.value - 1) + ", 1)";
+
+                serie.push_back(sum);
+                dates.push_back(date);
+
+                ss << "[" << date <<  "," << budget::to_flat_string(sum) << "],";
+            }
+        }
+
+        ss << "]},";
+
+        add_average_12_serie(ss, serie, dates);
+
+        ss << "]";
+
+        end_chart(w, ss);
+    }
+
+    {
+        auto ss = start_time_chart(w, "Annual Income over time", "line", "annual_income_time_graph", "");
+
+        ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";
+        ss << R"=====(yAxis: { min: 0, title: { text: 'Yearly Income' }},)=====";
+        ss << R"=====(legend: { enabled: false },)=====";
+
+        ss << "series: [";
+
+        ss << "{ name: 'Yearly income',";
+        ss << "data: [";
+
+        std::vector<budget::money> serie;
+        std::vector<std::string> dates;
+
+        auto sy = start_year();
+
+        for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
+            budget::year year = j;
+
+            auto sm = start_month(year);
+            auto last = 13;
+
+            if (year == budget::local_day().year()) {
+                last = budget::local_day().month() + 1;
+            }
+
+            budget::money sum;
+
+            for (unsigned short i = sm; i < last; ++i) {
+                budget::month month = i;
+
+                sum += get_base_income(budget::date(year, month, 2));
+
+                for (auto& earning : all_earnings_month(year, month)) {
+                    sum += earning.amount;
+                }
+            }
+
+            std::string date = "Date.UTC(" + std::to_string(year) + "," + std::to_string(1) + ", 1)";
 
             serie.push_back(sum);
             dates.push_back(date);
 
             ss << "[" << date <<  "," << budget::to_flat_string(sum) << "],";
         }
+
+        ss << "]},";
+
+        add_average_5_serie(ss, serie, dates);
+
+        ss << "]";
+
+        end_chart(w, ss);
     }
-
-    ss << "]},";
-
-    add_average_12_serie(ss, serie, dates);
-
-    ss << "]";
-
-    end_chart(w, ss);
 
     page_end(w, req, res);
 }
