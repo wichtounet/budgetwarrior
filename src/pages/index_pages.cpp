@@ -120,6 +120,8 @@ void budget::index_page(const httplib::Request& req, httplib::Response& res) {
 
         assets_card(w);
 
+        liabilities_card(w);
+
         w << R"=====(</div>)====="; // left column
 
         // B. The right column

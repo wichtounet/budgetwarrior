@@ -130,6 +130,48 @@ void budget::assets_card(budget::html_writer& w){
     w << R"=====(</div>)====="; //card
 }
 
+void budget::liabilities_card(budget::html_writer& w){
+    w << R"=====(<div class="card">)=====";
+
+    w << R"=====(<div class="card-header card-header-primary">)=====";
+    w << R"=====(<div>Liabilities</div>)=====";
+    w << R"=====(</div>)====="; // card-header
+
+    w << R"=====(<div class="card-body">)=====";
+
+    std::string separator = "/";
+    if (budget::config_contains("aggregate_separator")) {
+        separator = budget::config_value("aggregate_separator");
+    }
+
+    bool first = true;
+
+    for (auto& liability : all_liabilities()) {
+        auto amount = get_liability_value(liability);
+
+        if (amount) {
+            if (!first) {
+                w << R"=====(<hr />)=====";
+            }
+
+            w << R"=====(<div class="row">)=====";
+            w << R"=====(<div class="col-md-8 col-xl-9 small">)=====";
+            w << liability.name;
+            w << R"=====(</div>)=====";
+            w << R"=====(<div class="col-md-4 col-xl-3 text-right small">)=====";
+            w << budget::to_string(amount) << " " << liability.currency;
+            w << R"=====(<br />)=====";
+            w << R"=====(</div>)=====";
+            w << R"=====(</div>)=====";
+
+            first = false;
+        }
+    }
+
+    w << R"=====(</div>)====="; //card-body
+    w << R"=====(</div>)====="; //card
+}
+
 void budget::asset_graph_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Asset Graph")) {

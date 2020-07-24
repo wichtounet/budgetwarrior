@@ -15,6 +15,7 @@ struct asset;
 
 // Net Worth Pages
 void assets_card(budget::html_writer& w);
+void liabilities_card(budget::html_writer& w);
 void net_worth_graph(budget::html_writer& w, const std::string style = "", bool card = false);
 void net_worth_status_page(const httplib::Request& req, httplib::Response& res);
 void net_worth_small_status_page(const httplib::Request& req, httplib::Response& res);
