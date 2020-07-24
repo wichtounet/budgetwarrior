@@ -970,7 +970,7 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     second_contents.emplace_back(std::vector<std::string>{"Balance", budget::format_money(total_balance)});
     second_contents.emplace_back(std::vector<std::string>{"Local Balance", budget::format_money(total_local_balance)});
     second_contents.emplace_back(std::vector<std::string>{"Avg Local Balance", budget::format_money(avg_status.balance)});
-    second_contents.emplace_back(std::vector<std::string>{"Savings", budget::to_string(savings) + "%"});
+    second_contents.emplace_back(std::vector<std::string>{"Savings", budget::to_string(savings)});
     second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(savings_rate) + "%"});
 
     if (config_contains("taxes_account")) {
