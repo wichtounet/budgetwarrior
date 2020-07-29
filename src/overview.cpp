@@ -219,28 +219,32 @@ template<typename Data, typename Functor>
 void aggregate_overview(Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
     std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_data;
 
+    budget::money total;
+
     //Accumulate all the data
-    for(auto& data : data){
-        if(func(data)){
+    for (auto& data : data) {
+        if (func(data)) {
             auto name = data.name;
 
-            if(name[name.size() - 1] == ' '){
+            if (name[name.size() - 1] == ' ') {
                 name.erase(name.size() - 1, name.size());
             }
 
-            if(!disable_groups){
+            if (!disable_groups) {
                 auto loc = name.find(separator);
-                if(loc != std::string::npos){
+                if (loc != std::string::npos) {
                     name = name.substr(0, loc);
                 }
             }
 
-            if(full){
+            if (full) {
                 acc_data["All accounts"][name] += data.amount;
             } else {
                 auto& account = get_account(data.account);
                 acc_data[account.name][name] += data.amount;
             }
+
+            total += data.amount;
         }
     }
 
@@ -253,73 +257,56 @@ void aggregate_overview(Data & data, budget::writer& w, bool full, bool disable_
     }
 
     std::unordered_map<std::string, budget::money> totals;
-    budget::money total;
 
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& account : current_accounts()){
+    for (auto& account : current_accounts()) {
         auto& items = acc_data[account.name];
 
         auto column = columns.size();
         columns.push_back(account.name);
         size_t row = 0;
 
-        typedef std::pair<std::string, budget::money> s_items;
+        using s_items = std::pair<std::string, budget::money>;
         std::vector<s_items> sorted_data;
 
-        for(auto& [name, amount] : items){
+        for (auto& [name, amount] : items) {
             sorted_data.push_back(std::make_pair(name, amount));
         }
 
         std::sort(sorted_data.begin(), sorted_data.end(),
             [](const s_items& a, const s_items& b){ return a.second > b.second; });
 
-        for(auto& [name, amount] : sorted_data){
+        for (auto& [name, amount] : sorted_data) {
             if(contents.size() <= row){
-                contents.emplace_back(acc_data.size() * 2, "");
+                contents.emplace_back(acc_data.size() * 3, "");
             }
 
-            contents[row][column * 2] = name;
-            contents[row][column * 2 + 1] = to_string(amount);
+            contents[row][column * 3] = name;
+            contents[row][column * 3 + 1] = to_string(amount);
+            contents[row][column * 3 + 2] = to_string_precision(100.0 * (amount / total), 2) + "%";
 
             totals[account.name] += amount;
-            total += amount;
 
             ++row;
         }
     }
 
-    contents.emplace_back(acc_data.size() * 2, "");
-    contents.emplace_back(acc_data.size() * 2, "");
+    contents.emplace_back(acc_data.size() * 3, "");
+    contents.emplace_back(acc_data.size() * 3, "");
 
     size_t i = 0;
 
     contents.back()[i++] = "Total";
 
     for(auto& account : current_accounts()){
-        contents.back()[i++] = to_string(totals[account.name]);
-        i++;
+        contents.back()[i] = to_string(totals[account.name]);
+        contents.back()[i + 1] = to_string_precision(100.0 * (totals[account.name] / total), 2) + "%";
+        i += 3;
     }
 
-    contents.emplace_back(acc_data.size() * 2, "");
-
-    i = 0;
-
-    contents.back()[i++] = "Part";
-
-    for(auto& account : current_accounts()){
-        auto& amount = totals[account.name];
-        float part = 100.0 * (amount.value / float(total.value));
-
-        char buffer[32];
-        snprintf(buffer, 32, "%.2f%%", part);
-
-        contents.back()[i++] = buffer;
-        i++;
-    }
-
-    w.display_table(columns, contents, 2);
+    w.display_table(columns, contents, 3);
 }
 
 void add_month_columns(std::vector<std::string>& columns, budget::month sm){
