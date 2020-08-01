@@ -76,6 +76,29 @@ void budget::overview_aggregate_year_page(const httplib::Request& req, httplib::
     page_end(w, req, res);
 }
 
+void budget::overview_aggregate_year_month_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Overview Aggregate Per Month")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    // Configuration of the overview
+    bool full             = config_contains_and_true("aggregate_full");
+    bool disable_groups   = config_contains_and_true("aggregate_no_group");
+    std::string separator = config_value("aggregate_separator", "/");
+
+    if (req.matches.size() == 2) {
+        aggregate_year_month_overview(w, full, disable_groups, separator, to_number<size_t>(req.matches[1]));
+    } else {
+        auto today = budget::local_day();
+        aggregate_year_month_overview(w, full, disable_groups, separator, today.year());
+    }
+
+    page_end(w, req, res);
+}
+
 void budget::overview_aggregate_month_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Overview Aggregate")) {
