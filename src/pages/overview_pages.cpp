@@ -314,3 +314,24 @@ void budget::time_graph_tax_rate_page(const httplib::Request& req, httplib::Resp
         return;
     }
 }
+
+void budget::side_overview_page(const httplib::Request& req, httplib::Response& res) {
+    std::stringstream content_stream;
+    if (!page_start(req, res, content_stream, "Overview")) {
+        return;
+    }
+
+    budget::html_writer w(content_stream);
+
+    if(config_value("side_category", "").empty() || config_value("side_prefix", "").empty()) {
+        w << "Side hustle is not configured";
+    } else {
+        if (req.matches.size() == 3) {
+            display_side_month_overview(to_number<size_t>(req.matches[2]), to_number<size_t>(req.matches[1]), w);
+        } else {
+            display_side_month_overview(w);
+        }
+    }
+
+    page_end(w, req, res);
+}

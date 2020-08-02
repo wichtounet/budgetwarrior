@@ -201,6 +201,11 @@ std::string header(const std::string& title, bool menu = true) {
               </li>
         )=====";
 
+        std::cout << "side_category: " << config_value("side_category", "") << std::endl;
+        std::cout << "side_prefix: " << config_value("side_prefix", "") << std::endl;
+
+        bool side_hustle = !config_value("side_category", "").empty() && !config_value("side_prefix", "").empty();
+
         // Overview
 
         stream << R"=====(
@@ -213,6 +218,15 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/overview/aggregate/year_month/">Aggregate Year per month</a>
                   <a class="dropdown-item" href="/overview/aggregate/month/">Aggregate Month</a>
                   <a class="dropdown-item" href="/overview/aggregate/all/">Aggregate All</a>
+        )=====";
+
+        if (side_hustle) {
+            stream << R"=====(
+                  <a class="dropdown-item" href="/side_hustle/overview/">Side Hustle Overview Month</a>
+            )=====";
+        }
+
+        stream << R"=====(
                   <a class="dropdown-item" href="/report/">Report</a>
                   <a class="dropdown-item" href="/overview/savings/time/">Savings rate over time</a>
                   <a class="dropdown-item" href="/overview/tax/time/">Tax rate over time</a>
@@ -485,6 +499,12 @@ void budget::load_pages(httplib::Server& server) {
     server.Get("/overview/aggregate/all/", &overview_aggregate_all_page);
     server.Get("/overview/savings/time/", &time_graph_savings_rate_page);
     server.Get("/overview/tax/time/", &time_graph_tax_rate_page);
+
+    bool side_hustle = !config_value("side_category", "").empty() && !config_value("side_prefix", "").empty();
+    if (side_hustle) {
+        server.Get("/side_hustle/overview/", &side_overview_page);
+        server.Get(R"(/side_hustle/overview/(\d+)/(\d+)/)", &side_overview_page);
+    }
 
     server.Get("/report/", &report_page);
 

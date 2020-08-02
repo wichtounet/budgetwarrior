@@ -19,5 +19,6 @@ void overview_aggregate_month_page(const httplib::Request& req, httplib::Respons
 void overview_year_page(const httplib::Request& req, httplib::Response& res);
 void time_graph_savings_rate_page(const httplib::Request& req, httplib::Response& res);
 void time_graph_tax_rate_page(const httplib::Request& req, httplib::Response& res);
+void side_overview_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget
