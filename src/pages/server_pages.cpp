@@ -201,9 +201,6 @@ std::string header(const std::string& title, bool menu = true) {
               </li>
         )=====";
 
-        std::cout << "side_category: " << config_value("side_category", "") << std::endl;
-        std::cout << "side_prefix: " << config_value("side_prefix", "") << std::endl;
-
         bool side_hustle = !config_value("side_category", "").empty() && !config_value("side_prefix", "").empty();
 
         // Overview
