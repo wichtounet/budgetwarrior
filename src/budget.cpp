@@ -243,6 +243,17 @@ int main(int argc, const char* argv[]) {
     std::locale global_locale("");
     std::locale::global(global_locale);
 
+    //Collect all aliases
+    aliases_collector collector;
+    cpp::for_each_tuple_t<modules_tuple>(collector);
+
+    //Parse the command line args
+    auto args = parse_args(argc, argv, collector.aliases);
+
+    if(args.size() && args[0] == "server"){
+        set_server_running();
+    }
+
     if (!load_config()) {
         return 0;
     }
@@ -255,17 +266,6 @@ int main(int argc, const char* argv[]) {
 
     if (!has_enough_colors()) {
         std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
-    }
-
-    //Collect all aliases
-    aliases_collector collector;
-    cpp::for_each_tuple_t<modules_tuple>(collector);
-
-    //Parse the command line args
-    auto args = parse_args(argc, argv, collector.aliases);
-
-    if(args.size() && args[0] == "server"){
-        set_server_running();
     }
 
     // Restore the caches
