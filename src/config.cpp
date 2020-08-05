@@ -36,7 +36,7 @@ bool load_configuration(const std::string& path, config_type& configuration){
         std::ifstream file(path);
 
         if (is_server_running()) {
-            std::cout << "Load configuration from " << path << std::endl;
+            std::cout << "INFO: Load configuration from " << path << std::endl;
         }
 
         if (file.is_open() && file.good()) {
@@ -85,7 +85,7 @@ bool verify_folder(){
     auto folder_path = budget_folder();
 
     if (is_server_running()) {
-        std::cout << "Using " << folder_path << " as data directory" << std::endl; 
+        std::cout << "INFO: Using " << folder_path << " as data directory" << std::endl; 
     }
 
     if(!folder_exists(folder_path)){
