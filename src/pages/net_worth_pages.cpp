@@ -131,6 +131,10 @@ void budget::assets_card(budget::html_writer& w){
 }
 
 void budget::liabilities_card(budget::html_writer& w){
+    if (all_liabilities().empty()) {
+        return;
+    }
+
     w << R"=====(<div class="card">)=====";
 
     w << R"=====(<div class="card-header card-header-primary">)=====";
