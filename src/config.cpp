@@ -35,6 +35,10 @@ bool load_configuration(const std::string& path, config_type& configuration){
     if (file_exists(path)) {
         std::ifstream file(path);
 
+        if (is_server_running()) {
+            std::cout << "Load configuration from " << path << std::endl;
+        }
+
         if (file.is_open() && file.good()) {
             std::string line;
             while (file.good() && getline(file, line)) {
@@ -79,6 +83,10 @@ void save_configuration(const std::string& path, const config_type& configuratio
 
 bool verify_folder(){
     auto folder_path = budget_folder();
+
+    if (is_server_running()) {
+        std::cout << "Using " << folder_path << " as data directory" << std::endl; 
+    }
 
     if(!folder_exists(folder_path)){
         std::cout << "The folder " << folder_path << " does not exist. Would like to create it [yes/no] ? ";
