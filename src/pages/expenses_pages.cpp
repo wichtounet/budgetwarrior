@@ -32,7 +32,7 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
         )=====");
     }
 
-    // standard breakdown
+    // standard breakdown per category
     {
         auto ss = start_chart_base(w, "pie", "month_breakdown_expense_categories_graph", style);
 
@@ -89,7 +89,7 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
         end_chart(w, ss);
     }
 
-    // standard breakdown
+    // standard breakdown per expense
     if (!mono) {
         auto ss = start_chart_base(w, "pie", "month_breakdown_expenses_graph", style);
 
@@ -105,6 +105,73 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
 
         for (auto& expense : all_expenses_month(year, month)) {
             expense_sum[expense.name] += expense.amount;
+        }
+
+        std::vector<std::pair<std::string, budget::money>> sorted_expenses;
+
+        for (auto& [name, amount] : expense_sum) {
+            sorted_expenses.emplace_back(name, amount);
+        }
+
+        std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto& lhs, auto& rhs) {
+            return lhs.second > rhs.second;
+        });
+
+        if (sorted_expenses.size() > 20) {
+            sorted_expenses.resize(20);
+        }
+
+        budget::money total;
+
+        for (auto& [name, amount] : sorted_expenses) {
+            ss << "{";
+            ss << "name: '" << name << "',";
+            ss << "y: " << budget::to_flat_string(amount);
+            ss << "},";
+
+            total += amount;
+        }
+
+        ss << "]},";
+
+        ss << "],";
+
+        ss << R"=====(title: {text: ')=====";
+        ss << title;
+        ss << R"=====('},)=====";
+
+        end_chart(w, ss);
+    }
+
+    // standard breakdown per group
+    if (!mono) {
+        std::string separator = config_value("aggregate_separator", "/");
+
+        auto ss = start_chart_base(w, "pie", "month_breakdown_expenses_group_graph", style);
+
+        ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+
+        ss << "series: [";
+
+        ss << "{ name: 'Expenses',";
+        ss << "colorByPoint: true,";
+        ss << "data: [";
+
+        std::map<std::string, budget::money> expense_sum;
+
+        for (auto& expense : all_expenses_month(year, month)) {
+            auto name = expense.name;
+
+            if (name[name.size() - 1] == ' ') {
+                name.erase(name.size() - 1, name.size());
+            }
+
+            auto loc = name.find(separator);
+            if (loc != std::string::npos) {
+                name = name.substr(0, loc);
+            }
+
+            expense_sum[name] += expense.amount;
         }
 
         std::vector<std::pair<std::string, budget::money>> sorted_expenses;
