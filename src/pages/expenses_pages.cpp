@@ -312,9 +312,9 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
     budget::html_writer w(content_stream);
 
-    w << title_begin << "Expenses Breakdown of " << year << budget::year_selector{"expenses/breakdown/year", year} << title_end;
+    w << title_begin << "Expense Categories Breakdown of " << year << budget::year_selector{"expenses/breakdown/year", year} << title_end;
 
-    auto ss = start_chart(w, "Expenses Breakdown", "pie");
+    auto ss = start_chart(w, "Expense Categories Breakdown", "pie");
 
     ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
@@ -342,6 +342,49 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
     ss << "]";
 
     end_chart(w, ss);
+
+    auto breakdown_ss = start_chart(w, "Expenses Breakdown", "pie");
+
+    breakdown_ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+
+    breakdown_ss << "series: [";
+
+    breakdown_ss << "{ name: 'Expenses',";
+    breakdown_ss << "colorByPoint: true,";
+    breakdown_ss << "data: [";
+
+    std::map<std::string, budget::money> expense_sum;
+
+    for (auto& expense : all_expenses_year(year)) {
+        expense_sum[expense.name] += expense.amount;
+    }
+
+    std::vector<std::pair<std::string, budget::money>> sorted_expenses;
+
+    for (auto& [name, amount] : expense_sum) {
+        sorted_expenses.emplace_back(name, amount);
+    }
+
+    std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto & lhs, auto & rhs) {
+        return lhs.second > rhs.second;
+    });
+
+    if (sorted_expenses.size() > 20) {
+        sorted_expenses.resize(20);
+    }
+
+    for (auto& [name, amount] : sorted_expenses) {
+        breakdown_ss << "{";
+        breakdown_ss << "name: '" << name << "',";
+        breakdown_ss << "y: " << budget::to_flat_string(amount);
+        breakdown_ss << "},";
+    }
+
+    breakdown_ss << "]},";
+
+    breakdown_ss << "]";
+
+    end_chart(w, breakdown_ss);
 
     page_end(w, req, res);
 }
