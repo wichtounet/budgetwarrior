@@ -184,8 +184,8 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
             return lhs.second > rhs.second;
         });
 
-        if (sorted_expenses.size() > 20) {
-            sorted_expenses.resize(20);
+        if (sorted_expenses.size() > 15) {
+            sorted_expenses.resize(15);
         }
 
         budget::money total;
