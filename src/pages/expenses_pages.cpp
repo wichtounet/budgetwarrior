@@ -343,48 +343,108 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
     end_chart(w, ss);
 
-    auto breakdown_ss = start_chart(w, "Expenses Breakdown", "pie", "expenses_chart");
+    {
+        auto breakdown_ss = start_chart(w, "Expenses Breakdown", "pie", "expenses_chart");
 
-    breakdown_ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+        breakdown_ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    breakdown_ss << "series: [";
+        breakdown_ss << "series: [";
 
-    breakdown_ss << "{ name: 'Expenses',";
-    breakdown_ss << "colorByPoint: true,";
-    breakdown_ss << "data: [";
+        breakdown_ss << "{ name: 'Expenses',";
+        breakdown_ss << "colorByPoint: true,";
+        breakdown_ss << "data: [";
 
-    std::map<std::string, budget::money> expense_sum;
+        std::map<std::string, budget::money> expense_sum;
 
-    for (auto& expense : all_expenses_year(year)) {
-        expense_sum[expense.name] += expense.amount;
+        for (auto& expense : all_expenses_year(year)) {
+            expense_sum[expense.name] += expense.amount;
+        }
+
+        std::vector<std::pair<std::string, budget::money>> sorted_expenses;
+
+        for (auto& [name, amount] : expense_sum) {
+            sorted_expenses.emplace_back(name, amount);
+        }
+
+        std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto& lhs, auto& rhs) {
+            return lhs.second > rhs.second;
+        });
+
+        if (sorted_expenses.size() > 20) {
+            sorted_expenses.resize(20);
+        }
+
+        for (auto& [name, amount] : sorted_expenses) {
+            breakdown_ss << "{";
+            breakdown_ss << "name: '" << name << "',";
+            breakdown_ss << "y: " << budget::to_flat_string(amount);
+            breakdown_ss << "},";
+        }
+
+        breakdown_ss << "]},";
+
+        breakdown_ss << "]";
+
+        end_chart(w, breakdown_ss);
     }
 
-    std::vector<std::pair<std::string, budget::money>> sorted_expenses;
+    {
+        std::string separator = config_value("aggregate_separator", "/");
 
-    for (auto& [name, amount] : expense_sum) {
-        sorted_expenses.emplace_back(name, amount);
+        auto aggregate_ss = start_chart(w, "Aggregate Expenses Breakdown", "pie", "aggregate_pie");
+
+        aggregate_ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+
+        aggregate_ss << "series: [";
+
+        aggregate_ss << "{ name: 'Expenses',";
+        aggregate_ss << "colorByPoint: true,";
+        aggregate_ss << "data: [";
+
+        std::map<std::string, budget::money> expense_sum;
+
+        for (auto& expense : all_expenses_year(year)) {
+            auto name = expense.name;
+
+            if (name[name.size() - 1] == ' ') {
+                name.erase(name.size() - 1, name.size());
+            }
+
+            auto loc = name.find(separator);
+            if (loc != std::string::npos) {
+                name = name.substr(0, loc);
+            }
+
+            expense_sum[name] += expense.amount;
+        }
+
+        std::vector<std::pair<std::string, budget::money>> sorted_expenses;
+
+        for (auto& [name, amount] : expense_sum) {
+            sorted_expenses.emplace_back(name, amount);
+        }
+
+        std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto& lhs, auto& rhs) {
+            return lhs.second > rhs.second;
+        });
+
+        if (sorted_expenses.size() > 20) {
+            sorted_expenses.resize(20);
+        }
+
+        for (auto& [name, amount] : sorted_expenses) {
+            aggregate_ss << "{";
+            aggregate_ss << "name: '" << name << "',";
+            aggregate_ss << "y: " << budget::to_flat_string(amount);
+            aggregate_ss << "},";
+        }
+
+        aggregate_ss << "]},";
+
+        aggregate_ss << "]";
+
+        end_chart(w, aggregate_ss);
     }
-
-    std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto & lhs, auto & rhs) {
-        return lhs.second > rhs.second;
-    });
-
-    if (sorted_expenses.size() > 20) {
-        sorted_expenses.resize(20);
-    }
-
-    for (auto& [name, amount] : sorted_expenses) {
-        breakdown_ss << "{";
-        breakdown_ss << "name: '" << name << "',";
-        breakdown_ss << "y: " << budget::to_flat_string(amount);
-        breakdown_ss << "},";
-    }
-
-    breakdown_ss << "]},";
-
-    breakdown_ss << "]";
-
-    end_chart(w, breakdown_ss);
 
     page_end(w, req, res);
 }
