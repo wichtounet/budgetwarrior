@@ -314,39 +314,45 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
     w << title_begin << "Expense Categories Breakdown of " << year << budget::year_selector{"expenses/breakdown/year", year} << title_end;
 
-    auto ss = start_chart(w, "Expense Categories Breakdown", "pie", "category_pie");
+    {
+        auto ss = start_chart(w, "Expense Categories Breakdown", "pie", "category_pie");
 
-    ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+        ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+        ss << R"=====(accessibility: { point: { valueSuffix: '%' } },)=====";
+        ss << R"=====(plotOptions: { pie: { showInLegend: true } },)=====";
 
-    ss << "series: [";
+        ss << "series: [";
 
-    ss << "{ name: 'Expenses',";
-    ss << "colorByPoint: true,";
-    ss << "data: [";
+        ss << "{ name: 'Expenses',";
+        ss << "colorByPoint: true,";
+        ss << "data: [";
 
-    std::map<std::string, budget::money> account_sum;
+        std::map<std::string, budget::money> account_sum;
 
-    for (auto& expense : all_expenses_year(year)) {
-        account_sum[get_account(expense.account).name] += expense.amount;
+        for (auto& expense : all_expenses_year(year)) {
+            account_sum[get_account(expense.account).name] += expense.amount;
+        }
+
+        for (auto& [name, amount] : account_sum) {
+            ss << "{";
+            ss << "name: '" << name << "',";
+            ss << "y: " << budget::to_flat_string(amount);
+            ss << "},";
+        }
+
+        ss << "]},";
+
+        ss << "]";
+
+        end_chart(w, ss);
     }
-
-    for (auto& [name, amount] : account_sum) {
-        ss << "{";
-        ss << "name: '" << name << "',";
-        ss << "y: " << budget::to_flat_string(amount);
-        ss << "},";
-    }
-
-    ss << "]},";
-
-    ss << "]";
-
-    end_chart(w, ss);
 
     {
         auto breakdown_ss = start_chart(w, "Expenses Breakdown", "pie", "expenses_chart");
 
         breakdown_ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+        breakdown_ss << R"=====(accessibility: { point: { valueSuffix: '%' } },)=====";
+        breakdown_ss << R"=====(plotOptions: { pie: { showInLegend: true } },)=====";
 
         breakdown_ss << "series: [";
 
@@ -430,8 +436,8 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
             return lhs.second > rhs.second;
         });
 
-        if (sorted_expenses.size() > 20) {
-            sorted_expenses.resize(20);
+        if (sorted_expenses.size() > 15) {
+            sorted_expenses.resize(15);
         }
 
         for (auto& [name, amount] : sorted_expenses) {
