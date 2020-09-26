@@ -314,7 +314,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
     w << title_begin << "Expense Categories Breakdown of " << year << budget::year_selector{"expenses/breakdown/year", year} << title_end;
 
-    auto ss = start_chart(w, "Expense Categories Breakdown", "pie");
+    auto ss = start_chart(w, "Expense Categories Breakdown", "pie", "category_pie");
 
     ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
@@ -343,7 +343,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
     end_chart(w, ss);
 
-    auto breakdown_ss = start_chart(w, "Expenses Breakdown", "pie");
+    auto breakdown_ss = start_chart(w, "Expenses Breakdown", "pie", "expenses_chart");
 
     breakdown_ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
