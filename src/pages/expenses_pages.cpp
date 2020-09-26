@@ -19,6 +19,29 @@
 
 using namespace budget;
 
+namespace {
+
+std::vector<std::pair<std::string, budget::money>> sort_map(const std::map<std::string, budget::money> & expense_sum, size_t max) {
+    std::vector<std::pair<std::string, budget::money>> sorted_expenses;
+
+    for (auto& [name, amount] : expense_sum) {
+        sorted_expenses.emplace_back(name, amount);
+    }
+
+    std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto& lhs, auto& rhs) {
+        return lhs.second > rhs.second;
+    });
+
+    if (sorted_expenses.size() > max) {
+        sorted_expenses.resize(max);
+    }
+
+    return sorted_expenses;
+}
+
+
+} // end of anonymous namespace
+
 void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::string& title, budget::month month, budget::year year, bool mono, const std::string& style) {
     if (mono) {
         w.defer_script(R"=====(
@@ -107,29 +130,13 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
             expense_sum[expense.name] += expense.amount;
         }
 
-        std::vector<std::pair<std::string, budget::money>> sorted_expenses;
-
-        for (auto& [name, amount] : expense_sum) {
-            sorted_expenses.emplace_back(name, amount);
-        }
-
-        std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto& lhs, auto& rhs) {
-            return lhs.second > rhs.second;
-        });
-
-        if (sorted_expenses.size() > 20) {
-            sorted_expenses.resize(20);
-        }
-
-        budget::money total;
+        auto sorted_expenses = sort_map(expense_sum, 20);
 
         for (auto& [name, amount] : sorted_expenses) {
             ss << "{";
             ss << "name: '" << name << "',";
             ss << "y: " << budget::to_flat_string(amount);
             ss << "},";
-
-            total += amount;
         }
 
         ss << "]},";
@@ -174,29 +181,13 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
             expense_sum[name] += expense.amount;
         }
 
-        std::vector<std::pair<std::string, budget::money>> sorted_expenses;
-
-        for (auto& [name, amount] : expense_sum) {
-            sorted_expenses.emplace_back(name, amount);
-        }
-
-        std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto& lhs, auto& rhs) {
-            return lhs.second > rhs.second;
-        });
-
-        if (sorted_expenses.size() > 15) {
-            sorted_expenses.resize(15);
-        }
-
-        budget::money total;
+        auto sorted_expenses = sort_map(expense_sum, 15);
 
         for (auto& [name, amount] : sorted_expenses) {
             ss << "{";
             ss << "name: '" << name << "',";
             ss << "y: " << budget::to_flat_string(amount);
             ss << "},";
-
-            total += amount;
         }
 
         ss << "]},";
@@ -490,19 +481,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
             expense_sum[expense.name] += expense.amount;
         }
 
-        std::vector<std::pair<std::string, budget::money>> sorted_expenses;
-
-        for (auto& [name, amount] : expense_sum) {
-            sorted_expenses.emplace_back(name, amount);
-        }
-
-        std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto& lhs, auto& rhs) {
-            return lhs.second > rhs.second;
-        });
-
-        if (sorted_expenses.size() > 20) {
-            sorted_expenses.resize(20);
-        }
+        auto sorted_expenses = sort_map(expense_sum, 20);
 
         for (auto& [name, amount] : sorted_expenses) {
             breakdown_ss << "{";
@@ -550,19 +529,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
             expense_sum[name] += expense.amount;
         }
 
-        std::vector<std::pair<std::string, budget::money>> sorted_expenses;
-
-        for (auto& [name, amount] : expense_sum) {
-            sorted_expenses.emplace_back(name, amount);
-        }
-
-        std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto& lhs, auto& rhs) {
-            return lhs.second > rhs.second;
-        });
-
-        if (sorted_expenses.size() > 15) {
-            sorted_expenses.resize(15);
-        }
+        auto sorted_expenses = sort_map(expense_sum, 15);
 
         for (auto& [name, amount] : sorted_expenses) {
             aggregate_ss << "{";
