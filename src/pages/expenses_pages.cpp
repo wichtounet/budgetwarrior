@@ -394,6 +394,8 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
         auto aggregate_ss = start_chart(w, "Aggregate Expenses Breakdown", "pie", "aggregate_pie");
 
         aggregate_ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+        aggregate_ss << R"=====(accessibility: { point: { valueSuffix: '%' } },)=====";
+        aggregate_ss << R"=====(plotOptions: { pie: { showInLegend: true } },)=====";
 
         aggregate_ss << "series: [";
 
