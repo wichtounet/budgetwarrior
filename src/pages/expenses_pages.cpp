@@ -32,59 +32,116 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
         )=====");
     }
 
-    auto ss = start_chart_base(w, "pie", "month_breakdown_expenses_graph", style);
+    // standard breakdown
+    {
+        auto ss = start_chart_base(w, "pie", "month_breakdown_expense_categories_graph", style);
 
-    ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
+        ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    if (mono) {
-        ss << R"=====(plotOptions: {pie: { dataLabels: {enabled: false},  colors: breakdown_expense_colors, innerSize: '60%' }},)=====";
+        if (mono) {
+            ss << R"=====(plotOptions: {pie: { dataLabels: {enabled: false},  colors: breakdown_expense_colors, innerSize: '60%' }},)=====";
+        }
+
+        ss << "series: [";
+
+        ss << "{ name: 'Expenses',";
+        ss << "colorByPoint: true,";
+        ss << "data: [";
+
+        std::map<size_t, budget::money> account_sum;
+
+        for (auto& expense : all_expenses_month(year, month)) {
+            account_sum[expense.account] += expense.amount;
+        }
+
+        budget::money total;
+
+        for (auto& [id, amount] : account_sum) {
+            ss << "{";
+            ss << "name: '" << get_account(id).name << "',";
+            ss << "y: " << budget::to_flat_string(amount);
+            ss << "},";
+
+            total += amount;
+        }
+
+        ss << "]},";
+
+        ss << "],";
+
+        if (mono) {
+            ss << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
+
+            ss << R"=====(<div class="gauge-cash-flow-title"><strong>)=====";
+            ss << title;
+            ss << R"=====(</strong><br/><hr class="flat-hr" />)=====";
+
+            ss << R"=====(<span class="text-danger">)=====";
+            ss << total << " __currency__";
+            ss << R"=====(</span></div>)=====";
+            ss << R"=====('},)=====";
+        } else {
+            ss << R"=====(title: {text: ')=====";
+            ss << title;
+            ss << R"=====('},)=====";
+        }
+
+        end_chart(w, ss);
     }
 
-    ss << "series: [";
+    // standard breakdown
+    if (!mono) {
+        auto ss = start_chart_base(w, "pie", "month_breakdown_expenses_graph", style);
 
-    ss << "{ name: 'Expenses',";
-    ss << "colorByPoint: true,";
-    ss << "data: [";
+        ss << R"=====(tooltip: { pointFormat: '<b>{point.y} __currency__ ({point.percentage:.1f}%)</b>' },)=====";
 
-    std::map<size_t, budget::money> account_sum;
+        ss << "series: [";
 
-    for (auto& expense : all_expenses_month(year, month)) {
-        account_sum[expense.account] += expense.amount;
-    }
+        ss << "{ name: 'Expenses',";
+        ss << "colorByPoint: true,";
+        ss << "data: [";
 
-    budget::money total;
+        std::map<std::string, budget::money> expense_sum;
 
-    for (auto& [id, amount] : account_sum) {
-        ss << "{";
-        ss << "name: '" << get_account(id).name << "',";
-        ss << "y: " << budget::to_flat_string(amount);
-        ss << "},";
+        for (auto& expense : all_expenses_month(year, month)) {
+            expense_sum[expense.name] += expense.amount;
+        }
 
-        total += amount;
-    }
+        std::vector<std::pair<std::string, budget::money>> sorted_expenses;
 
-    ss << "]},";
+        for (auto& [name, amount] : expense_sum) {
+            sorted_expenses.emplace_back(name, amount);
+        }
 
-    ss << "],";
+        std::sort(sorted_expenses.begin(), sorted_expenses.end(), [](auto& lhs, auto& rhs) {
+            return lhs.second > rhs.second;
+        });
 
-    if (mono) {
-        ss << R"=====(title: {verticalAlign: 'middle', useHTML: true, text: ')=====";
+        if (sorted_expenses.size() > 20) {
+            sorted_expenses.resize(20);
+        }
 
-        ss << R"=====(<div class="gauge-cash-flow-title"><strong>)=====";
-        ss << title;
-        ss << R"=====(</strong><br/><hr class="flat-hr" />)=====";
+        budget::money total;
 
-        ss << R"=====(<span class="text-danger">)=====";
-        ss << total << " __currency__";
-        ss << R"=====(</span></div>)=====";
-        ss << R"=====('},)=====";
-    } else {
+        for (auto& [name, amount] : sorted_expenses) {
+            ss << "{";
+            ss << "name: '" << name << "',";
+            ss << "y: " << budget::to_flat_string(amount);
+            ss << "},";
+
+            total += amount;
+        }
+
+        ss << "]},";
+
+        ss << "],";
+
         ss << R"=====(title: {text: ')=====";
         ss << title;
         ss << R"=====('},)=====";
-    }
 
-    end_chart(w, ss);
+        end_chart(w, ss);
+    }
 }
 
 
