@@ -74,7 +74,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_share& asse
         static std::random_device rd;
         static std::mt19937_64 engine(rd());
 
-        std::uniform_int_distribution<int> dist(0, 1000);
+        std::uniform_int_distribution<int> dist(1, 1000);
 
         asset_share.shares = dist(engine);
     } else {

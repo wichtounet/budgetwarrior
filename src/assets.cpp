@@ -1276,7 +1276,7 @@ budget::money budget::get_asset_value(budget::asset & asset, budget::date d) {
             }
         }
 
-        if (shares > 1) {
+        if (shares) {
             return budget::money(shares) * share_price(asset.ticker, d);
         }
     } else {
