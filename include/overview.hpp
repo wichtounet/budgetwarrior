@@ -41,6 +41,10 @@ void display_month_overview(budget::month month, budget::year year, budget::writ
 void display_month_overview(budget::month month, budget::writer& );
 void display_month_overview(budget::writer& );
 
+void display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& );
+void display_month_account_overview(size_t account_id, budget::month month, budget::writer& );
+void display_month_account_overview(size_t account_id, budget::writer& );
+
 void display_side_month_overview(budget::month month, budget::year year, budget::writer& );
 void display_side_month_overview(budget::month month, budget::writer& );
 void display_side_month_overview(budget::writer& );

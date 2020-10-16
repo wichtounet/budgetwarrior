@@ -126,6 +126,59 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
     return add_recap_line(contents, title, values, [](const T& t){return t;});
 }
 
+budget::money compute_total_budget_account(budget::account & account, budget::month month, budget::year year){
+    // By default, the start is the year of the overview
+    auto start_year_report = year;
+
+    // Using option, can change to the beginning of all time
+    if(budget::config_contains("multi_year_balance") && budget::config_value("multi_year_balance") == "true"){
+        start_year_report = start_year();
+    }
+
+    budget::money total;
+
+    for(budget::year y = start_year_report; y <= year; y = y + 1){
+        budget::month m = start_month(y);
+
+        while(true){
+            if(y == year && m >= month){
+                break;
+            }
+
+            // Note: we still need to access the previous accounts since the
+            // current account could be a more recent version of an archived
+            // account
+            for(auto& prev_account : all_accounts(y, m)){
+                if (prev_account.name == account.name) {
+                    total += prev_account.amount;
+                    total -= accumulate_amount(all_expenses_month(prev_account.id, y, m));
+                    total += accumulate_amount(all_earnings_month(prev_account.id, y, m));
+
+                    break;
+                }
+            }
+
+            if (y != year && m == 12) {
+                break;
+            }
+
+            m = m + 1;
+        }
+    }
+
+    // Note: Here we do not strictly have to access the previous version
+    // since this version is supposed to be called with match account/month/year
+    // But doing so may prevent issue
+    for (auto& prev_account : all_accounts(year, month)) {
+        if (prev_account.name == account.name) {
+            total += prev_account.amount;
+            break;
+        }
+    }
+
+    return total;
+}
+
 std::vector<budget::money> compute_total_budget(budget::month month, budget::year year){
     std::unordered_map<std::string, budget::money> tmp;
 
@@ -699,6 +752,46 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
             } else {
                 throw budget_exception("Too many arguments to overview aggregate");
             }
+        } else if (subcommand == "account") {
+            auto ask_for_account = [](budget::month m = {0}, budget::year y = {0}) {
+                auto today = budget::local_day();
+
+                if (m.is_default()) {
+                    m = today.month();
+                }
+
+                if (y.is_default()) {
+                    y = today.year();
+                }
+
+                std::string account_name;
+                edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
+                return get_account(account_name, y, m).id;
+            };
+
+            if (args.size() == 2) {
+                display_month_account_overview(ask_for_account(), w);
+            } else {
+                auto& subsubcommand = args[2];
+
+                if (subsubcommand == "month") {
+                    if (args.size() == 3) {
+                        display_month_account_overview(ask_for_account(), w);
+                    } else if (args.size() == 4) {
+                        budget::month m(to_number<unsigned short>(args[3]));
+                        display_month_account_overview(ask_for_account(m), m, w);
+                    } else if (args.size() == 5) {
+                        budget::month m(to_number<unsigned short>(args[3]));
+                        budget::year y(to_number<unsigned short>(args[4]));
+
+                        display_month_account_overview(ask_for_account(m, y), m, y, w);
+                    } else {
+                        throw budget_exception("Too many arguments to overview month");
+                    }
+                } else {
+                    throw budget_exception("Invalid command");
+                }
+            }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
         }
@@ -1088,6 +1181,56 @@ void budget::display_month_overview(budget::writer& writer){
     auto today = budget::local_day();
 
     display_month_overview(today.month(), today.year(), writer);
+}
+
+void budget::display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& writer){
+    auto & account = get_account(account_id);
+
+    auto accounts = all_accounts(year, month);
+
+    writer << title_begin << "Account Overview of " << month << " " << year << budget::year_month_selector{"account_overview", year, month} << title_end;
+
+    std::vector<std::string> columns{account.name};
+    std::unordered_map<std::string, size_t> indexes{{account.name, 0}};
+    std::vector<std::vector<std::string>> contents;
+    std::vector<money> total_expenses(1, budget::money());
+    std::vector<money> total_earnings(1, budget::money());
+
+    //Expenses
+    add_values_column(month, year, "Expenses", contents, indexes, columns.size(), all_expenses(), total_expenses);
+
+    //Earnings
+    contents.emplace_back(columns.size() * 3, "");
+    add_values_column(month, year, "Earnings", contents, indexes, columns.size(), all_earnings(), total_earnings);
+
+    //Budget
+    contents.emplace_back(columns.size() * 3, "");
+    add_recap_line<budget::account>(contents, "Budget", {account}, [](const budget::account& a) { return format_money(a.amount); });
+    auto total_budget = compute_total_budget_account(account, month, year);
+    add_recap_line<budget::money>(contents, "Total Budget", {total_budget}, [](const budget::money& m){ return format_money(m);});
+
+    //Balances
+    contents.emplace_back(columns.size() * 3, "");
+
+    std::vector<budget::money> balances{total_budget + total_earnings[0] - total_expenses[0]};
+    std::vector<budget::money> local_balances{account.amount + total_earnings[0] - total_expenses[0]};
+
+    add_recap_line(contents, "Balance", balances, [](const budget::money& m){ return format_money(m);});
+    add_recap_line(contents, "Local Balance", local_balances, [](const budget::money& m){ return format_money(m);});
+
+    writer.display_table(columns, contents, 3);
+}
+
+void budget::display_month_account_overview(size_t account_id, budget::month month, budget::writer& writer){
+    auto today = budget::local_day();
+
+    display_month_account_overview(account_id, month, today.year(), writer);
+}
+
+void budget::display_month_account_overview(size_t account_id, budget::writer& writer){
+    auto today = budget::local_day();
+
+    display_month_account_overview(account_id, today.month(), today.year(), writer);
 }
 
 void budget::display_side_month_overview(budget::month month, budget::year year, budget::writer& writer){
