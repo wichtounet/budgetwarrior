@@ -39,6 +39,10 @@ struct day {
     date_type value;
     day(date_type value) : value(value) {}
     operator date_type() const { return value; }
+
+    bool is_default() const {
+        return value == 0;
+    }
 };
 
 struct month {
@@ -65,6 +69,10 @@ struct month {
 
         return months[value-1];
     }
+
+    bool is_default() const {
+        return value == 0;
+    }
 };
 
 struct year {
@@ -76,6 +84,10 @@ struct year {
         this->value = value;
 
         return *this;
+    }
+
+    bool is_default() const {
+        return value == 0;
     }
 };
 
