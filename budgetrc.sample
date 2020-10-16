@@ -1,0 +1,31 @@
+# Create a file ".budgetrc" in your home directory.
+# Then copy-paste this file (or whatever you need)
+# Lines with a '#' are comments and won't be read
+# Keep in mind, empty values like "default_currency=" will be valid (so in this case your currency is a currency without code/name :D)
+
+# VERY IMPORTANT --> Don't put comments on the right side of the '=' sign as they will be read as values.
+
+# Server url
+server_url=localhost
+# Port number
+server_port=8080
+# Currency code like EUR, USD...
+default_currency=CHF 
+# Username for budget server (don't put extra space at the end)
+web_user=admin 
+# Password for budget server (don't put extra space at the end)
+web_password=1234 
+
+## When this is set to true, it doesn's appear on budget server
+# disable_fortune=true
+# disable_debts=true
+
+## path to .budget/ default is /home/$USER/.budget on linux
+# directory= 
+## Next values can be true or false
+# server_secure= 
+# multi_year_balance= 
+# aggregate_full= 
+# aggregate_no_group= 
+# aggregate_separator= 
+# asset_no_group= 

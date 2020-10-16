@@ -139,6 +139,8 @@ configuration file::
     web_user=admin
     web_password=1234
 
+To check more configuration options see `budgetrc.sample`
+
 Contributors
 ------------
 
