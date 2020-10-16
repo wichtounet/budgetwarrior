@@ -16,7 +16,7 @@ web_user=admin
 # Password for budget server (don't put extra space at the end)
 web_password=1234 
 
-## When this is set to true, it doesn's appear on budget server
+## When this is set to true, it doesn't appear on budget server
 # disable_fortune=true
 # disable_debts=true
 
