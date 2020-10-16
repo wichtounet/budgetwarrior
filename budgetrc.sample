@@ -5,27 +5,35 @@
 
 # VERY IMPORTANT --> Don't put comments on the right side of the '=' sign as they will be read as values.
 
+
+## Server configuration
 # Server url
 server_url=localhost
 # Port number
 server_port=8080
-# Currency code like EUR, USD...
-default_currency=CHF 
 # Username for budget server (don't put extra space at the end)
 web_user=admin 
 # Password for budget server (don't put extra space at the end)
 web_password=1234 
+# By default server is running in secure mode
+# server_secure=true
 
+# path to .budget/ default is /home/$USER/.budget on linux
+# directory= 
+# Currency code like EUR, USD...
+default_currency=CHF 
+# Sets a default account
+# default_account=
+
+## Next values can be true or false
+# multi_year_balance= 
+# aggregate_full= 
+# aggregate_no_group= 
+# asset_no_group= 
 ## When this is set to true, it doesn't appear on budget server
 # disable_fortune=true
 # disable_debts=true
 
-## path to .budget/ default is /home/$USER/.budget on linux
-# directory= 
-## Next values can be true or false
-# server_secure= 
-# multi_year_balance= 
-# aggregate_full= 
-# aggregate_no_group= 
+## Indicates which separator to use, default is '/'
+## For example: Groceries/Costco and Groceries/CVS will be aggregated to Groceries
 # aggregate_separator= 
-# asset_no_group= 
