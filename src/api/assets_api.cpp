@@ -15,6 +15,7 @@
 #include "accounts.hpp"
 #include "guid.hpp"
 #include "http.hpp"
+#include "budget_exception.hpp"
 
 using namespace budget;
 
@@ -28,32 +29,50 @@ void budget::add_assets_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    asset asset;
-    asset.guid            = budget::generate_guid();
-    asset.name            = req.get_param_value("input_name");
+    try {
+        asset asset;
+        asset.guid = budget::generate_guid();
+        asset.name = req.get_param_value("input_name");
 
-    for (auto& clas : all_asset_classes()) {
-        auto param_name = "input_class_" + to_string(clas.id);
+        for (auto& clas : all_asset_classes()) {
+            auto param_name = "input_class_" + to_string(clas.id);
 
-        if (req.has_param(param_name.c_str())) {
-            update_asset_class_allocation(asset, clas, budget::parse_money(req.get_param_value(param_name.c_str())));
+            if (req.has_param(param_name.c_str())) {
+                update_asset_class_allocation(asset, clas, budget::parse_money(req.get_param_value(param_name.c_str())));
+            }
         }
-    }
 
-    asset.portfolio       = req.get_param_value("input_portfolio") == "yes";
-    asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
-    asset.currency        = req.get_param_value("input_currency");
-    asset.share_based     = req.get_param_value("input_share_based") == "yes";
-    asset.ticker          = req.get_param_value("input_ticker");
+        // Portfolio allocation
+        asset.portfolio = req.get_param_value("input_portfolio") == "yes";
+        if (asset.portfolio) {
+            asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
+        }
 
-    if (asset.total_allocation() != money(100)) {
-        api_error(req, res, "The total allocation of the asset is not 100%");
+        asset.currency = req.get_param_value("input_currency");
+
+        // Share
+        asset.share_based = req.get_param_value("input_share_based") == "yes";
+        if (asset.share_based) {
+            asset.ticker = req.get_param_value("input_ticker");
+
+            if (asset.ticker.empty()) {
+                api_error(req, res, "The ticket cannot be empty for a shared-based asset");
+                return;
+            }
+        }
+
+        if (asset.total_allocation() != money(100)) {
+            api_error(req, res, "The total allocation of the asset is not 100%");
+            return;
+        }
+
+        add_asset(asset);
+
+        api_success(req, res, "asset " + to_string(asset.id) + " has been created", to_string(asset.id));
+    } catch (const budget_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
         return;
     }
-
-    add_asset(asset);
-
-    api_success(req, res, "asset " + to_string(asset.id) + " has been created", to_string(asset.id));
 }
 
 void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res) {
