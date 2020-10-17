@@ -39,7 +39,7 @@ std::map<std::string, std::string> budget::fortune::get_params(){
 }
 
 void budget::list_fortunes(budget::writer& w){
-    if (fortunes.data.empty()) {
+    if (fortunes.empty()) {
         w << "No fortune set" << end_of_line;
         return;
     }
@@ -47,7 +47,7 @@ void budget::list_fortunes(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Date", "Amount", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for (auto& fortune : fortunes.data) {
+    for (auto& fortune : fortunes.data()) {
         contents.push_back({to_string(fortune.id), to_string(fortune.check_date), to_string(fortune.amount), "::edit::fortunes::" + budget::to_string(fortune.id)});
     }
 
@@ -55,7 +55,7 @@ void budget::list_fortunes(budget::writer& w){
 }
 
 void budget::status_fortunes(budget::writer& w, bool short_view){
-    if(fortunes.data.empty()){
+    if(fortunes.empty()){
         w << "No fortune set" << end_of_line;
         return;
     }
@@ -66,7 +66,7 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
     auto columns = short_view ? short_columns : long_columns;
     std::vector<std::vector<std::string>> contents;
 
-    std::vector<budget::fortune> sorted_values = fortunes.data;
+    auto sorted_values = fortunes.data();
 
     std::sort(sorted_values.begin(), sorted_values.end(),
         [](const budget::fortune& a, const budget::fortune& b){ return a.check_date < b.check_date; });
@@ -227,7 +227,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
 }
 
 std::vector<fortune>& budget::all_fortunes(){
-    return fortunes.data;
+    return fortunes.data();
 }
 
 void budget::load_fortunes(){

@@ -249,7 +249,7 @@ budget::liability& budget::get_liability(size_t id){
 }
 
 budget::liability& budget::get_liability(std::string name){
-    for(auto& liability : liabilities.data){
+    for(auto& liability : liabilities.data()){
         if(liability.name == name){
             return liability;
         }
@@ -294,7 +294,7 @@ bool budget::liability_exists(const std::string& name){
 }
 
 std::vector<liability>& budget::all_liabilities(){
-    return liabilities.data;
+    return liabilities.data();
 }
 
 budget::date budget::liability_start_date(const budget::liability& liability) {
@@ -330,7 +330,7 @@ void budget::set_liabilities_next_id(size_t next_id){
 }
 
 void budget::show_liabilities(budget::writer& w){
-    if (!liabilities.data.size()) {
+    if (!liabilities.size()) {
         w << "No liabilities" << end_of_line;
         return;
     }
@@ -343,7 +343,7 @@ void budget::show_liabilities(budget::writer& w){
 
     // Display the liabilities
 
-    for(auto& liability : liabilities.data){
+    for(auto& liability : liabilities.data()){
         std::vector<std::string> line;
 
         line.emplace_back(to_string(liability.id));

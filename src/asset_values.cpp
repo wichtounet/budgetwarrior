@@ -88,7 +88,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_value& asse
 }
 
 std::vector<asset_value>& budget::all_asset_values(){
-    return asset_values.data;
+    return asset_values.data();
 }
 
 void budget::set_asset_values_changed(){
@@ -128,7 +128,7 @@ bool budget::edit_asset_value(asset_value& asset_value) {
 }
 
 void budget::list_asset_values(budget::writer& w, bool liability){
-    if (!asset_values.data.size()) {
+    if (!asset_values.size()) {
         w << "No asset values" << end_of_line;
         return;
     }
@@ -138,7 +138,7 @@ void budget::list_asset_values(budget::writer& w, bool liability){
 
     // Display the asset values
 
-    for(auto& value : asset_values.data){
+    for(auto& value : asset_values.data()){
         if (value.liability == liability) {
             if (liability) {
                 contents.push_back({to_string(value.id), get_liability(value.asset_id).name, to_string(value.amount), to_string(value.set_date), "::edit::asset_values::" + budget::to_string(value.id)});

@@ -22,7 +22,6 @@ namespace budget {
 template<typename T>
 struct data_handler {
     size_t next_id; // Note: No need to protect this since this is only accessed by GC (not run from server)
-    std::vector<T> data;
 
     data_handler(const char* module, const char* path) : module(module), path(path) {
         // Nothing else to init
@@ -66,7 +65,7 @@ struct data_handler {
                 next_id = entry.id + 1;
             }
 
-            data.push_back(std::move(entry));
+            data_.push_back(std::move(entry));
         }
     }
 
@@ -74,7 +73,7 @@ struct data_handler {
     void load(Functor f){
         //Make sure to clear the data first, as load_data can be called
         //several times
-        data.clear();
+        data_.clear();
 
         if(is_server_mode()){
             auto res = budget::api_get(std::string("/") + module + "/list/");
@@ -125,7 +124,7 @@ struct data_handler {
         // We still save the file ID so that it's still compatible with older versions for now
         file << next_id << std::endl;
 
-        for (auto& entry : data) {
+        for (auto& entry : data_) {
             file << entry << std::endl;
         }
 
@@ -181,12 +180,12 @@ struct data_handler {
             } else {
                 entry.id = budget::to_number<size_t>(res.result);
 
-                data.push_back(std::forward<T>(entry));
+                data_.push_back(std::forward<T>(entry));
             }
         } else {
             entry.id = next_id++;
 
-            data.push_back(std::forward<T>(entry));
+            data_.push_back(std::forward<T>(entry));
 
             set_changed();
         }
@@ -195,9 +194,9 @@ struct data_handler {
     }
 
     void remove(size_t id) {
-        data.erase(std::remove_if(data.begin(), data.end(),
+        data_.erase(std::remove_if(data_.begin(), data_.end(),
                                   [id](const T& entry) { return entry.id == id; }),
-                   data.end());
+                   data_.end());
 
         if (is_server_mode()) {
             auto res = budget::api_get(std::string("/") + get_module() + "/delete/?input_id=" + budget::to_string(id));
@@ -211,7 +210,7 @@ struct data_handler {
     }
 
     bool exists(size_t id) {
-        for (auto& entry : data) {
+        for (auto& entry : data_) {
             if (entry.id == id) {
                 return true;
             }
@@ -221,7 +220,7 @@ struct data_handler {
     }
 
     T& operator[](size_t id) {
-        for (auto& value : data) {
+        for (auto& value : data_) {
             if (value.id == id) {
                 return value;
             }
@@ -231,11 +230,23 @@ struct data_handler {
     }
 
     size_t size() const {
-        return data.size();
+        return data_.size();
+    }
+
+    bool empty() const {
+        return data_.empty();
     }
 
     const char* get_module() const {
         return module;
+    }
+
+    std::vector<T> & data() {
+        return data_;
+    }
+
+    const std::vector<T> & data() const {
+        return data_;
     }
 
 private:
@@ -243,6 +254,7 @@ private:
     const char* path;
     volatile bool changed = false;
     mutable server_lock lock;
+    std::vector<T> data_;
 };
 
 } //end of namespace budget

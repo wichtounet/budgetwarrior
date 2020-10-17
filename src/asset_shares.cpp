@@ -83,7 +83,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_share& asse
 }
 
 std::vector<asset_share>& budget::all_asset_shares(){
-    return asset_shares.data;
+    return asset_shares.data();
 }
 
 void budget::set_asset_shares_changed(){
@@ -123,7 +123,7 @@ bool budget::edit_asset_share(asset_share& c) {
 }
 
 void budget::list_asset_shares(budget::writer& w){
-    if (!asset_shares.data.size()) {
+    if (!asset_shares.size()) {
         w << "No asset shares" << end_of_line;
         return;
     }
@@ -133,7 +133,7 @@ void budget::list_asset_shares(budget::writer& w){
 
     // Display the asset values
 
-    for (auto& value : asset_shares.data) {
+    for (auto& value : asset_shares.data()) {
         contents.push_back({to_string(value.id), get_asset(value.asset_id).name,
                             to_string(value.shares), to_string(value.date), to_string(value.price),
                             "::edit::asset_shares::" + budget::to_string(value.id)});

@@ -53,7 +53,7 @@ void budget::check_for_recurrings(){
 
     bool changed = false;
 
-    for (auto& recurring : recurrings.data) {
+    for (auto& recurring : recurrings.data()) {
         auto l_year  = last_year(recurring);
 
         if (l_year == 1400) {
@@ -324,7 +324,7 @@ budget::month budget::last_month(const budget::recurring& recurring, budget::yea
 }
 
 std::vector<recurring>& budget::all_recurrings() {
-    return recurrings.data;
+    return recurrings.data();
 }
 
 void budget::set_recurrings_changed() {
@@ -338,7 +338,7 @@ void budget::set_recurrings_next_id(size_t next_id) {
 void budget::show_recurrings(budget::writer& w) {
     w << title_begin << "Recurring expenses " << add_button("recurrings") << title_end;
 
-    if (recurrings.data.empty()) {
+    if (recurrings.empty()) {
         w << "No recurring expenses" << end_of_line;
     } else {
         std::vector<std::string> columns = {"ID", "Account", "Name", "Amount", "Recurs", "Edit"};
@@ -346,7 +346,7 @@ void budget::show_recurrings(budget::writer& w) {
 
         money total;
 
-        for (auto& recurring : recurrings.data) {
+        for (auto& recurring : recurrings.data()) {
             contents.push_back({to_string(recurring.id), recurring.account, recurring.name, to_string(recurring.amount), recurring.recurs, "::edit::recurrings::" + to_string(recurring.id)});
 
             total += recurring.amount;

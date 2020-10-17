@@ -238,7 +238,7 @@ void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
 }
 
 std::vector<wish>& budget::all_wishes(){
-    return wishes.data;
+    return wishes.data();
 }
 
 void budget::set_wishes_changed(){
@@ -286,7 +286,7 @@ void budget::migrate_wishes_3_to_4(){
 void budget::list_wishes(budget::writer& w){
     w << title_begin << "Wishes " << add_button("wishes") << title_end;
 
-    if (wishes.data.size() == 0) {
+    if (wishes.size() == 0) {
         w << "No wishes" << end_of_line;
     } else {
         std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff", "Accuracy", "Edit"};
@@ -297,7 +297,7 @@ void budget::list_wishes(budget::writer& w){
         double acc         = 0.0;
         double acc_counter = 0;
 
-        for (auto& wish : wishes.data) {
+        for (auto& wish : wishes.data()) {
             contents.push_back({to_string(wish.id), wish.name, wish_status(wish.importance), wish_status(wish.urgency),
                                 to_string(wish.amount),
                                 wish.paid ? to_string(wish.paid_amount) : "No",
@@ -347,7 +347,7 @@ void budget::status_wishes(budget::writer& w){
 
     budget::money total_amount;
 
-    for(auto& wish : wishes.data){
+    for(auto& wish : wishes.data()){
         if(wish.paid){
             continue;
         }
@@ -454,7 +454,7 @@ void budget::estimate_wishes(budget::writer& w) {
     auto fortune_amount = cash_for_wishes();
     auto today          = budget::local_day();
 
-    for (auto& wish : wishes.data) {
+    for (auto& wish : wishes.data()) {
         if (wish.paid) {
             continue;
         }
@@ -525,7 +525,7 @@ void budget::estimate_wishes(budget::writer& w) {
         year_contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), status, "::edit::wishes::" + to_string(wish.id)});
     }
 
-    for (auto& wish : wishes.data) {
+    for (auto& wish : wishes.data()) {
         if (wish.paid) {
             continue;
         }

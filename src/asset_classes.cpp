@@ -44,7 +44,7 @@ budget::asset_class& budget::get_asset_class(size_t id){
 }
 
 budget::asset_class& budget::get_asset_class(const std::string & name){
-    for (auto& c : asset_classes.data) {
+    for (auto& c : asset_classes.data()) {
         if (c.name == name) {
             return c;
         }
@@ -68,7 +68,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_class& clas
 }
 
 bool budget::asset_class_exists(const std::string& name){
-    for (auto& clas : asset_classes.data) {
+    for (auto& clas : asset_classes.data()) {
         if (clas.name == name) {
             return true;
         }
@@ -78,7 +78,7 @@ bool budget::asset_class_exists(const std::string& name){
 }
 
 std::vector<asset_class>& budget::all_asset_classes(){
-    return asset_classes.data;
+    return asset_classes.data();
 }
 
 void budget::set_asset_classes_changed(){
@@ -90,7 +90,7 @@ void budget::set_asset_class_next_id(size_t next_id){
 }
 
 void budget::show_asset_classes(budget::writer& w){
-    if (!asset_classes.data.size()) {
+    if (!asset_classes.size()) {
         w << "No asset classes" << end_of_line;
         return;
     }
@@ -103,7 +103,7 @@ void budget::show_asset_classes(budget::writer& w){
 
     // Display the asset classes
 
-    for(auto& clas : asset_classes.data){
+    for(auto& clas : asset_classes.data()){
         std::vector<std::string> line;
 
         line.emplace_back(to_string(clas.id));

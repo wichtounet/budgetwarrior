@@ -31,7 +31,7 @@ static data_handler<account> accounts { "accounts", "accounts.data" };
 size_t get_account_id(std::string name, budget::year year, budget::month month){
     budget::date date(year, month, 5);
 
-    for(auto& account : accounts.data){
+    for(auto& account : accounts.data()){
         if(account.since < date && account.until > date && account.name == name){
             return account.id;
         }
@@ -396,7 +396,7 @@ budget::account& budget::get_account(size_t id){
 budget::account& budget::get_account(std::string name, budget::year year, budget::month month){
     budget::date date(year, month, 5);
 
-    for(auto& account : accounts.data){
+    for(auto& account : accounts.data()){
         if(account.since < date && account.until > date && account.name == name){
             return account;
         }
@@ -426,7 +426,7 @@ void budget::operator>>(const std::vector<std::string>& parts, account& account)
 }
 
 bool budget::account_exists(const std::string& name){
-    for(auto& account : accounts.data){
+    for(auto& account : accounts.data()){
         if(account.name == name){
             return true;
         }
@@ -436,7 +436,7 @@ bool budget::account_exists(const std::string& name){
 }
 
 std::vector<account>& budget::all_accounts(){
-    return accounts.data;
+    return accounts.data();
 }
 
 std::vector<budget::account> budget::current_accounts(){
@@ -486,7 +486,7 @@ void budget::show_accounts(budget::writer& w){
 
     money total;
 
-    for(auto& account : accounts.data){
+    for(auto& account : accounts.data()){
         if(account.until == budget::date(2099,12,31)){
             total += account.amount;
         }
@@ -494,7 +494,7 @@ void budget::show_accounts(budget::writer& w){
 
     // Display the accounts
 
-    for(auto& account : accounts.data){
+    for(auto& account : accounts.data()){
         if(account.until == budget::date(2099,12,31)){
             float part = 100.0 * (account.amount.value / float(total.value));
 
@@ -519,7 +519,7 @@ void budget::show_all_accounts(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& account : accounts.data){
+    for(auto& account : accounts.data()){
         contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until), "::edit::accounts::" + to_string(account.id)});
     }
 

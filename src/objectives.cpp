@@ -57,7 +57,7 @@ std::map<std::string, std::string> budget::objective::get_params(){
 void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_align){
     size_t yearly = 0;
 
-    for (auto& objective : objectives.data) {
+    for (auto& objective : objectives.data()) {
         if (objective.type == "yearly") {
             ++yearly;
         }
@@ -72,11 +72,11 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
 
         size_t width = 0;
         if (full_align) {
-            for (auto& objective : objectives.data) {
+            for (auto& objective : objectives.data()) {
                 width = std::max(rsize(objective.name), width);
             }
         } else {
-            for (auto& objective : objectives.data) {
+            for (auto& objective : objectives.data()) {
                 if (objective.type == "yearly") {
                     width = std::max(rsize(objective.name), width);
                 }
@@ -89,7 +89,7 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
         std::vector<std::string> columns = {"Objective", "Status", "Progress"};
         std::vector<std::vector<std::string>> contents;
 
-        for (auto& objective : objectives.data) {
+        for (auto& objective : objectives.data()) {
             if (objective.type == "yearly") {
                 contents.push_back({objective.name, get_status(year_status, objective), get_success(year_status, objective)});
             }
@@ -107,7 +107,7 @@ void budget::monthly_objective_status(budget::writer& w){
     auto current_year  = today.year();
     auto sm            = start_month(current_year);
 
-    for (auto& objective : objectives.data) {
+    for (auto& objective : objectives.data()) {
         if (objective.type == "monthly") {
             std::vector<std::string> columns = {objective.name, "Status", "Progress"};
             std::vector<std::vector<std::string>> contents;
@@ -127,12 +127,12 @@ void budget::monthly_objective_status(budget::writer& w){
 }
 
 void budget::current_monthly_objective_status(budget::writer& w, bool full_align){
-    if (objectives.data.empty()) {
+    if (objectives.empty()) {
         w << title_begin << "No objectives" << title_end;
         return;
     }
 
-    auto monthly_objectives = std::count_if(objectives.data.begin(), objectives.data.end(), [](auto& objective) {
+    auto monthly_objectives = std::count_if(objectives.data().begin(), objectives.data().end(), [](auto& objective) {
         return objective.type == "monthly";
     });
 
@@ -147,11 +147,11 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
 
     size_t width = 0;
     if (full_align) {
-        for (auto& objective : objectives.data) {
+        for (auto& objective : objectives.data()) {
             width = std::max(rsize(objective.name), width);
         }
     } else {
-        for (auto& objective : objectives.data) {
+        for (auto& objective : objectives.data()) {
             if (objective.type == "monthly") {
                 width = std::max(rsize(objective.name), width);
             }
@@ -164,7 +164,7 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
     // Compute the month status
     auto status = budget::compute_month_status(today.year(), today.month());
 
-    for (auto& objective : objectives.data) {
+    for (auto& objective : objectives.data()) {
         if (objective.type == "monthly") {
             contents.push_back({objective.name, get_status(status, objective), get_success(status, objective)});
         }
@@ -314,7 +314,7 @@ void budget::operator>>(const std::vector<std::string>& parts, objective& object
 }
 
 std::vector<objective>& budget::all_objectives(){
-    return objectives.data;
+    return objectives.data();
 }
 
 void budget::set_objectives_changed(){
@@ -328,13 +328,13 @@ void budget::set_objectives_next_id(size_t next_id){
 void budget::list_objectives(budget::writer& w){
     w << title_begin << "Objectives " << add_button("objectives") << title_end;
 
-    if (objectives.data.size() == 0) {
+    if (objectives.size() == 0) {
         w << "No objectives" << end_of_line;
     } else {
         std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount", "Edit"};
         std::vector<std::vector<std::string>> contents;
 
-        for (auto& objective : objectives.data) {
+        for (auto& objective : objectives.data()) {
             contents.push_back({to_string(objective.id), objective.name, objective.type, objective.source, objective.op, to_string(objective.amount), "::edit::objectives::" + to_string(objective.id)});
         }
 
@@ -345,7 +345,7 @@ void budget::list_objectives(budget::writer& w){
 void budget::status_objectives(budget::writer& w){
     w << title_begin << "Objectives " << add_button("objectives") << title_end;
 
-    if(objectives.data.size() == 0){
+    if(objectives.size() == 0){
         w << "No objectives" << end_of_line;
     } else {
         auto today = budget::local_day();
@@ -357,7 +357,7 @@ void budget::status_objectives(budget::writer& w){
         size_t monthly = 0;
         size_t yearly = 0;
 
-        for(auto& objective : objectives.data){
+        for(auto& objective : objectives.data()){
             if(objective.type == "yearly"){
                 ++yearly;
             } else if(objective.type == "monthly"){

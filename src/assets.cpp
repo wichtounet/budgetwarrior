@@ -529,7 +529,7 @@ budget::asset& budget::get_asset(size_t id){
 }
 
 budget::asset& budget::get_asset(std::string name){
-    for(auto& asset : assets.data){
+    for(auto& asset : assets.data()){
         if(asset.name == name){
             return asset;
         }
@@ -539,7 +539,7 @@ budget::asset& budget::get_asset(std::string name){
 }
 
 budget::asset& budget::get_desired_allocation(){
-    for (auto& asset : assets.data) {
+    for (auto& asset : assets.data()) {
         if (asset.name == "DESIRED" && asset.currency == "DESIRED") {
             return asset;
         }
@@ -672,7 +672,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
 }
 
 bool budget::asset_exists(const std::string& name){
-    for (auto& asset : assets.data) {
+    for (auto& asset : assets.data()) {
         if (asset.name == name) {
             return true;
         }
@@ -682,7 +682,7 @@ bool budget::asset_exists(const std::string& name){
 }
 
 bool budget::share_asset_exists(const std::string& name){
-    for (auto& asset : assets.data) {
+    for (auto& asset : assets.data()) {
         if (asset.name == name) {
             return asset.share_based;
         }
@@ -692,7 +692,7 @@ bool budget::share_asset_exists(const std::string& name){
 }
 
 std::vector<asset>& budget::all_assets(){
-    return assets.data;
+    return assets.data();
 }
 
 budget::date budget::asset_start_date(const budget::asset& asset) {
@@ -752,7 +752,7 @@ std::string to_percent(double p){
 }
 
 void budget::show_assets(budget::writer& w){
-    if (!assets.data.size()) {
+    if (!assets.size()) {
         w << "No assets" << end_of_line;
         return;
     }
@@ -776,7 +776,7 @@ void budget::show_assets(budget::writer& w){
 
     // Display the assets
 
-    for(auto& asset : assets.data){
+    for(auto& asset : assets.data()){
         if(asset.name == "DESIRED" && asset.currency == "DESIRED"){
             continue;
         }

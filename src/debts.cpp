@@ -199,7 +199,7 @@ void budget::migrate_debts_3_to_4(){
 }
 
 std::vector<debt>& budget::all_debts(){
-    return debts.data;
+    return debts.data();
 }
 
 void budget::set_debts_changed(){
@@ -216,7 +216,7 @@ void budget::display_all_debts(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Direction", "Name", "Amount", "Paid", "Title", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& debt : debts.data){
+    for(auto& debt : debts.data()){
         contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), (debt.state == 0 ? "No" : "Yes"), debt.title, "::edit::debts::" + to_string(debt.id)});
     }
 
@@ -227,7 +227,7 @@ void budget::list_debts(budget::writer& w){
     w << title_begin << "Debts " << add_button("debts") << title_end;
 
     bool found = false;
-    for (auto& debt : debts.data) {
+    for (auto& debt : debts.data()) {
         if (debt.state == 0) {
             found = true;
             break;
@@ -243,7 +243,7 @@ void budget::list_debts(budget::writer& w){
         money owed;
         money deserved;
 
-        for (auto& debt : debts.data) {
+        for (auto& debt : debts.data()) {
             if (debt.state == 0) {
                 contents.push_back({to_string(debt.id), debt.direction ? "to" : "from", debt.name, to_string(debt.amount), debt.title, "::edit::debts::" + to_string(debt.id)});
 

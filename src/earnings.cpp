@@ -160,7 +160,7 @@ void budget::operator>>(const std::vector<std::string>& parts, earning& earning)
 }
 
 std::vector<earning>& budget::all_earnings(){
-    return earnings.data;
+    return earnings.data();
 }
 
 void budget::set_earnings_changed(){
@@ -181,7 +181,7 @@ void budget::show_all_earnings(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& earning : earnings.data){
+    for(auto& earning : earnings.data()){
         contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount)});
     }
 
@@ -200,7 +200,7 @@ void budget::search_earnings(const std::string& search, budget::writer& w){
     auto l_search = search;
     std::transform(l_search.begin(), l_search.end(), l_search.begin(), ::tolower);
 
-    for(auto& earning : earnings.data){
+    for(auto& earning : earnings.data()){
         auto l_name = earning.name;
         std::transform(l_name.begin(), l_name.end(), l_name.begin(), ::tolower);
 
@@ -232,7 +232,7 @@ void budget::show_earnings(budget::month month, budget::year year, budget::write
     money total;
     size_t count = 0;
 
-    for(auto& earning : earnings.data){
+    for(auto& earning : earnings.data()){
         if(earning.date.year() == year && earning.date.month() == month){
             contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount), "::edit::earnings::" + to_string(earning.id)});
 
