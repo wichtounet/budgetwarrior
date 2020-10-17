@@ -56,7 +56,7 @@ void budget::add_assets_api(const httplib::Request& req, httplib::Response& res)
             asset.ticker = req.get_param_value("input_ticker");
 
             if (asset.ticker.empty()) {
-                api_error(req, res, "The ticket cannot be empty for a shared-based asset");
+                api_error(req, res, "The ticker cannot be empty for a shared-based asset");
                 return;
             }
         }
