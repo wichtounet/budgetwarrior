@@ -86,7 +86,7 @@ void budget::show_incomes(budget::writer& w) {
     std::vector<std::string> columns = {"ID", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& income : incomes.data){
+    for (auto& income : all_incomes()) {
         contents.push_back({to_string(income.id), to_string(income.amount), to_string(income.since), to_string(income.until), "::edit::incomes::" + to_string(income.id)});
     }
 
@@ -164,7 +164,7 @@ budget::money budget::get_base_income(){
 budget::money budget::get_base_income(budget::date d){
     // First, we try to get the base income from the incomes module
 
-    for (auto & income : incomes) {
+    for (auto & income : all_incomes()) {
         if (income.since <= d && income.until >= d) {
             return income.amount;
         }
@@ -195,7 +195,7 @@ budget::income & budget::new_income(budget::money amount, bool print){
 
     if (incomes.size()) {
         // Try to edit the income from the same month
-        for (auto & income : incomes) {
+        for (auto & income : all_incomes()) {
             if (income.since == since && income.until == until) {
                 income.amount = new_income.amount;
 
@@ -214,7 +214,7 @@ budget::income & budget::new_income(budget::money amount, bool print){
         budget::date date = incomes.data.front().since;
         size_t id         = incomes.data.front().id;
 
-        for (auto & income : incomes) {
+        for (auto & income : all_incomes()) {
             if (income.since > date) {
                 date = income.since;
                 id   = income.id;

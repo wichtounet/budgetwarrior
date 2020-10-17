@@ -234,22 +234,6 @@ struct data_handler {
         return data.size();
     }
 
-    decltype(auto) begin() {
-        return data.begin();
-    }
-
-    decltype(auto) begin() const {
-        return data.begin();
-    }
-
-    decltype(auto) end() {
-        return data.end();
-    }
-
-    decltype(auto) end() const {
-        return data.end();
-    }
-
     const char* get_module() const {
         return module;
     }
