@@ -15,6 +15,7 @@
 #include "utils.hpp"
 #include "server.hpp"
 #include "api.hpp"
+#include "server_lock.hpp"
 
 namespace budget {
 
@@ -36,6 +37,8 @@ struct data_handler {
     }
 
     void set_changed() {
+        server_lock_guard l(lock);
+
         if (is_server_running()) {
             force_save();
         } else {
@@ -254,7 +257,8 @@ struct data_handler {
 private:
     const char* module;
     const char* path;
-    bool changed = false;
+    volatile bool changed = false;
+    mutable server_lock lock;
 };
 
 } //end of namespace budget
