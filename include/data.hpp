@@ -21,7 +21,7 @@ namespace budget {
 
 template<typename T>
 struct data_handler {
-    size_t next_id;
+    size_t next_id; // Note: No need to protect this since this is only accessed by GC (not run from server)
     std::vector<T> data;
 
     data_handler(const char* module, const char* path) : module(module), path(path) {
