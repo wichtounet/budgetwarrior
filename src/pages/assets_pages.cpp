@@ -65,9 +65,9 @@ void budget::add_assets_page(const httplib::Request& req, httplib::Response& res
 
     add_currency_picker(w);
     add_portfolio_picker(w, false);
-    add_money_picker(w, "Percent of portfolio (%)", "input_alloc", "");
+    add_money_picker(w, "Percent of portfolio (%)", "input_alloc", "", false);
     add_share_based_picker(w, false);
-    add_text_picker(w, "Ticker", "input_ticker", "");
+    add_text_picker(w, "Ticker", "input_ticker", "", false);
 
     form_end(w);
 
