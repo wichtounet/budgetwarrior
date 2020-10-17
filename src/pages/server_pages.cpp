@@ -769,12 +769,16 @@ void budget::form_end(budget::writer& w, const std::string& button) {
     w << "</form>";
 }
 
-void budget::add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value) {
+void budget::add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool required) {
     w << R"=====(<div class="form-group">)=====";
 
     w << "<label for=\"" << name << "\">" << title << "</label>";
 
-    w << "<input required type=\"text\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    if (required) {
+        w << "<input required type=\"text\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    } else {
+        w << "<input type=\"text\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    }
 
     if (default_value.empty()) {
         w << " placeholder=\"Enter " << title << "\"";
@@ -1108,7 +1112,8 @@ void budget::add_integer_picker(budget::writer& w, const std::string& title, con
     w << "</div>";
 }
 
-void budget::add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool one_line, const std::string& currency) {
+void budget::add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool required,
+                              bool one_line, const std::string& currency) {
     if(!currency.empty()){
         cpp_assert(one_line, "add_money_picker currency only works with one_line");
     }
@@ -1125,7 +1130,11 @@ void budget::add_money_picker(budget::writer& w, const std::string& title, const
         w << "<label for=\"" << name << "\">" << title << "</label>";
     }
 
-    w << "<input required type=\"number\" step=\"0.01\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    if (required) {
+        w << "<input required type=\"number\" step=\"0.01\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    } else {
+        w << "<input type=\"number\" step=\"0.01\" class=\"form-control\" id=\"" << name << "\" name=\"" << name << "\" ";
+    }
 
     if (default_value.empty()) {
         w << " placeholder=\"Enter " << title << "\" ";

@@ -41,7 +41,7 @@ void page_form_begin(budget::writer& w, const std::string& action);
 void form_begin_edit(budget::writer& w, const std::string& action, const std::string& back_page, const std::string& input_id);
 void form_end(budget::writer& w, const std::string& button = "");
 
-void add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value);
+void add_text_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool required = true);
 void add_name_picker(budget::writer& w, const std::string& default_value = "");
 void add_title_picker(budget::writer& w, const std::string& default_value = "");
 void add_amount_picker(budget::writer& w, const std::string& default_value = "");
@@ -54,7 +54,7 @@ void add_share_asset_picker(budget::writer& w, const std::string& default_value 
 void add_value_asset_picker(budget::writer& w, const std::string& default_value = "");
 void add_liability_picker(budget::writer& w, const std::string& default_value = "");
 void add_money_picker(budget::writer& w, const std::string& title, const std::string& name,
-                      const std::string& default_value, bool one_line = false, const std::string& currency = "");
+                      const std::string& default_value, bool required = true, bool one_line = false, const std::string& currency = "");
 void add_integer_picker(budget::writer& w, const std::string& title, const std::string& name, bool negative,
                         const std::string& default_value = "");
 

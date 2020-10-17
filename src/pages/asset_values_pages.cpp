@@ -106,7 +106,7 @@ void budget::full_batch_asset_values_page(const httplib::Request& req, httplib::
         if (!asset.share_based) {
             budget::money amount = get_asset_value(asset);
 
-            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
+            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, true, asset.currency);
         }
     }
 
@@ -139,7 +139,7 @@ void budget::current_batch_asset_values_page(const httplib::Request& req, httpli
             budget::money amount = get_asset_value(asset);
 
             if (amount) {
-                add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, asset.currency);
+                add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, true, asset.currency);
             }
         }
     }
