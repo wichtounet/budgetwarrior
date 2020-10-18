@@ -147,6 +147,8 @@ struct data_handler {
     }
 
     bool edit(T& value){
+        server_lock_guard l(lock);
+
         if(is_server_mode()){
             auto params = value.get_params();
 
@@ -168,6 +170,8 @@ struct data_handler {
 
     template <typename TT>
     size_t add(TT&& entry) {
+        server_lock_guard l(lock);
+
         if (is_server_mode()) {
             auto params = entry.get_params();
 
@@ -194,6 +198,8 @@ struct data_handler {
     }
 
     void remove(size_t id) {
+        server_lock_guard l(lock);
+
         data_.erase(std::remove_if(data_.begin(), data_.end(),
                                   [id](const T& entry) { return entry.id == id; }),
                    data_.end());
@@ -210,6 +216,8 @@ struct data_handler {
     }
 
     bool exists(size_t id) {
+        server_lock_guard l(lock);
+
         for (auto& entry : data_) {
             if (entry.id == id) {
                 return true;
@@ -220,6 +228,8 @@ struct data_handler {
     }
 
     T& operator[](size_t id) {
+        server_lock_guard l(lock);
+
         for (auto& value : data_) {
             if (value.id == id) {
                 return value;
