@@ -62,20 +62,20 @@ private:
     Filter filter;
 };
 
-template<typename Iterator, typename Filter>
+template<typename Container, typename Filter>
 struct filter_view {
-    filter_view(Iterator first, Iterator last, Filter filter) : first(first), last(last), filter(filter) {}
+    filter_view(const Container & container, Filter filter) : container(container), filter(filter) {}
 
     auto begin() const {
-        return filter_iterator<Iterator, Filter>(first, last, filter);
+        return filter_iterator<typename Container::const_iterator, Filter>(container.begin(), container.end(), filter);
     }
 
     auto end() const {
-        return filter_iterator<Iterator, Filter>(last, last, filter);
+        return filter_iterator<typename Container::const_iterator, Filter>(container.end(), container.end(), filter);
     }
 
     auto to_vector() const {
-        std::vector<typename Iterator::value_type> copy;
+        std::vector<typename Container::value_type> copy;
 
         auto it  = this->begin();
         auto end = this->end();
@@ -89,14 +89,13 @@ struct filter_view {
     }
 
 private:
-    Iterator first;
-    Iterator last;
+    Container container;
     Filter filter;
 };
 
-template <typename Iterator, typename Filter>
-auto make_filter_view(Iterator first, Iterator last, Filter filter){
-    return filter_view<Iterator, Filter>(first, last, filter);
+template <typename Container, typename Filter>
+auto make_filter_view(const Container & container, Filter filter){
+    return filter_view<Container, Filter>(container, filter);
 }
 
 } //end of namespace budget

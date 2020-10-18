@@ -239,7 +239,7 @@ budget::money get_asset_class_allocation(const budget::asset& asset, const budge
 // Filter functions
 
 inline auto all_user_assets() {
-    return make_filter_view(begin(all_assets()), end(all_assets()), [=](const asset& a) {
+    return make_filter_view(all_assets(), [=](const asset& a) {
         return a.name != "DESIRED";
     });
 }
