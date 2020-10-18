@@ -59,7 +59,9 @@ void budget::assets_card(budget::html_writer& w){
     if (group_style) {
         std::vector<std::string> groups;
 
-        for (auto& asset : all_user_assets()) {
+        auto user_assets = all_user_assets();
+
+        for (auto& asset : user_assets) {
             std::string group = asset.name.substr(0, asset.name.find(separator));
 
             if (std::find(groups.begin(), groups.end(), group) == groups.end()) {
@@ -70,7 +72,7 @@ void budget::assets_card(budget::html_writer& w){
         for (auto& group : groups) {
             bool started = false;
 
-            for (auto& asset : all_user_assets()) {
+            for (auto& asset : user_assets) {
                 if (asset.name.substr(0, asset.name.find(separator)) == group) {
                     auto short_name = asset.name.substr(asset.name.find(separator) + 1);
 
