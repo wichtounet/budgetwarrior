@@ -836,15 +836,18 @@ void budget::show_asset_portfolio(budget::writer& w){
 
     budget::money total;
 
-    for (auto& asset : all_user_assets()) {
+    auto asset_values = all_asset_values();
+    auto user_assets  = all_user_assets();
+
+    for (auto& asset : user_assets) {
         if (asset.portfolio) {
-            total += get_asset_value_conv(asset);
+            total += get_asset_value_conv(asset, asset_values);
         }
     }
 
-    for(auto& asset : all_user_assets()){
+    for(auto& asset : user_assets){
         if (asset.portfolio) {
-            auto amount = get_asset_value(asset);
+            auto amount = get_asset_value(asset, asset_values);
 
             if (amount) {
                 auto conv_amount  = amount * exchange_rate(asset.currency);
@@ -878,13 +881,15 @@ void budget::show_asset_rebalance(budget::writer& w, bool nocash){
 
     budget::money total;
 
+    auto asset_values = all_asset_values();
+
     for (auto& asset : all_user_assets()) {
         if (asset.portfolio) {
             if (nocash && asset.is_cash()) {
                 continue;
             }
 
-            total += get_asset_value_conv(asset);
+            total += get_asset_value_conv(asset, asset_values);
         }
     }
 
@@ -896,7 +901,7 @@ void budget::show_asset_rebalance(budget::writer& w, bool nocash){
                 continue;
             }
 
-            auto amount = get_asset_value(asset);
+            auto amount = get_asset_value(asset, asset_values);
 
             if (amount.zero() && asset.portfolio_alloc.zero()) {
                 continue;
@@ -944,8 +949,10 @@ void budget::small_show_asset_values(budget::writer& w){
 
     budget::money total;
 
+    auto asset_values = all_asset_values();
+
     for (auto& asset : all_user_assets()) {
-        auto amount = get_asset_value(asset);
+        auto amount = get_asset_value(asset, asset_values);
 
         if (amount) {
             contents.push_back({asset.name, to_string(amount), asset.currency});
@@ -974,6 +981,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
         std::vector<std::string> columns = {"Name"};
 
         auto asset_classes = all_asset_classes();
+        auto asset_values  = all_asset_values();
 
         for (auto & clas : asset_classes) {
             columns.emplace_back(clas.name);
@@ -990,7 +998,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
         budget::money liabilities_total;
 
         for(auto& asset : all_user_assets()){
-            auto amount = get_asset_value(asset);
+            auto amount = get_asset_value(asset, asset_values);
 
             if (amount) {
                 std::vector<std::string> line;
@@ -1239,9 +1247,11 @@ void budget::add_asset(budget::asset& asset){
 budget::money budget::get_portfolio_value(){
     budget::money total;
 
+    auto asset_values = all_asset_values();
+
     for (auto & asset : all_user_assets()) {
         if (asset.portfolio) {
-            total += get_asset_value_conv(asset);
+            total += get_asset_value_conv(asset, asset_values);
         }
     }
 
@@ -1255,8 +1265,10 @@ budget::money budget::get_net_worth(){
 budget::money budget::get_net_worth(budget::date d){
     budget::money total;
 
+    auto asset_values = all_asset_values();
+
     for (auto & asset : all_user_assets()) {
-        total += get_asset_value_conv(asset, d);
+        total += get_asset_value_conv(asset, d, asset_values);
     }
 
     for (auto & asset : all_liabilities()) {
@@ -1269,16 +1281,18 @@ budget::money budget::get_net_worth(budget::date d){
 budget::money budget::get_net_worth_cash(){
     budget::money total;
 
+    auto asset_values = all_asset_values();
+
     for (auto & asset : all_user_assets()) {
         if (asset.is_cash()) {
-            total += get_asset_value_conv(asset);
+            total += get_asset_value_conv(asset, asset_values);
         }
     }
 
     return total;
 }
 
-budget::money budget::get_asset_value(const budget::asset & asset, budget::date d) {
+budget::money budget::get_asset_value(const budget::asset & asset, budget::date d, const std::vector<budget::asset_value> & asset_values) {
     if (asset.share_based) {
         int64_t shares = 0;
 
@@ -1298,7 +1312,7 @@ budget::money budget::get_asset_value(const budget::asset & asset, budget::date 
         budget::money asset_value_amount;
         budget::date asset_value_date(1500, 1, 1);
 
-        for (auto& asset_value : all_asset_values()) {
+        for (auto& asset_value : asset_values) {
             if (!asset_value.liability && asset_value.asset_id == asset.id) {
                 if (asset_value.set_date <= d) {
                     if (!asset_value_found) {
@@ -1322,24 +1336,24 @@ budget::money budget::get_asset_value(const budget::asset & asset, budget::date 
     return {};
 }
 
-budget::money budget::get_asset_value(const budget::asset & asset) {
-    return get_asset_value(asset, budget::local_day());
+budget::money budget::get_asset_value(const budget::asset & asset, const std::vector<budget::asset_value> & asset_values) {
+    return get_asset_value(asset, budget::local_day(), asset_values);
 }
 
-budget::money budget::get_asset_value_conv(const budget::asset & asset) {
-    return get_asset_value_conv(asset, budget::local_day());
+budget::money budget::get_asset_value_conv(const budget::asset & asset, const std::vector<budget::asset_value> & asset_values) {
+    return get_asset_value_conv(asset, budget::local_day(), asset_values);
 }
 
-budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d) {
-    auto amount = get_asset_value(asset, d);
+budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d, const std::vector<budget::asset_value> & asset_values) {
+    auto amount = get_asset_value(asset, d, asset_values);
     return amount * exchange_rate(asset.currency, d);
 }
 
-budget::money budget::get_asset_value_conv(const budget::asset & asset, const std::string& currency) {
-    return get_asset_value_conv(asset, budget::local_day(), currency);
+budget::money budget::get_asset_value_conv(const budget::asset & asset, const std::string& currency, const std::vector<budget::asset_value> & asset_values) {
+    return get_asset_value_conv(asset, budget::local_day(), currency, asset_values);
 }
 
-budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d, const std::string& currency) {
-    auto amount = get_asset_value(asset, d);
+budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d, const std::string& currency, const std::vector<budget::asset_value> & asset_values) {
+    auto amount = get_asset_value(asset, d, asset_values);
     return amount * exchange_rate(asset.currency, currency, d);
 }
