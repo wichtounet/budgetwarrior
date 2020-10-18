@@ -41,7 +41,7 @@ struct wish {
     size_t importance;
     size_t urgency;
 
-    std::map<std::string, std::string> get_params();
+    std::map<std::string, std::string> get_params() const ;
 };
 
 std::ostream& operator<<(std::ostream& stream, const wish& expense);

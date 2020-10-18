@@ -31,7 +31,7 @@ static data_handler<income> incomes { "incomes", "incomes.data" };
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::income::get_params(){
+std::map<std::string, std::string> budget::income::get_params() const {
     std::map<std::string, std::string> params;
 
     params["input_id"]     = budget::to_string(id);

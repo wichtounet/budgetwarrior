@@ -38,7 +38,7 @@ struct account {
     date since;
     date until;
 
-    std::map<std::string, std::string> get_params();
+    std::map<std::string, std::string> get_params() const ;
 };
 
 std::ostream& operator<<(std::ostream& stream, const account& account);

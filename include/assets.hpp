@@ -37,7 +37,7 @@ struct asset_class {
     std::string guid;
     std::string name;
 
-    std::map<std::string, std::string> get_params();
+    std::map<std::string, std::string> get_params() const ;
 };
 
 budget::asset_class& get_asset_class(size_t id);
@@ -61,7 +61,7 @@ struct asset {
     money bonds;
     money cash;
 
-    std::map<std::string, std::string> get_params();
+    std::map<std::string, std::string> get_params() const ;
 
     money total_allocation() const {
         money total;
@@ -97,7 +97,7 @@ struct asset_value {
     budget::date set_date;
     bool liability;
 
-    std::map<std::string, std::string> get_params();
+    std::map<std::string, std::string> get_params() const ;
 };
 
 // Used to indicate purchase of shares
@@ -109,7 +109,7 @@ struct asset_share {
     budget::money price; // The purchase price
     budget::date date;   // The purchase date
 
-    std::map<std::string, std::string> get_params();
+    std::map<std::string, std::string> get_params() const ;
 
     bool is_buy() const {
         return shares >= 0;

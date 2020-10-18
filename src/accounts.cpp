@@ -51,7 +51,7 @@ void adapt(Values& values, size_t old, size_t id){
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::account::get_params(){
+std::map<std::string, std::string> budget::account::get_params() const {
     std::map<std::string, std::string> params;
 
     params["input_id"]     = budget::to_string(id);

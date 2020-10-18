@@ -21,7 +21,7 @@ static data_handler<asset_class> asset_classes { "asset_classes", "asset_classes
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::asset_class::get_params(){
+std::map<std::string, std::string> budget::asset_class::get_params() const {
     std::map<std::string, std::string> params;
 
     params["input_id"]   = budget::to_string(id);

@@ -27,7 +27,7 @@ static data_handler<asset_value> asset_values { "asset_values", "asset_values.da
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::asset_value::get_params(){
+std::map<std::string, std::string> budget::asset_value::get_params() const {
     std::map<std::string, std::string> params;
 
     params["input_id"]       = budget::to_string(id);

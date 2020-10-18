@@ -22,7 +22,7 @@ static data_handler<asset_share> asset_shares { "asset_shares", "asset_shares.da
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::asset_share::get_params(){
+std::map<std::string, std::string> budget::asset_share::get_params() const {
     std::map<std::string, std::string> params;
 
     params["input_id"]       = budget::to_string(id);

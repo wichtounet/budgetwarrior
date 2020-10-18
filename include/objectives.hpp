@@ -41,7 +41,7 @@ struct objective {
     std::string op;
     money amount;
 
-    std::map<std::string, std::string> get_params();
+    std::map<std::string, std::string> get_params() const ;
 };
 
 std::ostream& operator<<(std::ostream& stream, const objective& expense);
