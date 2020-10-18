@@ -37,7 +37,6 @@
 #include "versioning.hpp"
 #include "version.hpp"
 #include "predict.hpp"
-#include "gc.hpp"
 #include "server.hpp"
 #include "retirement.hpp"
 
@@ -65,7 +64,6 @@ typedef std::tuple<
             budget::version_module,
             budget::predict_module,
             budget::retirement_module,
-            budget::gc_module,
             budget::help_module
     > modules_tuple;
 
