@@ -50,7 +50,7 @@ void operator>>(const std::vector<std::string>& parts, wish& expense);
 void load_wishes();
 void save_wishes();
 
-std::vector<wish>& all_wishes();
+std::vector<wish> all_wishes();
 
 void set_wishes_changed();
 void set_wishes_next_id(size_t next_id);

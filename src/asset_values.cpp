@@ -87,7 +87,7 @@ void budget::operator>>(const std::vector<std::string>& parts, asset_value& asse
     }
 }
 
-std::vector<asset_value>& budget::all_asset_values(){
+std::vector<asset_value> budget::all_asset_values(){
     return asset_values.data();
 }
 

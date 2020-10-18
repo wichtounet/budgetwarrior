@@ -225,7 +225,7 @@ std::vector<budget::money> compute_total_budget(budget::month month, budget::yea
 
 template <typename T>
 void add_values_column(budget::month month, budget::year year, const std::string& title, std::vector<std::vector<std::string>>& contents,
-                       std::unordered_map<std::string, size_t>& indexes, size_t columns, std::vector<T>& values, std::vector<budget::money>& total) {
+                       std::unordered_map<std::string, size_t>& indexes, size_t columns, const std::vector<T>& values, std::vector<budget::money>& total) {
     std::vector<size_t> current(columns, contents.size());
 
     std::vector<T> sorted_values = values;
@@ -272,7 +272,7 @@ struct icompare_str {
 };
 
 template<typename Data, typename Functor>
-void aggregate_overview(Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
+void aggregate_overview(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
     std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_data;
 
     budget::money total;
@@ -366,7 +366,7 @@ void aggregate_overview(Data & data, budget::writer& w, bool full, bool disable_
 }
 
 template<typename Data, typename Functor>
-void aggregate_overview_month(Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year, Functor&& func){
+void aggregate_overview_month(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year, Functor&& func){
     std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_data;
 
     int months;

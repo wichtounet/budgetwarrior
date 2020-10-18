@@ -59,7 +59,7 @@ void save_recurrings();
 
 void migrate_recurring_1_to_2();
 
-std::vector<recurring>& all_recurrings();
+std::vector<recurring> all_recurrings();
 
 void set_recurrings_changed();
 void set_recurrings_next_id(size_t next_id);

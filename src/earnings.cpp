@@ -159,7 +159,7 @@ void budget::operator>>(const std::vector<std::string>& parts, earning& earning)
     }
 }
 
-std::vector<earning>& budget::all_earnings(){
+std::vector<earning> budget::all_earnings(){
     return earnings.data();
 }
 

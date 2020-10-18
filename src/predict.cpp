@@ -28,8 +28,8 @@ namespace {
 void predict_overview(){
     auto today = budget::local_day();
 
-    auto& expenses = all_expenses();
-    auto& earnings = all_earnings();
+    auto expenses = all_expenses();
+    auto earnings = all_earnings();
 
     auto accounts = current_accounts();
 

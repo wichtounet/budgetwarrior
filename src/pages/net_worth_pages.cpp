@@ -131,7 +131,9 @@ void budget::assets_card(budget::html_writer& w){
 }
 
 void budget::liabilities_card(budget::html_writer& w){
-    if (all_liabilities().empty()) {
+    auto liabilities = all_liabilities();
+
+    if (liabilities.empty()) {
         return;
     }
 
@@ -150,7 +152,7 @@ void budget::liabilities_card(budget::html_writer& w){
 
     bool first = true;
 
-    for (auto& liability : all_liabilities()) {
+    for (auto& liability : liabilities) {
         auto amount = get_liability_value(liability);
 
         if (amount) {
@@ -356,14 +358,17 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
     auto date     = budget::asset_start_date();
     auto end_date = budget::local_day();
 
+    auto user_assets = all_user_assets();
+    auto liabilities = all_liabilities();
+
     while (date <= end_date) {
         budget::money sum;
 
-        for (auto & asset : all_user_assets()) {
+        for (auto & asset : user_assets) {
             sum += get_asset_value_conv(asset, date);
         }
 
-        for (auto & asset : all_liabilities()) {
+        for (auto & asset : liabilities) {
             sum -= get_liability_value_conv(asset, date);
         }
 
@@ -448,7 +453,10 @@ void budget::net_worth_allocation_page(const httplib::Request& req, httplib::Res
 
     ss << "series: [";
 
-    for (auto & clas : all_asset_classes()) {
+    auto asset_classes = all_asset_classes();
+    auto user_assets   = all_user_assets();
+
+    for (auto & clas : asset_classes) {
         ss << "{ name: '" << clas.name << "',";
         ss << "data: [";
 
@@ -458,7 +466,7 @@ void budget::net_worth_allocation_page(const httplib::Request& req, httplib::Res
         while (date <= end_date) {
             budget::money sum;
 
-            for (auto & asset : all_user_assets()) {
+            for (auto & asset : user_assets) {
                 sum += get_asset_value_conv(asset, date) * (float(get_asset_class_allocation(asset, clas)) / 100.0f);
             }
 
@@ -486,13 +494,13 @@ void budget::net_worth_allocation_page(const httplib::Request& req, httplib::Res
     ss2 << "colorByPoint: true,";
     ss2 << "data: [";
 
-    for (auto & clas : all_asset_classes()) {
+    for (auto & clas : asset_classes) {
         ss2 << "{ name: '" << clas.name << "',";
         ss2 << "y: ";
 
         budget::money sum;
 
-        for (auto & asset : all_user_assets()){
+        for (auto & asset : user_assets){
             sum += get_asset_value_conv(asset) * (float(get_asset_class_allocation(asset, clas)) / 100.0f);
         }
 
@@ -529,7 +537,9 @@ void budget::portfolio_allocation_page(const httplib::Request& req, httplib::Res
 
     ss << "series: [";
 
-    for (auto & clas : all_asset_classes()) {
+    auto asset_classes = all_asset_classes();
+
+    for (auto & clas : asset_classes) {
         ss << "{ name: '" << clas.name << "',";
         ss << "data: [";
 
@@ -569,7 +579,7 @@ void budget::portfolio_allocation_page(const httplib::Request& req, httplib::Res
     ss2 << "colorByPoint: true,";
     ss2 << "data: [";
 
-    for (auto & clas : all_asset_classes()) {
+    for (auto & clas : asset_classes) {
         ss2 << "{ name: '" << clas.name << "',";
         ss2 << "y: ";
 
@@ -620,6 +630,9 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
 
     ss << "series: [";
 
+    auto user_assets = all_user_assets();
+    auto liabilities = all_liabilities();
+
     for (auto& currency : currencies) {
         ss << "{ name: '" << currency << "',";
         ss << "data: [";
@@ -630,13 +643,13 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
         while (date <= end_date) {
             budget::money sum;
 
-            for (auto & asset : all_user_assets()) {
+            for (auto & asset : user_assets) {
                 if (asset.currency == currency) {
                     sum += get_asset_value_conv(asset, date);
                 }
             }
 
-            for (auto & liability : all_liabilities()) {
+            for (auto & liability : liabilities) {
                 if (liability.currency == currency) {
                     sum -= get_liability_value_conv(liability, date);
                 }
@@ -659,11 +672,11 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
     for (auto& currency : currencies) {
         budget::money net_worth;
 
-        for (auto & asset : all_user_assets()) {
+        for (auto & asset : user_assets) {
             net_worth += get_asset_value_conv(asset, currency);
         }
 
-        for (auto & liability : all_liabilities()) {
+        for (auto & liability : liabilities) {
             net_worth -= get_liability_value_conv(liability, currency);
         }
 

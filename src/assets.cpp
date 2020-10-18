@@ -112,8 +112,10 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             asset.share_based     = false;
             asset.ticker          = "";
 
+            auto asset_classes = all_asset_classes();
+
             do {
-                for (auto & clas : all_asset_classes()) {
+                for (auto & clas : asset_classes) {
                     budget::money alloc = get_asset_class_allocation(asset, clas);
                     edit_money(alloc, clas.name);
                     update_asset_class_allocation(asset, clas, alloc);
@@ -221,8 +223,10 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 }
             }
 
+            auto asset_classes = all_asset_classes();
+
             do {
-                for (auto & clas : all_asset_classes()) {
+                for (auto & clas : asset_classes) {
                     budget::money alloc = get_asset_class_allocation(asset, clas);
                     edit_money(alloc, clas.name);
                     update_asset_class_allocation(asset, clas, alloc);
@@ -489,8 +493,10 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
         } else if (subcommand == "distribution") {
             auto& desired = get_desired_allocation();
 
+            auto asset_classes = all_asset_classes();
+
             do {
-                for (auto & clas : all_asset_classes()) {
+                for (auto & clas : asset_classes) {
                     budget::money alloc = get_asset_class_allocation(desired, clas);
                     edit_money(alloc, clas.name);
                     update_asset_class_allocation(desired, clas, alloc);
@@ -691,7 +697,7 @@ bool budget::share_asset_exists(const std::string& name){
     return false;
 }
 
-std::vector<asset>& budget::all_assets(){
+std::vector<asset> budget::all_assets(){
     return assets.data();
 }
 
@@ -761,7 +767,9 @@ void budget::show_assets(budget::writer& w){
 
     std::vector<std::string> columns = {"ID", "Name"};
 
-    for (auto & clas : all_asset_classes()) {
+    auto asset_classes = all_asset_classes();
+
+    for (auto & clas : asset_classes) {
         columns.emplace_back(clas.name);
     }
 
@@ -786,7 +794,7 @@ void budget::show_assets(budget::writer& w){
         line.emplace_back(to_string(asset.id));
         line.emplace_back(asset.name);
 
-        for (auto& clas : all_asset_classes()) {
+        for (auto& clas : asset_classes) {
             bool found = false;
 
             for (auto& [class_id, alloc] : asset.classes) {
@@ -965,7 +973,9 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         std::vector<std::string> columns = {"Name"};
 
-        for (auto & clas : all_asset_classes()) {
+        auto asset_classes = all_asset_classes();
+
+        for (auto & clas : asset_classes) {
             columns.emplace_back(clas.name);
         }
 
@@ -987,7 +997,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
                 line.emplace_back(asset.name);
 
-                for (auto& clas : all_asset_classes()) {
+                for (auto& clas : asset_classes) {
                     bool found = false;
 
                     for (auto& [class_id, alloc] : asset.classes) {
@@ -1021,7 +1031,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
             line.emplace_back("Total");
 
-            for (auto& clas : all_asset_classes()) {
+            for (auto& clas : asset_classes) {
                 if (classes.count(clas.name)) {
                     line.emplace_back(budget::to_string(classes[clas.name]));
                 } else {
@@ -1042,7 +1052,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
             line.emplace_back("Distribution");
 
-            for (auto& clas : all_asset_classes()) {
+            for (auto& clas : asset_classes) {
                 if (classes.count(clas.name)) {
                     auto amount = classes[clas.name];
                     line.emplace_back(budget::to_string_precision(100 * amount.dollars() / (double) assets_total.dollars(), 2));
@@ -1068,7 +1078,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             line2.emplace_back("Desired Total");
             line3.emplace_back("Difference (need)");
 
-            for (auto& clas : all_asset_classes()) {
+            for (auto& clas : asset_classes) {
                 auto desired_alloc = get_asset_class_allocation(desired, clas);
 
                 line1.emplace_back(to_string(desired_alloc));
@@ -1095,10 +1105,12 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             contents.emplace_back(std::move(line3));
         }
 
-        if (all_liabilities().size()) {
+        auto liabilities = all_liabilities();
+
+        if (liabilities.size()) {
             contents.emplace_back(columns.size(), "");
 
-            for (auto & liability : all_liabilities()) {
+            for (auto & liability : liabilities) {
                 auto amount = get_liability_value(liability);
 
                 if (amount) {
@@ -1164,7 +1176,9 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         budget::money total;
 
-        for(auto& asset : all_liabilities()){
+        auto liabilities = all_liabilities();
+
+        for(auto& asset : liabilities){
             auto amount = get_liability_value(asset);
 
             if (amount) {

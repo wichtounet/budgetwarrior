@@ -54,7 +54,7 @@ void current_monthly_objective_status(budget::writer& w, bool full_align);
 void load_objectives();
 void save_objectives();
 
-std::vector<objective>& all_objectives();
+std::vector<objective> all_objectives();
 
 void set_objectives_changed();
 void set_objectives_next_id(size_t next_id);

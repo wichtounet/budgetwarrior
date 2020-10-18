@@ -313,7 +313,7 @@ void budget::operator>>(const std::vector<std::string>& parts, objective& object
     }
 }
 
-std::vector<objective>& budget::all_objectives(){
+std::vector<objective> budget::all_objectives(){
     return objectives.data();
 }
 

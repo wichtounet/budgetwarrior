@@ -48,7 +48,7 @@ void save_incomes();
 
 bool income_exists(const std::string& income);
 
-std::vector<budget::income>& all_incomes();
+std::vector<budget::income> all_incomes();
 
 void set_incomes_changed();
 void set_incomes_next_id(size_t next_id);

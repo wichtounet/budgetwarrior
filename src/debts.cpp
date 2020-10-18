@@ -198,7 +198,7 @@ void budget::migrate_debts_3_to_4(){
     debts.save();
 }
 
-std::vector<debt>& budget::all_debts(){
+std::vector<debt> budget::all_debts(){
     return debts.data();
 }
 

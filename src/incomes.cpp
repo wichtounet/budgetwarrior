@@ -120,7 +120,7 @@ void budget::operator>>(const std::vector<std::string>& parts, income& income){
     }
 }
 
-std::vector<income>& budget::all_incomes(){
+std::vector<income> budget::all_incomes(){
     return incomes.data();
 }
 
@@ -194,8 +194,10 @@ budget::income & budget::new_income(budget::money amount, bool print){
     new_income.amount = amount;
 
     if (incomes.size()) {
+        auto incomes_copy = all_incomes();
+
         // Try to edit the income from the same month
-        for (auto & income : all_incomes()) {
+        for (auto & income : incomes_copy) {
             if (income.since == since && income.until == until) {
                 income.amount = new_income.amount;
 
@@ -211,10 +213,10 @@ budget::income & budget::new_income(budget::money amount, bool print){
 
         // Edit the previous income
 
-        budget::date date = incomes.data().front().since;
-        size_t id         = incomes.data().front().id;
+        budget::date date = incomes_copy.front().since;
+        size_t id         = incomes_copy.front().id;
 
-        for (auto & income : all_incomes()) {
+        for (auto & income : incomes_copy) {
             if (income.since > date) {
                 date = income.since;
                 id   = income.id;

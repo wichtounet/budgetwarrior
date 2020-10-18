@@ -293,7 +293,7 @@ bool budget::liability_exists(const std::string& name){
     return false;
 }
 
-std::vector<liability>& budget::all_liabilities(){
+std::vector<liability> budget::all_liabilities(){
     return liabilities.data();
 }
 
@@ -314,8 +314,14 @@ budget::date budget::liability_start_date() {
 
     //TODO If necessary, avoid double loops
 
-    for (auto & liability : all_liabilities()) {
-        start = std::min(liability_start_date(liability), start);
+    auto asset_values = all_asset_values();
+
+    for (auto& liability : all_liabilities()) {
+        for (auto& value : asset_values) {
+            if (value.liability && value.asset_id == liability.id) {
+                start = std::min(value.set_date, start);
+            }
+        }
     }
 
     return start;

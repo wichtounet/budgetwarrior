@@ -77,7 +77,7 @@ bool budget::asset_class_exists(const std::string& name){
     return false;
 }
 
-std::vector<asset_class>& budget::all_asset_classes(){
+std::vector<asset_class> budget::all_asset_classes(){
     return asset_classes.data();
 }
 

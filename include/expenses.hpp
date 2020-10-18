@@ -51,7 +51,7 @@ void operator>>(const std::vector<std::string>& parts, expense& expense);
 void load_expenses();
 void save_expenses();
 
-std::vector<expense>& all_expenses();
+std::vector<expense> all_expenses();
 void add_expense(expense&& expense);
 bool edit_expense(expense& expense);
 

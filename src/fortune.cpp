@@ -137,18 +137,19 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
 }
 
 budget::money budget::current_fortune(){
-    auto& all = all_fortunes();
+    auto all = all_fortunes();
 
-    if(all.empty()){
+    if (all.empty()) {
         return {};
     }
 
     budget::money fortune_amount = all.front().amount;
-    date fortune_date = all.front().check_date;;
-    for(auto& fortune : all_fortunes()){
-        if(fortune.check_date > fortune_date){
+    date fortune_date            = all.front().check_date;
+
+    for (auto& fortune : all) {
+        if (fortune.check_date > fortune_date) {
             fortune_amount = fortune.amount;
-            fortune_date = fortune.check_date;
+            fortune_date   = fortune.check_date;
         }
     }
 
@@ -226,7 +227,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
     }
 }
 
-std::vector<fortune>& budget::all_fortunes(){
+std::vector<fortune> budget::all_fortunes(){
     return fortunes.data();
 }
 

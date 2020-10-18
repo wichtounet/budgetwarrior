@@ -51,9 +51,9 @@ bool account_exists(const std::string& account);
 
 std::vector<std::string> all_account_names();
 
-std::vector<budget::account>& all_accounts();
-std::vector<budget::account>  all_accounts(year year, month month);
-std::vector<budget::account>  current_accounts();
+std::vector<budget::account> all_accounts();
+std::vector<budget::account> all_accounts(year year, month month);
+std::vector<budget::account> current_accounts();
 
 budget::account& get_account(size_t id);
 budget::account& get_account(std::string name, year year, month month);

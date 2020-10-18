@@ -248,6 +248,8 @@ void budget::batch_asset_values_api(const httplib::Request& req, httplib::Respon
         return;
     }
 
+    auto asset_values = all_asset_values();
+
     for (auto& asset : all_assets()) {
         auto input_name = "input_amount_" + budget::to_string(asset.id);
 
@@ -256,7 +258,7 @@ void budget::batch_asset_values_api(const httplib::Request& req, httplib::Respon
 
             budget::money current_amount;
 
-            for (auto& asset_value : all_asset_values()) {
+            for (auto& asset_value : asset_values) {
                 if (asset_value.asset_id == asset.id) {
                     current_amount = asset_value.amount;
                 }

@@ -47,7 +47,7 @@ budget::money current_fortune();
 void load_fortunes();
 void save_fortunes();
 
-std::vector<fortune>& all_fortunes();
+std::vector<fortune> all_fortunes();
 
 void list_fortunes(budget::writer& w);
 void status_fortunes(budget::writer& w, bool short_view);

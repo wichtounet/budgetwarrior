@@ -437,7 +437,7 @@ bool budget::account_exists(const std::string& name){
     return false;
 }
 
-std::vector<account>& budget::all_accounts(){
+std::vector<account> budget::all_accounts(){
     return accounts.data();
 }
 
@@ -521,7 +521,7 @@ void budget::show_all_accounts(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& account : accounts.data()){
+    for(auto& account : all_accounts()){
         contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until), "::edit::accounts::" + to_string(account.id)});
     }
 

@@ -48,7 +48,7 @@ void operator>>(const std::vector<std::string>& parts, earning& earning);
 void load_earnings();
 void save_earnings();
 
-std::vector<earning>& all_earnings();
+std::vector<earning> all_earnings();
 void add_earning(earning&& earning);
 
 void set_earnings_changed();

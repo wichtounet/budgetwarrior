@@ -242,7 +242,7 @@ void budget::migrate_recurring_1_to_2() {
         recurring.recurs      = parts[5];
     });
 
-    for (auto& recurring : all_recurrings()) {
+    for (auto& recurring : recurrings.unsafe_data()) {
         recurring.account = get_account(recurring.old_account).name;
     }
 
@@ -323,7 +323,7 @@ budget::month budget::last_month(const budget::recurring& recurring, budget::yea
     return month;
 }
 
-std::vector<recurring>& budget::all_recurrings() {
+std::vector<recurring> budget::all_recurrings() {
     return recurrings.data();
 }
 

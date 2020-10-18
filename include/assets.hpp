@@ -171,10 +171,10 @@ budget::asset_share& get_asset_share(size_t id);
 
 budget::asset& get_desired_allocation();
 
-std::vector<budget::asset_class>& all_asset_classes();
-std::vector<budget::asset>& all_assets();
-std::vector<budget::asset_value>& all_asset_values();
-std::vector<budget::asset_share>& all_asset_shares();
+std::vector<budget::asset_class> all_asset_classes();
+std::vector<budget::asset> all_assets();
+std::vector<budget::asset_value> all_asset_values();
+std::vector<budget::asset_share> all_asset_shares();
 
 budget::date asset_start_date();
 budget::date asset_start_date(const asset& asset);

@@ -52,7 +52,7 @@ void show_liabilities(budget::writer& w);
 budget::liability& get_liability(size_t id);
 budget::liability& get_liability(std::string name);
 
-std::vector<budget::liability>& all_liabilities();
+std::vector<budget::liability> all_liabilities();
 
 budget::date liability_start_date();
 budget::date liability_start_date(const liability& liability);

@@ -51,7 +51,7 @@ void save_debts();
 
 void migrate_debts_3_to_4();
 
-std::vector<debt>& all_debts();
+std::vector<debt> all_debts();
 
 void set_debts_changed();
 void set_debts_next_id(size_t next_id);

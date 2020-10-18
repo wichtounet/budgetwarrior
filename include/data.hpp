@@ -283,11 +283,20 @@ struct data_handler {
         return module;
     }
 
-    std::vector<T> & data() {
-        return data_;
+    std::vector<T> data() const {
+        std::vector<T> copy;
+        copy.reserve(size());
+
+        {
+            server_lock_guard l(lock);
+            std::copy(data_.begin(), data_.end(), std::back_inserter(copy));
+        }
+
+        return copy;
     }
 
-    const std::vector<T> & data() const {
+    // This can only be accessed during loading
+    std::vector<T> & unsafe_data() {
         return data_;
     }
 

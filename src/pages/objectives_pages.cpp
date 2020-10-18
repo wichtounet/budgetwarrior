@@ -108,10 +108,10 @@ void add_objective_source_picker(budget::writer& w, const std::string& default_v
 } // namespace
 
 void budget::objectives_card(budget::html_writer& w){
-    auto& objectives = all_objectives();
+    auto objectives = all_objectives();
 
     // if the user does not use objectives, this card does not make sense
-    if(objectives.empty()){
+    if (objectives.empty()) {
         return;
     }
 

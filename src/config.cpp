@@ -294,5 +294,6 @@ bool budget::net_worth_over_fortune(){
     // By default, fortune is the thing being taken into account
     // Unless it's not used and net worth is used
 
+    // TODO This can be a very expensive operation!
     return all_asset_values().size() && !all_fortunes().size();
 }
