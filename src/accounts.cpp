@@ -40,15 +40,6 @@ size_t get_account_id(std::string name, budget::year year, budget::month month){
     return 0;
 }
 
-template<typename Values>
-void adapt(Values& values, size_t old, size_t id){
-    for(auto& value : values){
-        if(value.account == old){
-            value.account = id;
-        }
-    }
-}
-
 } //end of anonymous namespace
 
 std::map<std::string, std::string> budget::account::get_params() const {
@@ -325,8 +316,19 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
                             destination_account.amount += account.amount;
 
-                            adapt(all_expenses(), source_id, destination_id);
-                            adapt(all_earnings(), source_id, destination_id);
+                            for (auto& expense : all_expenses()) {
+                                if (expense.account == source_id) {
+                                    expense.account = destination_id;
+                                    indirect_edit_expense(expense, false);
+                                }
+                            }
+
+                            for (auto& earning : all_earnings()) {
+                                if (earning.account == source_id) {
+                                    earning.account = destination_id;
+                                    indirect_edit_earning(earning, false);
+                                }
+                            }
 
                             deleted.push_back(source_id);
                         }

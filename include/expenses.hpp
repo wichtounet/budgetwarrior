@@ -68,6 +68,8 @@ void show_expenses(budget::month month, budget::writer& w);
 void show_expenses(budget::writer& w);
 void search_expenses(const std::string& search, budget::writer& w);
 
+bool indirect_edit_expense(const expense & expense, bool propagate = true);
+
 // Filter functions
 
 inline auto all_expenses_year(budget::year year) {

@@ -168,6 +168,38 @@ struct data_handler {
         }
     }
 
+    bool indirect_edit(const T& value, bool propagate = true) {
+        server_lock_guard l(lock);
+
+        if (is_server_mode()) {
+            auto params = value.get_params();
+
+            auto res = budget::api_post(std::string("/") + get_module() + "/edit/", params);
+
+            if (!res.success) {
+                std::cerr << "error: Failed to edit from " << get_module() << std::endl;
+
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            for (auto& v : data_) {
+                if (v.id == value.id) {
+                    v = value;
+
+                    if (propagate) {
+                        set_changed();
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
     template <typename TT>
     size_t add(TT&& entry) {
         server_lock_guard l(lock);

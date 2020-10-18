@@ -256,6 +256,10 @@ std::vector<expense>& budget::all_expenses(){
     return expenses.data();
 }
 
+bool budget::indirect_edit_expense(const expense & expense, bool propagate) {
+    return expenses.indirect_edit(expense, propagate);
+}
+
 void budget::set_expenses_changed(){
     expenses.set_changed();
 }

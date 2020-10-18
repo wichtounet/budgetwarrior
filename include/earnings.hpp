@@ -64,6 +64,8 @@ void show_earnings(budget::month month, budget::writer& w);
 void show_earnings(budget::writer& w);
 void search_earnings(const std::string& search, budget::writer& w);
 
+bool indirect_edit_earning(const earning & earning, bool propagate = true);
+
 // Filter functions
 
 inline auto all_earnings_year(budget::year year) {

@@ -163,6 +163,10 @@ std::vector<earning>& budget::all_earnings(){
     return earnings.data();
 }
 
+bool budget::indirect_edit_earning(const earning & earning, bool propagate) {
+    return earnings.indirect_edit(earning, propagate);
+}
+
 void budget::set_earnings_changed(){
     earnings.set_changed();
 }
