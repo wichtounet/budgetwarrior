@@ -221,20 +221,20 @@ budget::money get_net_worth_cash();
 budget::money get_net_worth(budget::date d);
 
 // The value of an asset in its own currency
-budget::money get_asset_value(budget::asset & asset);
-budget::money get_asset_value(budget::asset & asset, budget::date d);
+budget::money get_asset_value(const budget::asset & asset);
+budget::money get_asset_value(const budget::asset & asset, budget::date d);
 
 // The value of an asset in the default currency
-budget::money get_asset_value_conv(budget::asset & asset);
-budget::money get_asset_value_conv(budget::asset & asset, budget::date d);
+budget::money get_asset_value_conv(const budget::asset & asset);
+budget::money get_asset_value_conv(const budget::asset & asset, budget::date d);
 
 // The value of an asset in a specific currency
-budget::money get_asset_value_conv(budget::asset & asset, const std::string& currency);
-budget::money get_asset_value_conv(budget::asset & asset, budget::date d, const std::string& currency);
+budget::money get_asset_value_conv(const budget::asset & asset, const std::string& currency);
+budget::money get_asset_value_conv(const budget::asset & asset, budget::date d, const std::string& currency);
 
 // Utilities for assets
 void update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc);
-budget::money get_asset_class_allocation(budget::asset& asset, budget::asset_class & clas);
+budget::money get_asset_class_allocation(const budget::asset& asset, const budget::asset_class & clas);
 
 // Filter functions
 

@@ -273,7 +273,7 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
     page_end(w, req, res);
 }
 
-void budget::asset_graph(budget::html_writer& w, const std::string style, asset& asset) {
+void budget::asset_graph(budget::html_writer& w, const std::string style, const asset& asset) {
    auto ss = start_time_chart(w, asset.name + "(" + asset.currency + ")", "area", "asset_graph", style);
 
     ss << R"=====(xAxis: { type: 'datetime', title: { text: 'Date' }},)=====";

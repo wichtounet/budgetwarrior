@@ -1264,7 +1264,7 @@ budget::money budget::get_net_worth_cash(){
     return total;
 }
 
-budget::money budget::get_asset_value(budget::asset & asset, budget::date d) {
+budget::money budget::get_asset_value(const budget::asset & asset, budget::date d) {
     if (asset.share_based) {
         int64_t shares = 0;
 
@@ -1305,24 +1305,24 @@ budget::money budget::get_asset_value(budget::asset & asset, budget::date d) {
     return {};
 }
 
-budget::money budget::get_asset_value(budget::asset & asset) {
+budget::money budget::get_asset_value(const budget::asset & asset) {
     return get_asset_value(asset, budget::local_day());
 }
 
-budget::money budget::get_asset_value_conv(budget::asset & asset) {
+budget::money budget::get_asset_value_conv(const budget::asset & asset) {
     return get_asset_value_conv(asset, budget::local_day());
 }
 
-budget::money budget::get_asset_value_conv(budget::asset & asset, budget::date d) {
+budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d) {
     auto amount = get_asset_value(asset, d);
     return amount * exchange_rate(asset.currency, d);
 }
 
-budget::money budget::get_asset_value_conv(budget::asset & asset, const std::string& currency) {
+budget::money budget::get_asset_value_conv(const budget::asset & asset, const std::string& currency) {
     return get_asset_value_conv(asset, budget::local_day(), currency);
 }
 
-budget::money budget::get_asset_value_conv(budget::asset & asset, budget::date d, const std::string& currency) {
+budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d, const std::string& currency) {
     auto amount = get_asset_value(asset, d);
     return amount * exchange_rate(asset.currency, currency, d);
 }

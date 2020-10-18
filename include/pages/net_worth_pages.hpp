@@ -29,7 +29,7 @@ void portfolio_graph_page(const httplib::Request& req, httplib::Response& res);
 void rebalance_page(const httplib::Request& req, httplib::Response& res);
 void rebalance_nocash_page(const httplib::Request& req, httplib::Response& res);
 
-void asset_graph(budget::html_writer& w, const std::string style, asset& asset);
+void asset_graph(budget::html_writer& w, const std::string style, const asset& asset);
 void asset_graph_page(const httplib::Request& req, httplib::Response& res);
 
 } //end of namespace budget

@@ -155,7 +155,7 @@ void budget::update_asset_class_allocation(budget::asset& asset, budget::asset_c
     asset.classes.emplace_back(clas.id, alloc);
 }
 
-budget::money budget::get_asset_class_allocation(budget::asset& asset, budget::asset_class & clas) {
+budget::money budget::get_asset_class_allocation(const budget::asset& asset, const budget::asset_class & clas) {
     for (auto & [class_id, class_alloc] : asset.classes) {
         if (class_id == clas.id) {
             return class_alloc;
