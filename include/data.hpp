@@ -38,11 +38,7 @@ struct data_handler {
     void set_changed() {
         server_lock_guard l(lock);
 
-        if (is_server_running()) {
-            force_save();
-        } else {
-            changed = true;
-        }
+        set_changed_internal();
     }
 
     template<typename Functor>
@@ -109,28 +105,6 @@ struct data_handler {
         load([](std::vector<std::string>& parts, T& entry){ parts >> entry; });
     }
 
-    void force_save() {
-        cpp_assert(!is_server_mode(), "force_save() should never be called in server mode");
-
-        if (budget::config_contains("random")) {
-            std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
-            return;
-        }
-
-        auto file_path = path_to_budget_file(path);
-
-        std::ofstream file(file_path);
-
-        // We still save the file ID so that it's still compatible with older versions for now
-        file << next_id << std::endl;
-
-        for (auto& entry : data_) {
-            file << entry << std::endl;
-        }
-
-        changed = false;
-    }
-
     void save() {
         // In server mode, there is nothing to do
         if (is_server_mode()) {
@@ -162,7 +136,7 @@ struct data_handler {
                 return true;
             }
         } else {
-            set_changed();
+            set_changed_internal();
 
             return true;
         }
@@ -189,7 +163,7 @@ struct data_handler {
                     v = value;
 
                     if (propagate) {
-                        set_changed();
+                        set_changed_internal();
                     }
 
                     return true;
@@ -223,7 +197,7 @@ struct data_handler {
 
             data_.push_back(std::forward<T>(entry));
 
-            set_changed();
+            set_changed_internal();
         }
 
         return entry.id;
@@ -243,7 +217,7 @@ struct data_handler {
                 std::cerr << "error: Failed to delete from " << get_module() << std::endl;
             }
         } else {
-            set_changed();
+            set_changed_internal();
         }
     }
 
@@ -301,6 +275,36 @@ struct data_handler {
     }
 
 private:
+    void set_changed_internal() {
+        if (is_server_running()) {
+            force_save();
+        } else {
+            changed = true;
+        }
+    }
+
+    void force_save() {
+        cpp_assert(!is_server_mode(), "force_save() should never be called in server mode");
+
+        if (budget::config_contains("random")) {
+            std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
+            return;
+        }
+
+        auto file_path = path_to_budget_file(path);
+
+        std::ofstream file(file_path);
+
+        // We still save the file ID so that it's still compatible with older versions for now
+        file << next_id << std::endl;
+
+        for (auto& entry : data_) {
+            file << entry << std::endl;
+        }
+
+        changed = false;
+    }
+
     const char* module;
     const char* path;
     volatile bool changed = false;
