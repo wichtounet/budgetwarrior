@@ -377,10 +377,6 @@ void budget::liability_delete(size_t id) {
 }
 
 liability& budget::liability_get(size_t id) {
-    if (!liabilities.exists(id)) {
-        throw budget_exception("There are no liability with id ");
-    }
-
     return liabilities[id];
 }
 

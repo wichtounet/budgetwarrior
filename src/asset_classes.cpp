@@ -129,10 +129,6 @@ void budget::asset_class_delete(size_t id) {
 }
 
 asset_class& budget::asset_class_get(size_t id) {
-    if (!asset_classes.exists(id)) {
-        throw budget_exception("There are no asset class with id ");
-    }
-
     return asset_classes[id];
 }
 

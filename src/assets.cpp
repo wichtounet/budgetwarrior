@@ -1233,10 +1233,6 @@ void budget::asset_delete(size_t id) {
 }
 
 asset& budget::asset_get(size_t id) {
-    if (!assets.exists(id)) {
-        throw budget_exception("There are no asset with id ");
-    }
-
     return assets[id];
 }
 

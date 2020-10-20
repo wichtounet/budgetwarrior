@@ -541,10 +541,6 @@ void budget::account_delete(size_t id) {
 }
 
 account& budget::account_get(size_t id) {
-    if (!accounts.exists(id)) {
-        throw budget_exception("There are no account with id ");
-    }
-
     return accounts[id];
 }
 

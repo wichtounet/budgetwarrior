@@ -372,10 +372,6 @@ void budget::recurring_delete(size_t id) {
 }
 
 recurring& budget::recurring_get(size_t id) {
-    if (!recurrings.exists(id)) {
-        throw budget_exception("There are no recurring with id ");
-    }
-
     return recurrings[id];
 }
 

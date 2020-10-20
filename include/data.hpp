@@ -242,7 +242,7 @@ struct data_handler {
             }
         }
 
-        cpp_unreachable("The data must exists");
+        throw budget_exception("There is no data with id ");
     }
 
     size_t size() const {

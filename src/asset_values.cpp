@@ -112,10 +112,6 @@ void budget::asset_value_delete(size_t id) {
 }
 
 asset_value& budget::asset_value_get(size_t id) {
-    if (!asset_values.exists(id)) {
-        throw budget_exception("There are no asset_value with id ");
-    }
-
     return asset_values[id];
 }
 

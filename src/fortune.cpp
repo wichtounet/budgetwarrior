@@ -278,10 +278,6 @@ void budget::fortune_delete(size_t id) {
 }
 
 fortune& budget::fortune_get(size_t id) {
-    if (!fortunes.exists(id)) {
-        throw budget_exception("There are no fortune with id ");
-    }
-
     return fortunes[id];
 }
 

@@ -107,10 +107,6 @@ void budget::asset_share_delete(size_t id) {
 }
 
 asset_share& budget::asset_share_get(size_t id) {
-    if (!asset_shares.exists(id)) {
-        throw budget_exception("There are no asset_share with id ");
-    }
-
     return asset_shares[id];
 }
 

@@ -279,9 +279,5 @@ void budget::earning_delete(size_t id) {
 }
 
 earning budget::earning_get(size_t id) {
-    if (!earnings.exists(id)) {
-        throw budget_exception("There are no earning with id ");
-    }
-
     return earnings[id];
 }

@@ -392,10 +392,6 @@ void budget::objective_delete(size_t id) {
 }
 
 objective& budget::objective_get(size_t id) {
-    if (!objectives.exists(id)) {
-        throw budget_exception("There are no objective with id ");
-    }
-
     return objectives[id];
 }
 

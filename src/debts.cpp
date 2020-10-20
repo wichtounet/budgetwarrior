@@ -276,10 +276,6 @@ void budget::debt_delete(size_t id) {
 }
 
 debt& budget::debt_get(size_t id) {
-    if (!debts.exists(id)) {
-        throw budget_exception("There are no debt with id ");
-    }
-
     return debts[id];
 }
 

@@ -605,10 +605,6 @@ void budget::wish_delete(size_t id) {
 }
 
 wish& budget::wish_get(size_t id) {
-    if (!wishes.exists(id)) {
-        throw budget_exception("There are no wish with id ");
-    }
-
     return wishes[id];
 }
 

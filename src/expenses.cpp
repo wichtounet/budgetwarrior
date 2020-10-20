@@ -365,9 +365,5 @@ void budget::expense_delete(size_t id) {
 }
 
 expense budget::expense_get(size_t id) {
-    if (!expenses.exists(id)) {
-        throw budget_exception("There are no expense with id ");
-    }
-
     return expenses[id];
 }

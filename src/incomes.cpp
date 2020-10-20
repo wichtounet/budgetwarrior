@@ -145,10 +145,6 @@ void budget::income_delete(size_t id) {
 }
 
 income& budget::income_get(size_t id) {
-    if (!incomes.exists(id)) {
-        throw budget_exception("There are no income with id ");
-    }
-
     return incomes[id];
 }
 
