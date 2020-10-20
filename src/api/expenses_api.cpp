@@ -55,13 +55,13 @@ void budget::edit_expenses_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    expense& expense = expense_get(budget::to_number<size_t>(id));
-    expense.date     = budget::from_string(req.get_param_value("input_date"));
-    expense.account  = budget::to_number<size_t>(req.get_param_value("input_account"));
-    expense.name     = req.get_param_value("input_name");
-    expense.amount   = budget::parse_money(req.get_param_value("input_amount"));
+    expense expense = expense_get(budget::to_number<size_t>(id));
+    expense.date    = budget::from_string(req.get_param_value("input_date"));
+    expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
+    expense.name    = req.get_param_value("input_name");
+    expense.amount  = budget::parse_money(req.get_param_value("input_amount"));
 
-    set_expenses_changed();
+    edit_expense(expense);
 
     api_success(req, res, "Expense " + to_string(expense.id) + " has been modified");
 }

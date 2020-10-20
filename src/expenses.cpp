@@ -191,7 +191,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("There are no expense with id " + args[2]);
             }
 
-            auto& expense = expenses[id];
+            auto expense = expenses[id];
 
             edit_date(expense.date, "Date");
 
@@ -202,7 +202,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
             edit_string(expense.name, "Name", not_empty_checker());
             edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
 
-            if (expenses.edit(expense)) {
+            if (expenses.indirect_edit(expense)) {
                 std::cout << "Expense " << id << " has been modified" << std::endl;
             }
         } else if (subcommand == "search") {
@@ -228,8 +228,8 @@ void budget::add_expense(budget::expense&& expense){
     expenses.add(std::forward<budget::expense>(expense));
 }
 
-bool budget::edit_expense(expense& expense){
-    return expenses.edit(expense);
+bool budget::edit_expense(const expense& expense){
+    return expenses.indirect_edit(expense);
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
@@ -262,10 +262,6 @@ bool budget::indirect_edit_expense(const expense & expense, bool propagate) {
 
 void budget::set_expenses_changed(){
     expenses.set_changed();
-}
-
-void budget::set_expenses_next_id(size_t next_id){
-    expenses.next_id = next_id;
 }
 
 void budget::show_all_expenses(budget::writer& w){
@@ -368,7 +364,7 @@ void budget::expense_delete(size_t id) {
     expenses.remove(id);
 }
 
-expense& budget::expense_get(size_t id) {
+expense budget::expense_get(size_t id) {
     if (!expenses.exists(id)) {
         throw budget_exception("There are no expense with id ");
     }

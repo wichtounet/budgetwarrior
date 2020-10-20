@@ -50,13 +50,13 @@ void save_earnings();
 
 std::vector<earning> all_earnings();
 void add_earning(earning&& earning);
+bool edit_earning(const earning& earning);
 
 void set_earnings_changed();
-void set_earnings_next_id(size_t next_id);
 
 bool earning_exists(size_t id);
 void earning_delete(size_t id);
-earning& earning_get(size_t id);
+earning earning_get(size_t id);
 
 void show_all_earnings(budget::writer& w);
 void show_earnings(budget::month month, budget::year year, budget::writer& w);

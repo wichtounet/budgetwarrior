@@ -53,14 +53,13 @@ void save_expenses();
 
 std::vector<expense> all_expenses();
 void add_expense(expense&& expense);
-bool edit_expense(expense& expense);
+bool edit_expense(const expense& expense);
 
 void set_expenses_changed();
-void set_expenses_next_id(size_t next_id);
 
 bool expense_exists(size_t id);
 void expense_delete(size_t id);
-expense& expense_get(size_t id);
+expense expense_get(size_t id);
 
 void show_all_expenses(budget::writer& w);
 void show_expenses(budget::month month, budget::year year, budget::writer& w);

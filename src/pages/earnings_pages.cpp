@@ -325,7 +325,7 @@ void budget::edit_earnings_page(const httplib::Request& req, httplib::Response& 
 
             form_begin_edit(w, "/api/earnings/edit/", back_page, input_id);
 
-            auto& earning = earning_get(budget::to_number<size_t>(input_id));
+            auto earning = earning_get(budget::to_number<size_t>(input_id));
 
             add_date_picker(w, budget::to_string(earning.date));
             add_name_picker(w, earning.name);

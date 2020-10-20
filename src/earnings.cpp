@@ -111,7 +111,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("There are no earning with id " + args[2]);
             }
 
-            auto& earning = earnings[id];
+            auto earning = earnings[id];
 
             edit_date(earning.date, "Date");
 
@@ -122,7 +122,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
             edit_string(earning.name, "Name", not_empty_checker());
             edit_money(earning.amount, "Amount", not_negative_checker());
 
-            if (earnings.edit(earning)) {
+            if (earnings.indirect_edit(earning)) {
                 std::cout << "Earning " << id << " has been modified" << std::endl;
             }
         } else {
@@ -163,16 +163,16 @@ std::vector<earning> budget::all_earnings(){
     return earnings.data();
 }
 
+bool budget::edit_earning(const earning& earning){
+    return earnings.indirect_edit(earning);
+}
+
 bool budget::indirect_edit_earning(const earning & earning, bool propagate) {
     return earnings.indirect_edit(earning, propagate);
 }
 
 void budget::set_earnings_changed(){
     earnings.set_changed();
-}
-
-void budget::set_earnings_next_id(size_t next_id){
-    earnings.next_id = next_id;
 }
 
 void budget::add_earning(budget::earning&& earning){
@@ -278,7 +278,7 @@ void budget::earning_delete(size_t id) {
     earnings.remove(id);
 }
 
-earning& budget::earning_get(size_t id) {
+earning budget::earning_get(size_t id) {
     if (!earnings.exists(id)) {
         throw budget_exception("There are no earning with id ");
     }

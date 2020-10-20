@@ -55,13 +55,13 @@ void budget::edit_earnings_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    earning& earning = earning_get(budget::to_number<size_t>(id));
+    earning earning = earning_get(budget::to_number<size_t>(id));
     earning.date     = budget::from_string(req.get_param_value("input_date"));
     earning.account  = budget::to_number<size_t>(req.get_param_value("input_account"));
     earning.name     = req.get_param_value("input_name");
     earning.amount   = budget::parse_money(req.get_param_value("input_amount"));
 
-    set_earnings_changed();
+    edit_earning(earning);
 
     api_success(req, res, "Earning " + to_string(earning.id) + " has been modified");
 }

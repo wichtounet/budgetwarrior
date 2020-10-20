@@ -604,7 +604,7 @@ void budget::edit_expenses_page(const httplib::Request& req, httplib::Response& 
 
             form_begin_edit(w, "/api/expenses/edit/", back_page, input_id);
 
-            auto& expense = expense_get(budget::to_number<size_t>(input_id));
+            auto expense = expense_get(budget::to_number<size_t>(input_id));
 
             add_date_picker(w, budget::to_string(expense.date));
             add_name_picker(w, expense.name);
