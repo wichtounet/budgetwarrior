@@ -192,7 +192,7 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
 
     budget::html_writer w(content_stream);
 
-    auto& asset = req.matches.size() == 2
+    auto asset = req.matches.size() == 2
         ? get_asset(to_number<size_t>(req.matches[1]))
         : *all_user_assets().begin();
 
@@ -977,7 +977,7 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
 
     for (auto& [asset_id, amount] : asset_amounts) {
         if (amount) {
-            auto& asset      = get_asset(asset_id);
+            auto asset       = get_asset(asset_id);
             auto conv_amount = amount * exchange_rate(asset.currency);
 
             ss << "{ name: '" << asset.name << "',";

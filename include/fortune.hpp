@@ -56,8 +56,9 @@ void set_fortunes_changed();
 void set_fortunes_next_id(size_t next_id);
 
 void add_fortune(fortune&& fortune);
+void edit_fortune(const fortune& fortune);
 bool fortune_exists(size_t id);
 void fortune_delete(size_t id);
-fortune& fortune_get(size_t id);
+fortune fortune_get(size_t id);
 
 } //end of namespace budget

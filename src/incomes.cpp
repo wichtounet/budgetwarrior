@@ -65,7 +65,7 @@ void budget::incomes_module::handle(const std::vector<std::string>& args){
             budget::money amount;
             edit_money(amount, "Amount", not_negative_checker());
 
-            auto & new_income = budget::new_income(amount, true);
+            auto new_income = budget::new_income(amount, true);
             std::cout << "Income " << new_income.id << " has been created" << std::endl;
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
@@ -144,7 +144,7 @@ void budget::income_delete(size_t id) {
     incomes.remove(id);
 }
 
-income& budget::income_get(size_t id) {
+income budget::income_get(size_t id) {
     return incomes[id];
 }
 
@@ -177,7 +177,7 @@ budget::money budget::get_base_income(budget::date d){
     return income;
 }
 
-budget::income & budget::new_income(budget::money amount, bool print){
+budget::income budget::new_income(budget::money amount, bool print){
     budget::date d = budget::local_day();
 
     budget::date since(d.year(), d.month(), 1);
@@ -197,7 +197,7 @@ budget::income & budget::new_income(budget::money amount, bool print){
             if (income.since == since && income.until == until) {
                 income.amount = new_income.amount;
 
-                if (incomes.edit(income)) {
+                if (incomes.indirect_edit(income)) {
                     if (print) {
                         std::cout << "Income " << income.id << " has been modified" << std::endl;
                     }
@@ -219,11 +219,11 @@ budget::income & budget::new_income(budget::money amount, bool print){
             }
         }
 
-        auto & previous_income = incomes[id];
+        auto previous_income = incomes[id];
 
         previous_income.until = since - budget::days(1);
 
-        if (incomes.edit(previous_income)) {
+        if (incomes.indirect_edit(previous_income)) {
             if (print) {
                 std::cout << "Income " << id << " has been modified" << std::endl;
             }

@@ -119,7 +119,7 @@ void budget::edit_fortunes_page(const httplib::Request& req, httplib::Response& 
 
         form_begin_edit(w, "/api/fortunes/edit/", back_page, input_id);
 
-        auto& fortune = fortune_get(budget::to_number<size_t>(input_id));
+        auto fortune = fortune_get(budget::to_number<size_t>(input_id));
 
         add_date_picker(w, budget::to_string(fortune.check_date));
         add_amount_picker(w, budget::to_flat_string(fortune.amount));

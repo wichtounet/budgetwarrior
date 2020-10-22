@@ -61,7 +61,7 @@ void budget::edit_wishes_api(const httplib::Request& req, httplib::Response& res
 
     bool paid = req.get_param_value("input_paid") == "yes";
 
-    wish& wish      = wish_get(budget::to_number<size_t>(id));
+    wish wish       = wish_get(budget::to_number<size_t>(id));
     wish.name       = req.get_param_value("input_name");
     wish.importance = budget::to_number<int>(req.get_param_value("input_importance"));
     wish.urgency    = budget::to_number<int>(req.get_param_value("input_urgency"));

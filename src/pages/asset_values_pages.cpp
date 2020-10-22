@@ -71,7 +71,7 @@ void budget::edit_asset_values_page(const httplib::Request& req, httplib::Respon
 
         form_begin_edit(w, "/api/asset_values/edit/", back_page, input_id);
 
-        auto& asset_value = asset_value_get(budget::to_number<size_t>(input_id));
+        auto asset_value = get_asset_value(budget::to_number<size_t>(input_id));
 
         add_value_asset_picker(w, budget::to_string(asset_value.asset_id));
         add_amount_picker(w, budget::to_flat_string(asset_value.amount));

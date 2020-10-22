@@ -203,10 +203,6 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 enough_args(args, 3);
 
                 id = to_number<size_t>(args[2]);
-
-                if(!accounts.exists(id)){
-                    throw budget_exception("There are no account with id " + args[2]);
-                }
             } else {
                 std::string name;
                 edit_string_complete(name, "Account", all_account_names(), not_empty_checker(), account_checker());
@@ -214,7 +210,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 id = get_account(name, today.year(), today.month()).id;
             }
 
-            auto& account = accounts[id];
+            auto account = accounts[id];
 
             edit_string(account.name, "Name", not_empty_checker());
 
@@ -231,7 +227,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
             edit_money(account.amount, "Amount", not_negative_checker());
 
-            if (accounts.edit(account)) {
+            if (accounts.indirect_edit(account)) {
                 std::cout << "Account " << id << " has been modified" << std::endl;
             }
         } else if(subcommand == "transfer"){
@@ -309,7 +305,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                     for(auto& account : all_accounts()){
                         if(account.name == source_account_name){
                             auto source_id = account.id;
-                            auto& destination_account = get_account(destination_account_name, account.since.year(), account.since.month());
+                            auto destination_account = get_account(destination_account_name, account.since.year(), account.since.month());
                             auto destination_id = destination_account.id;
 
                             std::cout << "Migrate account " << source_id << " to account " << destination_id << std::endl;
@@ -329,6 +325,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                                     indirect_edit_earning(earning, false);
                                 }
                             }
+
+                            accounts.indirect_edit(destination_account);
 
                             deleted.push_back(source_id);
                         }
@@ -391,15 +389,15 @@ void budget::save_accounts(){
     accounts.save();
 }
 
-budget::account& budget::get_account(size_t id){
+budget::account budget::get_account(size_t id){
     return accounts[id];
 }
 
-budget::account& budget::get_account(std::string name, budget::year year, budget::month month){
+budget::account budget::get_account(std::string name, budget::year year, budget::month month){
     budget::date date(year, month, 5);
 
-    for(auto& account : accounts.data()){
-        if(account.since < date && account.until > date && account.name == name){
+    for (auto& account : accounts.data()) {
+        if (account.since < date && account.until > date && account.name == name) {
             return account;
         }
     }
@@ -540,7 +538,7 @@ void budget::account_delete(size_t id) {
     accounts.remove(id);
 }
 
-account& budget::account_get(size_t id) {
+account budget::account_get(size_t id) {
     return accounts[id];
 }
 

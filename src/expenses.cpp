@@ -187,10 +187,6 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!expenses.exists(id)){
-                throw budget_exception("There are no expense with id " + args[2]);
-            }
-
             auto expense = expenses[id];
 
             edit_date(expense.date, "Date");

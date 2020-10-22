@@ -28,7 +28,7 @@ void budget::add_incomes_api(const httplib::Request& req, httplib::Response& res
 
     auto amount = budget::parse_money(req.get_param_value("input_amount"));
 
-    auto& income = budget::new_income(amount, false);
+    auto income = budget::new_income(amount, false);
 
     api_success(req, res, "Income " + to_string(income.id) + " has been created", to_string(income.id));
 }
@@ -50,7 +50,7 @@ void budget::edit_incomes_api(const httplib::Request& req, httplib::Response& re
         return;
     }
 
-    income& income = income_get(budget::to_number<size_t>(id));
+    income income = income_get(budget::to_number<size_t>(id));
     income.amount   = budget::parse_money(req.get_param_value("input_amount"));
 
     set_incomes_changed();

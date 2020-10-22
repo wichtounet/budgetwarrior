@@ -40,8 +40,8 @@ struct asset_class {
     std::map<std::string, std::string> get_params() const ;
 };
 
-budget::asset_class& get_asset_class(size_t id);
-budget::asset_class& get_asset_class(const std::string & name);
+budget::asset_class get_asset_class(size_t id);
+budget::asset_class get_asset_class(const std::string & name);
 
 // An asset
 struct asset {
@@ -163,13 +163,13 @@ bool asset_class_exists(const std::string& name);
 bool asset_exists(const std::string& asset);
 bool share_asset_exists(const std::string& asset);
 
-budget::asset& get_asset(size_t id);
-budget::asset& get_asset(std::string name);
+budget::asset get_asset(size_t id);
+budget::asset get_asset(std::string name);
 
-budget::asset_value& get_asset_value(size_t id);
-budget::asset_share& get_asset_share(size_t id);
+budget::asset_value get_asset_value(size_t id);
+budget::asset_share get_asset_share(size_t id);
 
-budget::asset& get_desired_allocation();
+budget::asset get_desired_allocation();
 
 std::vector<budget::asset_class> all_asset_classes();
 std::vector<budget::asset> all_assets();
@@ -195,24 +195,21 @@ size_t add_asset_class(asset_class& c);
 bool edit_asset_class(asset_class& c);
 bool asset_class_exists(size_t id);
 void asset_class_delete(size_t id);
-asset_class& asset_class_get(size_t id);
 
 void add_asset(asset& asset);
 bool asset_exists(size_t id);
 void asset_delete(size_t id);
-asset& asset_get(size_t id);
+asset asset_get(size_t id);
 
 size_t add_asset_value(asset_value& asset_value);
 bool edit_asset_value(asset_value& asset_value);
 bool asset_value_exists(size_t id);
 void asset_value_delete(size_t id);
-asset_value& asset_value_get(size_t id);
 
 size_t add_asset_share(asset_share& asset_share);
 bool edit_asset_share(asset_share& c);
 bool asset_share_exists(size_t id);
 void asset_share_delete(size_t id);
-asset_share& asset_share_get(size_t id);
 
 budget::money get_portfolio_value();
 budget::money get_net_worth();

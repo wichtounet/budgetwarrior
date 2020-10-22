@@ -58,14 +58,14 @@ void budget::edit_debts_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    debt& debt     = debt_get(budget::to_number<size_t>(id));
+    debt debt     = debt_get(budget::to_number<size_t>(id));
     debt.direction = req.get_param_value("input_direction") == "to";
     debt.name      = req.get_param_value("input_name");
     debt.title     = req.get_param_value("input_title");
     debt.amount    = budget::parse_money(req.get_param_value("input_amount"));
     debt.state     = req.get_param_value("input_paid") == "yes" ? 1 : 0;
 
-    set_debts_changed();
+    edit_debt(debt);
 
     api_success(req, res, "Debt " + to_string(debt.id) + " has been modified");
 }

@@ -161,15 +161,11 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!wishes.exists(id)){
-                throw budget_exception("There are no wish with id " + args[2]);
-            }
-
-            auto& wish = wishes[id];
+            auto wish = wishes[id];
 
             edit(wish);
 
-            if (wishes.edit(wish)) {
+            if (wishes.indirect_edit(wish)) {
                 std::cout << "Wish " << id << " has been modified" << std::endl;
             }
         } else if(subcommand == "paid"){
@@ -177,17 +173,13 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!wishes.exists(id)){
-                throw budget_exception("There are no wish with id " + args[2]);
-            }
-
-            auto& wish = wishes[id];
+            auto wish = wishes[id];
 
             edit_money(wish.paid_amount, "Paid Amount", not_negative_checker(), not_zero_checker());
 
             wish.paid = true;
 
-            if (wishes.edit(wish)) {
+            if (wishes.indirect_edit(wish)) {
                 std::cout << "Wish " << id << " has been marked as paid" << std::endl;
             }
         } else {
@@ -604,7 +596,7 @@ void budget::wish_delete(size_t id) {
     wishes.remove(id);
 }
 
-wish& budget::wish_get(size_t id) {
+wish budget::wish_get(size_t id) {
     return wishes[id];
 }
 

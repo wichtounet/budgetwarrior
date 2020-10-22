@@ -262,7 +262,7 @@ void budget::edit_objectives_page(const httplib::Request& req, httplib::Response
 
         form_begin_edit(w, "/api/objectives/edit/", back_page, input_id);
 
-        auto& objective = objective_get(budget::to_number<size_t>(input_id));
+        auto objective = objective_get(budget::to_number<size_t>(input_id));
 
         add_name_picker(w, objective.name);
         add_objective_type_picker(w, objective.type);

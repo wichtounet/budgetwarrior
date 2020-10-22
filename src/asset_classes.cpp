@@ -39,11 +39,11 @@ void budget::save_asset_classes() {
     asset_classes.save();
 }
 
-budget::asset_class& budget::get_asset_class(size_t id){
+budget::asset_class budget::get_asset_class(size_t id){
     return asset_classes[id];
 }
 
-budget::asset_class& budget::get_asset_class(const std::string & name){
+budget::asset_class budget::get_asset_class(const std::string & name){
     for (auto& c : asset_classes.data()) {
         if (c.name == name) {
             return c;
@@ -128,12 +128,8 @@ void budget::asset_class_delete(size_t id) {
     asset_classes.remove(id);
 }
 
-asset_class& budget::asset_class_get(size_t id) {
-    return asset_classes[id];
-}
-
 bool budget::edit_asset_class(asset_class& c) {
-    return asset_classes.edit(c);
+    return asset_classes.indirect_edit(c);
 }
 
 size_t budget::add_asset_class(budget::asset_class& asset){

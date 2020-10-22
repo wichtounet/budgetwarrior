@@ -123,10 +123,6 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
                 enough_args(args, 3);
 
                 id = to_number<size_t>(args[2]);
-
-                if(!liabilities.exists(id)){
-                    throw budget_exception("There are no liability with id " + args[2]);
-                }
             } else {
                 std::string name;
                 edit_string_complete(name, "Liability", get_liabilities_names(), not_empty_checker(), liability_checker());
@@ -134,7 +130,7 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
                 id = get_liability(name).id;
             }
 
-            auto& liability = liabilities[id];
+            auto liability = liabilities[id];
 
             edit_string(liability.name, "Name", not_empty_checker());
 
@@ -150,7 +146,7 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
 
             edit_string(liability.currency, "Currency", not_empty_checker());
 
-            if (liabilities.edit(liability)) {
+            if (liabilities.indirect_edit(liability)) {
                 std::cout << "Liability " << id << " has been modified" << std::endl;
             }
         } else if (subcommand == "value") {
@@ -186,11 +182,7 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
 
                     id = to_number<size_t>(args[3]);
 
-                    if (!asset_value_exists(id)) {
-                        throw budget_exception("There are no asset values with id " + args[3]);
-                    }
-
-                    auto& value = asset_value_get(id);
+                    auto value = get_asset_value(id);
 
                     if (!value.liability) {
                         throw budget_exception("Cannot edit asset value from the liability module");
@@ -213,11 +205,7 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
 
                     id = to_number<size_t>(args[3]);
 
-                    if (!liabilities.exists(id)) {
-                        throw budget_exception("There are no asset value with id " + args[2]);
-                    }
-
-                    auto& value = asset_value_get(id);
+                    auto value = get_asset_value(id);
 
                     if (!value.liability) {
                         throw budget_exception("Cannot edit asset value from the liability module");
@@ -244,11 +232,11 @@ void budget::save_liabilities(){
     liabilities.save();
 }
 
-budget::liability& budget::get_liability(size_t id){
+budget::liability budget::get_liability(size_t id){
     return liabilities[id];
 }
 
-budget::liability& budget::get_liability(std::string name){
+budget::liability budget::get_liability(std::string name){
     for(auto& liability : liabilities.data()){
         if(liability.name == name){
             return liability;
@@ -376,12 +364,12 @@ void budget::liability_delete(size_t id) {
     liabilities.remove(id);
 }
 
-liability& budget::liability_get(size_t id) {
-    return liabilities[id];
-}
-
 void budget::add_liability(budget::liability& liability){
     liabilities.add(liability);
+}
+
+void budget::edit_liability(const budget::liability& liability){
+    liabilities.indirect_edit(liability);
 }
 
 budget::money budget::get_liability_value(budget::liability & liability, budget::date d) {

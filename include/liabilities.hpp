@@ -49,8 +49,8 @@ void save_liabilities();
 
 void show_liabilities(budget::writer& w);
 
-budget::liability& get_liability(size_t id);
-budget::liability& get_liability(std::string name);
+budget::liability get_liability(size_t id);
+budget::liability get_liability(std::string name);
 
 std::vector<budget::liability> all_liabilities();
 
@@ -62,10 +62,10 @@ void set_liabilities_next_id(size_t next_id);
 void set_liabilities_changed();
 
 void add_liability(liability& liability);
+void edit_liability(const liability& liability);
 bool liability_exists(size_t id);
 bool liability_exists(const std::string& name);
 void liability_delete(size_t id);
-liability& liability_get(size_t id);
 
 // The value of a liability in its own currency
 budget::money get_liability_value(budget::liability & liability);

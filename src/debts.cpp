@@ -101,14 +101,10 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!debts.exists(id)){
-                throw budget_exception("There are no debt with id " + args[2]);
-            }
-
-            auto& debt = debts[id];
+            auto debt = debts[id];
             debt.state = 1;
 
-            if (debts.edit(debt)) {
+            if (debts.indirect_edit(debt)) {
                 std::cout << "Debt \"" << debt.title << "\" (" << debt.id << ") has been paid" << std::endl;
             }
         } else if(subcommand == "delete"){
@@ -128,14 +124,10 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!debts.exists(id)){
-                throw budget_exception("There are no debt with id " + args[2]);
-            }
-
-            auto& debt = debts[id];
+            auto debt = debts[id];
             edit(debt);
 
-            if (debts.edit(debt)) {
+            if (debts.indirect_edit(debt)) {
                 std::cout << "Debt " << id << " has been modified" << std::endl;
             }
         } else {
@@ -275,8 +267,12 @@ void budget::debt_delete(size_t id) {
     debts.remove(id);
 }
 
-debt& budget::debt_get(size_t id) {
+debt budget::debt_get(size_t id) {
     return debts[id];
+}
+
+void budget::edit_debt(const budget::debt& debt){
+    debts.indirect_edit(debt);
 }
 
 void budget::add_debt(budget::debt&& debt){

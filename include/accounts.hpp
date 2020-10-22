@@ -55,8 +55,8 @@ std::vector<budget::account> all_accounts();
 std::vector<budget::account> all_accounts(year year, month month);
 std::vector<budget::account> current_accounts();
 
-budget::account& get_account(size_t id);
-budget::account& get_account(std::string name, year year, month month);
+budget::account get_account(size_t id);
+budget::account get_account(std::string name, year year, month month);
 
 void set_accounts_changed();
 void set_accounts_next_id(size_t next_id);
@@ -67,7 +67,7 @@ void show_accounts(budget::writer& w);
 void add_account(account&& account);
 bool account_exists(size_t id);
 void account_delete(size_t id);
-account& account_get(size_t id);
+account account_get(size_t id);
 
 date find_new_since();
 

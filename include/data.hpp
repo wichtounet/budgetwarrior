@@ -16,6 +16,7 @@
 #include "server.hpp"
 #include "api.hpp"
 #include "server_lock.hpp"
+#include "budget_exception.hpp"
 
 namespace budget {
 
@@ -120,28 +121,6 @@ struct data_handler {
         }
     }
 
-    bool edit(T& value){
-        server_lock_guard l(lock);
-
-        if(is_server_mode()){
-            auto params = value.get_params();
-
-            auto res = budget::api_post(std::string("/") + get_module() + "/edit/", params);
-
-            if (!res.success) {
-                std::cerr << "error: Failed to edit from " << get_module() << std::endl;
-
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            set_changed_internal();
-
-            return true;
-        }
-    }
-
     bool indirect_edit(const T& value, bool propagate = true) {
         server_lock_guard l(lock);
 
@@ -233,7 +212,7 @@ struct data_handler {
         return false;
     }
 
-    T& operator[](size_t id) {
+    T operator[](size_t id) const {
         server_lock_guard l(lock);
 
         for (auto& value : data_) {
@@ -242,7 +221,7 @@ struct data_handler {
             }
         }
 
-        throw budget_exception("There is no data with id ");
+        throw budget_exception("There is no data with id " + std::to_string(id) + " in " + module);
     }
 
     size_t size() const {

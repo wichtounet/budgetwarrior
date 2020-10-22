@@ -180,11 +180,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
 
             size_t id = to_number<size_t>(args[2]);
 
-            if (!recurrings.exists(id)) {
-                throw budget_exception("There are no recurring expense with id " + args[2]);
-            }
-
-            auto& recurring         = recurrings[id];
+            auto recurring          = recurrings[id];
             auto previous_recurring = recurring; // Temporary Copy
 
             auto now = budget::local_day();
@@ -209,7 +205,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
 
             save_expenses();
 
-            if (recurrings.edit(recurring)) {
+            if (recurrings.indirect_edit(recurring)) {
                 std::cout << "Recurring expense " << id << " has been modified" << std::endl;
             }
         } else {
@@ -371,10 +367,14 @@ void budget::recurring_delete(size_t id) {
     recurrings.remove(id);
 }
 
-recurring& budget::recurring_get(size_t id) {
+recurring budget::recurring_get(size_t id) {
     return recurrings[id];
 }
 
 void budget::add_recurring(budget::recurring&& recurring) {
     recurrings.add(std::forward<budget::recurring>(recurring));
+}
+
+void budget::edit_recurring(const budget::recurring& recurring) {
+    recurrings.indirect_edit(recurring);
 }

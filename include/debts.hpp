@@ -60,8 +60,9 @@ void display_all_debts(budget::writer& w);
 void list_debts(budget::writer& w);
 
 void add_debt(debt&& debt);
+void edit_debt(const debt& debt);
 bool debt_exists(size_t id);
 void debt_delete(size_t id);
-debt& debt_get(size_t id);
+debt debt_get(size_t id);
 
 } //end of namespace budget

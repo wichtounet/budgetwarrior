@@ -78,7 +78,7 @@ void budget::edit_liabilities_page(const httplib::Request& req, httplib::Respons
 
         form_begin_edit(w, "/api/liabilities/edit/", back_page, input_id);
 
-        auto& liability = liability_get(id);
+        auto liability = get_liability(id);
 
         add_name_picker(w, liability.name);
         add_currency_picker(w, liability.currency);

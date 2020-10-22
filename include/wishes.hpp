@@ -65,6 +65,6 @@ void estimate_wishes(budget::writer& w);
 void add_wish(wish&& wish);
 bool wish_exists(size_t id);
 void wish_delete(size_t id);
-wish& wish_get(size_t id);
+wish wish_get(size_t id);
 
 } //end of namespace budget

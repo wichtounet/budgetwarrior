@@ -57,14 +57,14 @@ void budget::edit_objectives_api(const httplib::Request& req, httplib::Response&
         return;
     }
 
-    objective& objective = objective_get(budget::to_number<size_t>(id));
-    objective.name       = req.get_param_value("input_name");
-    objective.type       = req.get_param_value("input_type");
-    objective.source     = req.get_param_value("input_source");
-    objective.op         = req.get_param_value("input_operator");
-    objective.amount     = budget::parse_money(req.get_param_value("input_amount"));
+    objective objective = objective_get(budget::to_number<size_t>(id));
+    objective.name      = req.get_param_value("input_name");
+    objective.type      = req.get_param_value("input_type");
+    objective.source    = req.get_param_value("input_source");
+    objective.op        = req.get_param_value("input_operator");
+    objective.amount    = budget::parse_money(req.get_param_value("input_amount"));
 
-    set_objectives_changed();
+    edit_objective(objective);
 
     api_success(req, res, "objective " + to_string(objective.id) + " has been modified");
 }

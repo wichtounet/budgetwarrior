@@ -258,15 +258,11 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!objectives.exists(id)){
-                throw budget_exception("There are no objective with id " + args[2]);
-            }
-
-            auto& objective = objectives[id];
+            auto objective = objectives[id];
 
             edit(objective);
 
-            if (objectives.edit(objective)) {
+            if (objectives.indirect_edit(objective)) {
                 std::cout << "Objective " << id << " has been modified" << std::endl;
             }
         } else {
@@ -391,8 +387,12 @@ void budget::objective_delete(size_t id) {
     objectives.remove(id);
 }
 
-objective& budget::objective_get(size_t id) {
+objective budget::objective_get(size_t id) {
     return objectives[id];
+}
+
+void budget::edit_objective(const budget::objective& objective){
+    objectives.indirect_edit(objective);
 }
 
 void budget::add_objective(budget::objective&& objective){

@@ -54,11 +54,11 @@ void budget::edit_fortunes_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    fortune& fortune   = fortune_get(budget::to_number<size_t>(id));
+    fortune fortune   = fortune_get(budget::to_number<size_t>(id));
     fortune.check_date = budget::from_string(req.get_param_value("input_date"));
     fortune.amount     = budget::parse_money(req.get_param_value("input_amount"));
 
-    set_fortunes_changed();
+    edit_fortune(fortune);
 
     api_success(req, res, "Fortune " + to_string(fortune.id) + " has been modified");
 }

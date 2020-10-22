@@ -59,13 +59,13 @@ void show_incomes(budget::writer& w);
 void add_income(income&& income);
 bool income_exists(size_t id);
 void income_delete(size_t id);
-income& income_get(size_t id);
+income income_get(size_t id);
 
 void show_incomes(budget::writer& w);
 
 budget::money get_base_income();
 budget::money get_base_income(budget::date d);
 
-budget::income & new_income(budget::money amount, bool print);
+budget::income new_income(budget::money amount, bool print);
 
 } //end of namespace budget

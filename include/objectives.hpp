@@ -65,9 +65,10 @@ void list_objectives(budget::writer& w);
 void status_objectives(budget::writer& w);
 
 void add_objective(objective&& objective);
+void edit_objective(const objective& objective);
 bool objective_exists(size_t id);
 void objective_delete(size_t id);
-objective& objective_get(size_t id);
+objective objective_get(size_t id);
 
 std::string get_status(const budget::status& status, const budget::objective& objective);
 std::string get_success(const budget::status& status, const budget::objective& objective);

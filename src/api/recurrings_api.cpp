@@ -56,12 +56,12 @@ void budget::edit_recurrings_api(const httplib::Request& req, httplib::Response&
         return;
     }
 
-    recurring& recurring = recurring_get(budget::to_number<size_t>(id));
-    recurring.account    = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
-    recurring.name       = req.get_param_value("input_name");
-    recurring.amount     = budget::parse_money(req.get_param_value("input_amount"));
+    recurring recurring = recurring_get(budget::to_number<size_t>(id));
+    recurring.account   = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
+    recurring.name      = req.get_param_value("input_name");
+    recurring.amount    = budget::parse_money(req.get_param_value("input_amount"));
 
-    set_recurrings_changed();
+    edit_recurring(recurring);
 
     api_success(req, res, "Recurring " + to_string(recurring.id) + " has been modified");
 }

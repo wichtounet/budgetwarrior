@@ -296,7 +296,7 @@ void aggregate_overview(const Data & data, budget::writer& w, bool full, bool di
             if (full) {
                 acc_data["All accounts"][name] += data.amount;
             } else {
-                auto& account = get_account(data.account);
+                auto account = get_account(data.account);
                 acc_data[account.name][name] += data.amount;
             }
 
@@ -397,7 +397,7 @@ void aggregate_overview_month(const Data & data, budget::writer& w, bool full, b
             if (full) {
                 acc_data["All accounts"][name] += data.amount;
             } else {
-                auto& account = get_account(data.account);
+                auto account = get_account(data.account);
                 acc_data[account.name][name] += data.amount;
             }
 
@@ -1184,7 +1184,7 @@ void budget::display_month_overview(budget::writer& writer){
 }
 
 void budget::display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& writer){
-    auto & account = get_account(account_id);
+    auto account = get_account(account_id);
 
     auto accounts = all_accounts(year, month);
 

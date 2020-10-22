@@ -72,7 +72,7 @@ void budget::edit_asset_shares_page(const httplib::Request& req, httplib::Respon
 
         form_begin_edit(w, "/api/asset_shares/edit/", back_page, input_id);
 
-        auto& asset_share = asset_share_get(id);
+        auto asset_share = get_asset_share(id);
 
         add_share_asset_picker(w, budget::to_string(asset_share.asset_id));
         add_integer_picker(w, "shares", "input_shares", true, budget::to_string(asset_share.shares));

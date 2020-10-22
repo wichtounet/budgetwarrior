@@ -112,7 +112,7 @@ void budget::edit_debts_page(const httplib::Request& req, httplib::Response& res
 
         form_begin_edit(w, "/api/debts/edit/", back_page, input_id);
 
-        auto& debt = debt_get(budget::to_number<size_t>(input_id));
+        auto debt = debt_get(budget::to_number<size_t>(input_id));
 
         add_direction_picker(w, debt.direction ? "to" : "from");
         add_name_picker(w, debt.name);

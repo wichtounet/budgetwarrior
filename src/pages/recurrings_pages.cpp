@@ -72,7 +72,7 @@ void budget::edit_recurrings_page(const httplib::Request& req, httplib::Response
 
             form_begin_edit(w, "/api/recurrings/edit/", back_page, input_id);
 
-            auto& recurring = recurring_get(budget::to_number<size_t>(input_id));
+            auto recurring = recurring_get(budget::to_number<size_t>(input_id));
 
             add_name_picker(w, recurring.name);
             add_amount_picker(w, budget::to_flat_string(recurring.amount));

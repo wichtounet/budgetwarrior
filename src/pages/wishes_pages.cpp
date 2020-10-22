@@ -163,7 +163,7 @@ void budget::edit_wishes_page(const httplib::Request& req, httplib::Response& re
 
         form_begin_edit(w, "/api/wishes/edit/", back_page, input_id);
 
-        auto& wish = wish_get(budget::to_number<size_t>(input_id));
+        auto wish = wish_get(budget::to_number<size_t>(input_id));
 
         add_name_picker(w, wish.name);
         add_importance_picker(w, wish.importance);

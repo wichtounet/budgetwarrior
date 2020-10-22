@@ -43,7 +43,7 @@ void budget::save_asset_shares() {
     asset_shares.save();
 }
 
-budget::asset_share& budget::get_asset_share(size_t id) {
+budget::asset_share budget::get_asset_share(size_t id) {
     return asset_shares[id];
 }
 
@@ -106,16 +106,12 @@ void budget::asset_share_delete(size_t id) {
     asset_shares.remove(id);
 }
 
-asset_share& budget::asset_share_get(size_t id) {
-    return asset_shares[id];
-}
-
 size_t budget::add_asset_share(budget::asset_share& asset_share){
     return asset_shares.add(asset_share);
 }
 
 bool budget::edit_asset_share(asset_share& c) {
-    return asset_shares.edit(c);
+    return asset_shares.indirect_edit(c);
 }
 
 void budget::list_asset_shares(budget::writer& w){

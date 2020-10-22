@@ -208,17 +208,13 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!fortunes.exists(id)){
-                throw budget_exception("There are no fortune with id " + args[2]);
-            }
-
-            auto& fortune = fortunes[id];
+            auto fortune = fortunes[id];
 
             edit_date(fortune.check_date, "Date");
 
             edit_money(fortune.amount, "Amount");
 
-            if (fortunes.edit(fortune)) {
+            if (fortunes.indirect_edit(fortune)) {
                 std::cout << "Fortune check " << id << " has been modified" << std::endl;
             }
         } else {
@@ -277,8 +273,12 @@ void budget::fortune_delete(size_t id) {
     fortunes.remove(id);
 }
 
-fortune& budget::fortune_get(size_t id) {
+fortune budget::fortune_get(size_t id) {
     return fortunes[id];
+}
+
+void budget::edit_fortune(const budget::fortune& fortune){
+    fortunes.indirect_edit(fortune);
 }
 
 void budget::add_fortune(budget::fortune&& fortune){

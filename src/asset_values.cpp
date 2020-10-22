@@ -48,7 +48,7 @@ void budget::save_asset_values(){
     asset_values.save();
 }
 
-budget::asset_value& budget::get_asset_value(size_t id){
+budget::asset_value budget::get_asset_value(size_t id){
     return asset_values[id];
 }
 
@@ -111,16 +111,12 @@ void budget::asset_value_delete(size_t id) {
     asset_values.remove(id);
 }
 
-asset_value& budget::asset_value_get(size_t id) {
-    return asset_values[id];
-}
-
 size_t budget::add_asset_value(budget::asset_value& asset_value){
     return asset_values.add(asset_value);
 }
 
 bool budget::edit_asset_value(asset_value& asset_value) {
-    return asset_values.edit(asset_value);
+    return asset_values.indirect_edit(asset_value);
 }
 
 void budget::list_asset_values(budget::writer& w, bool liability){

@@ -107,10 +107,6 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!earnings.exists(id)){
-                throw budget_exception("There are no earning with id " + args[2]);
-            }
-
             auto earning = earnings[id];
 
             edit_date(earning.date, "Date");

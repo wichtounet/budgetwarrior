@@ -69,7 +69,7 @@ void budget::edit_asset_classes_page(const httplib::Request& req, httplib::Respo
 
         form_begin_edit(w, "/api/asset_classes/edit/", back_page, input_id);
 
-        auto& asset_class = asset_class_get(id);
+        auto asset_class = get_asset_class(id);
 
         add_name_picker(w, asset_class.name);
 

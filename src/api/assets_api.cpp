@@ -92,8 +92,8 @@ void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    asset& asset          = asset_get(budget::to_number<size_t>(id));
-    asset.name            = req.get_param_value("input_name");
+    asset asset = asset_get(budget::to_number<size_t>(id));
+    asset.name  = req.get_param_value("input_name");
 
     for (auto& clas : all_asset_classes()) {
         auto param_name = "input_class_" + to_string(clas.id);
@@ -195,11 +195,11 @@ void budget::edit_asset_values_api(const httplib::Request& req, httplib::Respons
         return;
     }
 
-    asset_value& asset_value = asset_value_get(budget::to_number<size_t>(id));
-    asset_value.amount       = budget::parse_money(req.get_param_value("input_amount"));
-    asset_value.asset_id     = budget::to_number<size_t>(req.get_param_value("input_asset"));
-    asset_value.set_date     = budget::from_string(req.get_param_value("input_date"));
-    asset_value.liability = req.get_param_value("input_liability") == "true";
+    asset_value asset_value = get_asset_value(budget::to_number<size_t>(id));
+    asset_value.amount      = budget::parse_money(req.get_param_value("input_amount"));
+    asset_value.asset_id    = budget::to_number<size_t>(req.get_param_value("input_asset"));
+    asset_value.set_date    = budget::from_string(req.get_param_value("input_date"));
+    asset_value.liability   = req.get_param_value("input_liability") == "true";
 
     set_asset_values_changed();
 
@@ -320,13 +320,13 @@ void budget::edit_asset_shares_api(const httplib::Request& req, httplib::Respons
         return;
     }
 
-    asset_share& asset_share = asset_share_get(budget::to_number<size_t>(id));
-    asset_share.asset_id     = budget::to_number<size_t>(req.get_param_value("input_asset"));
-    asset_share.shares       = budget::to_number<int64_t>(req.get_param_value("input_shares"));
-    asset_share.price        = budget::parse_money(req.get_param_value("input_price"));
-    asset_share.date         = budget::from_string(req.get_param_value("input_date"));
+    asset_share asset_share = get_asset_share(budget::to_number<size_t>(id));
+    asset_share.asset_id    = budget::to_number<size_t>(req.get_param_value("input_asset"));
+    asset_share.shares      = budget::to_number<int64_t>(req.get_param_value("input_shares"));
+    asset_share.price       = budget::parse_money(req.get_param_value("input_price"));
+    asset_share.date        = budget::from_string(req.get_param_value("input_date"));
 
-    set_asset_shares_changed();
+    edit_asset_share(asset_share);
 
     api_success(req, res, "Asset " + to_string(asset_share.id) + " has been modified");
 }
@@ -406,8 +406,8 @@ void budget::edit_asset_classes_api(const httplib::Request& req, httplib::Respon
         return;
     }
 
-    asset_class& asset_class = asset_class_get(budget::to_number<size_t>(id));
-    asset_class.name         = req.get_param_value("input_name");
+    asset_class asset_class = get_asset_class(budget::to_number<size_t>(id));
+    asset_class.name        = req.get_param_value("input_name");
 
     set_asset_classes_changed();
 
@@ -431,7 +431,7 @@ void budget::delete_asset_classes_api(const httplib::Request& req, httplib::Resp
         return;
     }
 
-    auto clas = asset_class_get(budget::to_number<size_t>(id));
+    auto clas = get_asset_class(budget::to_number<size_t>(id));
 
     for (auto & asset : all_assets()) {
         if (get_asset_class_allocation(asset, clas)) {
@@ -499,11 +499,11 @@ void budget::edit_liabilities_api(const httplib::Request& req, httplib::Response
         return;
     }
 
-    liability& liability = get_liability(budget::to_number<size_t>(id));
-    liability.name       = req.get_param_value("input_name");
-    liability.currency   = req.get_param_value("input_currency");
+    liability liability = get_liability(budget::to_number<size_t>(id));
+    liability.name      = req.get_param_value("input_name");
+    liability.currency  = req.get_param_value("input_currency");
 
-    set_liabilities_changed();
+    edit_liability(liability);
 
     api_success(req, res, "Liability " + to_string(liability.id) + " has been modified");
 }
