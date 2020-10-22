@@ -67,7 +67,6 @@ void show_accounts(budget::writer& w);
 void add_account(account&& account);
 bool account_exists(size_t id);
 void account_delete(size_t id);
-account account_get(size_t id);
 
 date find_new_since();
 

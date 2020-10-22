@@ -199,7 +199,6 @@ void asset_class_delete(size_t id);
 void add_asset(asset& asset);
 bool asset_exists(size_t id);
 void asset_delete(size_t id);
-asset asset_get(size_t id);
 
 size_t add_asset_value(asset_value& asset_value);
 bool edit_asset_value(asset_value& asset_value);

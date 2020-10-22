@@ -1218,10 +1218,6 @@ void budget::asset_delete(size_t id) {
     assets.remove(id);
 }
 
-asset budget::asset_get(size_t id) {
-    return assets[id];
-}
-
 void budget::add_asset(budget::asset& asset){
     assets.add(asset);
 }

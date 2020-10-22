@@ -55,7 +55,7 @@ void budget::edit_accounts_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    account account = account_get(budget::to_number<size_t>(id));
+    account account = get_account(budget::to_number<size_t>(id));
     account.name    = req.get_param_value("input_name");
     account.amount  = budget::parse_money(req.get_param_value("input_amount"));
 

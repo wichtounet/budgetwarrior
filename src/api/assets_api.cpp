@@ -92,7 +92,7 @@ void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    asset asset = asset_get(budget::to_number<size_t>(id));
+    asset asset = get_asset(budget::to_number<size_t>(id));
     asset.name  = req.get_param_value("input_name");
 
     for (auto& clas : all_asset_classes()) {

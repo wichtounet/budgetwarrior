@@ -91,7 +91,7 @@ inline auto all_expenses_month(size_t account_id, budget::year year, budget::mon
 
 inline auto all_expenses_month(const std::string & account_name, budget::year year, budget::month month) {
     return make_filter_view(all_expenses(), [=](const expense& e) {
-        return account_get(e.account).name == account_name && e.date.year() == year && e.date.month() == month;
+        return get_account(e.account).name == account_name && e.date.year() == year && e.date.month() == month;
     });
 }
 
@@ -103,7 +103,7 @@ inline auto all_expenses_between(budget::year year, budget::month sm, budget::mo
 
 inline auto all_expenses_between(const std::string & account_name, budget::year year, budget::month sm, budget::month month) {
     return make_filter_view(all_expenses(), [=](const expense& e) {
-        return account_get(e.account).name == account_name && e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
+        return get_account(e.account).name == account_name && e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
     });
 }
 

@@ -538,10 +538,6 @@ void budget::account_delete(size_t id) {
     accounts.remove(id);
 }
 
-account budget::account_get(size_t id) {
-    return accounts[id];
-}
-
 void budget::add_account(budget::account&& account){
     accounts.add(std::forward<budget::account>(account));
 }

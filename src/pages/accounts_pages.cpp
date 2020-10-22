@@ -83,7 +83,7 @@ void budget::edit_accounts_page(const httplib::Request& req, httplib::Response& 
 
             form_begin_edit(w, "/api/accounts/edit/", back_page, input_id);
 
-            auto account = account_get(budget::to_number<size_t>(input_id));
+            auto account = get_account(budget::to_number<size_t>(input_id));
 
             add_name_picker(w, account.name);
             add_amount_picker(w, budget::to_flat_string(account.amount));

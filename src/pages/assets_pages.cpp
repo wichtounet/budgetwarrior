@@ -96,7 +96,7 @@ void budget::edit_assets_page(const httplib::Request& req, httplib::Response& re
 
             form_begin_edit(w, "/api/assets/edit/", back_page, input_id);
 
-            auto asset = asset_get(budget::to_number<size_t>(input_id));
+            auto asset = get_asset(budget::to_number<size_t>(input_id));
 
             add_name_picker(w, asset.name);
 
