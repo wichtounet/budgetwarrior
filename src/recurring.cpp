@@ -167,14 +167,12 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
 
             size_t id = to_number<size_t>(args[2]);
 
-            if (!recurrings.exists(id)) {
+            if (recurrings.remove(id)) {
+                std::cout << "Recurring expense " << id << " has been deleted" << std::endl;
+                std::cout << "Note: The generated expenses have not been deleted" << std::endl;
+            } else {
                 throw budget_exception("There are no recurring expense with id " + args[2]);
             }
-
-            recurrings.remove(id);
-
-            std::cout << "Recurring expense " << id << " has been deleted" << std::endl;
-            std::cout << "Note: The generated expenses have not been deleted" << std::endl;
         } else if (subcommand == "edit") {
             enough_args(args, 3);
 

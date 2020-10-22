@@ -112,13 +112,11 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!debts.exists(id)){
+            if (debts.remove(id)) {
+                std::cout << "Debt " << id << " has been deleted" << std::endl;
+            } else {
                 throw budget_exception("There are no debt with id " + args[2]);
             }
-
-            debts.remove(id);
-
-            std::cout << "Debt " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 

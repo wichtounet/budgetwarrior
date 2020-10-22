@@ -149,13 +149,11 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!wishes.exists(id)){
+            if (wishes.remove(id)) {
+                std::cout << "wish " << id << " has been deleted" << std::endl;
+            } else {
                 throw budget_exception("There are no wish with id " + args[2]);
             }
-
-            wishes.remove(id);
-
-            std::cout << "wish " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 

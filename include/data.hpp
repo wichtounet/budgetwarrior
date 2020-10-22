@@ -182,9 +182,10 @@ struct data_handler {
         return entry.id;
     }
 
-    void remove(size_t id) {
+    bool remove(size_t id) {
         server_lock_guard l(lock);
 
+        auto before = data_.size();
         data_.erase(std::remove_if(data_.begin(), data_.end(),
                                   [id](const T& entry) { return entry.id == id; }),
                    data_.end());
@@ -195,8 +196,12 @@ struct data_handler {
             if (!res.success) {
                 std::cerr << "error: Failed to delete from " << get_module() << std::endl;
             }
+
+            return res.success;
         } else {
             set_changed_internal();
+
+            return size() < before;
         }
     }
 

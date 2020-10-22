@@ -95,13 +95,11 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
 
             size_t id = to_number<size_t>(args[2]);
 
-            if(!earnings.exists(id)){
+            if (earnings.remove(id)) {
+                std::cout << "earning " << id << " has been deleted" << std::endl;
+            } else {
                 throw budget_exception("There are no earning with id ");
             }
-
-            earnings.remove(id);
-
-            std::cout << "earning " << id << " has been deleted" << std::endl;
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
