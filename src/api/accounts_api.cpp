@@ -26,16 +26,22 @@ void budget::add_accounts_api(const httplib::Request& req, httplib::Response& re
         return;
     }
 
-    account account;
-    account.guid   = budget::generate_guid();
-    account.name   = req.get_param_value("input_name");
-    account.amount = budget::parse_money(req.get_param_value("input_amount"));
-    account.since  = find_new_since();
-    account.until  = budget::date(2099, 12, 31);
+    try {
+        account account;
+        account.guid   = budget::generate_guid();
+        account.name   = req.get_param_value("input_name");
+        account.amount = budget::parse_money(req.get_param_value("input_amount"));
+        account.since  = find_new_since();
+        account.until  = budget::date(2099, 12, 31);
 
-    add_account(std::move(account));
+        add_account(std::move(account));
 
-    api_success(req, res, "Account " + to_string(account.id) + " has been created", to_string(account.id));
+        api_success(req, res, "Account " + to_string(account.id) + " has been created", to_string(account.id));
+    } catch (const budget_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_accounts_api(const httplib::Request& req, httplib::Response& res) {
@@ -55,13 +61,19 @@ void budget::edit_accounts_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    account account = get_account(budget::to_number<size_t>(id));
-    account.name    = req.get_param_value("input_name");
-    account.amount  = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        account account = get_account(budget::to_number<size_t>(id));
+        account.name    = req.get_param_value("input_name");
+        account.amount  = budget::parse_money(req.get_param_value("input_amount"));
 
-    set_accounts_changed();
+        set_accounts_changed();
 
-    api_success(req, res, "Account " + to_string(account.id) + " has been modified");
+        api_success(req, res, "Account " + to_string(account.id) + " has been modified");
+    } catch (const budget_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_accounts_api(const httplib::Request& req, httplib::Response& res) {
@@ -81,9 +93,15 @@ void budget::delete_accounts_api(const httplib::Request& req, httplib::Response&
         return;
     }
 
-    budget::account_delete(budget::to_number<size_t>(id));
+    try {
+        budget::account_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "Account " + id + " has been deleted");
+        api_success(req, res, "Account " + id + " has been deleted");
+    } catch (const budget_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_accounts_api(const httplib::Request& req, httplib::Response& res) {
@@ -91,14 +109,20 @@ void budget::list_accounts_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& account : all_accounts()) {
-        ss << account;
-        ss << std::endl;
+        for (auto& account : all_accounts()) {
+            ss << account;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }
 
 void budget::archive_accounts_month_api(const httplib::Request& req, httplib::Response& res) {
@@ -106,9 +130,15 @@ void budget::archive_accounts_month_api(const httplib::Request& req, httplib::Re
         return;
     }
 
-    budget::archive_accounts_impl(true);
+    try {
+        budget::archive_accounts_impl(true);
 
-    api_success(req, res, "Accounts have been migrated from the beginning of the month");
+        api_success(req, res, "Accounts have been migrated from the beginning of the month");
+    } catch (const budget_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::archive_accounts_year_api(const httplib::Request& req, httplib::Response& res) {
@@ -116,7 +146,13 @@ void budget::archive_accounts_year_api(const httplib::Request& req, httplib::Res
         return;
     }
 
-    budget::archive_accounts_impl(false);
+    try {
+        budget::archive_accounts_impl(false);
 
-    api_success(req, res, "Accounts have been migrated from the beginning of the year");
+        api_success(req, res, "Accounts have been migrated from the beginning of the year");
+    } catch (const budget_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception & e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }

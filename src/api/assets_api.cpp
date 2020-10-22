@@ -69,9 +69,10 @@ void budget::add_assets_api(const httplib::Request& req, httplib::Response& res)
         add_asset(asset);
 
         api_success(req, res, "asset " + to_string(asset.id) + " has been created", to_string(asset.id));
-    } catch (const budget_exception & e) {
+    } catch (const budget_exception& e) {
         api_error(req, res, "Exception occurred: " + e.message());
-        return;
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
 }
 
@@ -92,31 +93,37 @@ void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    asset asset = get_asset(budget::to_number<size_t>(id));
-    asset.name  = req.get_param_value("input_name");
+    try {
+        asset asset = get_asset(budget::to_number<size_t>(id));
+        asset.name  = req.get_param_value("input_name");
 
-    for (auto& clas : all_asset_classes()) {
-        auto param_name = "input_class_" + to_string(clas.id);
+        for (auto& clas : all_asset_classes()) {
+            auto param_name = "input_class_" + to_string(clas.id);
 
-        if (req.has_param(param_name.c_str())) {
-            update_asset_class_allocation(asset, clas, budget::parse_money(req.get_param_value(param_name.c_str())));
+            if (req.has_param(param_name.c_str())) {
+                update_asset_class_allocation(asset, clas, budget::parse_money(req.get_param_value(param_name.c_str())));
+            }
         }
+
+        asset.portfolio       = req.get_param_value("input_portfolio") == "yes";
+        asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
+        asset.currency        = req.get_param_value("input_currency");
+        asset.share_based     = req.get_param_value("input_share_based") == "yes";
+        asset.ticker          = req.get_param_value("input_ticker");
+
+        if (asset.total_allocation() != money(100)) {
+            api_error(req, res, "The total allocation of the asset is not 100%");
+            return;
+        }
+
+        set_assets_changed();
+
+        api_success(req, res, "asset " + to_string(asset.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    asset.portfolio       = req.get_param_value("input_portfolio") == "yes";
-    asset.portfolio_alloc = budget::parse_money(req.get_param_value("input_alloc"));
-    asset.currency        = req.get_param_value("input_currency");
-    asset.share_based     = req.get_param_value("input_share_based") == "yes";
-    asset.ticker          = req.get_param_value("input_ticker");
-
-    if (asset.total_allocation() != money(100)) {
-        api_error(req, res, "The total allocation of the asset is not 100%");
-        return;
-    }
-
-    set_assets_changed();
-
-    api_success(req, res, "asset " + to_string(asset.id) + " has been modified");
 }
 
 void budget::delete_assets_api(const httplib::Request& req, httplib::Response& res) {
@@ -136,9 +143,15 @@ void budget::delete_assets_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    budget::asset_delete(budget::to_number<size_t>(id));
+    try {
+        budget::asset_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "asset " + id + " has been deleted");
+        api_success(req, res, "asset " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_assets_api(const httplib::Request& req, httplib::Response& res) {
@@ -146,14 +159,20 @@ void budget::list_assets_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& asset : all_assets()) {
-        ss << asset;
-        ss << std::endl;
+        for (auto& asset : all_assets()) {
+            ss << asset;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }
 
 void budget::add_asset_values_api(const httplib::Request& req, httplib::Response& res) {
@@ -166,16 +185,22 @@ void budget::add_asset_values_api(const httplib::Request& req, httplib::Response
         return;
     }
 
-    asset_value asset_value;
-    asset_value.guid      = budget::generate_guid();
-    asset_value.amount    = budget::parse_money(req.get_param_value("input_amount"));
-    asset_value.asset_id  = budget::to_number<size_t>(req.get_param_value("input_asset"));
-    asset_value.set_date  = budget::from_string(req.get_param_value("input_date"));
-    asset_value.liability = req.get_param_value("input_liability") == "true";
+    try {
+        asset_value asset_value;
+        asset_value.guid      = budget::generate_guid();
+        asset_value.amount    = budget::parse_money(req.get_param_value("input_amount"));
+        asset_value.asset_id  = budget::to_number<size_t>(req.get_param_value("input_asset"));
+        asset_value.set_date  = budget::from_string(req.get_param_value("input_date"));
+        asset_value.liability = req.get_param_value("input_liability") == "true";
 
-    add_asset_value(asset_value);
+        add_asset_value(asset_value);
 
-    api_success(req, res, "Asset value " + to_string(asset_value.id) + " has been created", to_string(asset_value.id));
+        api_success(req, res, "Asset value " + to_string(asset_value.id) + " has been created", to_string(asset_value.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_asset_values_api(const httplib::Request& req, httplib::Response& res) {
@@ -195,15 +220,21 @@ void budget::edit_asset_values_api(const httplib::Request& req, httplib::Respons
         return;
     }
 
-    asset_value asset_value = get_asset_value(budget::to_number<size_t>(id));
-    asset_value.amount      = budget::parse_money(req.get_param_value("input_amount"));
-    asset_value.asset_id    = budget::to_number<size_t>(req.get_param_value("input_asset"));
-    asset_value.set_date    = budget::from_string(req.get_param_value("input_date"));
-    asset_value.liability   = req.get_param_value("input_liability") == "true";
+    try {
+        asset_value asset_value = get_asset_value(budget::to_number<size_t>(id));
+        asset_value.amount      = budget::parse_money(req.get_param_value("input_amount"));
+        asset_value.asset_id    = budget::to_number<size_t>(req.get_param_value("input_asset"));
+        asset_value.set_date    = budget::from_string(req.get_param_value("input_date"));
+        asset_value.liability   = req.get_param_value("input_liability") == "true";
 
-    set_asset_values_changed();
+        set_asset_values_changed();
 
-    api_success(req, res, "Asset " + to_string(asset_value.id) + " has been modified");
+        api_success(req, res, "Asset " + to_string(asset_value.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_asset_values_api(const httplib::Request& req, httplib::Response& res) {
@@ -223,9 +254,15 @@ void budget::delete_asset_values_api(const httplib::Request& req, httplib::Respo
         return;
     }
 
-    budget::asset_value_delete(budget::to_number<size_t>(id));
+    try {
+        budget::asset_value_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "The asset value " + id + " has been deleted");
+        api_success(req, res, "The asset value " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_asset_values_api(const httplib::Request& req, httplib::Response& res) {
@@ -233,14 +270,20 @@ void budget::list_asset_values_api(const httplib::Request& req, httplib::Respons
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& asset_value : all_asset_values()) {
-        ss << asset_value;
-        ss << std::endl;
+        for (auto& asset_value : all_asset_values()) {
+            ss << asset_value;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }
 
 void budget::batch_asset_values_api(const httplib::Request& req, httplib::Response& res) {
@@ -248,37 +291,43 @@ void budget::batch_asset_values_api(const httplib::Request& req, httplib::Respon
         return;
     }
 
-    auto asset_values = all_asset_values();
+    try {
+        auto asset_values = all_asset_values();
 
-    for (auto& asset : all_assets()) {
-        auto input_name = "input_amount_" + budget::to_string(asset.id);
+        for (auto& asset : all_assets()) {
+            auto input_name = "input_amount_" + budget::to_string(asset.id);
 
-        if (req.has_param(input_name.c_str())) {
-            auto new_amount = budget::parse_money(req.get_param_value(input_name.c_str()));
+            if (req.has_param(input_name.c_str())) {
+                auto new_amount = budget::parse_money(req.get_param_value(input_name.c_str()));
 
-            budget::money current_amount;
+                budget::money current_amount;
 
-            for (auto& asset_value : asset_values) {
-                if (asset_value.asset_id == asset.id) {
-                    current_amount = asset_value.amount;
+                for (auto& asset_value : asset_values) {
+                    if (asset_value.asset_id == asset.id) {
+                        current_amount = asset_value.amount;
+                    }
+                }
+
+                // If the amount changed, update it
+                if (current_amount != new_amount) {
+                    asset_value asset_value;
+                    asset_value.guid      = budget::generate_guid();
+                    asset_value.amount    = new_amount;
+                    asset_value.asset_id  = asset.id;
+                    asset_value.set_date  = budget::from_string(req.get_param_value("input_date"));
+                    asset_value.liability = false;
+
+                    add_asset_value(asset_value);
                 }
             }
-
-            // If the amount changed, update it
-            if (current_amount != new_amount) {
-                asset_value asset_value;
-                asset_value.guid     = budget::generate_guid();
-                asset_value.amount   = new_amount;
-                asset_value.asset_id = asset.id;
-                asset_value.set_date = budget::from_string(req.get_param_value("input_date"));
-                asset_value.liability = false;
-
-                add_asset_value(asset_value);
-            }
         }
-    }
 
-    api_success(req, res, "Asset values have been updated");
+        api_success(req, res, "Asset values have been updated");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::add_asset_shares_api(const httplib::Request& req, httplib::Response& res) {
@@ -291,16 +340,22 @@ void budget::add_asset_shares_api(const httplib::Request& req, httplib::Response
         return;
     }
 
-    asset_share asset_share;
-    asset_share.guid     = budget::generate_guid();
-    asset_share.asset_id = budget::to_number<size_t>(req.get_param_value("input_asset"));
-    asset_share.shares   = budget::to_number<int64_t>(req.get_param_value("input_shares"));
-    asset_share.price    = budget::parse_money(req.get_param_value("input_price"));
-    asset_share.date     = budget::from_string(req.get_param_value("input_date"));
+    try {
+        asset_share asset_share;
+        asset_share.guid     = budget::generate_guid();
+        asset_share.asset_id = budget::to_number<size_t>(req.get_param_value("input_asset"));
+        asset_share.shares   = budget::to_number<int64_t>(req.get_param_value("input_shares"));
+        asset_share.price    = budget::parse_money(req.get_param_value("input_price"));
+        asset_share.date     = budget::from_string(req.get_param_value("input_date"));
 
-    add_asset_share(asset_share);
+        add_asset_share(asset_share);
 
-    api_success(req, res, "Asset share " + to_string(asset_share.id) + " has been created", to_string(asset_share.id));
+        api_success(req, res, "Asset share " + to_string(asset_share.id) + " has been created", to_string(asset_share.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_asset_shares_api(const httplib::Request& req, httplib::Response& res) {
@@ -320,15 +375,21 @@ void budget::edit_asset_shares_api(const httplib::Request& req, httplib::Respons
         return;
     }
 
-    asset_share asset_share = get_asset_share(budget::to_number<size_t>(id));
-    asset_share.asset_id    = budget::to_number<size_t>(req.get_param_value("input_asset"));
-    asset_share.shares      = budget::to_number<int64_t>(req.get_param_value("input_shares"));
-    asset_share.price       = budget::parse_money(req.get_param_value("input_price"));
-    asset_share.date        = budget::from_string(req.get_param_value("input_date"));
+    try {
+        asset_share asset_share = get_asset_share(budget::to_number<size_t>(id));
+        asset_share.asset_id    = budget::to_number<size_t>(req.get_param_value("input_asset"));
+        asset_share.shares      = budget::to_number<int64_t>(req.get_param_value("input_shares"));
+        asset_share.price       = budget::parse_money(req.get_param_value("input_price"));
+        asset_share.date        = budget::from_string(req.get_param_value("input_date"));
 
-    edit_asset_share(asset_share);
+        edit_asset_share(asset_share);
 
-    api_success(req, res, "Asset " + to_string(asset_share.id) + " has been modified");
+        api_success(req, res, "Asset " + to_string(asset_share.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_asset_shares_api(const httplib::Request& req, httplib::Response& res) {
@@ -348,9 +409,15 @@ void budget::delete_asset_shares_api(const httplib::Request& req, httplib::Respo
         return;
     }
 
-    budget::asset_share_delete(budget::to_number<size_t>(id));
+    try {
+        budget::asset_share_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "The asset share " + id + " has been deleted");
+        api_success(req, res, "The asset share " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_asset_shares_api(const httplib::Request& req, httplib::Response& res) {
@@ -358,14 +425,20 @@ void budget::list_asset_shares_api(const httplib::Request& req, httplib::Respons
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& asset_share : all_asset_shares()) {
-        ss << asset_share;
-        ss << std::endl;
+        for (auto& asset_share : all_asset_shares()) {
+            ss << asset_share;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }
 
 // Asset Classes
@@ -380,13 +453,19 @@ void budget::add_asset_classes_api(const httplib::Request& req, httplib::Respons
         return;
     }
 
-    asset_class asset_class;
-    asset_class.guid = budget::generate_guid();
-    asset_class.name = req.get_param_value("input_name");
+    try {
+        asset_class asset_class;
+        asset_class.guid = budget::generate_guid();
+        asset_class.name = req.get_param_value("input_name");
 
-    add_asset_class(asset_class);
+        add_asset_class(asset_class);
 
-    api_success(req, res, "Asset class " + to_string(asset_class.id) + " has been created", to_string(asset_class.id));
+        api_success(req, res, "Asset class " + to_string(asset_class.id) + " has been created", to_string(asset_class.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_asset_classes_api(const httplib::Request& req, httplib::Response& res) {
@@ -406,12 +485,18 @@ void budget::edit_asset_classes_api(const httplib::Request& req, httplib::Respon
         return;
     }
 
-    asset_class asset_class = get_asset_class(budget::to_number<size_t>(id));
-    asset_class.name        = req.get_param_value("input_name");
+    try {
+        asset_class asset_class = get_asset_class(budget::to_number<size_t>(id));
+        asset_class.name        = req.get_param_value("input_name");
 
-    set_asset_classes_changed();
+        set_asset_classes_changed();
 
-    api_success(req, res, "Asset Class " + to_string(asset_class.id) + " has been modified");
+        api_success(req, res, "Asset Class " + to_string(asset_class.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_asset_classes_api(const httplib::Request& req, httplib::Response& res) {
@@ -431,18 +516,24 @@ void budget::delete_asset_classes_api(const httplib::Request& req, httplib::Resp
         return;
     }
 
-    auto clas = get_asset_class(budget::to_number<size_t>(id));
+    try {
+        auto clas = get_asset_class(budget::to_number<size_t>(id));
 
-    for (auto & asset : all_assets()) {
-        if (get_asset_class_allocation(asset, clas)) {
-            api_error(req, res, "Cannot delete an asset class that is still used");
-            return;
+        for (auto& asset : all_assets()) {
+            if (get_asset_class_allocation(asset, clas)) {
+                api_error(req, res, "Cannot delete an asset class that is still used");
+                return;
+            }
         }
+
+        budget::asset_class_delete(budget::to_number<size_t>(id));
+
+        api_success(req, res, "The asset class " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    budget::asset_class_delete(budget::to_number<size_t>(id));
-
-    api_success(req, res, "The asset class " + id + " has been deleted");
 }
 
 void budget::list_asset_classes_api(const httplib::Request& req, httplib::Response& res) {
@@ -450,14 +541,20 @@ void budget::list_asset_classes_api(const httplib::Request& req, httplib::Respon
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& asset_class : all_asset_classes()) {
-        ss << asset_class;
-        ss << std::endl;
+        for (auto& asset_class : all_asset_classes()) {
+            ss << asset_class;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }
 
 // Liabilities
@@ -472,14 +569,20 @@ void budget::add_liabilities_api(const httplib::Request& req, httplib::Response&
         return;
     }
 
-    liability liability;
-    liability.guid     = budget::generate_guid();
-    liability.name     = req.get_param_value("input_name");
-    liability.currency = req.get_param_value("input_currency");
+    try {
+        liability liability;
+        liability.guid     = budget::generate_guid();
+        liability.name     = req.get_param_value("input_name");
+        liability.currency = req.get_param_value("input_currency");
 
-    add_liability(liability);
+        add_liability(liability);
 
-    api_success(req, res, "Liability " + to_string(liability.id) + " has been created", to_string(liability.id));
+        api_success(req, res, "Liability " + to_string(liability.id) + " has been created", to_string(liability.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_liabilities_api(const httplib::Request& req, httplib::Response& res) {
@@ -499,13 +602,19 @@ void budget::edit_liabilities_api(const httplib::Request& req, httplib::Response
         return;
     }
 
-    liability liability = get_liability(budget::to_number<size_t>(id));
-    liability.name      = req.get_param_value("input_name");
-    liability.currency  = req.get_param_value("input_currency");
+    try {
+        liability liability = get_liability(budget::to_number<size_t>(id));
+        liability.name      = req.get_param_value("input_name");
+        liability.currency  = req.get_param_value("input_currency");
 
-    edit_liability(liability);
+        edit_liability(liability);
 
-    api_success(req, res, "Liability " + to_string(liability.id) + " has been modified");
+        api_success(req, res, "Liability " + to_string(liability.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_liabilities_api(const httplib::Request& req, httplib::Response& res) {
@@ -525,9 +634,15 @@ void budget::delete_liabilities_api(const httplib::Request& req, httplib::Respon
         return;
     }
 
-    budget::liability_delete(budget::to_number<size_t>(id));
+    try {
+        budget::liability_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "The liability " + id + " has been deleted");
+        api_success(req, res, "The liability " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_liabilities_api(const httplib::Request& req, httplib::Response& res) {
@@ -535,12 +650,18 @@ void budget::list_liabilities_api(const httplib::Request& req, httplib::Response
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& liability : all_liabilities()) {
-        ss << liability;
-        ss << std::endl;
+        for (auto& liability : all_liabilities()) {
+            ss << liability;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }

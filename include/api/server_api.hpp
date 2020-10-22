@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "budget_exception.hpp"
+
 namespace httplib {
 struct Server;
 struct Request;
