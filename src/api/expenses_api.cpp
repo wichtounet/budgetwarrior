@@ -26,16 +26,22 @@ void budget::add_expenses_api(const httplib::Request& req, httplib::Response& re
         return;
     }
 
-    expense expense;
-    expense.guid    = budget::generate_guid();
-    expense.date    = budget::from_string(req.get_param_value("input_date"));
-    expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
-    expense.name    = req.get_param_value("input_name");
-    expense.amount  = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        expense expense;
+        expense.guid    = budget::generate_guid();
+        expense.date    = budget::from_string(req.get_param_value("input_date"));
+        expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
+        expense.name    = req.get_param_value("input_name");
+        expense.amount  = budget::parse_money(req.get_param_value("input_amount"));
 
-    add_expense(std::move(expense));
+        add_expense(std::move(expense));
 
-    api_success(req, res, "Expense " + to_string(expense.id) + " has been created", to_string(expense.id));
+        api_success(req, res, "Expense " + to_string(expense.id) + " has been created", to_string(expense.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_expenses_api(const httplib::Request& req, httplib::Response& res) {
@@ -55,15 +61,21 @@ void budget::edit_expenses_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    expense expense = expense_get(budget::to_number<size_t>(id));
-    expense.date    = budget::from_string(req.get_param_value("input_date"));
-    expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
-    expense.name    = req.get_param_value("input_name");
-    expense.amount  = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        expense expense = expense_get(budget::to_number<size_t>(id));
+        expense.date    = budget::from_string(req.get_param_value("input_date"));
+        expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
+        expense.name    = req.get_param_value("input_name");
+        expense.amount  = budget::parse_money(req.get_param_value("input_amount"));
 
-    edit_expense(expense);
+        edit_expense(expense);
 
-    api_success(req, res, "Expense " + to_string(expense.id) + " has been modified");
+        api_success(req, res, "Expense " + to_string(expense.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_expenses_api(const httplib::Request& req, httplib::Response& res) {
@@ -83,9 +95,15 @@ void budget::delete_expenses_api(const httplib::Request& req, httplib::Response&
         return;
     }
 
-    budget::expense_delete(budget::to_number<size_t>(id));
+    try {
+        budget::expense_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "Expense " + id + " has been deleted");
+        api_success(req, res, "Expense " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_expenses_api(const httplib::Request& req, httplib::Response& res) {
@@ -93,12 +111,18 @@ void budget::list_expenses_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& expense : all_expenses()) {
-        ss << expense;
-        ss << std::endl;
+        for (auto& expense : all_expenses()) {
+            ss << expense;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }

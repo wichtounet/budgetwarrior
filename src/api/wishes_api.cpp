@@ -27,19 +27,25 @@ void budget::add_wishes_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    wish wish;
-    wish.paid        = false;
-    wish.paid_amount = 0;
-    wish.guid        = budget::generate_guid();
-    wish.date        = budget::local_day();
-    wish.name        = req.get_param_value("input_name");
-    wish.importance  = budget::to_number<int>(req.get_param_value("input_importance"));
-    wish.urgency     = budget::to_number<int>(req.get_param_value("input_urgency"));
-    wish.amount      = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        wish wish;
+        wish.paid        = false;
+        wish.paid_amount = 0;
+        wish.guid        = budget::generate_guid();
+        wish.date        = budget::local_day();
+        wish.name        = req.get_param_value("input_name");
+        wish.importance  = budget::to_number<int>(req.get_param_value("input_importance"));
+        wish.urgency     = budget::to_number<int>(req.get_param_value("input_urgency"));
+        wish.amount      = budget::parse_money(req.get_param_value("input_amount"));
 
-    add_wish(std::move(wish));
+        add_wish(std::move(wish));
 
-    api_success(req, res, "wish " + to_string(wish.id) + " has been created", to_string(wish.id));
+        api_success(req, res, "wish " + to_string(wish.id) + " has been created", to_string(wish.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_wishes_api(const httplib::Request& req, httplib::Response& res) {
@@ -47,7 +53,8 @@ void budget::edit_wishes_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_urgency") || !req.has_param("input_importance") || !req.has_param("input_paid") || !req.has_param("input_paid_amount")) {
+    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_urgency") ||
+        !req.has_param("input_importance") || !req.has_param("input_paid") || !req.has_param("input_paid_amount")) {
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -61,20 +68,26 @@ void budget::edit_wishes_api(const httplib::Request& req, httplib::Response& res
 
     bool paid = req.get_param_value("input_paid") == "yes";
 
-    wish wish       = wish_get(budget::to_number<size_t>(id));
-    wish.name       = req.get_param_value("input_name");
-    wish.importance = budget::to_number<int>(req.get_param_value("input_importance"));
-    wish.urgency    = budget::to_number<int>(req.get_param_value("input_urgency"));
-    wish.amount     = budget::parse_money(req.get_param_value("input_amount"));
-    wish.paid       = paid;
+    try {
+        wish wish       = wish_get(budget::to_number<size_t>(id));
+        wish.name       = req.get_param_value("input_name");
+        wish.importance = budget::to_number<int>(req.get_param_value("input_importance"));
+        wish.urgency    = budget::to_number<int>(req.get_param_value("input_urgency"));
+        wish.amount     = budget::parse_money(req.get_param_value("input_amount"));
+        wish.paid       = paid;
 
-    if (paid) {
-        wish.paid_amount = budget::parse_money(req.get_param_value("input_paid_amount"));
+        if (paid) {
+            wish.paid_amount = budget::parse_money(req.get_param_value("input_paid_amount"));
+        }
+
+        set_wishes_changed();
+
+        api_success(req, res, "wish " + to_string(wish.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    set_wishes_changed();
-
-    api_success(req, res, "wish " + to_string(wish.id) + " has been modified");
 }
 
 void budget::delete_wishes_api(const httplib::Request& req, httplib::Response& res) {
@@ -94,9 +107,15 @@ void budget::delete_wishes_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    budget::wish_delete(budget::to_number<size_t>(id));
+    try {
+        budget::wish_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "wish " + id + " has been deleted");
+        api_success(req, res, "wish " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_wishes_api(const httplib::Request& req, httplib::Response& res) {
@@ -104,12 +123,18 @@ void budget::list_wishes_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& wish : all_wishes()) {
-        ss << wish;
-        ss << std::endl;
+        for (auto& wish : all_wishes()) {
+            ss << wish;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }

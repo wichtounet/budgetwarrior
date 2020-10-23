@@ -27,16 +27,22 @@ void budget::add_recurrings_api(const httplib::Request& req, httplib::Response& 
         return;
     }
 
-    recurring recurring;
-    recurring.guid    = budget::generate_guid();
-    recurring.account = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
-    recurring.name    = req.get_param_value("input_name");
-    recurring.amount  = budget::parse_money(req.get_param_value("input_amount"));
-    recurring.recurs  = "monthly";
+    try {
+        recurring recurring;
+        recurring.guid    = budget::generate_guid();
+        recurring.account = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
+        recurring.name    = req.get_param_value("input_name");
+        recurring.amount  = budget::parse_money(req.get_param_value("input_amount"));
+        recurring.recurs  = "monthly";
 
-    add_recurring(std::move(recurring));
+        add_recurring(std::move(recurring));
 
-    api_success(req, res, "Recurring " + to_string(recurring.id) + " has been created", to_string(recurring.id));
+        api_success(req, res, "Recurring " + to_string(recurring.id) + " has been created", to_string(recurring.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_recurrings_api(const httplib::Request& req, httplib::Response& res) {
@@ -56,14 +62,20 @@ void budget::edit_recurrings_api(const httplib::Request& req, httplib::Response&
         return;
     }
 
-    recurring recurring = recurring_get(budget::to_number<size_t>(id));
-    recurring.account   = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
-    recurring.name      = req.get_param_value("input_name");
-    recurring.amount    = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        recurring recurring = recurring_get(budget::to_number<size_t>(id));
+        recurring.account   = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
+        recurring.name      = req.get_param_value("input_name");
+        recurring.amount    = budget::parse_money(req.get_param_value("input_amount"));
 
-    edit_recurring(recurring);
+        edit_recurring(recurring);
 
-    api_success(req, res, "Recurring " + to_string(recurring.id) + " has been modified");
+        api_success(req, res, "Recurring " + to_string(recurring.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_recurrings_api(const httplib::Request& req, httplib::Response& res) {
@@ -83,9 +95,15 @@ void budget::delete_recurrings_api(const httplib::Request& req, httplib::Respons
         return;
     }
 
-    budget::recurring_delete(budget::to_number<size_t>(id));
+    try {
+        budget::recurring_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "Recurring " + id + " has been deleted");
+        api_success(req, res, "Recurring " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_recurrings_api(const httplib::Request& req, httplib::Response& res) {
@@ -93,13 +111,18 @@ void budget::list_recurrings_api(const httplib::Request& req, httplib::Response&
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& recurring : all_recurrings()) {
-        ss << recurring;
-        ss << std::endl;
+        for (auto& recurring : all_recurrings()) {
+            ss << recurring;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }
-

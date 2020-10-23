@@ -26,11 +26,17 @@ void budget::add_incomes_api(const httplib::Request& req, httplib::Response& res
         return;
     }
 
-    auto amount = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        auto amount = budget::parse_money(req.get_param_value("input_amount"));
 
-    auto income = budget::new_income(amount, false);
+        auto income = budget::new_income(amount, false);
 
-    api_success(req, res, "Income " + to_string(income.id) + " has been created", to_string(income.id));
+        api_success(req, res, "Income " + to_string(income.id) + " has been created", to_string(income.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_incomes_api(const httplib::Request& req, httplib::Response& res) {
@@ -50,12 +56,18 @@ void budget::edit_incomes_api(const httplib::Request& req, httplib::Response& re
         return;
     }
 
-    income income = income_get(budget::to_number<size_t>(id));
-    income.amount   = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        income income = income_get(budget::to_number<size_t>(id));
+        income.amount = budget::parse_money(req.get_param_value("input_amount"));
 
-    set_incomes_changed();
+        set_incomes_changed();
 
-    api_success(req, res, "Income " + to_string(income.id) + " has been modified");
+        api_success(req, res, "Income " + to_string(income.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_incomes_api(const httplib::Request& req, httplib::Response& res) {
@@ -75,9 +87,15 @@ void budget::delete_incomes_api(const httplib::Request& req, httplib::Response& 
         return;
     }
 
-    budget::income_delete(budget::to_number<size_t>(id));
+    try {
+        budget::income_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "Income " + id + " has been deleted");
+        api_success(req, res, "Income " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_incomes_api(const httplib::Request& req, httplib::Response& res) {
@@ -85,12 +103,18 @@ void budget::list_incomes_api(const httplib::Request& req, httplib::Response& re
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& income : all_incomes()) {
-        ss << income;
-        ss << std::endl;
+        for (auto& income : all_incomes()) {
+            ss << income;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }

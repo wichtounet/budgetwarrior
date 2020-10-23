@@ -27,18 +27,24 @@ void budget::add_debts_api(const httplib::Request& req, httplib::Response& res) 
         return;
     }
 
-    debt debt;
-    debt.state         = 0;
-    debt.guid          = budget::generate_guid();
-    debt.creation_date = budget::local_day();
-    debt.direction     = req.get_param_value("input_direction") == "to";
-    debt.name          = req.get_param_value("input_name");
-    debt.title         = req.get_param_value("input_title");
-    debt.amount        = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        debt debt;
+        debt.state         = 0;
+        debt.guid          = budget::generate_guid();
+        debt.creation_date = budget::local_day();
+        debt.direction     = req.get_param_value("input_direction") == "to";
+        debt.name          = req.get_param_value("input_name");
+        debt.title         = req.get_param_value("input_title");
+        debt.amount        = budget::parse_money(req.get_param_value("input_amount"));
 
-    add_debt(std::move(debt));
+        add_debt(std::move(debt));
 
-    api_success(req, res, "Debt " + to_string(debt.id) + " has been created", to_string(debt.id));
+        api_success(req, res, "Debt " + to_string(debt.id) + " has been created", to_string(debt.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_debts_api(const httplib::Request& req, httplib::Response& res) {
@@ -46,7 +52,8 @@ void budget::edit_debts_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_title") || !req.has_param("input_direction") || !req.has_param("input_paid")) {
+    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_title") ||
+        !req.has_param("input_direction") || !req.has_param("input_paid")) {
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -58,16 +65,22 @@ void budget::edit_debts_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    debt debt     = debt_get(budget::to_number<size_t>(id));
-    debt.direction = req.get_param_value("input_direction") == "to";
-    debt.name      = req.get_param_value("input_name");
-    debt.title     = req.get_param_value("input_title");
-    debt.amount    = budget::parse_money(req.get_param_value("input_amount"));
-    debt.state     = req.get_param_value("input_paid") == "yes" ? 1 : 0;
+    try {
+        debt debt      = debt_get(budget::to_number<size_t>(id));
+        debt.direction = req.get_param_value("input_direction") == "to";
+        debt.name      = req.get_param_value("input_name");
+        debt.title     = req.get_param_value("input_title");
+        debt.amount    = budget::parse_money(req.get_param_value("input_amount"));
+        debt.state     = req.get_param_value("input_paid") == "yes" ? 1 : 0;
 
-    edit_debt(debt);
+        edit_debt(debt);
 
-    api_success(req, res, "Debt " + to_string(debt.id) + " has been modified");
+        api_success(req, res, "Debt " + to_string(debt.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_debts_api(const httplib::Request& req, httplib::Response& res) {
@@ -87,9 +100,15 @@ void budget::delete_debts_api(const httplib::Request& req, httplib::Response& re
         return;
     }
 
-    budget::debt_delete(budget::to_number<size_t>(id));
+    try {
+        budget::debt_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "Debt " + id + " has been deleted");
+        api_success(req, res, "Debt " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_debts_api(const httplib::Request& req, httplib::Response& res) {
@@ -97,12 +116,18 @@ void budget::list_debts_api(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& debt : all_debts()) {
-        ss << debt;
-        ss << std::endl;
+        for (auto& debt : all_debts()) {
+            ss << debt;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }

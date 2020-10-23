@@ -27,14 +27,20 @@ void budget::add_fortunes_api(const httplib::Request& req, httplib::Response& re
         return;
     }
 
-    fortune fortune;
-    fortune.guid       = budget::generate_guid();
-    fortune.check_date = budget::from_string(req.get_param_value("input_date"));
-    fortune.amount     = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        fortune fortune;
+        fortune.guid       = budget::generate_guid();
+        fortune.check_date = budget::from_string(req.get_param_value("input_date"));
+        fortune.amount     = budget::parse_money(req.get_param_value("input_amount"));
 
-    add_fortune(std::move(fortune));
+        add_fortune(std::move(fortune));
 
-    api_success(req, res, "Fortune " + to_string(fortune.id) + " has been created", to_string(fortune.id));
+        api_success(req, res, "Fortune " + to_string(fortune.id) + " has been created", to_string(fortune.id));
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::edit_fortunes_api(const httplib::Request& req, httplib::Response& res) {
@@ -54,13 +60,19 @@ void budget::edit_fortunes_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    fortune fortune   = fortune_get(budget::to_number<size_t>(id));
-    fortune.check_date = budget::from_string(req.get_param_value("input_date"));
-    fortune.amount     = budget::parse_money(req.get_param_value("input_amount"));
+    try {
+        fortune fortune    = fortune_get(budget::to_number<size_t>(id));
+        fortune.check_date = budget::from_string(req.get_param_value("input_date"));
+        fortune.amount     = budget::parse_money(req.get_param_value("input_amount"));
 
-    edit_fortune(fortune);
+        edit_fortune(fortune);
 
-    api_success(req, res, "Fortune " + to_string(fortune.id) + " has been modified");
+        api_success(req, res, "Fortune " + to_string(fortune.id) + " has been modified");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::delete_fortunes_api(const httplib::Request& req, httplib::Response& res) {
@@ -80,9 +92,15 @@ void budget::delete_fortunes_api(const httplib::Request& req, httplib::Response&
         return;
     }
 
-    budget::fortune_delete(budget::to_number<size_t>(id));
+    try {
+        budget::fortune_delete(budget::to_number<size_t>(id));
 
-    api_success(req, res, "fortune " + id + " has been deleted");
+        api_success(req, res, "fortune " + id + " has been deleted");
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    }
 }
 
 void budget::list_fortunes_api(const httplib::Request& req, httplib::Response& res) {
@@ -90,13 +108,18 @@ void budget::list_fortunes_api(const httplib::Request& req, httplib::Response& r
         return;
     }
 
-    std::stringstream ss;
+    try {
+        std::stringstream ss;
 
-    for (auto& fortune : all_fortunes()) {
-        ss << fortune;
-        ss << std::endl;
+        for (auto& fortune : all_fortunes()) {
+            ss << fortune;
+            ss << std::endl;
+        }
+
+        api_success_content(req, res, ss.str());
+    } catch (const budget_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
+    } catch (const date_exception& e) {
+        api_error(req, res, "Exception occurred: " + e.message());
     }
-
-    api_success_content(req, res, ss.str());
 }
-
