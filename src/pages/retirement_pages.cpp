@@ -122,7 +122,7 @@ void budget::retirement_fi_ratio_over_time(const httplib::Request& req, httplib:
     while (date <= end_date) {
         auto ratio = budget::fi_ratio(date);
 
-        std::string datestr = "Date.UTC(" + std::to_string(date.year()) + "," + std::to_string(date.month().value - 1) + ", 1)";
+        std::string datestr = "Date.UTC(" + std::to_string(date.year()) + "," + std::to_string(date.month().value - 1) + ", " + std::to_string(date.day().value) + ")";
         ss << "[" << datestr << "," << budget::to_string(100 * ratio) << "],";
 
         date += days(1);
