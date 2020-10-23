@@ -113,10 +113,16 @@ void budget::retirement_module::handle(std::vector<std::string>& args) {
 }
 
 float budget::fi_ratio(budget::date d) {
+    auto asset_values = all_asset_values();
+
+    return fi_ratio(d, asset_values);
+}
+
+float budget::fi_ratio(budget::date d, const std::vector<asset_value> & asset_values) {
     auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
     auto years          = double(int(100.0 / wrate));
     auto expenses       = running_expenses(d);
-    auto nw             = get_net_worth(d);
+    auto nw             = get_net_worth(d, asset_values);
     auto missing        = years * expenses - nw;
 
     return nw / missing;

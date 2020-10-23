@@ -1241,9 +1241,13 @@ budget::money budget::get_net_worth(){
 }
 
 budget::money budget::get_net_worth(budget::date d){
-    budget::money total;
-
     auto asset_values = all_asset_values();
+
+    return get_net_worth(d, asset_values);
+}
+
+budget::money budget::get_net_worth(budget::date d, const std::vector<budget::asset_value> & asset_values) {
+    budget::money total;
 
     for (auto & asset : all_user_assets()) {
         total += get_asset_value_conv(asset, d, asset_values);

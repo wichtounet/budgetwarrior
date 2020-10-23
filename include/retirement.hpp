@@ -27,7 +27,11 @@ struct module_traits<retirement_module> {
     static constexpr const char* command   = "retirement";
 };
 
+struct asset_value;
+
 float fi_ratio(budget::date d);
+float fi_ratio(budget::date d, const std::vector<asset_value> & asset_values);
+
 void retirement_status(budget::writer& w);
 
 } //end of namespace budget
