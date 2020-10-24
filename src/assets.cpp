@@ -35,7 +35,8 @@ static data_handler<asset> assets { "assets", "assets.data" };
 std::vector<std::string> get_asset_names(){
     std::vector<std::string> asset_names;
 
-    for (auto& asset : all_user_assets()) {
+    data_cache cache;
+    for (auto& asset : cache.user_assets()) {
         asset_names.push_back(asset.name);
     }
 
@@ -45,7 +46,8 @@ std::vector<std::string> get_asset_names(){
 std::vector<std::string> get_share_asset_names(){
     std::vector<std::string> asset_names;
 
-    for (auto& asset : all_user_assets()) {
+    data_cache cache;
+    for (auto& asset : cache.user_assets()) {
         if (asset.share_based) {
             asset_names.push_back(asset.name);
         }
@@ -208,7 +210,9 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             //Verify that there are no OTHER asset with this name
             //in the current set of assets (taking archiving into asset)
 
-            for (auto& other_asset : all_user_assets()) {
+            data_cache cache;
+
+            for (auto& other_asset : cache.user_assets()) {
                 if (other_asset.id != id) {
                     if (other_asset.name == asset.name) {
                         throw budget_exception("There is already an asset with the name " + asset.name);
@@ -216,10 +220,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 }
             }
 
-            auto asset_classes = all_asset_classes();
-
             do {
-                for (auto & clas : asset_classes) {
+                for (auto & clas : cache.asset_classes()) {
                     budget::money alloc = get_asset_class_allocation(asset, clas);
                     edit_money(alloc, clas.name);
                     update_asset_class_allocation(asset, clas, alloc);
@@ -713,7 +715,8 @@ budget::date budget::asset_start_date() {
 
     //TODO If necessary, avoid double loops
 
-    for (auto & asset : all_user_assets()) {
+    data_cache cache;
+    for (auto & asset : cache.user_assets()) {
         start = std::min(asset_start_date(asset), start);
     }
 

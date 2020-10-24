@@ -236,12 +236,4 @@ budget::money get_asset_value_conv(const budget::asset & asset, budget::date d, 
 void update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc);
 budget::money get_asset_class_allocation(const budget::asset& asset, const budget::asset_class & clas);
 
-// Filter functions
-
-inline auto all_user_assets() {
-    return make_filter_view(all_assets(), [=](const asset& a) {
-        return a.name != "DESIRED";
-    });
-}
-
 } //end of namespace budget

@@ -44,9 +44,11 @@ void budget::assets_card(budget::html_writer& w){
         }
     }
 
+    data_cache cache;
+
     // If one asset has no group, we disable grouping
     if (group_style) {
-        for (auto& asset : all_user_assets()) {
+        for (auto& asset : cache.user_assets()) {
             auto pos = asset.name.find(separator);
             if (pos == 0 || pos == std::string::npos) {
                 group_style = false;
@@ -57,8 +59,6 @@ void budget::assets_card(budget::html_writer& w){
 
     if (group_style) {
         std::vector<std::string> groups;
-
-        data_cache cache;
 
         for (auto& asset : cache.user_assets()) {
             std::string group = asset.name.substr(0, asset.name.find(separator));
@@ -189,9 +189,11 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
 
     budget::html_writer w(content_stream);
 
+    data_cache cache;
+
     auto asset = req.matches.size() == 2
         ? get_asset(to_number<size_t>(req.matches[1]))
-        : *all_user_assets().begin();
+        : *cache.user_assets().begin();
 
     if (req.matches.size() == 2) {
         w << title_begin << "Asset Graph" << budget::asset_selector{"assets/graph", to_number<size_t>(req.matches[1])} << title_end;
@@ -616,7 +618,9 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
 
     std::set<std::string> currencies;
 
-    for (auto& asset : all_user_assets()) {
+    data_cache cache;
+
+    for (auto& asset : cache.user_assets()) {
         currencies.insert(asset.currency);
     }
 
@@ -632,8 +636,6 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
     ss << R"=====(plotOptions: {area: {stacking: 'percent'}},)=====";
 
     ss << "series: [";
-
-    data_cache cache;
 
     for (auto& currency : currencies) {
         ss << "{ name: '" << currency << "',";
@@ -745,7 +747,9 @@ void budget::portfolio_currency_page(const httplib::Request& req, httplib::Respo
 
     std::set<std::string> currencies;
 
-    for (auto& asset : all_user_assets()) {
+    data_cache cache;
+
+    for (auto& asset : cache.user_assets()) {
         if (asset.portfolio) {
             currencies.insert(asset.currency);
         }
@@ -763,8 +767,6 @@ void budget::portfolio_currency_page(const httplib::Request& req, httplib::Respo
     ss << R"=====(plotOptions: {area: {stacking: 'percent'}},)=====";
 
     ss << "series: [";
-
-    data_cache cache;
 
     for (auto& currency : currencies) {
         ss << "{ name: '" << currency << "',";
@@ -921,7 +923,7 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
 
     std::map<size_t, size_t> colors;
 
-    for (auto& asset : all_user_assets()) {
+    for (auto& asset : cache.user_assets()) {
         if (nocash && asset.is_cash()) {
             continue;
         }
@@ -1000,7 +1002,7 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
     desired_ss << "var desired_pie_colors = (function () {";
     desired_ss << "var colors = [];";
 
-    for (auto& asset : all_user_assets()) {
+    for (auto& asset : cache.user_assets()) {
         if (asset.portfolio && asset.portfolio_alloc) {
             desired_ss << "colors.push(desired_base_colors[" << colors[asset.id] << "]);";
         }
@@ -1022,7 +1024,7 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
     ss2 << "colors: desired_pie_colors,";
     ss2 << "data: [";
 
-    for (auto& asset : all_user_assets()) {
+    for (auto& asset : cache.user_assets()) {
         if (asset.portfolio && asset.portfolio_alloc) {
             ss2 << "{ name: '" << asset.name << "',";
             ss2 << "y: ";

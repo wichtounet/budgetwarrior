@@ -1026,7 +1026,9 @@ void budget::add_share_asset_picker(budget::writer& w, const std::string& defaul
                 <select class="form-control" id="input_asset" name="input_asset">
     )=====";
 
-    for (auto& asset : all_user_assets()) {
+    data_cache cache;
+
+    for (auto& asset : cache.user_assets()) {
         if (asset.share_based) {
             if (budget::to_string(asset.id) == default_value) {
                 w << "<option selected value=\"" << asset.id << "\">" << asset.name << "</option>";
@@ -1049,7 +1051,9 @@ void budget::add_value_asset_picker(budget::writer& w, const std::string& defaul
                 <select class="form-control" id="input_asset" name="input_asset">
     )=====";
 
-    for (auto& asset : all_user_assets()) {
+    data_cache cache;
+
+    for (auto& asset : cache.user_assets()) {
         if (!asset.share_based) {
             if (budget::to_string(asset.id) == default_value) {
                 w << "<option selected value=\"" << asset.id << "\">" << asset.name << "</option>";

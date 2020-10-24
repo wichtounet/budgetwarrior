@@ -115,7 +115,11 @@ std::vector<asset> & data_cache::assets() {
 
 std::vector<asset> & data_cache::user_assets() {
     if (user_assets_.empty()) {
-        user_assets_ = all_user_assets().to_vector();
+        for (auto & asset : assets()) {
+            if (asset.name != "DESIRED") {
+                user_assets_.push_back(asset);
+            }
+        }
     }
 
     return user_assets_;
