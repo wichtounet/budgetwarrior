@@ -123,7 +123,7 @@ float budget::fi_ratio(budget::date d, data_cache & cache) {
     auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
     auto years          = double(int(100.0 / wrate));
     auto expenses       = running_expenses(cache, d);
-    auto nw             = get_net_worth(d, cache.asset_values());
+    auto nw             = get_net_worth(d, cache);
     auto missing        = years * expenses - nw;
 
     return nw / missing;

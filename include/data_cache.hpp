@@ -24,20 +24,21 @@
 namespace budget {
 
 struct data_cache {
-    std::vector<earning> earnings();
-    std::vector<debt> debts();
-    std::vector<fortune> fortunes();
-    std::vector<asset_value> asset_values();
-    std::vector<liability> liabilities();
-    std::vector<recurring> recurrings();
-    std::vector<income> incomes();
-    std::vector<account> accounts();
-    std::vector<asset_share> asset_shares();
-    std::vector<asset_class> asset_classes();
-    std::vector<objective> objectives();
-    std::vector<expense> expenses();
-    std::vector<asset> assets();
-    std::vector<wish> wishes();
+    std::vector<earning> & earnings();
+    std::vector<debt> & debts();
+    std::vector<fortune> & fortunes();
+    std::vector<asset_value> & asset_values();
+    std::vector<liability> & liabilities();
+    std::vector<recurring> & recurrings();
+    std::vector<income> & incomes();
+    std::vector<account> & accounts();
+    std::vector<asset_share> & asset_shares();
+    std::vector<asset_class> & asset_classes();
+    std::vector<objective> & objectives();
+    std::vector<expense> & expenses();
+    std::vector<asset> & assets();
+    std::vector<asset> & user_assets();
+    std::vector<wish> & wishes();
 
     data_cache() = default;
 
@@ -59,6 +60,7 @@ private:
     std::vector<objective> objectives_;
     std::vector<expense> expenses_;
     std::vector<asset> assets_;
+    std::vector<asset> user_assets_;
     std::vector<wish> wishes_;
 };
 

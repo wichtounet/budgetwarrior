@@ -19,6 +19,8 @@
 
 namespace budget {
 
+struct data_cache;
+
 struct assets_module {
     void load();
     void unload();
@@ -214,20 +216,21 @@ budget::money get_portfolio_value();
 budget::money get_net_worth_cash();
 
 budget::money get_net_worth();
+budget::money get_net_worth(data_cache & cache);
 budget::money get_net_worth(budget::date d);
-budget::money get_net_worth(budget::date d, const std::vector<asset_value> & asset_values);
+budget::money get_net_worth(budget::date d, data_cache & cache);
 
 // The value of an asset in its own currency
-budget::money get_asset_value(const budget::asset & asset, const std::vector<asset_value> & asset_values);
-budget::money get_asset_value(const budget::asset & asset, budget::date d, const std::vector<asset_value> & asset_values);
+budget::money get_asset_value(const budget::asset & asset, data_cache & cache);
+budget::money get_asset_value(const budget::asset & asset, budget::date d, data_cache & cache);
 
 // The value of an asset in the default currency
-budget::money get_asset_value_conv(const budget::asset & asset, const std::vector<asset_value> & asset_values);
-budget::money get_asset_value_conv(const budget::asset & asset, budget::date d, const std::vector<asset_value> & asset_values);
+budget::money get_asset_value_conv(const budget::asset & asset, data_cache & cache);
+budget::money get_asset_value_conv(const budget::asset & asset, budget::date d, data_cache & cache);
 
 // The value of an asset in a specific currency
-budget::money get_asset_value_conv(const budget::asset & asset, const std::string& currency, const std::vector<asset_value> & asset_values);
-budget::money get_asset_value_conv(const budget::asset & asset, budget::date d, const std::string& currency, const std::vector<asset_value> & asset_values);
+budget::money get_asset_value_conv(const budget::asset & asset, const std::string& currency, data_cache & cache);
+budget::money get_asset_value_conv(const budget::asset & asset, budget::date d, const std::string& currency, data_cache & cache);
 
 // Utilities for assets
 void update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc);
