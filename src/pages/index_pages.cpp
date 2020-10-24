@@ -15,26 +15,25 @@
 #include "writer.hpp"
 #include "http.hpp"
 #include "config.hpp"
-#include "assets.hpp"
-#include "earnings.hpp"
-#include "expenses.hpp"
-#include "accounts.hpp"
-#include "incomes.hpp"
+#include "data_cache.hpp"
 
 using namespace budget;
 
 namespace {
 
 budget::money monthly_income(budget::month month, budget::year year) {
+    data_cache cache;
+
     std::map<size_t, budget::money> account_sum;
 
-    for (auto& earning : all_earnings()) {
+    for (auto& earning : cache.earnings()) {
         if (earning.date.year() == year && earning.date.month() == month) {
             account_sum[earning.account] += earning.amount;
         }
     }
 
-    budget::money total = get_base_income();
+    // TODO: This only work if monthly_income is called today
+    budget::money total = get_base_income(cache);
 
     for (auto& [id, sum] : account_sum) {
         total += sum;

@@ -1116,7 +1116,7 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     std::vector<budget::money> balances;
     std::vector<budget::money> local_balances;
 
-    budget::money income = get_base_income(budget::date(year, month, 1));
+    budget::money income = get_base_income(cache, budget::date(year, month, 1));
 
     for(size_t i = 0; i < accounts.size(); ++i){
         balances.push_back(total_budgets[i] - total_expenses[i] + total_earnings[i]);

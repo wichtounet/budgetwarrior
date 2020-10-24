@@ -33,7 +33,7 @@ budget::status budget::compute_year_status(data_cache & cache, year year, month 
 
     for (unsigned short i = sm; i <= month; ++i) {
         status.budget += accumulate_amount(all_accounts(cache, year, i));
-        status.base_income += get_base_income(budget::date(year, i, 1));
+        status.base_income += get_base_income(cache, budget::date(year, i, 1));
     }
 
     status.balance = status.budget + status.earnings - status.expenses;
@@ -68,7 +68,7 @@ budget::status budget::compute_month_status(data_cache & cache, year year, month
     status.earnings    = accumulate_amount(all_earnings_month(cache, year, month));
     status.budget      = accumulate_amount(all_accounts(cache, year, month));
     status.balance     = status.budget + status.earnings - status.expenses;
-    status.base_income = get_base_income(budget::date(year, month, 1));
+    status.base_income = get_base_income(cache, budget::date(year, month, 1));
     status.income      = status.base_income + status.earnings;
     status.savings     = status.income - status.expenses;
 

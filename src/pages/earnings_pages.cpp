@@ -52,7 +52,7 @@ void budget::month_breakdown_income_graph(budget::html_writer& w, const std::str
         account_sum[earning.account] += earning.amount;
     }
 
-    budget::money total = get_base_income();
+    budget::money total = get_base_income(cache);
 
     if (total) {
         ss << "{";
@@ -135,7 +135,7 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
             for(unsigned short i = sm; i < last; ++i){
                 budget::month month = i;
 
-                budget::money sum = get_base_income(budget::date(year, month, 2));
+                budget::money sum = get_base_income(cache, budget::date(year, month, 2));
 
                 for (auto& earning : all_earnings_month(cache, year, month)) {
                     sum += earning.amount;
@@ -191,7 +191,7 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
             for (unsigned short i = sm; i < last; ++i) {
                 budget::month month = i;
 
-                sum += get_base_income(budget::date(year, month, 2));
+                sum += get_base_income(cache, budget::date(year, month, 2));
 
                 for (auto& earning : all_earnings_month(cache, year, month)) {
                     sum += earning.amount;

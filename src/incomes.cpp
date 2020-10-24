@@ -78,12 +78,13 @@ void budget::show_incomes(budget::writer& w) {
 
     w << title_begin << "Incomes " << set_button("incomes") << title_end;
 
-    w << p_begin << "Current income: " << get_base_income() << " " << get_default_currency() << p_end;
+    data_cache cache;
+    w << p_begin << "Current income: " << get_base_income(cache) << " " << get_default_currency() << p_end;
 
     std::vector<std::string> columns = {"ID", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for (auto& income : all_incomes()) {
+    for (auto& income : cache.incomes()) {
         contents.push_back({to_string(income.id), to_string(income.amount), to_string(income.since), to_string(income.until), "::edit::incomes::" + to_string(income.id)});
     }
 
@@ -149,14 +150,12 @@ void budget::add_income(budget::income&& income){
     incomes.add(std::forward<budget::income>(income));
 }
 
-budget::money budget::get_base_income(){
+budget::money budget::get_base_income(data_cache & cache){
     auto today = budget::local_day();
-    return get_base_income(today);
+    return get_base_income(cache, today);
 }
 
-budget::money budget::get_base_income(budget::date d){
-    data_cache cache;
-
+budget::money budget::get_base_income(data_cache & cache, budget::date d){
     // First, we try to get the base income from the incomes module
 
     for (auto & income : cache.incomes()) {

@@ -63,8 +63,10 @@ income income_get(size_t id);
 
 void show_incomes(budget::writer& w);
 
-budget::money get_base_income();
-budget::money get_base_income(budget::date d);
+struct data_cache;
+
+budget::money get_base_income(data_cache & cache);
+budget::money get_base_income(data_cache & cache, budget::date d);
 
 budget::income new_income(budget::money amount, bool print);
 

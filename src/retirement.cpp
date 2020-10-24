@@ -49,7 +49,7 @@ double running_savings_rate(data_cache & cache, budget::date sd = budget::local_
 
         auto expenses = accumulate_amount(all_expenses_month(cache, d.year(), d.month()));
         auto earnings = accumulate_amount(all_earnings_month(cache, d.year(), d.month()));
-        auto income   = get_base_income(d);
+        auto income   = get_base_income(cache, d);
 
         auto balance = income + earnings - expenses;
         auto local   = balance / (income + earnings);
@@ -150,9 +150,9 @@ void budget::retirement_status(budget::writer& w) {
     auto years          = double(int(100.0 / wrate));
     auto expenses       = running_expenses(cache);
     auto savings_rate   = running_savings_rate(cache);
-    auto nw             = get_net_worth();
+    auto nw             = get_net_worth(cache);
     auto missing        = years * expenses - nw;
-    auto income         = 12 * get_base_income();
+    auto income         = 12 * get_base_income(cache);
     auto a_savings_rate = (income - expenses) / income;
 
     size_t base_months   = 0;
