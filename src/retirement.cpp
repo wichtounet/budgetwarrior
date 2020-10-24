@@ -26,13 +26,13 @@ namespace {
 
 constexpr size_t running_limit = 12;
 
-money running_expenses(budget::date d = budget::local_day()){
+money running_expenses(data_cache & cache, budget::date d = budget::local_day()){
     budget::date end = d - budget::days(d.day() - 1);
     budget::date start = end - budget::months(running_limit);
 
     budget::money total;
 
-    for(auto& expense : all_expenses()){
+    for(auto& expense : cache.expenses()){
         if(expense.date >= start && expense.date < end){
             total += expense.amount;
         }
@@ -122,7 +122,7 @@ float budget::fi_ratio(budget::date d) {
 float budget::fi_ratio(budget::date d, data_cache & cache) {
     auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
     auto years          = double(int(100.0 / wrate));
-    auto expenses       = running_expenses(d);
+    auto expenses       = running_expenses(cache, d);
     auto nw             = get_net_worth(d, cache.asset_values());
     auto missing        = years * expenses - nw;
 
@@ -142,11 +142,13 @@ void budget::retirement_status(budget::writer& w) {
         }
     }
 
+    data_cache cache;
+
     auto currency       = get_default_currency();
     auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
     auto roi            = to_number<double>(internal_config_value("expected_roi"));
     auto years          = double(int(100.0 / wrate));
-    auto expenses       = running_expenses();
+    auto expenses       = running_expenses(cache);
     auto savings_rate   = running_savings_rate();
     auto nw             = get_net_worth();
     auto missing        = years * expenses - nw;
