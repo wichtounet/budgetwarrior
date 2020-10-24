@@ -16,6 +16,8 @@
 
 namespace budget {
 
+struct data_cache;
+
 struct retirement_module {
     void load();
     void handle(std::vector<std::string>& args);
@@ -30,7 +32,7 @@ struct module_traits<retirement_module> {
 struct asset_value;
 
 float fi_ratio(budget::date d);
-float fi_ratio(budget::date d, const std::vector<asset_value> & asset_values);
+float fi_ratio(budget::date d, data_cache & cache);
 
 void retirement_status(budget::writer& w);
 
