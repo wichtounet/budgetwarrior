@@ -13,9 +13,7 @@
 
 #include "money.hpp"
 #include "date.hpp"
-#include "accounts.hpp"
-#include "assets.hpp"
-#include "liabilities.hpp"
+#include "data_cache.hpp"
 
 namespace budget {
 
@@ -306,7 +304,9 @@ struct account_checker {
     account_checker(budget::date date) : date(date) {}
 
     bool operator()(const std::string& value) {
-        for (auto& account : all_accounts(date.year(), date.month())) {
+        data_cache cache;
+
+        for (auto& account : all_accounts(cache, date.year(), date.month())) {
             if (account.name == value) {
                 return true;
             }

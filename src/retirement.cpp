@@ -41,14 +41,14 @@ money running_expenses(data_cache & cache, budget::date d = budget::local_day())
     return total;
 }
 
-double running_savings_rate(budget::date sd = budget::local_day()){
+double running_savings_rate(data_cache & cache, budget::date sd = budget::local_day()){
     double savings_rate = 0.0;
 
     for(size_t i = 1; i <= running_limit; ++i){
         auto d = sd - budget::months(i);
 
-        auto expenses = accumulate_amount(all_expenses_month(d.year(), d.month()));
-        auto earnings = accumulate_amount(all_earnings_month(d.year(), d.month()));
+        auto expenses = accumulate_amount(all_expenses_month(cache, d.year(), d.month()));
+        auto earnings = accumulate_amount(all_earnings_month(cache, d.year(), d.month()));
         auto income   = get_base_income(d);
 
         auto balance = income + earnings - expenses;
@@ -149,7 +149,7 @@ void budget::retirement_status(budget::writer& w) {
     auto roi            = to_number<double>(internal_config_value("expected_roi"));
     auto years          = double(int(100.0 / wrate));
     auto expenses       = running_expenses(cache);
-    auto savings_rate   = running_savings_rate();
+    auto savings_rate   = running_savings_rate(cache);
     auto nw             = get_net_worth();
     auto missing        = years * expenses - nw;
     auto income         = 12 * get_base_income();

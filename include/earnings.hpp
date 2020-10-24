@@ -68,28 +68,11 @@ bool indirect_edit_earning(const earning & earning, bool propagate = true);
 
 // Filter functions
 
-inline auto all_earnings_year(budget::year year) {
-    return make_filter_view(all_earnings(), [=](const earning& e) {
-        return e.date.year() == year;
-    });
-}
+struct data_cache;
 
-inline auto all_earnings_month(budget::year year, budget::month month) {
-    return make_filter_view(all_earnings(), [=](const earning& e) {
-        return e.date.year() == year && e.date.month() == month;
-    });
-}
-
-inline auto all_earnings_month(size_t account_id, budget::year year, budget::month month) {
-    return make_filter_view(all_earnings(), [=](const earning& e) {
-        return e.account == account_id && e.date.year() == year && e.date.month() == month;
-    });
-}
-
-inline auto all_earnings_between(budget::year year, budget::month sm, budget::month month) {
-    return make_filter_view(all_earnings(), [=](const earning& e) {
-        return e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
-    });
-}
+filter_view<earning> all_earnings_year(data_cache & cache, budget::year year);
+filter_view<earning> all_earnings_month(data_cache & cache, budget::year year, budget::month month);
+filter_view<earning> all_earnings_month(data_cache & cache, size_t account_id, budget::year year, budget::month month);
+filter_view<earning> all_earnings_between(data_cache & cache, budget::year year, budget::month sm, budget::month month);
 
 } //end of namespace budget

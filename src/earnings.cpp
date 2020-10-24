@@ -275,3 +275,27 @@ void budget::earning_delete(size_t id) {
 earning budget::earning_get(size_t id) {
     return earnings[id];
 }
+
+filter_view<earning> budget::all_earnings_year(data_cache & cache, budget::year year) {
+    return make_filter_view(cache.earnings(), [=](const earning& e) {
+        return e.date.year() == year;
+    });
+}
+
+filter_view<earning> budget::all_earnings_month(data_cache & cache, budget::year year, budget::month month) {
+    return make_filter_view(cache.earnings(), [=](const earning& e) {
+        return e.date.year() == year && e.date.month() == month;
+    });
+}
+
+filter_view<earning> budget::all_earnings_month(data_cache & cache, size_t account_id, budget::year year, budget::month month) {
+    return make_filter_view(cache.earnings(), [=](const earning& e) {
+        return e.account == account_id && e.date.year() == year && e.date.month() == month;
+    });
+}
+
+filter_view<earning> budget::all_earnings_between(data_cache & cache, budget::year year, budget::month sm, budget::month month) {
+    return make_filter_view(cache.earnings(), [=](const earning& e) {
+        return e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
+    });
+}

@@ -76,45 +76,47 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
     auto sm = start_month(year);
 
-     if (w.is_web()) {
-         w << title_begin << "Monthly report of " + to_string(year) << title_end;
+    data_cache cache;
 
-         std::vector<std::string> categories;
-         std::vector<std::string> series_names;
-         std::vector<std::vector<float>> series_values;
+    if (w.is_web()) {
+        w << title_begin << "Monthly report of " + to_string(year) << title_end;
 
-         series_names.push_back("Expenses");
-         series_names.push_back("Earnings");
-         series_names.push_back("Balance");
+        std::vector<std::string> categories;
+        std::vector<std::string> series_names;
+        std::vector<std::vector<float>> series_values;
 
-         series_values.emplace_back();
-         series_values.emplace_back();
-         series_values.emplace_back();
+        series_names.push_back("Expenses");
+        series_names.push_back("Earnings");
+        series_names.push_back("Balance");
 
-         for (auto i = sm; i <= today.month(); ++i) {
-             budget::month month = i;
+        series_values.emplace_back();
+        series_values.emplace_back();
+        series_values.emplace_back();
 
-             //Display month legend
-             categories.push_back(month.as_short_string());
+        for (auto i = sm; i <= today.month(); ++i) {
+            budget::month month = i;
 
-             budget::money m_balance;
-             budget::money m_expenses;
-             budget::money m_earnings;
+            //Display month legend
+            categories.push_back(month.as_short_string());
 
-             for (auto& account : all_accounts(year, month)) {
-                 if (!filter || account.name == filter_account) {
-                     auto expenses = accumulate_amount(all_expenses_month(account.id, year, month));
-                     auto earnings = accumulate_amount(all_earnings_month(account.id, year, month));
+            budget::money m_balance;
+            budget::money m_expenses;
+            budget::money m_earnings;
 
-                     m_expenses += expenses;
-                     m_earnings += earnings;
-                     m_balance += account.amount - expenses + earnings;
-                 }
-             }
+            for (auto& account : all_accounts(cache, year, month)) {
+                if (!filter || account.name == filter_account) {
+                    auto expenses = accumulate_amount(all_expenses_month(cache, account.id, year, month));
+                    auto earnings = accumulate_amount(all_earnings_month(cache, account.id, year, month));
 
-             series_values[0].push_back(static_cast<float>(m_expenses));
-             series_values[1].push_back(static_cast<float>(m_earnings));
-             series_values[2].push_back(static_cast<float>(m_balance));
+                    m_expenses += expenses;
+                    m_earnings += earnings;
+                    m_balance += account.amount - expenses + earnings;
+                }
+            }
+
+            series_values[0].push_back(static_cast<float>(m_expenses));
+            series_values[1].push_back(static_cast<float>(m_earnings));
+            series_values[2].push_back(static_cast<float>(m_balance));
         }
 
         w.display_graph("Monthly report of " + to_string(year), categories, series_names, series_values);
@@ -140,11 +142,11 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
         budget::money total_earnings;
         budget::money total_balance;
 
-        for (auto& account : all_accounts(year, month)) {
+        for (auto& account : all_accounts(cache, year, month)) {
             if (!filter || account.name == filter_account) {
-                auto expenses = accumulate_amount_if(all_expenses(),
+                auto expenses = accumulate_amount_if(cache.expenses(),
                                                      [year, month, account](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
-                auto earnings = accumulate_amount_if(all_earnings(),
+                auto earnings = accumulate_amount_if(cache.earnings(),
                                                      [year, month, account](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
 
                 total_expenses += expenses;

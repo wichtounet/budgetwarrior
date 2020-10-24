@@ -7,8 +7,7 @@
 
 #include <numeric>
 
-#include "accounts.hpp"
-#include "expenses.hpp"
+#include "data_cache.hpp"
 
 #include "writer.hpp"
 #include "pages/expenses_pages.hpp"
@@ -55,6 +54,8 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
         )=====");
     }
 
+    data_cache cache;
+
     // standard breakdown per category
     {
         auto ss = start_chart_base(w, "pie", "month_breakdown_expense_categories_graph", style);
@@ -73,7 +74,7 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
 
         std::map<size_t, budget::money> account_sum;
 
-        for (auto& expense : all_expenses_month(year, month)) {
+        for (auto& expense : all_expenses_month(cache, year, month)) {
             account_sum[expense.account] += expense.amount;
         }
 
@@ -126,7 +127,7 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
 
         std::map<std::string, budget::money> expense_sum;
 
-        for (auto& expense : all_expenses_month(year, month)) {
+        for (auto& expense : all_expenses_month(cache, year, month)) {
             expense_sum[expense.name] += expense.amount;
         }
 
@@ -166,7 +167,7 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
 
         std::map<std::string, budget::money> expense_sum;
 
-        for (auto& expense : all_expenses_month(year, month)) {
+        for (auto& expense : all_expenses_month(cache, year, month)) {
             auto name = expense.name;
 
             if (name[name.size() - 1] == ' ') {
@@ -269,6 +270,8 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
     std::vector<budget::money> serie;
     std::vector<std::string> dates;
 
+    data_cache cache;
+
     auto sy = start_year();
 
     for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
@@ -286,7 +289,7 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
 
             budget::money sum;
 
-            for (auto& expense : all_expenses_month(year, month)) {
+            for (auto& expense : all_expenses_month(cache, year, month)) {
                 sum += expense.amount;
             }
 
@@ -344,7 +347,7 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
 
                     budget::money sum;
 
-                    for (auto& expense : all_expenses_month(year, month)) {
+                    for (auto& expense : all_expenses_month(cache, year, month)) {
                         if (get_account(expense.account).name != taxes_account) {
                             sum += expense.amount;
                         }
@@ -429,6 +432,8 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
     w << title_begin << "Expense Categories Breakdown of " << year << budget::year_selector{"expenses/breakdown/year", year} << title_end;
 
+    data_cache cache;
+
     {
         auto ss = start_chart(w, "Expense Categories Breakdown", "pie", "category_pie");
 
@@ -444,7 +449,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
         std::map<std::string, budget::money> account_sum;
 
-        for (auto& expense : all_expenses_year(year)) {
+        for (auto& expense : all_expenses_year(cache, year)) {
             account_sum[get_account(expense.account).name] += expense.amount;
         }
 
@@ -477,7 +482,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
         std::map<std::string, budget::money> expense_sum;
 
-        for (auto& expense : all_expenses_year(year)) {
+        for (auto& expense : all_expenses_year(cache, year)) {
             expense_sum[expense.name] += expense.amount;
         }
 
@@ -514,7 +519,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
 
         std::map<std::string, budget::money> expense_sum;
 
-        for (auto& expense : all_expenses_year(year)) {
+        for (auto& expense : all_expenses_year(cache, year)) {
             auto name = expense.name;
 
             if (name[name.size() - 1] == ' ') {

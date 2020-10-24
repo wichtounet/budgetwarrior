@@ -11,14 +11,10 @@
 
 #include "cpp_utils/assert.hpp"
 
+#include "data_cache.hpp"
 #include "summary.hpp"
 #include "console.hpp"
-#include "accounts.hpp"
 #include "compute.hpp"
-#include "expenses.hpp"
-#include "earnings.hpp"
-#include "fortune.hpp"
-#include "objectives.hpp"
 #include "budget_exception.hpp"
 #include "config.hpp"
 #include "utils.hpp"
@@ -235,12 +231,14 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
     budget::money prev_balance;
     budget::money prev_local;
 
+    data_cache cache;
+
     for (unsigned short i = sm; i <= month; ++i) {
         budget::month m = i;
 
-        for (auto& account : all_accounts(year, m)) {
-            auto total_expenses = accumulate_amount_if(all_expenses(), [account, year, m](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
-            auto total_earnings = accumulate_amount_if(all_earnings(), [account, year, m](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
+        for (auto& account : all_accounts(cache, year, m)) {
+            auto total_expenses = accumulate_amount_if(cache.expenses(), [account, year, m](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
+            auto total_earnings = accumulate_amount_if(cache.earnings(), [account, year, m](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
 
             auto balance       = account_previous[account.name] + account.amount - total_expenses + total_earnings;
             auto local_balance = account.amount - total_expenses + total_earnings;

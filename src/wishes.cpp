@@ -330,16 +330,16 @@ void budget::status_wishes(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Name", "Amount", "I", "U", "Status", "Details", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    auto month_status = budget::compute_month_status(today.year(), today.month());
-    auto year_status = budget::compute_year_status(today.year(), today.month());
+    data_cache cache;
+
+    auto month_status = budget::compute_month_status(cache, today.year(), today.month());
+    auto year_status = budget::compute_year_status(cache, today.year(), today.month());
 
     auto fortune_amount = cash_for_wishes();
 
     budget::money total_amount;
 
-    auto objectives = all_objectives();
-
-    for(auto& wish : wishes.data()){
+    for(auto& wish : cache.wishes()){
         if(wish.paid){
             continue;
         }
@@ -352,7 +352,7 @@ void budget::status_wishes(budget::writer& w){
         bool month_objective = true;
         bool year_objective = true;
 
-        for(auto& objective : objectives){
+        for(auto& objective : cache.objectives()){
             if(objective.type == "monthly"){
                 auto success_before = budget::compute_success(month_status, objective);
                 auto success_after = budget::compute_success(month_status.add_expense(wish.amount), objective);
@@ -386,7 +386,7 @@ void budget::status_wishes(budget::writer& w){
             details = "(not enough fortune)";
         } else {
             if(month_status.balance > wish.amount){
-                if(!objectives.empty()){
+                if(!cache.objectives().empty()){
                     if(month_objective && year_objective){
                         status = std::string("::green") + "Perfect";
                         details = "(On month balance, all objectives fullfilled)";
@@ -405,7 +405,7 @@ void budget::status_wishes(budget::writer& w){
                     details = "(on month balance)";
                 }
             } else if(year_status.balance > wish.amount){
-                if(!objectives.empty()){
+                if(!cache.objectives().empty()){
                     if(month_objective && year_objective){
                         status = std::string("::green") + "Perfect";
                         details = "(On year balance, all objectives fullfilled)";
@@ -443,12 +443,12 @@ void budget::estimate_wishes(budget::writer& w) {
     std::vector<std::vector<std::string>> year_contents;
     std::vector<std::vector<std::string>> month_contents;
 
+    data_cache cache;
+
     auto fortune_amount = cash_for_wishes();
     auto today          = budget::local_day();
 
-    auto objectives = all_objectives();
-
-    for (auto& wish : wishes.data()) {
+    for (auto& wish : cache.wishes()) {
         if (wish.paid) {
             continue;
         }
@@ -460,8 +460,8 @@ void budget::estimate_wishes(budget::writer& w) {
         for (size_t i = 0; i < 24 && !ok; ++i) {
             auto day = today + months(i);
 
-            auto month_status = budget::compute_month_status(day.year(), day.month());
-            auto year_status  = budget::compute_year_status(day.year(), day.month());
+            auto month_status = budget::compute_month_status(cache, day.year(), day.month());
+            auto year_status  = budget::compute_year_status(cache, day.year(), day.month());
 
             size_t monthly_breaks = 0;
             size_t yearly_breaks  = 0;
@@ -469,7 +469,7 @@ void budget::estimate_wishes(budget::writer& w) {
             bool month_objective = true;
             bool year_objective  = true;
 
-            for (auto& objective : objectives) {
+            for (auto& objective : cache.objectives()) {
                 if (objective.type == "monthly") {
                     auto success_before = budget::compute_success(month_status, objective);
                     auto success_after  = budget::compute_success(month_status.add_expense(wish.amount), objective);
@@ -519,7 +519,7 @@ void budget::estimate_wishes(budget::writer& w) {
         year_contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), status, "::edit::wishes::" + to_string(wish.id)});
     }
 
-    for (auto& wish : wishes.data()) {
+    for (auto& wish : cache.wishes()) {
         if (wish.paid) {
             continue;
         }
@@ -530,13 +530,13 @@ void budget::estimate_wishes(budget::writer& w) {
 
         for (size_t i = 0; i < 24 && !ok; ++i) {
             auto day          = today + months(i);
-            auto month_status = budget::compute_month_status(day.year(), day.month());
-            auto year_status  = budget::compute_year_status(day.year(), day.month());
+            auto month_status = budget::compute_month_status(cache, day.year(), day.month());
+            auto year_status  = budget::compute_year_status(cache, day.year(), day.month());
 
             size_t monthly_breaks = 0;
             bool month_objective  = true;
 
-            for (auto& objective : objectives) {
+            for (auto& objective : cache.objectives()) {
                 if (objective.type == "monthly") {
                     auto success_before = budget::compute_success(month_status, objective);
                     auto success_after  = budget::compute_success(month_status.add_expense(wish.amount), objective);

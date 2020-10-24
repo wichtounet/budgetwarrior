@@ -441,15 +441,16 @@ std::vector<account> budget::all_accounts(){
 
 std::vector<budget::account> budget::current_accounts(){
     auto today = budget::local_day();
-    return all_accounts(today.year(), today.month());
+    data_cache cache;
+    return all_accounts(cache, today.year(), today.month());
 }
 
-std::vector<account> budget::all_accounts(budget::year year, budget::month month){
+std::vector<account> budget::all_accounts(data_cache & cache, budget::year year, budget::month month){
     std::vector<account> accounts;
 
     budget::date date(year, month, 5);
 
-    for(auto& account : all_accounts()){
+    for(auto& account : cache.accounts()){
         if(account.since < date && account.until > date){
             accounts.push_back(account);
         }

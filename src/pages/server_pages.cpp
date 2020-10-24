@@ -10,13 +10,8 @@
 
 #include "cpp_utils/assert.hpp"
 
-#include "accounts.hpp"
-#include "assets.hpp"
-#include "liabilities.hpp"
+#include "data_cache.hpp"
 #include "config.hpp"
-#include "debts.hpp"
-#include "expenses.hpp"
-#include "objectives.hpp"
 #include "overview.hpp"
 #include "summary.hpp"
 #include "version.hpp"
@@ -1008,7 +1003,9 @@ void budget::add_account_picker(budget::writer& w, budget::date day, const std::
                 <select class="form-control" id="input_account" name="input_account">
     )=====";
 
-    for (auto& account : all_accounts(day.year(), day.month())) {
+    data_cache cache;
+
+    for (auto& account : all_accounts(cache, day.year(), day.month())) {
         if (budget::to_string(account.id) == default_value) {
             w << "<option selected value=\"" << account.id << "\">" << account.name << "</option>";
         } else {

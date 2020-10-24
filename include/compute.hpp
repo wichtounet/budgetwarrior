@@ -41,16 +41,18 @@ struct status {
     }
 };
 
-status compute_year_status();
-status compute_year_status(budget::year year);
-status compute_year_status(budget::year year, budget::month last);
+struct data_cache;
 
-status compute_month_status();
-status compute_month_status(budget::month year);
-status compute_month_status(budget::year year, budget::month month);
+status compute_year_status(data_cache & cache);
+status compute_year_status(data_cache & cache, budget::year year);
+status compute_year_status(data_cache & cache, budget::year year, budget::month last);
 
-status compute_avg_month_status();
-status compute_avg_month_status(budget::month year);
-status compute_avg_month_status(budget::year year, budget::month month);
+status compute_month_status(data_cache & cache);
+status compute_month_status(data_cache & cache, budget::month year);
+status compute_month_status(data_cache & cache, budget::year year, budget::month month);
+
+status compute_avg_month_status(data_cache & cache);
+status compute_avg_month_status(data_cache & cache, budget::month year);
+status compute_avg_month_status(data_cache & cache, budget::year year, budget::month month);
 
 } //end of namespace budget

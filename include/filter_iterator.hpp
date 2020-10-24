@@ -7,13 +7,17 @@
 
 #pragma once
 
+#include <functional>
+
 namespace budget {
 
-template <typename Iterator, typename Filter>
+template <typename Type>
 struct filter_iterator {
-    using value_type = typename Iterator::value_type;
+    using value_type    = Type;
+    using iterator_type = typename std::vector<value_type>::const_iterator;
 
-    filter_iterator(Iterator first, Iterator last, Filter filter)
+    template <typename Filter>
+    filter_iterator(iterator_type first, iterator_type last, Filter filter)
             : first(first), last(last), filter(filter) {
         while(this->first != this->last && !this->filter(*this->first)){
             ++this->first;
@@ -57,25 +61,26 @@ struct filter_iterator {
     }
 
 private:
-    Iterator first;
-    Iterator last;
-    Filter filter;
+    iterator_type first;
+    iterator_type last;
+    std::function<bool(const Type&)> filter;
 };
 
-template<typename Container, typename Filter>
+template<typename Type>
 struct filter_view {
-    filter_view(const Container & container, Filter filter) : container(container), filter(filter) {}
+    template <typename Filter>
+    filter_view(const std::vector<Type> & container, Filter filter) : container(container), filter(filter) {}
 
     auto begin() const {
-        return filter_iterator<typename Container::const_iterator, Filter>(container.begin(), container.end(), filter);
+        return filter_iterator<Type>(container.begin(), container.end(), filter);
     }
 
     auto end() const {
-        return filter_iterator<typename Container::const_iterator, Filter>(container.end(), container.end(), filter);
+        return filter_iterator<Type>(container.end(), container.end(), filter);
     }
 
     auto to_vector() const {
-        std::vector<typename Container::value_type> copy;
+        std::vector<Type> copy;
 
         auto it  = this->begin();
         auto end = this->end();
@@ -89,13 +94,13 @@ struct filter_view {
     }
 
 private:
-    Container container;
-    Filter filter;
+    const std::vector<Type> & container;
+    std::function<bool (const Type &)> filter;
 };
 
-template <typename Container, typename Filter>
-auto make_filter_view(const Container & container, Filter filter){
-    return filter_view<Container, Filter>(container, filter);
+template <typename Type, typename Filter>
+filter_view<Type> make_filter_view(const std::vector<Type> & container, Filter filter){
+    return filter_view<Type>(container, filter);
 }
 
 } //end of namespace budget

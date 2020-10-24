@@ -16,7 +16,6 @@
 #include "date.hpp"
 #include "writer_fwd.hpp"
 #include "filter_iterator.hpp"
-#include "accounts.hpp"
 
 namespace budget {
 
@@ -71,40 +70,13 @@ bool indirect_edit_expense(const expense & expense, bool propagate = true);
 
 // Filter functions
 
-inline auto all_expenses_year(budget::year year) {
-    return make_filter_view(all_expenses(), [=](const expense& e) {
-        return e.date.year() == year;
-    });
-}
+struct data_cache;
 
-inline auto all_expenses_month(budget::year year, budget::month month) {
-    return make_filter_view(all_expenses(), [=](const expense& e) {
-        return e.date.year() == year && e.date.month() == month;
-    });
-}
-
-inline auto all_expenses_month(size_t account_id, budget::year year, budget::month month) {
-    return make_filter_view(all_expenses(), [=](const expense& e) {
-        return e.account == account_id && e.date.year() == year && e.date.month() == month;
-    });
-}
-
-inline auto all_expenses_month(const std::string & account_name, budget::year year, budget::month month) {
-    return make_filter_view(all_expenses(), [=](const expense& e) {
-        return get_account(e.account).name == account_name && e.date.year() == year && e.date.month() == month;
-    });
-}
-
-inline auto all_expenses_between(budget::year year, budget::month sm, budget::month month) {
-    return make_filter_view(all_expenses(), [=](const expense& e) {
-        return e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
-    });
-}
-
-inline auto all_expenses_between(const std::string & account_name, budget::year year, budget::month sm, budget::month month) {
-    return make_filter_view(all_expenses(), [=](const expense& e) {
-        return get_account(e.account).name == account_name && e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
-    });
-}
+filter_view<expense> all_expenses_year(data_cache & cache, budget::year year);
+filter_view<expense> all_expenses_month(data_cache & cache, budget::year year, budget::month month);
+filter_view<expense> all_expenses_month(data_cache & cache, size_t account_id, budget::year year, budget::month month);
+filter_view<expense> all_expenses_month(data_cache & cache, const std::string & account_name, budget::year year, budget::month month);
+filter_view<expense> all_expenses_between(data_cache & cache, budget::year year, budget::month sm, budget::month month);
+filter_view<expense> all_expenses_between(data_cache & cache, const std::string & account_name, budget::year year, budget::month sm, budget::month month);
 
 } //end of namespace budget

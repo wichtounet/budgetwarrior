@@ -14,25 +14,25 @@
 #include "accounts.hpp"
 #include "incomes.hpp"
 
-budget::status budget::compute_year_status() {
+budget::status budget::compute_year_status(data_cache & cache) {
     auto today = budget::local_day();
-    return compute_year_status(today.year(), today.month());
+    return compute_year_status(cache, today.year(), today.month());
 }
 
-budget::status budget::compute_year_status(year year) {
-    return compute_year_status(year, 12);
+budget::status budget::compute_year_status(data_cache & cache, year year) {
+    return compute_year_status(cache, year, 12);
 }
 
-budget::status budget::compute_year_status(year year, month month) {
+budget::status budget::compute_year_status(data_cache & cache, year year, month month) {
     budget::status status;
 
     auto sm = start_month(year);
 
-    status.expenses = accumulate_amount(all_expenses_between(year, sm, month));
-    status.earnings = accumulate_amount(all_earnings_between(year, sm, month));
+    status.expenses = accumulate_amount(all_expenses_between(cache, year, sm, month));
+    status.earnings = accumulate_amount(all_earnings_between(cache, year, sm, month));
 
     for (unsigned short i = sm; i <= month; ++i) {
-        status.budget += accumulate_amount(all_accounts(year, i));
+        status.budget += accumulate_amount(all_accounts(cache, year, i));
         status.base_income += get_base_income(budget::date(year, i, 1));
     }
 
@@ -44,29 +44,29 @@ budget::status budget::compute_year_status(year year, month month) {
         auto taxes_account = config_value("taxes_account");
 
         if (account_exists(taxes_account)) {
-            status.taxes = accumulate_amount(all_expenses_between(taxes_account, year, sm, month));
+            status.taxes = accumulate_amount(all_expenses_between(cache, taxes_account, year, sm, month));
         }
     }
 
     return status;
 }
 
-budget::status budget::compute_month_status() {
+budget::status budget::compute_month_status(data_cache & cache) {
     auto today = budget::local_day();
-    return compute_month_status(today.year(), today.month());
+    return compute_month_status(cache, today.year(), today.month());
 }
 
-budget::status budget::compute_month_status(month month) {
+budget::status budget::compute_month_status(data_cache & cache, month month) {
     auto today = budget::local_day();
-    return compute_month_status(today.year(), month);
+    return compute_month_status(cache, today.year(), month);
 }
 
-budget::status budget::compute_month_status(year year, month month) {
+budget::status budget::compute_month_status(data_cache & cache, year year, month month) {
     budget::status status;
 
-    status.expenses    = accumulate_amount(all_expenses_month(year, month));
-    status.earnings    = accumulate_amount(all_earnings_month(year, month));
-    status.budget      = accumulate_amount(all_accounts(year, month));
+    status.expenses    = accumulate_amount(all_expenses_month(cache, year, month));
+    status.earnings    = accumulate_amount(all_earnings_month(cache, year, month));
+    status.budget      = accumulate_amount(all_accounts(cache, year, month));
     status.balance     = status.budget + status.earnings - status.expenses;
     status.base_income = get_base_income(budget::date(year, month, 1));
     status.income      = status.base_income + status.earnings;
@@ -76,28 +76,28 @@ budget::status budget::compute_month_status(year year, month month) {
         auto taxes_account = config_value("taxes_account");
 
         if (account_exists(taxes_account)) {
-            status.taxes = accumulate_amount(all_expenses_month(taxes_account, year, month));
+            status.taxes = accumulate_amount(all_expenses_month(cache, taxes_account, year, month));
         }
     }
 
     return status;
 }
 
-budget::status budget::compute_avg_month_status() {
+budget::status budget::compute_avg_month_status(data_cache & cache) {
     auto today = budget::local_day();
-    return compute_avg_month_status(today.year(), today.month());
+    return compute_avg_month_status(cache, today.year(), today.month());
 }
 
-budget::status budget::compute_avg_month_status(month month) {
+budget::status budget::compute_avg_month_status(data_cache & cache, month month) {
     auto today = budget::local_day();
-    return compute_avg_month_status(today.year(), month);
+    return compute_avg_month_status(cache, today.year(), month);
 }
 
-budget::status budget::compute_avg_month_status(year year, month month) {
+budget::status budget::compute_avg_month_status(data_cache & cache, year year, month month) {
     budget::status avg_status;
 
     for (budget::month m = 1; m < month; m = m + 1) {
-        auto status = compute_month_status(year, m);
+        auto status = compute_month_status(cache, year, m);
 
         avg_status.expenses += status.expenses;
         avg_status.earnings += status.earnings;

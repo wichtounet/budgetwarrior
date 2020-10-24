@@ -10,8 +10,7 @@
 #include <sstream>
 #include <unordered_map>
 
-#include "incomes.hpp"
-#include "accounts.hpp"
+#include "data_cache.hpp"
 #include "budget_exception.hpp"
 #include "args.hpp"
 #include "data.hpp"
@@ -19,8 +18,6 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"
-#include "earnings.hpp"
-#include "expenses.hpp"
 #include "writer.hpp"
 
 using namespace budget;
@@ -158,9 +155,11 @@ budget::money budget::get_base_income(){
 }
 
 budget::money budget::get_base_income(budget::date d){
+    data_cache cache;
+
     // First, we try to get the base income from the incomes module
 
-    for (auto & income : all_incomes()) {
+    for (auto & income : cache.incomes()) {
         if (income.since <= d && income.until >= d) {
             return income.amount;
         }
@@ -170,7 +169,7 @@ budget::money budget::get_base_income(budget::date d){
 
     budget::money income;
 
-    for (auto& account : all_accounts(d.year(), d.month())) {
+    for (auto& account : all_accounts(cache, d.year(), d.month())) {
         income += account.amount;
     }
 

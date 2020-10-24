@@ -8,7 +8,7 @@
 #include <numeric>
 
 #include "overview.hpp"
-#include "accounts.hpp"
+#include "data_cache.hpp"
 
 #include "writer.hpp"
 #include "pages/overview_pages.hpp"
@@ -161,6 +161,8 @@ void budget::time_graph_savings_rate_page(const httplib::Request& req, httplib::
     std::vector<float> serie;
     std::vector<std::string> dates;
 
+    data_cache cache;
+
     auto sy = start_year();
 
     for (unsigned short j = sy; j <= budget::local_day().year(); ++j) {
@@ -176,7 +178,7 @@ void budget::time_graph_savings_rate_page(const httplib::Request& req, httplib::
         for (unsigned short i = sm; i < last; ++i) {
             budget::month month = i;
 
-            auto status = budget::compute_month_status(year, month);
+            auto status = budget::compute_month_status(cache, year, month);
 
             auto savings = status.income - status.expenses;
             auto savings_rate = 0.0;
@@ -228,6 +230,8 @@ void budget::time_graph_savings_rate_page(const httplib::Request& req, httplib::
 void budget::time_graph_tax_rate_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
 
+    data_cache cache;
+
     if (config_contains("taxes_account")) {
        auto taxes_account = config_value("taxes_account");
 
@@ -263,7 +267,7 @@ void budget::time_graph_tax_rate_page(const httplib::Request& req, httplib::Resp
                 for (unsigned short i = sm; i < last; ++i) {
                     budget::month month = i;
 
-                    auto status = budget::compute_month_status(year, month);
+                    auto status = budget::compute_month_status(cache, year, month);
 
                     double tax_rate = status.taxes / status.income;
 

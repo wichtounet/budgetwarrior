@@ -57,7 +57,9 @@ std::map<std::string, std::string> budget::objective::get_params() const {
 void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_align){
     size_t yearly = 0;
 
-    for (auto& objective : objectives.data()) {
+    data_cache cache;
+
+    for (auto& objective : cache.objectives()) {
         if (objective.type == "yearly") {
             ++yearly;
         }
@@ -72,11 +74,11 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
 
         size_t width = 0;
         if (full_align) {
-            for (auto& objective : objectives.data()) {
+            for (auto& objective : cache.objectives()) {
                 width = std::max(rsize(objective.name), width);
             }
         } else {
-            for (auto& objective : objectives.data()) {
+            for (auto& objective : cache.objectives()) {
                 if (objective.type == "yearly") {
                     width = std::max(rsize(objective.name), width);
                 }
@@ -84,12 +86,12 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
         }
 
         //Compute the year status
-        auto year_status = budget::compute_year_status();
+        auto year_status = budget::compute_year_status(cache);
 
         std::vector<std::string> columns = {"Objective", "Status", "Progress"};
         std::vector<std::vector<std::string>> contents;
 
-        for (auto& objective : objectives.data()) {
+        for (auto& objective : cache.objectives()) {
             if (objective.type == "yearly") {
                 contents.push_back({objective.name, get_status(year_status, objective), get_success(year_status, objective)});
             }
@@ -107,7 +109,9 @@ void budget::monthly_objective_status(budget::writer& w){
     auto current_year  = today.year();
     auto sm            = start_month(current_year);
 
-    for (auto& objective : objectives.data()) {
+    data_cache cache;
+
+    for (auto& objective : cache.objectives()) {
         if (objective.type == "monthly") {
             std::vector<std::string> columns = {objective.name, "Status", "Progress"};
             std::vector<std::vector<std::string>> contents;
@@ -116,7 +120,7 @@ void budget::monthly_objective_status(budget::writer& w){
                 budget::month month = i;
 
                 // Compute the month status
-                auto status = budget::compute_month_status(current_year, month);
+                auto status = budget::compute_month_status(cache, current_year, month);
 
                 contents.push_back({to_string(month), get_status(status, objective), get_success(status, objective)});
             }
@@ -132,7 +136,9 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
         return;
     }
 
-    auto monthly_objectives = std::count_if(objectives.data().begin(), objectives.data().end(), [](auto& objective) {
+    data_cache cache;
+
+    auto monthly_objectives = std::count_if(cache.objectives().begin(), cache.objectives().end(), [](auto& objective) {
         return objective.type == "monthly";
     });
 
@@ -147,11 +153,11 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
 
     size_t width = 0;
     if (full_align) {
-        for (auto& objective : objectives.data()) {
+        for (auto& objective : cache.objectives()) {
             width = std::max(rsize(objective.name), width);
         }
     } else {
-        for (auto& objective : objectives.data()) {
+        for (auto& objective : cache.objectives()) {
             if (objective.type == "monthly") {
                 width = std::max(rsize(objective.name), width);
             }
@@ -162,9 +168,9 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
     std::vector<std::vector<std::string>> contents;
 
     // Compute the month status
-    auto status = budget::compute_month_status(today.year(), today.month());
+    auto status = budget::compute_month_status(cache, today.year(), today.month());
 
-    for (auto& objective : objectives.data()) {
+    for (auto& objective : cache.objectives()) {
         if (objective.type == "monthly") {
             contents.push_back({objective.name, get_status(status, objective), get_success(status, objective)});
         }

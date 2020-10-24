@@ -8,9 +8,7 @@
 #include <numeric>
 #include <array>
 
-#include "accounts.hpp"
-#include "earnings.hpp"
-#include "incomes.hpp"
+#include "data_cache.hpp"
 
 #include "writer.hpp"
 #include "pages/earnings_pages.hpp"
@@ -48,7 +46,9 @@ void budget::month_breakdown_income_graph(budget::html_writer& w, const std::str
 
     std::map<size_t, budget::money> account_sum;
 
-    for (auto& earning : all_earnings_month(year, month)) {
+    data_cache cache;
+
+    for (auto& earning : all_earnings_month(cache, year, month)) {
         account_sum[earning.account] += earning.amount;
     }
 
@@ -103,6 +103,8 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
 
     budget::html_writer w(content_stream);
 
+    data_cache cache;
+
     {
         auto ss = start_time_chart(w, "Income over time", "line", "income_time_graph", "");
 
@@ -135,7 +137,7 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
 
                 budget::money sum = get_base_income(budget::date(year, month, 2));
 
-                for (auto& earning : all_earnings_month(year, month)) {
+                for (auto& earning : all_earnings_month(cache, year, month)) {
                     sum += earning.amount;
                 }
 
@@ -191,7 +193,7 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
 
                 sum += get_base_income(budget::date(year, month, 2));
 
-                for (auto& earning : all_earnings_month(year, month)) {
+                for (auto& earning : all_earnings_month(cache, year, month)) {
                     sum += earning.amount;
                 }
             }
@@ -237,6 +239,8 @@ void budget::time_graph_earnings_page(const httplib::Request& req, httplib::Resp
 
     auto sy = start_year();
 
+    data_cache cache;
+
     for(unsigned short j = sy; j <= budget::local_day().year(); ++j){
         budget::year year = j;
 
@@ -252,7 +256,7 @@ void budget::time_graph_earnings_page(const httplib::Request& req, httplib::Resp
 
             budget::money sum;
 
-            for (auto& earning : all_earnings_month(year, month)) {
+            for (auto& earning : all_earnings_month(cache, year, month)) {
                 sum += earning.amount;
             }
 
