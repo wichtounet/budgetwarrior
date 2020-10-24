@@ -39,6 +39,12 @@ struct data_cache {
     std::vector<asset> assets();
     std::vector<wish> wishes();
 
+    data_cache() = default;
+
+    // No point in copying that
+    data_cache(const data_cache & cache) = delete;
+    data_cache & operator=(const data_cache & cache) = delete;
+
 private:
     std::vector<earning> earnings_;
     std::vector<debt> debts_;
