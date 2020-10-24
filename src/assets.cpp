@@ -1298,9 +1298,9 @@ budget::money budget::get_asset_value(const budget::asset & asset, budget::date 
     } else {
         budget::money asset_value_amount;
 
-        for (auto& asset_value : cache.sorted_asset_values()) {
+        for (auto& asset_value : cache.sorted_group_asset_values()[asset.id]) {
             if (asset_value.set_date <= d) {
-                if (!asset_value.liability && asset_value.asset_id == asset.id) {
+                if (!asset_value.liability) {
                     asset_value_amount = asset_value.amount;
                 }
             } else {
