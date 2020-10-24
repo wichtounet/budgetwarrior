@@ -1296,29 +1296,19 @@ budget::money budget::get_asset_value(const budget::asset & asset, budget::date 
             return budget::money(shares) * share_price(asset.ticker, d);
         }
     } else {
-        bool asset_value_found = false;
         budget::money asset_value_amount;
-        budget::date asset_value_date(1500, 1, 1);
 
-        for (auto& asset_value : cache.asset_values()) {
-            if (!asset_value.liability && asset_value.asset_id == asset.id) {
-                if (asset_value.set_date <= d) {
-                    if (!asset_value_found) {
-                        asset_value_amount = asset_value.amount;
-                        asset_value_date = asset_value.set_date;
-                    } else if (asset_value.set_date >= asset_value_date) {
-                        asset_value_amount = asset_value.amount;
-                        asset_value_date = asset_value.set_date;
-                    }
-
-                    asset_value_found = true;
+        for (auto& asset_value : cache.sorted_asset_values()) {
+            if (asset_value.set_date <= d) {
+                if (!asset_value.liability && asset_value.asset_id == asset.id) {
+                    asset_value_amount = asset_value.amount;
                 }
+            } else {
+                break;
             }
         }
 
-        if (asset_value_found) {
-            return asset_value_amount;
-        }
+        return asset_value_amount;
     }
 
     return {};
