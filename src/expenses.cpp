@@ -380,20 +380,14 @@ filter_view<expense> budget::all_expenses_month(data_cache & cache, size_t accou
     });
 }
 
-filter_view<expense> budget::all_expenses_month(data_cache & cache, const std::string & account_name, budget::year year, budget::month month) {
-    return make_filter_view(cache.expenses(), [=](const expense& e) {
-        return get_account(e.account).name == account_name && e.date.year() == year && e.date.month() == month;
-    });
-}
-
 filter_view<expense> budget::all_expenses_between(data_cache & cache, budget::year year, budget::month sm, budget::month month) {
     return make_filter_view(cache.expenses(), [=](const expense& e) {
         return e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
     });
 }
 
-filter_view<expense> budget::all_expenses_between(data_cache & cache, const std::string & account_name, budget::year year, budget::month sm, budget::month month) {
+filter_view<expense> budget::all_expenses_between(data_cache & cache, size_t account_id, budget::year year, budget::month sm, budget::month month) {
     return make_filter_view(cache.expenses(), [=](const expense& e) {
-        return get_account(e.account).name == account_name && e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
+        return e.account == account_id && e.date.year() == year && e.date.month() >= sm && e.date.month() <= month;
     });
 }

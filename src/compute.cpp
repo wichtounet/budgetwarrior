@@ -44,7 +44,9 @@ budget::status budget::compute_year_status(data_cache & cache, year year, month 
         auto taxes_account = config_value("taxes_account");
 
         if (account_exists(taxes_account)) {
-            status.taxes = accumulate_amount(all_expenses_between(cache, taxes_account, year, sm, month));
+            auto account_id = get_account(taxes_account, year, month).id;
+
+            status.taxes = accumulate_amount(all_expenses_between(cache, account_id, year, sm, month));
         }
     }
 
@@ -76,7 +78,9 @@ budget::status budget::compute_month_status(data_cache & cache, year year, month
         auto taxes_account = config_value("taxes_account");
 
         if (account_exists(taxes_account)) {
-            status.taxes = accumulate_amount(all_expenses_month(cache, taxes_account, year, month));
+            auto account_id = get_account(taxes_account, year, month).id;
+
+            status.taxes = accumulate_amount(all_expenses_month(cache, account_id, year, month));
         }
     }
 

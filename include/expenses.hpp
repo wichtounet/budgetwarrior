@@ -75,8 +75,7 @@ struct data_cache;
 filter_view<expense> all_expenses_year(data_cache & cache, budget::year year);
 filter_view<expense> all_expenses_month(data_cache & cache, budget::year year, budget::month month);
 filter_view<expense> all_expenses_month(data_cache & cache, size_t account_id, budget::year year, budget::month month);
-filter_view<expense> all_expenses_month(data_cache & cache, const std::string & account_name, budget::year year, budget::month month);
 filter_view<expense> all_expenses_between(data_cache & cache, budget::year year, budget::month sm, budget::month month);
-filter_view<expense> all_expenses_between(data_cache & cache, const std::string & account_name, budget::year year, budget::month sm, budget::month month);
+filter_view<expense> all_expenses_between(data_cache & cache, size_t account_id, budget::year year, budget::month sm, budget::month month);
 
 } //end of namespace budget
