@@ -38,6 +38,7 @@ struct data_cache {
     std::vector<asset_class> & asset_classes();
     std::vector<objective> & objectives();
     std::vector<expense> & expenses();
+    std::vector<expense> & sorted_expenses();
     std::vector<asset> & assets();
     std::vector<asset> & user_assets();
     std::vector<wish> & wishes();
@@ -63,6 +64,7 @@ private:
     std::vector<asset_class> asset_classes_;
     std::vector<objective> objectives_;
     std::vector<expense> expenses_;
+    std::vector<expense> sorted_expenses_;
     std::vector<asset> assets_;
     std::vector<asset> user_assets_;
     std::vector<wish> wishes_;

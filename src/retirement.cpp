@@ -32,9 +32,13 @@ money running_expenses(data_cache & cache, budget::date d = budget::local_day())
 
     budget::money total;
 
-    for(auto& expense : cache.expenses()){
-        if(expense.date >= start && expense.date < end){
-            total += expense.amount;
+    for (auto& expense : cache.sorted_expenses()) {
+        if (expense.date < end) {
+            if(expense.date >= start){
+                total += expense.amount;
+            }
+        } else {
+            break;
         }
     }
 

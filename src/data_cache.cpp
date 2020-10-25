@@ -127,6 +127,18 @@ std::vector<expense> & data_cache::expenses() {
     return expenses_;
 }
 
+std::vector<expense> & data_cache::sorted_expenses() {
+    if (sorted_expenses_.empty()) {
+        sorted_expenses_ = all_expenses();
+
+        std::sort(sorted_expenses_.begin(), sorted_expenses_.end(), [](auto& lhs, auto& rhs) {
+            return lhs.date < rhs.date;
+        });
+    }
+
+    return sorted_expenses_;
+}
+
 std::vector<asset> & data_cache::assets() {
     if (assets_.empty()) {
         assets_ = all_assets();
