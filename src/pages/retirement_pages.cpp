@@ -117,10 +117,10 @@ void budget::retirement_fi_ratio_over_time(const httplib::Request& req, httplib:
     std::vector<budget::money> serie;
     std::vector<std::string> dates;
 
-    auto date     = budget::asset_start_date();
-    auto end_date = budget::local_day();
-
     data_cache cache;
+
+    auto date     = budget::asset_start_date(cache);
+    auto end_date = budget::local_day();
 
     while (date <= end_date) {
         auto ratio = budget::fi_ratio(date, cache);

@@ -299,7 +299,7 @@ void budget::asset_graph(budget::html_writer& w, const std::string style, const 
     ss << "{ name: 'Value',";
     ss << "data: [";
 
-    auto date     = budget::asset_start_date(asset);
+    auto date     = budget::asset_start_date(cache, asset);
     auto end_date = budget::local_day();
 
     while (date <= end_date) {
@@ -364,7 +364,7 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
     ss << "{ name: 'Net Worth',";
     ss << "data: [";
 
-    auto date     = budget::asset_start_date();
+    auto date     = budget::asset_start_date(cache);
     auto end_date = budget::local_day();
 
     while (date <= end_date) {
@@ -465,7 +465,7 @@ void budget::net_worth_allocation_page(const httplib::Request& req, httplib::Res
         ss << "{ name: '" << clas.name << "',";
         ss << "data: [";
 
-        auto date     = budget::asset_start_date();
+        auto date     = budget::asset_start_date(cache);
         auto end_date = budget::local_day();
 
         while (date <= end_date) {
@@ -548,7 +548,7 @@ void budget::portfolio_allocation_page(const httplib::Request& req, httplib::Res
         ss << "{ name: '" << clas.name << "',";
         ss << "data: [";
 
-        auto date     = budget::asset_start_date();
+        auto date     = budget::asset_start_date(cache);
         auto end_date = budget::local_day();
 
         while (date <= end_date) {
@@ -641,7 +641,7 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
         ss << "{ name: '" << currency << "',";
         ss << "data: [";
 
-        auto date     = budget::asset_start_date();
+        auto date     = budget::asset_start_date(cache);
         auto end_date = budget::local_day();
 
         while (date <= end_date) {
@@ -772,7 +772,7 @@ void budget::portfolio_currency_page(const httplib::Request& req, httplib::Respo
         ss << "{ name: '" << currency << "',";
         ss << "data: [";
 
-        auto date     = budget::asset_start_date();
+        auto date     = budget::asset_start_date(cache);
         auto end_date = budget::local_day();
 
         while (date <= end_date) {
@@ -857,10 +857,10 @@ void budget::portfolio_graph_page(const httplib::Request& req, httplib::Response
     ss << "{ name: 'Portfolio',";
     ss << "data: [";
 
-    auto date     = budget::asset_start_date();
-    auto end_date = budget::local_day();
-
     data_cache cache;
+
+    auto date     = budget::asset_start_date(cache);
+    auto end_date = budget::local_day();
 
     while (date <= end_date) {
         budget::money sum;

@@ -690,17 +690,17 @@ std::vector<asset> budget::all_assets(){
     return assets.data();
 }
 
-budget::date budget::asset_start_date(const budget::asset& asset) {
+budget::date budget::asset_start_date(data_cache & cache, const budget::asset& asset) {
     budget::date start = budget::local_day();
 
     if (asset.share_based) {
-        for (auto & share : all_asset_shares()) {
+        for (auto & share : cache.asset_shares()) {
             if (share.asset_id == asset.id) {
                 start = std::min(share.date, start);
             }
         }
    } else {
-       for (auto & value : all_asset_values()) {
+       for (auto & value : cache.asset_values()) {
            if (!value.liability && value.asset_id == asset.id) {
                start = std::min(value.set_date, start);
            }
@@ -710,14 +710,13 @@ budget::date budget::asset_start_date(const budget::asset& asset) {
     return start;
 }
 
-budget::date budget::asset_start_date() {
+budget::date budget::asset_start_date(data_cache & cache) {
     budget::date start = budget::local_day();
 
     //TODO If necessary, avoid double loops
 
-    data_cache cache;
     for (auto & asset : cache.user_assets()) {
-        start = std::min(asset_start_date(asset), start);
+        start = std::min(asset_start_date(cache, asset), start);
     }
 
     return start;
