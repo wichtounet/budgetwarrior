@@ -207,6 +207,7 @@ std::string header(const std::string& title, bool menu = true) {
                   <a class="dropdown-item" href="/overview/">Overview Month</a>
                   <a class="dropdown-item" href="/overview/year/">Overview Year</a>
                   <a class="dropdown-item" href="/overview/aggregate/year/">Aggregate Year</a>
+                  <a class="dropdown-item" href="/overview/aggregate/year_fv/">Aggregate Year FV</a>
                   <a class="dropdown-item" href="/overview/aggregate/year_month/">Aggregate Year per month</a>
                   <a class="dropdown-item" href="/overview/aggregate/month/">Aggregate Month</a>
                   <a class="dropdown-item" href="/overview/aggregate/all/">Aggregate All</a>
@@ -486,6 +487,8 @@ void budget::load_pages(httplib::Server& server) {
     server.Get(R"(/overview/aggregate/year/(\d+)/)", &overview_aggregate_year_page);
     server.Get("/overview/aggregate/year_month/", &overview_aggregate_year_month_page);
     server.Get(R"(/overview/aggregate/year_month/(\d+)/)", &overview_aggregate_year_month_page);
+    server.Get("/overview/aggregate/year_fv/", &overview_aggregate_year_fv_page);
+    server.Get(R"(/overview/aggregate/year_fv/(\d+)/)", &overview_aggregate_year_fv_page);
     server.Get("/overview/aggregate/month/", &overview_aggregate_month_page);
     server.Get(R"(/overview/aggregate/month/(\d+)/(\d+)/)", &overview_aggregate_month_page);
     server.Get("/overview/aggregate/all/", &overview_aggregate_all_page);

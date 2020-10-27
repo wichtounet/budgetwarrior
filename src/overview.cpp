@@ -468,6 +468,110 @@ void aggregate_overview_month(const Data & data, budget::writer& w, bool full, b
     w.display_table(columns, contents, 3);
 }
 
+budget::money future_value(budget::money start) {
+    auto value = start;
+
+    for (size_t y = 0; y < 10; ++y) {
+        value *= 1.05;
+        value += start;
+    }
+
+    return value;
+}
+
+template<typename Data, typename Functor>
+void aggregate_overview_fv(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
+    std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_data;
+
+    budget::money total;
+
+    //Accumulate all the data
+    for (auto& data : data) {
+        if (func(data)) {
+            auto name = data.name;
+
+            if (name[name.size() - 1] == ' ') {
+                name.erase(name.size() - 1, name.size());
+            }
+
+            if (!disable_groups) {
+                auto loc = name.find(separator);
+                if (loc != std::string::npos) {
+                    name = name.substr(0, loc);
+                }
+            }
+
+            if (full) {
+                acc_data["All accounts"][name] += data.amount;
+            } else {
+                auto account = get_account(data.account);
+                acc_data[account.name][name] += data.amount;
+            }
+
+            total += data.amount;
+        }
+    }
+
+    for (auto& account : current_accounts()) {
+        auto it = acc_data.find(account.name);
+
+        if (it == acc_data.end()) {
+            acc_data[account.name];
+        }
+    }
+
+    std::unordered_map<std::string, budget::money> totals;
+
+    std::vector<std::string> columns;
+    std::vector<std::vector<std::string>> contents;
+
+    for (auto& account : current_accounts()) {
+        auto& items = acc_data[account.name];
+
+        auto column = columns.size();
+        columns.push_back(account.name);
+        size_t row = 0;
+
+        using s_items = std::pair<std::string, budget::money>;
+        std::vector<s_items> sorted_data;
+
+        for (auto& [name, amount] : items) {
+            sorted_data.push_back(std::make_pair(name, amount));
+        }
+
+        std::sort(sorted_data.begin(), sorted_data.end(),
+            [](const s_items& a, const s_items& b){ return a.second > b.second; });
+
+        for (auto& [name, amount] : sorted_data) {
+            if(contents.size() <= row){
+                contents.emplace_back(acc_data.size() * 3, "");
+            }
+
+            contents[row][column * 3] = name;
+            contents[row][column * 3 + 1] = to_string(amount);
+            contents[row][column * 3 + 2] = to_string_precision(future_value(amount), 2);
+
+            totals[account.name] += amount;
+
+            ++row;
+        }
+    }
+
+    contents.emplace_back(acc_data.size() * 3, "");
+    contents.emplace_back(acc_data.size() * 3, "");
+
+    size_t i = 0;
+
+    contents.back()[i++] = "Total";
+
+    for(auto& account : current_accounts()){
+        contents.back()[i] = to_string(totals[account.name]);
+        i += 3;
+    }
+
+    w.display_table(columns, contents, 3);
+}
+
 void add_month_columns(std::vector<std::string>& columns, budget::month sm){
     for(unsigned short i = sm; i < 13; ++i){
         budget::month m = i;
@@ -1386,6 +1490,20 @@ void budget::aggregate_year_month_overview(budget::writer& w, bool full, bool di
 
     w << p_begin << "Earnings" << p_end;
     aggregate_overview_month(all_earnings(), w, full, disable_groups, separator, year, [year](const budget::earning& earning){ return earning.date.year() == year; });
+}
+
+void budget::aggregate_year_fv_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year){
+    if(invalid_accounts(year)){
+        throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
+    }
+
+    w << title_begin << "Aggregate FV overview of " << year << year_selector{"overview/aggregate/year_fv", year} << title_end;
+
+    w << p_begin << "Expenses" << p_end;
+    aggregate_overview_fv(all_expenses(), w, full, disable_groups, separator, [year](const budget::expense& expense){ return expense.date.year() == year; });
+
+    w << p_begin << "Earnings" << p_end;
+    aggregate_overview_fv(all_earnings(), w, full, disable_groups, separator, [year](const budget::earning& earning){ return earning.date.year() == year; });
 }
 
 void budget::aggregate_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::month month, budget::year year){
