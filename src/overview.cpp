@@ -274,11 +274,12 @@ struct icompare_str {
     }
 };
 
-template<typename Data, typename Functor>
-void aggregate_overview(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
-    std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_data;
+using acc_data_t = std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>>;
 
+template<typename Data, typename Functor>
+std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, bool disable_groups, const std::string& separator, Functor&& func){
     budget::money total;
+    acc_data_t acc_data;
 
     //Accumulate all the data
     for (auto& data : data) {
@@ -314,6 +315,13 @@ void aggregate_overview(const Data & data, budget::writer& w, bool full, bool di
             acc_data[account.name];
         }
     }
+
+    return {total, acc_data};
+}
+
+template<typename Data, typename Functor>
+void aggregate_overview(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
+    auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
 
     std::unordered_map<std::string, budget::money> totals;
 
@@ -370,8 +378,6 @@ void aggregate_overview(const Data & data, budget::writer& w, bool full, bool di
 
 template<typename Data, typename Functor>
 void aggregate_overview_month(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year, Functor&& func){
-    std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_data;
-
     int months;
     if (year == budget::local_day().year()) {
         months = budget::local_day().month();
@@ -379,42 +385,7 @@ void aggregate_overview_month(const Data & data, budget::writer& w, bool full, b
         months = 12 - budget::start_month(year) + 1;
     }
 
-    budget::money total;
-
-    //Accumulate all the data
-    for (auto& data : data) {
-        if (func(data)) {
-            auto name = data.name;
-
-            if (name[name.size() - 1] == ' ') {
-                name.erase(name.size() - 1, name.size());
-            }
-
-            if (!disable_groups) {
-                auto loc = name.find(separator);
-                if (loc != std::string::npos) {
-                    name = name.substr(0, loc);
-                }
-            }
-
-            if (full) {
-                acc_data["All accounts"][name] += data.amount;
-            } else {
-                auto account = get_account(data.account);
-                acc_data[account.name][name] += data.amount;
-            }
-
-            total += data.amount;
-        }
-    }
-
-    for (auto& account : current_accounts()) {
-        auto it = acc_data.find(account.name);
-
-        if (it == acc_data.end()) {
-            acc_data[account.name];
-        }
-    }
+    auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
 
     std::unordered_map<std::string, budget::money> totals;
 
@@ -481,44 +452,7 @@ budget::money future_value(budget::money start) {
 
 template<typename Data, typename Functor>
 void aggregate_overview_fv(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
-    std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>> acc_data;
-
-    budget::money total;
-
-    //Accumulate all the data
-    for (auto& data : data) {
-        if (func(data)) {
-            auto name = data.name;
-
-            if (name[name.size() - 1] == ' ') {
-                name.erase(name.size() - 1, name.size());
-            }
-
-            if (!disable_groups) {
-                auto loc = name.find(separator);
-                if (loc != std::string::npos) {
-                    name = name.substr(0, loc);
-                }
-            }
-
-            if (full) {
-                acc_data["All accounts"][name] += data.amount;
-            } else {
-                auto account = get_account(data.account);
-                acc_data[account.name][name] += data.amount;
-            }
-
-            total += data.amount;
-        }
-    }
-
-    for (auto& account : current_accounts()) {
-        auto it = acc_data.find(account.name);
-
-        if (it == acc_data.end()) {
-            acc_data[account.name];
-        }
-    }
+    auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
 
     std::unordered_map<std::string, budget::money> totals;
 
