@@ -90,10 +90,9 @@ struct data_handler {
                 if (file.is_open()) {
                     if (file.good()) {
                         // We do not use the next_id saved anymore
-                        // Simply consume it
-                        size_t fake;
-                        file >> fake;
-                        file.get();
+                        // Simply consume the line
+                        std::string id_line;
+                        getline(file, id_line);
 
                         parse_stream(file, f);
                     }
