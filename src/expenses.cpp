@@ -26,20 +26,20 @@ namespace {
 
 static data_handler<expense> expenses { "expenses", "expenses.data" };
 
-void show_templates(){
-    std::vector<std::string> columns = {"ID", "Account", "Name", "Amount"};
+void show_templates() {
+    std::vector<std::string>              columns = {"ID", "Account", "Name", "Amount"};
     std::vector<std::vector<std::string>> contents;
 
     size_t count = 0;
 
-    for(auto& expense : expenses.data()){
-        if(expense.date == TEMPLATE_DATE){
+    for (auto& expense : expenses.data()) {
+        if (expense.date == TEMPLATE_DATE) {
             contents.push_back({to_string(expense.id), get_account(expense.account).name, expense.name, to_string(expense.amount)});
             ++count;
         }
     }
 
-    if(count == 0){
+    if (count == 0) {
         std::cout << "No templates" << std::endl;
     } else {
         console_writer w(std::cout);
@@ -108,13 +108,13 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
                 bool template_found = false;
 
-                for(auto& template_expense : all_expenses()){
-                    if(template_expense.date == TEMPLATE_DATE && template_expense.name == template_name){
+                for (auto& template_expense : all_expenses()) {
+                    if (template_expense.date == TEMPLATE_DATE && template_expense.name == template_name) {
                         expense expense;
-                        expense.guid = generate_guid();
-                        expense.date = budget::local_day();
-                        expense.name = template_expense.name;
-                        expense.amount = template_expense.amount;
+                        expense.guid    = generate_guid();
+                        expense.date    = budget::local_day();
+                        expense.name    = template_expense.name;
+                        expense.amount  = template_expense.amount;
                         expense.account = template_expense.account;
 
                         auto id = expenses.add(std::move(expense));
@@ -125,7 +125,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
                     }
                 }
 
-                if(!template_found){
+                if (!template_found) {
                     std::cout << "Template \"" << template_name << "\" not found, creating a new template" << std::endl;
 
                     expense expense;
@@ -233,13 +233,13 @@ std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
 void budget::operator>>(const std::vector<std::string>& parts, expense& expense){
     bool random = config_contains("random");
 
-    expense.id = to_number<size_t>(parts.at(0));
-    expense.guid = parts.at(1);
+    expense.id      = to_number<size_t>(parts.at(0));
+    expense.guid    = parts.at(1);
     expense.account = to_number<size_t>(parts.at(2));
-    expense.name = parts.at(3);
-    expense.date = from_string(parts.at(5));
+    expense.name    = parts.at(3);
+    expense.date    = from_string(parts.at(5));
 
-    if(random){
+    if (random) {
         expense.amount = budget::random_money(10, 1500);
     } else {
         expense.amount = parse_money(parts.at(4));
@@ -264,9 +264,13 @@ void budget::show_all_expenses(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& expense : expenses.data()){
-        contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name,
-            expense.name, to_string(expense.amount), "::edit::expenses::" + to_string(expense.id)});
+    for (auto& expense : expenses.data()) {
+        contents.push_back({to_string(expense.id),
+                            to_string(expense.date),
+                            get_account(expense.account).name,
+                            expense.name,
+                            to_string(expense.amount),
+                            "::edit::expenses::" + to_string(expense.id)});
     }
 
     w.display_table(columns, contents);
@@ -284,12 +288,17 @@ void budget::search_expenses(const std::string& search, budget::writer& w){
     auto l_search = search;
     std::transform(l_search.begin(), l_search.end(), l_search.begin(), ::tolower);
 
-    for(auto& expense : expenses.data()){
+    for (auto& expense : expenses.data()) {
         auto l_name = expense.name;
         std::transform(l_name.begin(), l_name.end(), l_name.begin(), ::tolower);
 
-        if(l_name.find(l_search) != std::string::npos){
-            contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount), "::edit::expenses::" + to_string(expense.id)});
+        if (l_name.find(l_search) != std::string::npos) {
+            contents.push_back({to_string(expense.id),
+                                to_string(expense.date),
+                                get_account(expense.account).name,
+                                expense.name,
+                                to_string(expense.amount),
+                                "::edit::expenses::" + to_string(expense.id)});
 
             total += expense.amount;
             ++count;
@@ -316,9 +325,14 @@ void budget::show_expenses(budget::month month, budget::year year, budget::write
     money total;
     size_t count = 0;
 
-    for(auto& expense : expenses.data()){
-        if(expense.date.year() == year && expense.date.month() == month){
-            contents.push_back({to_string(expense.id), to_string(expense.date), get_account(expense.account).name, expense.name, to_string(expense.amount), "::edit::expenses::" + to_string(expense.id)});
+    for (auto& expense : expenses.data()) {
+        if (expense.date.year() == year && expense.date.month() == month) {
+            contents.push_back({to_string(expense.id),
+                                to_string(expense.date),
+                                get_account(expense.account).name,
+                                expense.name,
+                                to_string(expense.amount),
+                                "::edit::expenses::" + to_string(expense.id)});
 
             total += expense.amount;
             ++count;
