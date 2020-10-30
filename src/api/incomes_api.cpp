@@ -13,6 +13,7 @@
 #include "incomes.hpp"
 #include "guid.hpp"
 #include "http.hpp"
+#include "data.hpp"
 
 using namespace budget;
 
@@ -107,8 +108,9 @@ void budget::list_incomes_api(const httplib::Request& req, httplib::Response& re
         std::stringstream ss;
 
         for (auto& income : all_incomes()) {
-            ss << income;
-            ss << std::endl;
+            data_writer writer;
+            income.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());

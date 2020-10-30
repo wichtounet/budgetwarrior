@@ -133,23 +133,25 @@ void budget::save_earnings(){
     earnings.save();
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const earning& earning){
-    return stream << earning.id  << ':' << earning.guid << ':' << earning.account << ':' << earning.name << ':' << earning.amount << ':' << to_string(earning.date);
+void budget::earning::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << account;
+    writer << name;
+    writer << amount;
+    writer << date;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, earning& earning){
-    bool random = config_contains("random");
+void budget::earning::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> account;
+    reader >> name;
+    reader >> amount;
+    reader >> date;
 
-    earning.id = to_number<size_t>(parts[0]);
-    earning.guid = parts[1];
-    earning.account = to_number<size_t>(parts[2]);
-    earning.name = parts[3];
-    earning.date = from_string(parts[5]);
-
-    if(random){
-        earning.amount = budget::random_money(10, 5000);
-    } else {
-        earning.amount = parse_money(parts[4]);
+    if (config_contains("random")) {
+        amount = budget::random_money(10, 5000);
     }
 }
 

@@ -235,21 +235,21 @@ void budget::save_fortunes(){
     fortunes.save();
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const fortune& fortune){
-    return stream << fortune.id  << ':' << fortune.guid << ':' << to_string(fortune.check_date) << ':' << fortune.amount;
+void budget::fortune::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << check_date;
+    writer << amount;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, fortune& fortune){
-    bool random = config_contains("random");
+void budget::fortune::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> check_date;
+    reader >> amount;
 
-    fortune.id = to_number<int>(parts[0]);
-    fortune.guid = parts[1];
-    fortune.check_date = from_string(parts[2]);
-
-    if(random){
-        fortune.amount = budget::random_money(1000, 100000);
-    } else {
-        fortune.amount = parse_money(parts[3]);
+    if (config_contains("random")) {
+        amount = budget::random_money(1000, 100000);
     }
 }
 

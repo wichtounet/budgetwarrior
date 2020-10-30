@@ -19,6 +19,9 @@
 
 namespace budget {
 
+struct data_reader;
+struct data_writer;
+
 struct liabilities_module {
     void load();
     void unload();
@@ -39,10 +42,10 @@ struct liability {
     std::string currency;
 
     std::map<std::string, std::string> get_params() const ;
-};
 
-std::ostream& operator<<(std::ostream& stream, const liability& liability);
-void operator>>(const std::vector<std::string>& parts, liability& liability);
+    void load(data_reader & reader);
+    void save(data_writer & writer);
+};
 
 void load_liabilities();
 void save_liabilities();

@@ -220,20 +220,25 @@ void budget::save_recurrings() {
     recurrings.save();
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const recurring& recurring) {
-    return stream << recurring.id << ':' << recurring.guid << ':' << recurring.account << ':' << recurring.name << ':' << recurring.amount << ":" << recurring.recurs;
+void budget::recurring::save(data_writer & writer) {
+    writer << id;
+    writer << guid;
+    writer << account;
+    writer << name;
+    writer << amount;
+    writer << recurs;
 }
 
 void budget::migrate_recurring_1_to_2() {
     load_accounts();
 
-    recurrings.load([](const std::vector<std::string>& parts, recurring& recurring) {
-        recurring.id          = to_number<size_t>(parts[0]);
-        recurring.guid        = parts[1];
-        recurring.old_account = to_number<size_t>(parts[2]);
-        recurring.name        = parts[3];
-        recurring.amount      = parse_money(parts[4]);
-        recurring.recurs      = parts[5];
+    recurrings.load([](data_reader & reader, recurring& recurring) {
+        reader >> recurring.id;
+        reader >> recurring.guid;
+        reader >> recurring.old_account;
+        reader >> recurring.name;
+        reader >> recurring.amount;
+        reader >> recurring.recurs;
     });
 
     for (auto& recurring : recurrings.unsafe_data()) {
@@ -245,19 +250,16 @@ void budget::migrate_recurring_1_to_2() {
     recurrings.save();
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, recurring& recurring) {
-    bool random = config_contains("random");
+void budget::recurring::load(data_reader & reader) {
+    reader >> id;
+    reader >> guid;
+    reader >> account;
+    reader >> name;
+    reader >> amount;
+    reader >> recurs;
 
-    recurring.id      = to_number<size_t>(parts[0]);
-    recurring.guid    = parts[1];
-    recurring.account = parts[2];
-    recurring.name    = parts[3];
-    recurring.recurs  = parts[5];
-
-    if (random) {
-        recurring.amount = budget::random_money(100, 1000);
-    } else {
-        recurring.amount = parse_money(parts[4]);
+    if (config_contains("random")) {
+        amount = budget::random_money(100, 1000);
     }
 }
 

@@ -246,28 +246,25 @@ budget::liability budget::get_liability(std::string name){
     cpp_unreachable("The liability does not exist");
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const liability& liability){
-    std::string classes;
-
-    return stream << liability.id << ':' << liability.guid << ':' << liability.name << ':'
-                  << liability.currency;
+void budget::liability::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << name;
+    writer << currency;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, liability& liability){
-    bool random = config_contains("random");
+void budget::liability::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> name;
+    reader >> currency;
 
-    liability.id       = to_number<size_t>(parts[0]);
-    liability.guid     = parts[1];
-    liability.currency = parts[3];
-
-    if(liability.guid == "XXXXX"){
-        liability.guid = generate_guid();
+    if (guid == "XXXXX") {
+        guid = generate_guid();
     }
 
-    if (random) {
-        liability.name = budget::random_name(5);
-    } else {
-        liability.name = parts[2];
+    if (config_contains("random")) {
+        name = budget::random_name(5);
     }
 }
 

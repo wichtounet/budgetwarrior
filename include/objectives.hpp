@@ -19,6 +19,9 @@
 
 namespace budget {
 
+struct data_reader;
+struct data_writer;
+
 struct objectives_module {
     void load();
     void unload();
@@ -42,10 +45,10 @@ struct objective {
     money amount;
 
     std::map<std::string, std::string> get_params() const ;
-};
 
-std::ostream& operator<<(std::ostream& stream, const objective& expense);
-void operator>>(const std::vector<std::string>& parts, objective& expense);
+    void load(data_reader & reader);
+    void save(data_writer & writer);
+};
 
 void yearly_objective_status(budget::writer& w, bool lines, bool full_align);
 void monthly_objective_status(budget::writer& w);

@@ -194,36 +194,32 @@ void budget::save_wishes(){
     wishes.save();
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const wish& wish){
-    return stream
-        << wish.id  << ':'
-        << wish.guid << ':'
-        << wish.name << ':'
-        << wish.amount << ':'
-        << to_string(wish.date) << ':'
-        << static_cast<size_t>(wish.paid) << ':'
-        << wish.paid_amount << ':'
-        << wish.importance << ':'
-        << wish.urgency;
+void budget::wish::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << name;
+    writer << amount;
+    writer << date;
+    writer << paid;
+    writer << paid_amount;
+    writer << importance;
+    writer << urgency;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, wish& wish){
-    bool random = config_contains("random");
+void budget::wish::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> name;
+    reader >> amount;
+    reader >> date;
+    reader >> paid;
+    reader >> paid_amount;
+    reader >> importance;
+    reader >> urgency;
 
-    wish.id = to_number<size_t>(parts[0]);
-    wish.guid = parts[1];
-    wish.name = parts[2];
-    wish.date = from_string(parts[4]);
-    wish.paid = to_number<size_t>(parts[5]) == 1;
-    wish.importance = to_number<size_t>(parts[7]);
-    wish.urgency = to_number<size_t>(parts[8]);
-
-    if(random){
-        wish.amount = budget::random_money(100, 1000);
-        wish.paid_amount = budget::random_money(100, 1000);
-    } else {
-        wish.amount = parse_money(parts[3]);
-        wish.paid_amount = parse_money(parts[6]);
+    if (config_contains("random")) {
+        amount      = budget::random_money(100, 1000);
+        paid_amount = budget::random_money(100, 1000);
     }
 }
 
@@ -240,15 +236,16 @@ void budget::set_wishes_next_id(size_t next_id){
 }
 
 void budget::migrate_wishes_2_to_3(){
-    wishes.load([](const std::vector<std::string>& parts, wish& wish){
-        wish.id = to_number<size_t>(parts[0]);
-        wish.guid = parts[1];
-        wish.name = parts[2];
-        wish.amount = parse_money(parts[3]);
-        wish.date = from_string(parts[4]);
-        wish.paid = false;
-        wish.paid_amount = budget::money(0,0);
-        });
+    wishes.load([](data_reader& reader, wish& wish) {
+        reader >> wish.id;
+        reader >> wish.guid;
+        reader >> wish.name;
+        reader >> wish.amount;
+        reader >> wish.date;
+
+        wish.paid        = false;
+        wish.paid_amount = budget::money(0, 0);
+    });
 
     set_wishes_changed();
 
@@ -256,17 +253,18 @@ void budget::migrate_wishes_2_to_3(){
 }
 
 void budget::migrate_wishes_3_to_4(){
-    wishes.load([](const std::vector<std::string>& parts, wish& wish){
-        wish.id = to_number<size_t>(parts[0]);
-        wish.guid = parts[1];
-        wish.name = parts[2];
-        wish.amount = parse_money(parts[3]);
-        wish.date = from_string(parts[4]);
-        wish.paid = to_number<size_t>(parts[5]) == 1;
-        wish.paid_amount = parse_money(parts[6]);
+    wishes.load([](data_reader & reader, wish& wish) {
+        reader >> wish.id;
+        reader >> wish.guid;
+        reader >> wish.name;
+        reader >> wish.amount;
+        reader >> wish.date;
+        reader >> wish.paid;
+        reader >> wish.paid_amount;
+
         wish.importance = 2;
-        wish.urgency = 2;
-        });
+        wish.urgency    = 2;
+    });
 
     set_wishes_changed();
 

@@ -15,6 +15,7 @@
 #include "accounts.hpp"
 #include "guid.hpp"
 #include "http.hpp"
+#include "data.hpp"
 #include "budget_exception.hpp"
 
 using namespace budget;
@@ -163,8 +164,9 @@ void budget::list_assets_api(const httplib::Request& req, httplib::Response& res
         std::stringstream ss;
 
         for (auto& asset : all_assets()) {
-            ss << asset;
-            ss << std::endl;
+            data_writer writer;
+            asset.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());
@@ -274,8 +276,9 @@ void budget::list_asset_values_api(const httplib::Request& req, httplib::Respons
         std::stringstream ss;
 
         for (auto& asset_value : all_asset_values()) {
-            ss << asset_value;
-            ss << std::endl;
+            data_writer writer;
+            asset_value.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());
@@ -429,8 +432,9 @@ void budget::list_asset_shares_api(const httplib::Request& req, httplib::Respons
         std::stringstream ss;
 
         for (auto& asset_share : all_asset_shares()) {
-            ss << asset_share;
-            ss << std::endl;
+            data_writer writer;
+            asset_share.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());
@@ -545,8 +549,9 @@ void budget::list_asset_classes_api(const httplib::Request& req, httplib::Respon
         std::stringstream ss;
 
         for (auto& asset_class : all_asset_classes()) {
-            ss << asset_class;
-            ss << std::endl;
+            data_writer writer;
+            asset_class.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());
@@ -654,8 +659,9 @@ void budget::list_liabilities_api(const httplib::Request& req, httplib::Response
         std::stringstream ss;
 
         for (auto& liability : all_liabilities()) {
-            ss << liability;
-            ss << std::endl;
+            data_writer writer;
+            liability.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());

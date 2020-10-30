@@ -18,6 +18,9 @@
 
 namespace budget {
 
+struct data_reader;
+struct data_writer;
+
 struct incomes_module {
     void load();
     void unload();
@@ -38,10 +41,10 @@ struct income {
     date until;
 
     std::map<std::string, std::string> get_params() const ;
-};
 
-std::ostream& operator<<(std::ostream& stream, const income& income);
-void operator>>(const std::vector<std::string>& parts, income& income);
+    void load(data_reader & reader);
+    void save(data_writer & writer);
+};
 
 void load_incomes();
 void save_incomes();

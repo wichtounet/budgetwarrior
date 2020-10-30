@@ -142,46 +142,47 @@ void budget::save_debts(){
     debts.save();
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const debt& debt){
-    return stream << debt.id
-        << ':' << debt.state
-        << ':' << debt.guid
-        << ':' << to_string(debt.creation_date)
-        << ':' << debt.direction
-        << ':' << debt.name
-        << ':' << debt.amount
-        << ':' << debt.title;
+void budget::debt::save(data_writer & writer){
+    writer << id;
+    writer << state;
+    writer << guid;
+    writer << creation_date;
+    writer << direction;
+    writer << name;
+    writer << amount;
+    writer << title;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, debt& debt){
-    bool random = config_contains("random");
+void budget::debt::load(data_reader & reader){
+    reader >> id;
+    reader >> state;
+    reader >> guid;
+    reader >> creation_date;
+    reader >> direction;
+    reader >> name;
+    reader >> amount;
+    reader >> title;
 
-    debt.id = to_number<int>(parts[0]);
-    debt.state = to_number<int>(parts[1]);
-    debt.guid = parts[2];
-    debt.creation_date = from_string(parts[3]);
-    debt.direction = to_number<bool>(parts[4]);
-    debt.name = parts[5];
-    debt.title = parts[7];
-
-    if(random){
-        debt.amount = budget::random_money(10, 1000);
-    } else {
-        debt.amount = parse_money(parts[6]);
+    if (config_contains("random")) {
+        amount = budget::random_money(10, 1000);
     }
 }
 
 void budget::migrate_debts_3_to_4(){
-    debts.load([](const std::vector<std::string>& parts, debt& debt){
-            debt.id = to_number<int>(parts[0]);
-            debt.state = to_number<int>(parts[1]);
-            debt.guid = parts[2];
-            debt.creation_date = from_iso_string(parts[3]);
-            debt.direction = to_number<bool>(parts[4]);
-            debt.name = parts[5];
-            debt.amount = parse_money(parts[6]);
-            debt.title = parts[7];
-        });
+    debts.load([](data_reader & reader, debt& debt){
+        std::string temp_date;
+
+        reader >> debt.id;
+        reader >> debt.state;
+        reader >> debt.guid;
+        reader >> temp_date;
+        reader >> debt.direction;
+        reader >> debt.name;
+        reader >> debt.amount;
+        reader >> debt.title;
+
+        debt.creation_date = from_iso_string(temp_date);
+    });
 
     debts.set_changed();
 

@@ -19,6 +19,9 @@
 
 namespace budget {
 
+struct data_reader;
+struct data_writer;
+
 const date TEMPLATE_DATE(1666, 6, 6);
 
 struct expenses_module {
@@ -42,10 +45,10 @@ struct expense {
     money amount;
 
     std::map<std::string, std::string> get_params() const ;
-};
 
-std::ostream& operator<<(std::ostream& stream, const expense& expense);
-void operator>>(const std::vector<std::string>& parts, expense& expense);
+    void load(data_reader & reader);
+    void save(data_writer & writer);
+};
 
 void load_expenses();
 void save_expenses();

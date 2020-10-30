@@ -13,6 +13,7 @@
 #include "objectives.hpp"
 #include "guid.hpp"
 #include "http.hpp"
+#include "data.hpp"
 
 using namespace budget;
 
@@ -118,8 +119,9 @@ void budget::list_objectives_api(const httplib::Request& req, httplib::Response&
         std::stringstream ss;
 
         for (auto& objective : all_objectives()) {
-            ss << objective;
-            ss << std::endl;
+            data_writer writer;
+            objective.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());

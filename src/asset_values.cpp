@@ -52,38 +52,34 @@ budget::asset_value budget::get_asset_value(size_t id){
     return asset_values[id];
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const asset_value& asset_value){
-    return stream
-               << asset_value.id
-        << ':' << asset_value.guid
-        << ':' << asset_value.asset_id
-        << ":" << asset_value.amount
-        << ":" << to_string(asset_value.set_date)
-        << ":" << asset_value.liability;
+void budget::asset_value::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << asset_id;
+    writer << amount;
+    writer << set_date;
+    writer << liability;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, asset_value& asset_value){
-    bool random = config_contains("random");
+void budget::asset_value::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> asset_id;
+    reader >> amount;
+    reader >> set_date;
 
-    asset_value.id       = to_number<size_t>(parts[0]);
-    asset_value.guid     = parts[1];
-    asset_value.asset_id = to_number<size_t>(parts[2]);
-    asset_value.set_date = from_string(parts[4]);
-
-    if(asset_value.guid == "XXXXX"){
-        asset_value.guid = generate_guid();
+    if (reader.more()) {
+        reader >> liability;
+    } else {
+        liability = false;
     }
 
-    if (random) {
-        asset_value.amount = budget::random_money(1000, 50000);
-    } else {
-        asset_value.amount = parse_money(parts[3]);
+    if (guid == "XXXXX") {
+        guid = generate_guid();
     }
 
-    if (parts.size() > 5) {
-        asset_value.liability = to_number<size_t>(parts[5]);
-    } else {
-        asset_value.liability = false;
+    if (config_contains("random")) {
+        amount = budget::random_money(1000, 50000);
     }
 }
 

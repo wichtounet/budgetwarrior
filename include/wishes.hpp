@@ -18,6 +18,9 @@
 
 namespace budget {
 
+struct data_reader;
+struct data_writer;
+
 struct wishes_module {
     void load();
     void unload();
@@ -42,10 +45,10 @@ struct wish {
     size_t urgency;
 
     std::map<std::string, std::string> get_params() const ;
-};
 
-std::ostream& operator<<(std::ostream& stream, const wish& expense);
-void operator>>(const std::vector<std::string>& parts, wish& expense);
+    void load(data_reader & reader);
+    void save(data_writer & writer);
+};
 
 void load_wishes();
 void save_wishes();

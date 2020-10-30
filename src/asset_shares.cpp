@@ -47,38 +47,33 @@ budget::asset_share budget::get_asset_share(size_t id) {
     return asset_shares[id];
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const asset_share& asset_share){
-    return stream
-               << asset_share.id
-        << ':' << asset_share.guid
-        << ':' << asset_share.asset_id
-        << ":" << asset_share.shares
-        << ":" << to_string(asset_share.date)
-        << ":" << asset_share.price;
+void budget::asset_share::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << asset_id;
+    writer << shares;
+    writer << date;
+    writer << price;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, asset_share& asset_share){
-    bool random = config_contains("random");
+void budget::asset_share::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> asset_id;
+    reader >> shares;
+    reader >> date;
+    reader >> price;
 
-    asset_share.id       = to_number<size_t>(parts[0]);
-    asset_share.guid     = parts[1];
-    asset_share.asset_id = to_number<size_t>(parts[2]);
-    asset_share.date     = from_string(parts[4]);
-    asset_share.price    = parse_money(parts[5]);
-
-    if (asset_share.guid == "XXXXX") {
-        asset_share.guid = generate_guid();
+    if (guid == "XXXXX") {
+        guid = generate_guid();
     }
 
-    if (random) {
+    if (config_contains("random")) {
         static std::random_device rd;
         static std::mt19937_64 engine(rd());
 
         std::uniform_int_distribution<int> dist(1, 1000);
-
-        asset_share.shares = dist(engine);
-    } else {
-        asset_share.shares = to_number<size_t>(parts[3]);
+        shares = dist(engine);
     }
 }
 

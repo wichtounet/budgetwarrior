@@ -283,33 +283,29 @@ void budget::save_objectives(){
     objectives.save();
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const objective& objective){
-    return stream
-        << objective.id  << ':'
-        << objective.guid << ':'
-        << objective.name << ':'
-        << objective.type << ':'
-        << objective.source << ':'
-        << objective.op << ':'
-        << objective.amount << ':'
-        << to_string(objective.date);
+void budget::objective::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << name;
+    writer << type;
+    writer << source;
+    writer << op;
+    writer << amount;
+    writer << date;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, objective& objective){
-    bool random = config_contains("random");
+void budget::objective::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> name;
+    reader >> type;
+    reader >> source;
+    reader >> op;
+    reader >> amount;
+    reader >> date;
 
-    objective.id = to_number<size_t>(parts[0]);
-    objective.guid = parts[1];
-    objective.name = parts[2];
-    objective.type = parts[3];
-    objective.source = parts[4];
-    objective.op = parts[5];
-    objective.date = from_string(parts[7]);
-
-    if(random){
-        objective.amount = budget::random_money(1000, 10000);
-    } else {
-        objective.amount = parse_money(parts[6]);
+    if (config_contains("random")) {
+        amount = budget::random_money(1000, 10000);
     }
 }
 

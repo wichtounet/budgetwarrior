@@ -53,18 +53,16 @@ budget::asset_class budget::get_asset_class(const std::string & name){
     cpp_unreachable("The asset class does not exist");
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const asset_class& asset){
-    return stream << asset.id << ':' << asset.guid << ':' << asset.name << ':';
+void budget::asset_class::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << name;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, asset_class& clas){
-    clas.id   = to_number<size_t>(parts[0]);
-    clas.guid = parts[1];
-    clas.name = parts[2];
-
-    if (clas.guid == "XXXXX") {
-        clas.guid = generate_guid();
-    }
+void budget::asset_class::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> name;
 }
 
 bool budget::asset_class_exists(const std::string& name){

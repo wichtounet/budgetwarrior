@@ -552,19 +552,19 @@ budget::asset budget::get_desired_allocation(){
 }
 
 void budget::migrate_assets_4_to_5(){
-    assets.load([](const std::vector<std::string>& parts, asset& asset){
-        asset.id              = to_number<size_t>(parts[0]);
-        asset.guid            = parts[1];
-        asset.name            = parts[2];
-        asset.int_stocks      = parse_money(parts[3]);
-        asset.dom_stocks      = parse_money(parts[4]);
-        asset.bonds           = parse_money(parts[5]);
-        asset.cash            = parse_money(parts[6]);
-        asset.currency        = parts[7];
-        asset.portfolio       = to_number<size_t>(parts[8]);
-        asset.portfolio_alloc = parse_money(parts[9]);
+    assets.load([](data_reader & reader, asset& asset){
+        reader >> asset.id;
+        reader >> asset.guid;
+        reader >> asset.name;
+        reader >> asset.int_stocks;
+        reader >> asset.dom_stocks;
+        reader >> asset.bonds;
+        reader >> asset.cash;
+        reader >> asset.currency;
+        reader >> asset.portfolio;
+        reader >> asset.portfolio_alloc;
 
-        if(asset.guid == "XXXXX"){
+        if (asset.guid == "XXXXX") {
             asset.guid = generate_guid();
         }
 
@@ -589,25 +589,29 @@ void budget::migrate_assets_5_to_6(){
     add_asset_class(class_cash);
 
     // Load asset with version 5
-    assets.load([&](const std::vector<std::string>& parts, asset& asset){
-        asset.id              = to_number<size_t>(parts[0]);
-        asset.guid            = parts[1];
-        asset.name = parts[2];
-        auto int_stocks      = parse_money(parts[3]);
-        auto dom_stocks      = parse_money(parts[4]);
-        auto bonds           = parse_money(parts[5]);
-        auto cash            = parse_money(parts[6]);
-        asset.currency        = parts[7];
-        asset.portfolio       = to_number<size_t>(parts[8]);
-        asset.portfolio_alloc = parse_money(parts[9]);
-        asset.share_based     = to_number<size_t>(parts[10]);
-        asset.ticker          = parts[11] == "EMPTY" ? "" : parts[11];
+    assets.load([&](data_reader & reader, asset& asset){
+        reader >> asset.id;
+        reader >> asset.guid;
+        reader >> asset.name;
+        reader >> asset.int_stocks;
+        reader >> asset.dom_stocks;
+        reader >> asset.bonds;
+        reader >> asset.cash;
+        reader >> asset.currency;
+        reader >> asset.portfolio;
+        reader >> asset.portfolio_alloc;
+        reader >> asset.share_based;
+        reader >> asset.ticker;
+
+        if (asset.ticker == "EMPTY") {
+            asset.ticker = "";
+        }
 
         // Version 6 added support for asset classes
-        asset.classes.emplace_back(class_int_stocks.id, int_stocks);
-        asset.classes.emplace_back(class_dom_stocks.id, dom_stocks);
-        asset.classes.emplace_back(class_bonds.id, bonds);
-        asset.classes.emplace_back(class_cash.id, cash);
+        asset.classes.emplace_back(class_int_stocks.id, asset.int_stocks);
+        asset.classes.emplace_back(class_dom_stocks.id, asset.dom_stocks);
+        asset.classes.emplace_back(class_bonds.id, asset.bonds);
+        asset.classes.emplace_back(class_cash.id, asset.cash);
     });
 
     set_asset_classes_changed();
@@ -617,52 +621,56 @@ void budget::migrate_assets_5_to_6(){
     assets.save();
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const asset& asset){
-    std::string classes;
+void budget::asset::save(data_writer & writer){
+    std::string classes_str;
 
-    for (auto& [clas_id, alloc] : asset.classes) {
-        classes += budget::to_string(clas_id) + ";" + budget::to_string(alloc) + ";";
+    for (auto& [clas_id, alloc] : classes) {
+        classes_str += budget::to_string(clas_id) + ";" + budget::to_string(alloc) + ";";
     }
 
-    if (classes.empty()) {
-        classes = "EMPTY";
+    if (classes_str.empty()) {
+        classes_str = "EMPTY";
     }
 
-    return stream << asset.id << ':' << asset.guid << ':' << asset.name << ':'
-                  << asset.currency << ":" << asset.portfolio << ":" << asset.portfolio_alloc << ":"
-                  << asset.share_based << ":" << (asset.ticker.empty() ? "EMPTY" : asset.ticker) << ":" << classes;
+    writer << id;
+    writer << guid;
+    writer << name;
+    writer << currency;
+    writer << portfolio;
+    writer << portfolio_alloc;
+    writer << share_based;
+    writer << std::string(ticker.empty() ? "EMPTY" : ticker);
+    writer << classes_str;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, asset& asset){
-    bool random = config_contains("random");
+void budget::asset::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> name;
+    reader >> currency;
+    reader >> portfolio;
+    reader >> portfolio_alloc;
+    reader >> share_based;
+    reader >> ticker;
 
-    asset.id              = to_number<size_t>(parts[0]);
-    asset.guid            = parts[1];
-    asset.currency        = parts[3];
-    asset.portfolio       = to_number<size_t>(parts[4]);
-    asset.portfolio_alloc = parse_money(parts[5]);
-    asset.share_based     = to_number<size_t>(parts[6]);
-    asset.ticker          = parts[7] == "EMPTY" ? "" : parts[7];
+    std::string assets_parts_str;
+    reader >> assets_parts_str;
 
-    if(asset.guid == "XXXXX"){
-        asset.guid = generate_guid();
-    }
-
-    if (random) {
-        asset.name = parts[2];
-
-        if (!(asset.name == "DESIRED" && asset.currency == "DESIRED")) {
-            asset.name = budget::random_name(5);
-        }
-    } else {
-        asset.name = parts[2];
-    }
-
-    auto assets_parts = split(parts[8], ';');
+    auto assets_parts = split(assets_parts_str, ';');
     for (size_t i = 0; i + 1 < assets_parts.size(); i += 2) {
         auto id    = to_number<size_t>(assets_parts[i]);
         auto alloc = parse_money(assets_parts[i + 1]);
-        asset.classes.emplace_back(id, alloc);
+        classes.emplace_back(id, alloc);
+    }
+
+    if (ticker == "EMPTY") {
+        ticker = "";
+    }
+
+    if (config_contains("random")) {
+        if (!(name == "DESIRED" && currency == "DESIRED")) {
+            name = budget::random_name(5);
+        }
     }
 }
 

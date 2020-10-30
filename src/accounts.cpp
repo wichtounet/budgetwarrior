@@ -405,23 +405,25 @@ budget::account budget::get_account(std::string name, budget::year year, budget:
     cpp_unreachable("The account does not exist");
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const account& account){
-    return stream << account.id  << ':' << account.guid << ':' << account.name << ':' << account.amount << ':' << to_string(account.since) << ':' << to_string(account.until);
+void budget::account::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << name;
+    writer << amount;
+    writer << since;
+    writer << until;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, account& account){
-    bool random = config_contains("random");
+void budget::account::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> name;
+    reader >> amount;
+    reader >> since;
+    reader >> until;
 
-    account.id = to_number<size_t>(parts[0]);
-    account.guid = parts[1];
-    account.name = parts[2];
-    account.since = from_string(parts[4]);
-    account.until = from_string(parts[5]);
-
-    if(random){
-        account.amount = budget::random_money(1000, 10000);
-    } else {
-        account.amount = parse_money(parts[3]);
+    if (config_contains("random")) {
+        amount = budget::random_money(1000, 10000);
     }
 }
 

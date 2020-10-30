@@ -14,6 +14,7 @@
 #include "accounts.hpp"
 #include "guid.hpp"
 #include "http.hpp"
+#include "data.hpp"
 
 using namespace budget;
 
@@ -127,8 +128,9 @@ void budget::list_wishes_api(const httplib::Request& req, httplib::Response& res
         std::stringstream ss;
 
         for (auto& wish : all_wishes()) {
-            ss << wish;
-            ss << std::endl;
+            data_writer writer;
+            wish.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());

@@ -8,6 +8,8 @@
 #pragma once
 
 #include <fstream>
+#include <string>
+#include <vector>
 
 #include "cpp_utils/assert.hpp"
 
@@ -19,6 +21,42 @@
 #include "budget_exception.hpp"
 
 namespace budget {
+
+struct date;
+struct money;
+
+struct data_reader {
+    void parse(const std::string& data);
+
+    data_reader& operator>>(bool& value);
+    data_reader& operator>>(size_t& value);
+    data_reader& operator>>(int64_t& value);
+    data_reader& operator>>(int32_t& value);
+    data_reader& operator>>(std::string& value);
+    data_reader& operator>>(budget::date& value);
+    data_reader& operator>>(budget::money& value);
+
+    bool more() const;
+
+private:
+    std::vector<std::string> parts;
+    size_t                   current = 0;
+};
+
+struct data_writer {
+    data_writer& operator<<(const bool& value);
+    data_writer& operator<<(const size_t& value);
+    data_writer& operator<<(const int64_t& value);
+    data_writer& operator<<(const int32_t& value);
+    data_writer& operator<<(const std::string& value);
+    data_writer& operator<<(const budget::date& value);
+    data_writer& operator<<(const budget::money& value);
+
+    std::string to_string() const;
+
+private:
+    std::vector<std::string> parts;
+};
 
 template<typename T>
 struct data_handler {
@@ -52,11 +90,12 @@ struct data_handler {
                 continue;
             }
 
-            auto parts = split(line, ':');
+            data_reader reader;
+            reader.parse(line);
 
             T entry;
 
-            f(parts, entry);
+            f(reader, entry);
 
             if (entry.id >= next_id) {
                 next_id = entry.id + 1;
@@ -102,7 +141,7 @@ struct data_handler {
     }
 
     void load(){
-        load([](std::vector<std::string>& parts, T& entry){ parts >> entry; });
+        load([](data_reader& reader, T& entry){ entry.load(reader); });
     }
 
     void save() {
@@ -282,7 +321,9 @@ private:
         file << next_id << std::endl;
 
         for (auto& entry : data_) {
-            file << entry << std::endl;
+            data_writer writer;
+            entry.save(writer);
+            file << writer.to_string() << std::endl;
         }
 
         changed = false;

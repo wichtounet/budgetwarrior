@@ -18,6 +18,9 @@
 
 namespace budget {
 
+struct data_reader;
+struct data_writer;
+
 struct fortune_module {
     void load();
     void unload();
@@ -37,10 +40,10 @@ struct fortune {
     money amount;
 
     std::map<std::string, std::string> get_params() const ;
-};
 
-std::ostream& operator<<(std::ostream& stream, const fortune& fortune);
-void operator>>(const std::vector<std::string>& parts, fortune& fortune);
+    void load(data_reader & reader);
+    void save(data_writer & writer);
+};
 
 budget::money current_fortune();
 

@@ -99,22 +99,23 @@ void budget::save_incomes(){
     incomes.save();
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const income& income){
-    return stream << income.id  << ':' << income.guid << ':' << income.amount << ':' << to_string(income.since) << ':' << to_string(income.until);
+void budget::income::save(data_writer& writer) {
+    writer << id;
+    writer << guid;
+    writer << amount;
+    writer << since;
+    writer << until;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, income& income){
-    bool random = config_contains("random");
+void budget::income::load(data_reader& reader) {
+    reader >> id;
+    reader >> guid;
+    reader >> amount;
+    reader >> since;
+    reader >> until;
 
-    income.id = to_number<size_t>(parts[0]);
-    income.guid = parts[1];
-    income.since = from_string(parts[3]);
-    income.until = from_string(parts[4]);
-
-    if(random){
-        income.amount = budget::random_money(1000, 10000);
-    } else {
-        income.amount = parse_money(parts[2]);
+    if (config_contains("random")) {
+        amount = budget::random_money(1000, 10000);
     }
 }
 

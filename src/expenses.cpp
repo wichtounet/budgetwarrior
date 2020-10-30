@@ -226,23 +226,25 @@ bool budget::edit_expense(const expense& expense){
     return expenses.indirect_edit(expense);
 }
 
-std::ostream& budget::operator<<(std::ostream& stream, const expense& expense){
-    return stream << expense.id  << ':' << expense.guid << ':' << expense.account << ':' << expense.name << ':' << expense.amount << ':' << to_string(expense.date);
+void budget::expense::save(data_writer & writer){
+    writer << id;
+    writer << guid;
+    writer << account;
+    writer << name;
+    writer << amount;
+    writer << date;
 }
 
-void budget::operator>>(const std::vector<std::string>& parts, expense& expense){
-    bool random = config_contains("random");
+void budget::expense::load(data_reader & reader){
+    reader >> id;
+    reader >> guid;
+    reader >> account;
+    reader >> name;
+    reader >> amount;
+    reader >> date;
 
-    expense.id      = to_number<size_t>(parts.at(0));
-    expense.guid    = parts.at(1);
-    expense.account = to_number<size_t>(parts.at(2));
-    expense.name    = parts.at(3);
-    expense.date    = from_string(parts.at(5));
-
-    if (random) {
-        expense.amount = budget::random_money(10, 1500);
-    } else {
-        expense.amount = parse_money(parts.at(4));
+    if (config_contains("random")) {
+        amount = budget::random_money(10, 1500);
     }
 }
 

@@ -13,6 +13,7 @@
 #include "expenses.hpp"
 #include "guid.hpp"
 #include "http.hpp"
+#include "data.hpp"
 
 using namespace budget;
 
@@ -115,8 +116,9 @@ void budget::list_expenses_api(const httplib::Request& req, httplib::Response& r
         std::stringstream ss;
 
         for (auto& expense : all_expenses()) {
-            ss << expense;
-            ss << std::endl;
+            data_writer writer;
+            expense.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());

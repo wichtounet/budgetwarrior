@@ -18,6 +18,9 @@
 
 namespace budget {
 
+struct data_reader;
+struct data_writer;
+
 struct recurring_module {
     void load();
     void unload();
@@ -41,10 +44,10 @@ struct recurring {
     std::string account;
 
     std::map<std::string, std::string> get_params() const ;
-};
 
-std::ostream& operator<<(std::ostream& stream, const recurring& recurring);
-void operator>>(const std::vector<std::string>& parts, recurring& recurring);
+    void load(data_reader & reader);
+    void save(data_writer & writer);
+};
 
 year first_year(const recurring& recurring);
 month first_month(const recurring& recurring, budget::year year);

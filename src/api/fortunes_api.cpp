@@ -14,6 +14,7 @@
 #include "accounts.hpp"
 #include "guid.hpp"
 #include "http.hpp"
+#include "data.hpp"
 
 using namespace budget;
 
@@ -112,8 +113,9 @@ void budget::list_fortunes_api(const httplib::Request& req, httplib::Response& r
         std::stringstream ss;
 
         for (auto& fortune : all_fortunes()) {
-            ss << fortune;
-            ss << std::endl;
+            data_writer writer;
+            fortune.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());

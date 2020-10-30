@@ -20,6 +20,8 @@
 namespace budget {
 
 struct data_cache;
+struct data_reader;
+struct data_writer;
 
 struct assets_module {
     void load();
@@ -40,6 +42,9 @@ struct asset_class {
     std::string name;
 
     std::map<std::string, std::string> get_params() const ;
+
+    void load(data_reader& reader);
+    void save(data_writer & writer);
 };
 
 budget::asset_class get_asset_class(size_t id);
@@ -64,6 +69,9 @@ struct asset {
     money cash;
 
     std::map<std::string, std::string> get_params() const ;
+
+    void load(data_reader& reader);
+    void save(data_writer & writer);
 
     money total_allocation() const {
         money total;
@@ -100,6 +108,9 @@ struct asset_value {
     bool liability;
 
     std::map<std::string, std::string> get_params() const ;
+
+    void load(data_reader& reader);
+    void save(data_writer & writer);
 };
 
 // Used to indicate purchase of shares
@@ -113,6 +124,9 @@ struct asset_share {
 
     std::map<std::string, std::string> get_params() const ;
 
+    void load(data_reader& reader);
+    void save(data_writer & writer);
+
     bool is_buy() const {
         return shares >= 0;
     }
@@ -121,18 +135,6 @@ struct asset_share {
         return shares < 0;
     }
 };
-
-std::ostream& operator<<(std::ostream& stream, const asset_class& c);
-void operator>>(const std::vector<std::string>& parts, asset_class& c);
-
-std::ostream& operator<<(std::ostream& stream, const asset& asset);
-void operator>>(const std::vector<std::string>& parts, asset& asset);
-
-std::ostream& operator<<(std::ostream& stream, const asset_value& asset);
-void operator>>(const std::vector<std::string>& parts, asset_value& asset);
-
-std::ostream& operator<<(std::ostream& stream, const asset_share& asset);
-void operator>>(const std::vector<std::string>& parts, asset_share& asset);
 
 void load_asset_classes();
 void save_asset_classes();

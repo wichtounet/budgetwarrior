@@ -13,6 +13,7 @@
 #include "accounts.hpp"
 #include "guid.hpp"
 #include "http.hpp"
+#include "data.hpp"
 
 using namespace budget;
 
@@ -113,8 +114,9 @@ void budget::list_accounts_api(const httplib::Request& req, httplib::Response& r
         std::stringstream ss;
 
         for (auto& account : all_accounts()) {
-            ss << account;
-            ss << std::endl;
+            data_writer writer;
+            account.save(writer);
+            ss << writer.to_string() << std::endl;
         }
 
         api_success_content(req, res, ss.str());
