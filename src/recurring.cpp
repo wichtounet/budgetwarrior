@@ -53,29 +53,14 @@ void budget::check_for_recurrings(){
     bool changed = false;
 
     for (auto& recurring : recurrings.data()) {
-        auto l_year  = last_year(recurring);
+        if (recurring.recurs == "monthly") {
+            auto l_year = last_year(recurring);
 
-        if (l_year == 1400) {
-            budget::date recurring_date(now.year(), now.month(), 1);
+            if (l_year == 1400) {
+                // If the recurring has never been created, we create it for
+                // the first at the time of today
 
-            budget::expense recurring_expense;
-            recurring_expense.guid    = generate_guid();
-            recurring_expense.date    = recurring_date;
-            recurring_expense.account = get_account(recurring.account, recurring_date.year(), recurring_date.month()).id;
-            recurring_expense.amount  = recurring.amount;
-            recurring_expense.name    = recurring.name;
-
-            add_expense(std::move(recurring_expense));
-
-            changed = true;
-        } else {
-            auto l_month = last_month(recurring, l_year);
-
-            budget::date recurring_date(l_year, l_month, 1);
-
-            while (!(recurring_date.year() == now.year() && recurring_date.month() == now.month())) {
-                // Get to the next month
-                recurring_date += budget::months(1);
+                budget::date recurring_date(now.year(), now.month(), 1);
 
                 budget::expense recurring_expense;
                 recurring_expense.guid    = generate_guid();
@@ -87,7 +72,32 @@ void budget::check_for_recurrings(){
                 add_expense(std::move(recurring_expense));
 
                 changed = true;
+            } else {
+                // If the recurring has already been triggered, we trigger again
+                // for each of the missing months
+
+                auto l_month = last_month(recurring, l_year);
+
+                budget::date recurring_date(l_year, l_month, 1);
+
+                while (!(recurring_date.year() == now.year() && recurring_date.month() == now.month())) {
+                    // Get to the next month
+                    recurring_date += budget::months(1);
+
+                    budget::expense recurring_expense;
+                    recurring_expense.guid    = generate_guid();
+                    recurring_expense.date    = recurring_date;
+                    recurring_expense.account = get_account(recurring.account, recurring_date.year(), recurring_date.month()).id;
+                    recurring_expense.amount  = recurring.amount;
+                    recurring_expense.name    = recurring.name;
+
+                    add_expense(std::move(recurring_expense));
+
+                    changed = true;
+                }
             }
+        } else {
+            cpp_unreachable("Invalid recurrence");
         }
     }
 
