@@ -36,6 +36,11 @@ void budget::add_recurrings_api(const httplib::Request& req, httplib::Response& 
         recurring.amount  = budget::parse_money(req.get_param_value("input_amount"));
         recurring.recurs  = req.get_param_value("input_recurs");
 
+        if (recurring.recurs != "monthly" && recurring.recurs != "weekly") {
+            api_error(req, res, "Invalid recurring frequency");
+            return;
+        }
+
         add_recurring(std::move(recurring));
 
         api_success(req, res, "Recurring " + to_string(recurring.id) + " has been created", to_string(recurring.id));
@@ -69,6 +74,11 @@ void budget::edit_recurrings_api(const httplib::Request& req, httplib::Response&
         recurring.name      = req.get_param_value("input_name");
         recurring.amount    = budget::parse_money(req.get_param_value("input_amount"));
         recurring.recurs    = req.get_param_value("input_recurs");
+
+        if (recurring.recurs != "monthly" && recurring.recurs != "weekly") {
+            api_error(req, res, "Invalid recurring frequency");
+            return;
+        }
 
         edit_recurring(recurring);
 
