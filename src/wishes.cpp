@@ -235,23 +235,6 @@ void budget::set_wishes_next_id(size_t next_id){
     wishes.next_id = next_id;
 }
 
-void budget::migrate_wishes_2_to_3(){
-    wishes.load([](data_reader& reader, wish& wish) {
-        reader >> wish.id;
-        reader >> wish.guid;
-        reader >> wish.name;
-        reader >> wish.amount;
-        reader >> wish.date;
-
-        wish.paid        = false;
-        wish.paid_amount = budget::money(0, 0);
-    });
-
-    set_wishes_changed();
-
-    wishes.save();
-}
-
 void budget::migrate_wishes_3_to_4(){
     wishes.load([](data_reader & reader, wish& wish) {
         reader >> wish.id;
