@@ -38,7 +38,6 @@ struct recurring {
     size_t id;
     std::string guid;
     std::string name;
-    size_t old_account;
     money amount;
     std::string recurs;
     std::string account;
@@ -59,8 +58,6 @@ void check_for_recurrings();
 
 void load_recurrings();
 void save_recurrings();
-
-void migrate_recurring_1_to_2();
 
 std::vector<recurring> all_recurrings();
 

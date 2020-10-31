@@ -32,13 +32,12 @@ static data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
 std::map<std::string, std::string> budget::recurring::get_params()  const {
     std::map<std::string, std::string> params;
 
-    params["input_id"]          = budget::to_string(id);
-    params["input_guid"]        = guid;
-    params["input_name"]        = name;
-    params["input_old_account"] = budget::to_string(old_account);
-    params["input_amount"]      = budget::to_string(amount);
-    params["input_recurs"]      = recurs;
-    params["input_account"]     = account;
+    params["input_id"]      = budget::to_string(id);
+    params["input_guid"]    = guid;
+    params["input_name"]    = name;
+    params["input_amount"]  = budget::to_string(amount);
+    params["input_recurs"]  = recurs;
+    params["input_account"] = account;
 
     return params;
 }
@@ -227,27 +226,6 @@ void budget::recurring::save(data_writer & writer) {
     writer << name;
     writer << amount;
     writer << recurs;
-}
-
-void budget::migrate_recurring_1_to_2() {
-    load_accounts();
-
-    recurrings.load([](data_reader & reader, recurring& recurring) {
-        reader >> recurring.id;
-        reader >> recurring.guid;
-        reader >> recurring.old_account;
-        reader >> recurring.name;
-        reader >> recurring.amount;
-        reader >> recurring.recurs;
-    });
-
-    for (auto& recurring : recurrings.unsafe_data()) {
-        recurring.account = get_account(recurring.old_account).name;
-    }
-
-    recurrings.set_changed();
-
-    recurrings.save();
 }
 
 void budget::recurring::load(data_reader & reader) {
