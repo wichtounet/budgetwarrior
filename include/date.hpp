@@ -167,6 +167,36 @@ struct date {
         return _day;
     }
 
+    // The number of days of this year until today
+    // January 1 is 1
+    size_t year_days() const {
+        size_t result = 0;
+
+        for (size_t m = 1; m < _month; ++m) {
+            result += days_month(_year, m);
+        }
+
+        result += _day;
+
+        return result;
+    }
+
+    // The current week number
+    size_t week() const {
+        return 1 + year_days() / 7;
+    }
+
+    date start_of_week() {
+        date r = *this;
+
+        auto w = r.week();
+        auto d = r.year_days();
+
+        r -= days(d - (w - 1) * 7);
+
+        return r;
+    }
+
     date_type day_of_the_week() const {
         static constexpr const date_type t[12] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
 
