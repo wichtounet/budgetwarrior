@@ -299,6 +299,13 @@ int main(int argc, const char* argv[]) {
             return 0;
         }
 
+        if (old_data_version < MIN_DATA_VERSION) {
+            std::cout << "Your database version is not supported anymore" << std::endl;
+            std::cout << "You can use an older version of budgetwarrior to migrate it" << std::endl;
+
+            return 0;
+        }
+
         if (old_data_version < DATA_VERSION) {
             std::cout << "Migrate database..." << std::endl;
 

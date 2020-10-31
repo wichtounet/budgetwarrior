@@ -12,7 +12,8 @@
 
 namespace budget {
 
-const size_t DATA_VERSION = 6;
+const size_t MIN_DATA_VERSION = 1;
+const size_t DATA_VERSION     = 6;
 
 std::string home_folder();
 std::string budget_folder();
