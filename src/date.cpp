@@ -31,14 +31,6 @@ budget::date budget::from_string(const std::string& str){
     return {y, m, d};
 }
 
-budget::date budget::from_iso_string(const std::string& str){
-    auto y = year(to_number<unsigned short>(str.substr(0, 4)));
-    auto m = month(to_number<unsigned short>(str.substr(4, 2)));
-    auto d = day(to_number<unsigned short>(str.substr(6, 2)));
-
-    return {y, m, d};
-}
-
 std::string budget::date_to_string(budget::date date){
     return std::to_string(date.year())
         + "-" + (date.month() < 10 ? "0" : "") + std::to_string(date.month())

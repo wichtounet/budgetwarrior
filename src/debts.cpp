@@ -168,27 +168,6 @@ void budget::debt::load(data_reader & reader){
     }
 }
 
-void budget::migrate_debts_3_to_4(){
-    debts.load([](data_reader & reader, debt& debt){
-        std::string temp_date;
-
-        reader >> debt.id;
-        reader >> debt.state;
-        reader >> debt.guid;
-        reader >> temp_date;
-        reader >> debt.direction;
-        reader >> debt.name;
-        reader >> debt.amount;
-        reader >> debt.title;
-
-        debt.creation_date = from_iso_string(temp_date);
-    });
-
-    debts.set_changed();
-
-    debts.save();
-}
-
 std::vector<debt> budget::all_debts(){
     return debts.data();
 }

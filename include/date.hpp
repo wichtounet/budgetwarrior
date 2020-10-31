@@ -419,7 +419,6 @@ struct date {
 date local_day();
 
 date from_string(const std::string& str);
-date from_iso_string(const std::string& str);
 
 std::string date_to_string(date date);
 
