@@ -48,12 +48,6 @@ struct recurring {
     void save(data_writer & writer);
 };
 
-year first_year(const recurring& recurring);
-month first_month(const recurring& recurring, budget::year year);
-
-year last_year(const recurring& recurring);
-month last_month(const recurring& recurring, budget::year year);
-
 void check_for_recurrings();
 
 void load_recurrings();
