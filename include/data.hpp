@@ -207,12 +207,12 @@ struct data_handler {
             } else {
                 entry.id = budget::to_number<size_t>(res.result);
 
-                data_.push_back(std::forward<T>(entry));
+                data_.emplace_back(std::forward<TT>(entry));
             }
         } else {
             entry.id = next_id++;
 
-            data_.push_back(std::forward<T>(entry));
+            data_.emplace_back(std::forward<TT>(entry));
 
             set_changed_internal();
         }
