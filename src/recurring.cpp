@@ -41,8 +41,8 @@ budget::date last_date(const budget::recurring& recurring) {
     return last;
 }
 
-bool recurring_triggered(const budget::recurring & recurring ) {
-    return last_date(recurring).year() != 1400;
+bool recurring_not_triggered(const budget::recurring & recurring ) {
+    return last_date(recurring).year() == 1400;
 }
 
 void add_recurring_expense(budget::date date, const recurring & recurring) {
@@ -84,8 +84,7 @@ void budget::check_for_recurrings(){
 
     for (auto& recurring : recurrings.data()) {
         if (recurring.recurs == "monthly") {
-
-            if (!recurring_triggered(recurring)) {
+            if (recurring_not_triggered(recurring)) {
                 // If the recurring has never been created, we create it for
                 // the first at the time of today
 
@@ -110,7 +109,7 @@ void budget::check_for_recurrings(){
                 }
             }
         } else if (recurring.recurs == "weekly") {
-            if (!recurring_triggered(recurring)) {
+            if (recurring_not_triggered(recurring)) {
                 // If the recurring has never been created, we create it for
                 // the first at the time of today
 
