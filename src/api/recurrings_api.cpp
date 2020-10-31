@@ -23,7 +23,7 @@ void budget::add_recurrings_api(const httplib::Request& req, httplib::Response& 
         return;
     }
 
-    if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+    if (!req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account") || !req.has_param("input_recurs")) {
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -34,7 +34,7 @@ void budget::add_recurrings_api(const httplib::Request& req, httplib::Response& 
         recurring.account = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
         recurring.name    = req.get_param_value("input_name");
         recurring.amount  = budget::parse_money(req.get_param_value("input_amount"));
-        recurring.recurs  = "monthly";
+        recurring.recurs  = req.get_param_value("input_recurs");
 
         add_recurring(std::move(recurring));
 
@@ -51,7 +51,7 @@ void budget::edit_recurrings_api(const httplib::Request& req, httplib::Response&
         return;
     }
 
-    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account")) {
+    if (!req.has_param("input_id") || !req.has_param("input_name") || !req.has_param("input_amount") || !req.has_param("input_account") || !req.has_param("input_recurs")) {
         api_error(req, res, "Invalid parameters");
         return;
     }
@@ -68,6 +68,7 @@ void budget::edit_recurrings_api(const httplib::Request& req, httplib::Response&
         recurring.account   = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
         recurring.name      = req.get_param_value("input_name");
         recurring.amount    = budget::parse_money(req.get_param_value("input_amount"));
+        recurring.recurs    = req.get_param_value("input_recurs");
 
         edit_recurring(recurring);
 

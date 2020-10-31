@@ -148,11 +148,11 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
         } else if (subcommand == "add") {
             recurring recurring;
             recurring.guid   = generate_guid();
-            recurring.recurs = "monthly";
 
             edit_string_complete(recurring.account, "Account", all_account_names(), not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
+            edit_string_complete(recurring.recurs, "Recurrence", {"monthly","weekly"}, not_empty_checker(), one_of_checker({"monthly","weekly"}));
 
             // Create the equivalent expense
 
@@ -195,6 +195,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
             edit_string_complete(recurring.account, "Account", all_account_names(), not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
+            edit_string_complete(recurring.recurs, "Recurrence", {"monthly","weekly"}, not_empty_checker(), one_of_checker({"monthly","weekly"}));
 
             // Update the corresponding expense
 

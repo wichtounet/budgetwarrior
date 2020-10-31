@@ -15,6 +15,35 @@
 
 using namespace budget;
 
+namespace {
+
+void add_frequencypicker(budget::writer& w, const std::string& default_value = "") {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_recurs">Recurrence</label>
+                <select class="form-control" id="input_recurs" name="input_recurs">
+    )=====";
+
+    if ("monthly" == default_value) {
+        w << "<option selected value=\"monthly\">Monthly</option>";
+    } else {
+        w << "<option value=\"monthly\">Monthly</option>";
+    }
+
+    if ("weekly" == default_value) {
+        w << "<option selected value=\"weekly\">Weekly</option>";
+    } else {
+        w << "<option value=\"weekly\">Weekly</option>";
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
+} // namespace
+
 void budget::recurrings_list_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
     if (!page_start(req, res, content_stream, "Recurrings List")) {
@@ -44,6 +73,7 @@ void budget::add_recurrings_page(const httplib::Request& req, httplib::Response&
     add_name_picker(w);
     add_amount_picker(w);
     add_account_picker(w, budget::local_day());
+    add_frequencypicker(w);
 
     form_end(w);
 
@@ -77,6 +107,7 @@ void budget::edit_recurrings_page(const httplib::Request& req, httplib::Response
             add_name_picker(w, recurring.name);
             add_amount_picker(w, budget::to_flat_string(recurring.amount));
             add_account_picker(w, budget::local_day(), budget::to_string(recurring.account));
+            add_frequencypicker(w, recurring.recurs);
 
             form_end(w);
         }
