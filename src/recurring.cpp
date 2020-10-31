@@ -109,6 +109,38 @@ void budget::check_for_recurrings(){
                     changed = true;
                 }
             }
+        } else if (recurring.recurs == "weekly") {
+            if (!recurring_triggered(recurring)) {
+                // If the recurring has never been created, we create it for
+                // the first at the time of today
+
+                if (now.week() == 53) {
+                    // We do not create recurring expenses in week 52 (53-1)
+                    add_recurring_expense((now - days(7)).start_of_week(), recurring);
+                } else {
+                    add_recurring_expense(now.start_of_week(), recurring);
+                }
+
+                changed = true;
+            } else {
+                auto last = last_date(recurring);
+
+                // Note: The start_of_week() is only necessary because the user
+                // could have created a matching expense in an arbitrary date
+                auto recurring_date = last.start_of_week() + budget::days(7);
+
+                while (recurring_date < now) {
+                    // We skip the last week of the year since it's incomplete
+                    if (recurring_date.week() < 53) {
+                        add_recurring_expense(recurring_date, recurring);
+
+                        changed = true;
+                    }
+
+                    // Advance by one week
+                    recurring_date += budget::days(7);
+                }
+            }
         } else {
             cpp_unreachable("Invalid recurrence");
         }
