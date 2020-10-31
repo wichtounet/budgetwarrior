@@ -55,6 +55,18 @@ budget::month last_month(const budget::recurring& recurring, budget::year year) 
     return month;
 }
 
+void add_recurring_expense(budget::date date, const recurring & recurring) {
+    budget::expense recurring_expense;
+
+    recurring_expense.guid    = generate_guid();
+    recurring_expense.date    = date;
+    recurring_expense.account = get_account(recurring.account, date.year(), date.month()).id;
+    recurring_expense.amount  = recurring.amount;
+    recurring_expense.name    = recurring.name;
+
+    add_expense(std::move(recurring_expense));
+}
+
 } //end of anonymous namespace
 
 std::map<std::string, std::string> budget::recurring::get_params()  const {
@@ -88,16 +100,7 @@ void budget::check_for_recurrings(){
                 // If the recurring has never been created, we create it for
                 // the first at the time of today
 
-                budget::date recurring_date(now.year(), now.month(), 1);
-
-                budget::expense recurring_expense;
-                recurring_expense.guid    = generate_guid();
-                recurring_expense.date    = recurring_date;
-                recurring_expense.account = get_account(recurring.account, recurring_date.year(), recurring_date.month()).id;
-                recurring_expense.amount  = recurring.amount;
-                recurring_expense.name    = recurring.name;
-
-                add_expense(std::move(recurring_expense));
+                add_recurring_expense({now.year(), now.month(), 1}, recurring);
 
                 changed = true;
             } else {
@@ -112,14 +115,7 @@ void budget::check_for_recurrings(){
                     // Get to the next month
                     recurring_date += budget::months(1);
 
-                    budget::expense recurring_expense;
-                    recurring_expense.guid    = generate_guid();
-                    recurring_expense.date    = recurring_date;
-                    recurring_expense.account = get_account(recurring.account, recurring_date.year(), recurring_date.month()).id;
-                    recurring_expense.amount  = recurring.amount;
-                    recurring_expense.name    = recurring.name;
-
-                    add_expense(std::move(recurring_expense));
+                    add_recurring_expense(recurring_date, recurring);
 
                     changed = true;
                 }
