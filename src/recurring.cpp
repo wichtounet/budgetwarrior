@@ -27,32 +27,22 @@ namespace {
 
 static data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
 
-budget::year last_year(const budget::recurring& recurring) {
-    budget::year year(1400);
+budget::date last_date(const budget::recurring& recurring) {
+    budget::date last(1400, 1, 1);
 
     for (auto& expense : all_expenses()) {
         if (expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account) {
-            if (year == 1400 || expense.date.year() > year) {
-                year = expense.date.year();
+            if (expense.date > last) {
+                last = expense.date;
             }
         }
     }
 
-    return year;
+    return last;
 }
 
-budget::month last_month(const budget::recurring& recurring, budget::year year) {
-    budget::month month(13);
-
-    for (auto& expense : all_expenses()) {
-        if (expense.date.year() == year && expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account) {
-            if (month == 13 || expense.date.month() > month) {
-                month = expense.date.month();
-            }
-        }
-    }
-
-    return month;
+bool recurring_triggered(const budget::recurring & recurring ) {
+    return last_date(recurring).year() != 1400;
 }
 
 void add_recurring_expense(budget::date date, const recurring & recurring) {
@@ -94,9 +84,8 @@ void budget::check_for_recurrings(){
 
     for (auto& recurring : recurrings.data()) {
         if (recurring.recurs == "monthly") {
-            auto l_year = last_year(recurring);
 
-            if (l_year == 1400) {
+            if (!recurring_triggered(recurring)) {
                 // If the recurring has never been created, we create it for
                 // the first at the time of today
 
@@ -104,12 +93,12 @@ void budget::check_for_recurrings(){
 
                 changed = true;
             } else {
+                auto last = last_date(recurring);
+
                 // If the recurring has already been triggered, we trigger again
                 // for each of the missing months
 
-                auto l_month = last_month(recurring, l_year);
-
-                budget::date recurring_date(l_year, l_month, 1);
+                budget::date recurring_date(last.year(), last.month(), 1);
 
                 while (!(recurring_date.year() == now.year() && recurring_date.month() == now.month())) {
                     // Get to the next month
