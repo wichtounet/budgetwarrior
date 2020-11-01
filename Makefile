@@ -18,14 +18,36 @@ LD_FLAGS += -luuid -lssl -lcrypto
 
 CXX_FLAGS += -Icpp-httplib
 
+# Add test includes
+CXX_FLAGS += -Idoctest -Itest/include
+
 $(eval $(call auto_folder_compile,src))
 $(eval $(call auto_folder_compile,src/pages))
 $(eval $(call auto_folder_compile,src/api))
 $(eval $(call auto_add_executable,budget))
 
+# Create the test executable
+$(eval $(call folder_compile,test/src))
+TEST_CPP_FILES=$(wildcard test/src/*.cpp) $(filter-out src/budget.cpp, $(AUTO_CXX_SRC_FILES))
+$(eval $(call add_executable,budget_test,$(TEST_CPP_FILES)))
+$(eval $(call add_executable_set,budget_test,budget_test))
+
 release_debug: release_debug_budget
 release: release_budget
 debug: debug_budget
+
+debug_test: debug_budget_test
+release_debug_test: release_debug_budget_test
+release_test: release_budget_test
+
+run_debug_test: debug_budget_test
+	./debug/bin/budget_test
+
+run_release_debug_test: release_debug_budget_test
+	./release_debug/bin/budget_test
+
+run_release_test: release_budget_test
+	./release/bin/budget_test
 
 all: release release_debug debug
 
