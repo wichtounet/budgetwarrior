@@ -136,11 +136,26 @@ TEST_CASE("date/is_leap") {
     FAST_CHECK_UNARY(!budget::date(2399, 1, 1).is_leap());
 }
 
+TEST_CASE("date/day_of_the_week") {
+    // A leap year
+    FAST_CHECK_EQ(budget::date(2000, 3, 3).day_of_the_week(), 5);
+    FAST_CHECK_EQ(budget::date(2000, 3, 4).day_of_the_week(), 6);
+    FAST_CHECK_EQ(budget::date(2000, 3, 5).day_of_the_week(), 7);
+    FAST_CHECK_EQ(budget::date(2000, 3, 6).day_of_the_week(), 1);
+
+    // A non-leap year
+    FAST_CHECK_EQ(budget::date(2019, 3, 3).day_of_the_week(), 7);
+    FAST_CHECK_EQ(budget::date(2019, 3, 4).day_of_the_week(), 1);
+    FAST_CHECK_EQ(budget::date(2019, 3, 5).day_of_the_week(), 2);
+    FAST_CHECK_EQ(budget::date(2019, 3, 6).day_of_the_week(), 3);
+    FAST_CHECK_EQ(budget::date(2019, 3, 7).day_of_the_week(), 4);
+}
+
 // TODO Test for leap years
 // TODO Test for start_of_week
 // TODO Test for start_of_month
+// TODO Test for end_of_month
 // TODO Test for week()
 // TODO Test for year_days()
-// TODO Test for day_of_the_week
 // TODO Test for comparisons
 // TODO Test for date differences
