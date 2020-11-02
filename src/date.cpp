@@ -5,10 +5,11 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <charconv>
+
 #include "cpp_utils/assert.hpp"
 
 #include "date.hpp"
-#include "budget_exception.hpp"
 #include "config.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
@@ -24,9 +25,29 @@ budget::date budget::local_day(){
 }
 
 budget::date budget::from_string(const std::string& str){
-    auto y = year(to_number<unsigned short>(str.substr(0, 4)));
-    auto m = month(to_number<unsigned short>(str.substr(5, 2)));
-    auto d = day(to_number<unsigned short>(str.substr(8, 2)));
+    if (str.size() != 10) {
+        throw date_exception("Invalid size for from_string");
+    }
+
+    auto y_str = str.substr(0, 4);
+    auto m_str = str.substr(5, 2);
+    auto d_str = str.substr(8, 2);
+
+    date_type y;
+    date_type m;
+    date_type d;
+
+    if (auto [p, ec] = std::from_chars(y_str.data(), y_str.data() + y_str.size(), y); ec != std::errc() || p != y_str.data() + y_str.size()) {
+        throw date_exception("Invalid year in from_string");
+    }
+
+    if (auto [p, ec] = std::from_chars(m_str.data(), m_str.data() + m_str.size(), m); ec != std::errc() || p != m_str.data() + m_str.size()) {
+        throw date_exception("Invalid month in from_string");
+    }
+
+    if (auto [p, ec] = std::from_chars(d_str.data(), d_str.data() + d_str.size(), d); ec != std::errc() || p != d_str.data() + d_str.size()) {
+        throw date_exception("Invalid day in from_string");
+    }
 
     return {y, m, d};
 }
