@@ -24,11 +24,12 @@ budget::date budget::local_day(){
         static_cast<date_type>(timeval->tm_mday)};
 }
 
-budget::date budget::from_string(const std::string& str){
+budget::date budget::from_string(std::string_view str){
     if (str.size() != 10) {
         throw date_exception("Invalid size for from_string");
     }
 
+    // Note: all these will be string views with zero memory-copies
     auto y_str = str.substr(0, 4);
     auto m_str = str.substr(5, 2);
     auto d_str = str.substr(8, 2);
