@@ -78,7 +78,51 @@ TEST_CASE("date/minus/years") {
     FAST_CHECK_EQ(a.day(), 6);
 }
 
-// TODO Test for plus
+TEST_CASE("date/plus/days") {
+    budget::date a(2010, 5, 6);
+    a += budget::days(1);
+
+    FAST_CHECK_EQ(a.year(), 2010);
+    FAST_CHECK_EQ(a.month(), 5);
+    FAST_CHECK_EQ(a.day(), 7);
+
+    a += budget::days(30);
+
+    FAST_CHECK_EQ(a.year(), 2010);
+    FAST_CHECK_EQ(a.month(), 6);
+    FAST_CHECK_EQ(a.day(), 6);
+}
+
+TEST_CASE("date/plus/month") {
+    budget::date a(2010, 5, 6);
+    a += budget::months(1);
+
+    FAST_CHECK_EQ(a.year(), 2010);
+    FAST_CHECK_EQ(a.month(), 6);
+    FAST_CHECK_EQ(a.day(), 6);
+
+    a += budget::months(10);
+
+    FAST_CHECK_EQ(a.year(), 2011);
+    FAST_CHECK_EQ(a.month(), 4);
+    FAST_CHECK_EQ(a.day(), 6);
+}
+
+TEST_CASE("date/plus/years") {
+    budget::date a(2010, 5, 6);
+    a += budget::years(1);
+
+    FAST_CHECK_EQ(a.year(), 2011);
+    FAST_CHECK_EQ(a.month(), 5);
+    FAST_CHECK_EQ(a.day(), 6);
+
+    a += budget::years(10);
+
+    FAST_CHECK_EQ(a.year(), 2021);
+    FAST_CHECK_EQ(a.month(), 5);
+    FAST_CHECK_EQ(a.day(), 6);
+}
+
 // TODO Test for leap years
 // TODO Test for start_of_week
 // TODO Test for start_of_month
