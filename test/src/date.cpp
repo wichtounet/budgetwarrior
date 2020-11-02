@@ -123,6 +123,19 @@ TEST_CASE("date/plus/years") {
     FAST_CHECK_EQ(a.day(), 6);
 }
 
+TEST_CASE("date/is_leap") {
+    FAST_CHECK_UNARY(budget::date(1804, 1, 1).is_leap());
+    FAST_CHECK_UNARY(budget::date(1944, 1, 1).is_leap());
+    FAST_CHECK_UNARY(budget::date(2000, 1, 1).is_leap());
+    FAST_CHECK_UNARY(budget::date(2212, 1, 1).is_leap());
+    FAST_CHECK_UNARY(budget::date(2400, 1, 1).is_leap());
+
+    FAST_CHECK_UNARY(!budget::date(1805, 1, 1).is_leap());
+    FAST_CHECK_UNARY(!budget::date(1943, 1, 1).is_leap());
+    FAST_CHECK_UNARY(!budget::date(2001, 1, 1).is_leap());
+    FAST_CHECK_UNARY(!budget::date(2399, 1, 1).is_leap());
+}
+
 // TODO Test for leap years
 // TODO Test for start_of_week
 // TODO Test for start_of_month
