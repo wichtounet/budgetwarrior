@@ -29,24 +29,19 @@ budget::date budget::from_string(std::string_view str){
         throw date_exception("Invalid size for from_string");
     }
 
-    // Note: all these will be string views with zero memory-copies
-    auto y_str = str.substr(0, 4);
-    auto m_str = str.substr(5, 2);
-    auto d_str = str.substr(8, 2);
-
     date_type y;
     date_type m;
     date_type d;
 
-    if (auto [p, ec] = std::from_chars(y_str.data(), y_str.data() + y_str.size(), y); ec != std::errc() || p != y_str.data() + y_str.size()) {
+    if (auto [p, ec] = std::from_chars(str.data(), str.data() + 4, y); ec != std::errc() || p != str.data() + 4) {
         throw date_exception("Invalid year in from_string");
     }
 
-    if (auto [p, ec] = std::from_chars(m_str.data(), m_str.data() + m_str.size(), m); ec != std::errc() || p != m_str.data() + m_str.size()) {
+    if (auto [p, ec] = std::from_chars(str.data() + 5, str.data() + 7, m); ec != std::errc() || p != str.data() + 7) {
         throw date_exception("Invalid month in from_string");
     }
 
-    if (auto [p, ec] = std::from_chars(d_str.data(), d_str.data() + d_str.size(), d); ec != std::errc() || p != d_str.data() + d_str.size()) {
+    if (auto [p, ec] = std::from_chars(str.data() + 8, str.data() + 10, d); ec != std::errc() || p != str.data() + 10) {
         throw date_exception("Invalid day in from_string");
     }
 
