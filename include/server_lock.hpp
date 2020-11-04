@@ -9,7 +9,7 @@
 
 #include <mutex>
 
-#include "server.hpp"
+#include "config.hpp"
 
 namespace budget {
 

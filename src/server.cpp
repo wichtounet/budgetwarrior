@@ -36,8 +36,6 @@ using namespace budget;
 
 namespace {
 
-bool server_running = false;
-
 httplib::Server * server_ptr = nullptr;
 volatile bool cron = true;
 
@@ -135,11 +133,6 @@ void start_cron_loop(){
 
 } //end of anonymous namespace
 
-void budget::set_server_running(){
-    // Indicates to the system that it's running in server mode
-    server_running = true;
-}
-
 void budget::server_module::load(){
     load_accounts();
     load_incomes();
@@ -171,8 +164,4 @@ void budget::server_module::handle(const std::vector<std::string>& args){
     }
 
     cron_thread.join();
-}
-
-bool budget::is_server_running(){
-    return server_running;
 }

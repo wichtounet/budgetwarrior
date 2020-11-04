@@ -31,6 +31,8 @@ typedef std::unordered_map<std::string, std::string> config_type;
 
 namespace {
 
+bool server_running = false;
+
 bool load_configuration(const std::string& path, config_type& configuration){
     if (file_exists(path)) {
         std::ifstream file(path);
@@ -296,4 +298,13 @@ bool budget::net_worth_over_fortune(){
 
     // TODO This can be a very expensive operation!
     return all_asset_values().size() && !all_fortunes().size();
+}
+
+void budget::set_server_running(){
+    // Indicates to the system that it's running in server mode
+    server_running = true;
+}
+
+bool budget::is_server_running(){
+    return server_running;
 }

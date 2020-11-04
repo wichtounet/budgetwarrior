@@ -78,4 +78,7 @@ bool is_debts_disabled();
  */
 bool net_worth_over_fortune();
 
+void set_server_running();
+bool is_server_running();
+
 } //end of namespace budget
