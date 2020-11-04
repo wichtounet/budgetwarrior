@@ -30,7 +30,7 @@ void budget::add_expenses_api(const httplib::Request& req, httplib::Response& re
     try {
         expense expense;
         expense.guid    = budget::generate_guid();
-        expense.date    = budget::from_string(req.get_param_value("input_date"));
+        expense.date    = budget::date_from_string(req.get_param_value("input_date"));
         expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
         expense.name    = req.get_param_value("input_name");
         expense.amount  = budget::parse_money(req.get_param_value("input_amount"));
@@ -64,7 +64,7 @@ void budget::edit_expenses_api(const httplib::Request& req, httplib::Response& r
 
     try {
         expense expense = expense_get(budget::to_number<size_t>(id));
-        expense.date    = budget::from_string(req.get_param_value("input_date"));
+        expense.date    = budget::date_from_string(req.get_param_value("input_date"));
         expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
         expense.name    = req.get_param_value("input_name");
         expense.amount  = budget::parse_money(req.get_param_value("input_amount"));

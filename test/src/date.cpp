@@ -22,9 +22,9 @@ TEST_CASE("date/to_string") {
     FAST_CHECK_EQ(budget::to_string(b), "2111-10-10"s);
 }
 
-TEST_CASE("date/from_string/1") {
-    auto as = budget::from_string("1988-04-09");
-    auto bs = budget::from_string("2111-10-10");
+TEST_CASE("date/date_from_string/1") {
+    auto as = budget::date_from_string("1988-04-09");
+    auto bs = budget::date_from_string("2111-10-10");
 
     budget::date a(1988, 4, 9);
     budget::date b(2111, 10, 10);
@@ -33,22 +33,22 @@ TEST_CASE("date/from_string/1") {
     FAST_CHECK_EQ(b, bs);
 }
 
-TEST_CASE("date/from_string/1") {
+TEST_CASE("date/date_from_string/1") {
     // Size must be 10 exactly
-    REQUIRE_THROWS_AS(budget::from_string("1988-4-9"), budget::date_exception);
-    REQUIRE_THROWS_AS(budget::from_string("1988-04-9"), budget::date_exception);
-    REQUIRE_THROWS_AS(budget::from_string("88-04-09"), budget::date_exception);
-    REQUIRE_THROWS_AS(budget::from_string("1988 -04-9"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("1988-4-9"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("1988-04-9"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("88-04-09"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("1988 -04-9"), budget::date_exception);
 }
 
-TEST_CASE("date/from_string/2") {
+TEST_CASE("date/date_from_string/2") {
     // Each of the parts must be exactly a number
-    REQUIRE_THROWS_AS(budget::from_string("abcd-4-9"), budget::date_exception);
-    REQUIRE_THROWS_AS(budget::from_string("1988-AB-9"), budget::date_exception);
-    REQUIRE_THROWS_AS(budget::from_string("88-04-9a"), budget::date_exception);
-    REQUIRE_THROWS_AS(budget::from_string("1988--4-9"), budget::date_exception);
-    REQUIRE_THROWS_AS(budget::from_string("19o8--4-9"), budget::date_exception);
-    REQUIRE_THROWS_AS(budget::from_string("198 -04-09"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("abcd-4-9"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("1988-AB-9"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("88-04-9a"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("1988--4-9"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("19o8--4-9"), budget::date_exception);
+    REQUIRE_THROWS_AS(budget::date_from_string("198 -04-09"), budget::date_exception);
 }
 
 TEST_CASE("date/minus/days") {

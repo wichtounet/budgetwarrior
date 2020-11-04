@@ -83,7 +83,7 @@ budget::data_reader& budget::data_reader::operator>>(std::string& value) {
 }
 
 budget::data_reader& budget::data_reader::operator>>(budget::date& value) {
-    value = budget::from_string(parts.at(current));
+    value = budget::date_from_string(parts.at(current));
     ++current;
     return *this;
 }

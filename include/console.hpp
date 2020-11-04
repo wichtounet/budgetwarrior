@@ -254,7 +254,7 @@ void edit_date(date& ref, const std::string& title, Checker... checkers){
                 }
 
                 if(!math) {
-                    ref = from_string(answer);
+                    ref = date_from_string(answer);
                 }
             }
 

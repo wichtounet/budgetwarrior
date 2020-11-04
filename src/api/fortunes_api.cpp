@@ -31,7 +31,7 @@ void budget::add_fortunes_api(const httplib::Request& req, httplib::Response& re
     try {
         fortune fortune;
         fortune.guid       = budget::generate_guid();
-        fortune.check_date = budget::from_string(req.get_param_value("input_date"));
+        fortune.check_date = budget::date_from_string(req.get_param_value("input_date"));
         fortune.amount     = budget::parse_money(req.get_param_value("input_amount"));
 
         add_fortune(std::move(fortune));
@@ -63,7 +63,7 @@ void budget::edit_fortunes_api(const httplib::Request& req, httplib::Response& r
 
     try {
         fortune fortune    = fortune_get(budget::to_number<size_t>(id));
-        fortune.check_date = budget::from_string(req.get_param_value("input_date"));
+        fortune.check_date = budget::date_from_string(req.get_param_value("input_date"));
         fortune.amount     = budget::parse_money(req.get_param_value("input_amount"));
 
         edit_fortune(fortune);

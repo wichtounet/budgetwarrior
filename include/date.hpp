@@ -452,7 +452,7 @@ struct date {
 
 date local_day();
 
-date from_string(std::string_view str);
+date date_from_string(std::string_view str);
 
 std::string date_to_string(date date);
 

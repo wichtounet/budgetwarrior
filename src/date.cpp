@@ -24,9 +24,9 @@ budget::date budget::local_day(){
         static_cast<date_type>(timeval->tm_mday)};
 }
 
-budget::date budget::from_string(std::string_view str){
+budget::date budget::date_from_string(std::string_view str){
     if (str.size() != 10) {
-        throw date_exception("Invalid size for from_string");
+        throw date_exception("Invalid size for date_from_string");
     }
 
     date_type y;
@@ -34,15 +34,15 @@ budget::date budget::from_string(std::string_view str){
     date_type d;
 
     if (auto [p, ec] = std::from_chars(str.data(), str.data() + 4, y); ec != std::errc() || p != str.data() + 4) {
-        throw date_exception("Invalid year in from_string");
+        throw date_exception("Invalid year in date_from_string");
     }
 
     if (auto [p, ec] = std::from_chars(str.data() + 5, str.data() + 7, m); ec != std::errc() || p != str.data() + 7) {
-        throw date_exception("Invalid month in from_string");
+        throw date_exception("Invalid month in date_from_string");
     }
 
     if (auto [p, ec] = std::from_chars(str.data() + 8, str.data() + 10, d); ec != std::errc() || p != str.data() + 10) {
-        throw date_exception("Invalid day in from_string");
+        throw date_exception("Invalid day in date_from_string");
     }
 
     return {y, m, d};

@@ -118,7 +118,7 @@ double get_share_price_v2(const std::string& quote, const budget::date& date, in
             std::string date_str(lines[i].begin() + 1, lines[i].begin() + 11);
             std::string value(lines[i+4].begin() + 13, lines[i+4].end() - 2);
 
-            share_price_cache_key key(budget::from_string(date_str), quote);
+            share_price_cache_key key(budget::date_from_string(date_str), quote);
             share_prices[key] = budget::to_number<float>(value);
         }
 
@@ -229,7 +229,7 @@ void budget::load_share_price_cache(){
 
         auto parts = split(line, ':');
 
-        share_price_cache_key key(budget::from_string(parts[0]), parts[1]);
+        share_price_cache_key key(budget::date_from_string(parts[0]), parts[1]);
         share_prices[key] = budget::to_number<double>(parts[2]);
     }
 
