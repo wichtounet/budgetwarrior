@@ -169,11 +169,44 @@ TEST_CASE("date/day_of_the_week") {
     FAST_CHECK_EQ(budget::date(2019, 3, 7).day_of_the_week(), 4);
 }
 
-// TODO Test for leap years
-// TODO Test for start_of_week
-// TODO Test for start_of_month
-// TODO Test for end_of_month
+TEST_CASE("date/start_of_week") {
+    FAST_CHECK_EQ(budget::date(2020, 11, 4).start_of_week(), budget::date(2020, 11, 3));
+    FAST_CHECK_EQ(budget::date(2020, 11, 5).start_of_week(), budget::date(2020, 11, 3));
+    FAST_CHECK_EQ(budget::date(2020, 11, 3).start_of_week(), budget::date(2020, 11, 3));
+    FAST_CHECK_EQ(budget::date(2020, 10, 1).start_of_week(), budget::date(2020, 9, 29));
+    FAST_CHECK_EQ(budget::date(2020, 10, 2).start_of_week(), budget::date(2020, 9, 29));
+}
+
+TEST_CASE("date/start_of_month") {
+    FAST_CHECK_EQ(budget::date(2020, 11, 4).start_of_month(), budget::date(2020, 11, 1));
+    FAST_CHECK_EQ(budget::date(2020, 11, 5).start_of_month(), budget::date(2020, 11, 1));
+    FAST_CHECK_EQ(budget::date(2020, 11, 30).start_of_month(), budget::date(2020, 11, 1));
+    FAST_CHECK_EQ(budget::date(2020, 10, 1).start_of_month(), budget::date(2020, 10, 1));
+    FAST_CHECK_EQ(budget::date(2020, 10, 2).start_of_month(), budget::date(2020, 10, 1));
+}
+
+TEST_CASE("date/end_of_month") {
+    FAST_CHECK_EQ(budget::date(2020, 11, 4).end_of_month(), budget::date(2020, 11, 30));
+    FAST_CHECK_EQ(budget::date(2020, 11, 5).end_of_month(), budget::date(2020, 11, 30));
+    FAST_CHECK_EQ(budget::date(2020, 11, 30).end_of_month(), budget::date(2020, 11, 30));
+    FAST_CHECK_EQ(budget::date(2020, 10, 1).end_of_month(), budget::date(2020, 10, 31));
+    FAST_CHECK_EQ(budget::date(2020, 10, 2).end_of_month(), budget::date(2020, 10, 31));
+}
+
+TEST_CASE("date/year_days") {
+    // Leap year
+    FAST_CHECK_EQ(budget::date(2020, 1, 1).year_days(), 1);
+    FAST_CHECK_EQ(budget::date(2020, 2, 29).year_days(), 60);
+    FAST_CHECK_EQ(budget::date(2020, 3, 3).year_days(), 63);
+    FAST_CHECK_EQ(budget::date(2020, 12, 31).year_days(), 366);
+
+    // Non-leap year
+    FAST_CHECK_EQ(budget::date(2019, 1, 1).year_days(), 1);
+    FAST_CHECK_EQ(budget::date(2019, 2, 28).year_days(), 59);
+    FAST_CHECK_EQ(budget::date(2019, 3, 3).year_days(), 62);
+    FAST_CHECK_EQ(budget::date(2019, 12, 31).year_days(), 365);
+}
+
 // TODO Test for week()
-// TODO Test for year_days()
 // TODO Test for comparisons
 // TODO Test for date differences
