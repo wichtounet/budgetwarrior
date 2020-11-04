@@ -49,9 +49,29 @@ budget::date budget::from_string(std::string_view str){
 }
 
 std::string budget::date_to_string(budget::date date){
-    return std::to_string(date.year())
-        + "-" + (date.month() < 10 ? "0" : "") + std::to_string(date.month())
-        + "-" + (date.day() < 10 ? "0" : "") + std::to_string(date.day());
+    std::string str(10, '0');
+
+    str[4] = '-';
+    str[7] = '-';
+
+    // Convert the year
+    if (auto [p, ec] = std::to_chars(str.data(), str.data() + 4, static_cast<date_type>(date.year())); ec != std::errc() || p != str.data() + 4) {
+        throw date_exception("Can't convert year to string");
+    }
+
+    // Convert the month
+    auto month_ptr = date.month() < 10 ? str.data() + 6 : str.data() + 5;
+    if (auto [p, ec] = std::to_chars(month_ptr, str.data() + 7, static_cast<date_type>(date.month())); ec != std::errc() || p != str.data() + 7) {
+        throw date_exception("Can't convert month to string");
+    }
+
+    // Convert the month
+    auto day_ptr = date.day() < 10 ? str.data() + 9 : str.data() + 8;
+    if (auto [p, ec] = std::to_chars(day_ptr, str.data() + 10, static_cast<date_type>(date.day())); ec != std::errc() || p != str.data() + 10) {
+        throw date_exception("Can't convert day to string");
+    }
+
+    return str;
 }
 
 unsigned short budget::start_month(budget::year year){
