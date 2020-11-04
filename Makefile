@@ -28,7 +28,7 @@ $(eval $(call auto_add_executable,budget))
 
 # Create the test executable
 $(eval $(call folder_compile,test/src))
-TEST_CPP_FILES=$(wildcard test/src/*.cpp) $(filter-out src/budget.cpp, $(AUTO_CXX_SRC_FILES))
+TEST_CPP_FILES=$(wildcard test/src/*.cpp) $(filter-out src/budget.cpp src/server.cpp src/api/%.cpp src/pages/%.cpp, $(AUTO_CXX_SRC_FILES))
 $(eval $(call add_executable,budget_test,$(TEST_CPP_FILES)))
 $(eval $(call add_executable_set,budget_test,budget_test))
 
