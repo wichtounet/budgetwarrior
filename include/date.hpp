@@ -137,7 +137,7 @@ struct date {
         }
 
         if(day == 0 || day > days_month(year, month)){
-            throw date_exception("Invalid day: " + std::to_string(month));
+            throw date_exception("Invalid day: " + std::to_string(day));
         }
     }
 
@@ -186,7 +186,7 @@ struct date {
         return 1 + year_days() / 7;
     }
 
-    date start_of_week() {
+    date start_of_week() const {
         date r = *this;
 
         auto w = r.week();
