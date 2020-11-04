@@ -227,7 +227,11 @@ struct date {
         return is_leap(_year);
     }
 
-    date end_of_month(){
+    date start_of_month() const {
+        return {_year, _month, 1};
+    }
+
+    date end_of_month() const {
         return {_year, _month, days_month(_year, _month)};
     }
 
