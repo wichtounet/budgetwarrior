@@ -126,7 +126,7 @@ budget::data_writer& budget::data_writer::operator<<(const std::string& value){
 }
 
 budget::data_writer& budget::data_writer::operator<<(const budget::date& value){
-    parts.emplace_back(budget::to_string(value));
+    parts.emplace_back(budget::date_to_string(value));
     return *this;
 }
 
