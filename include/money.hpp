@@ -226,12 +226,13 @@ struct money {
     }
 };
 
+// Official money parsing functions
+std::string money_to_string(const money& amount);
+money money_from_string(const std::string& money_string);
+
 std::ostream& operator<<(std::ostream& stream, const money& amount);
 
 std::string to_flat_string(const money& amount);
-std::string money_to_string(const money& amount);
-
-money parse_money(const std::string& money_string);
 
 money random_money(size_t min, size_t max);
 

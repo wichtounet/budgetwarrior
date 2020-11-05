@@ -36,7 +36,7 @@ void budget::add_debts_api(const httplib::Request& req, httplib::Response& res) 
         debt.direction     = req.get_param_value("input_direction") == "to";
         debt.name          = req.get_param_value("input_name");
         debt.title         = req.get_param_value("input_title");
-        debt.amount        = budget::parse_money(req.get_param_value("input_amount"));
+        debt.amount        = budget::money_from_string(req.get_param_value("input_amount"));
 
         add_debt(std::move(debt));
 
@@ -71,7 +71,7 @@ void budget::edit_debts_api(const httplib::Request& req, httplib::Response& res)
         debt.direction = req.get_param_value("input_direction") == "to";
         debt.name      = req.get_param_value("input_name");
         debt.title     = req.get_param_value("input_title");
-        debt.amount    = budget::parse_money(req.get_param_value("input_amount"));
+        debt.amount    = budget::money_from_string(req.get_param_value("input_amount"));
         debt.state     = req.get_param_value("input_paid") == "yes" ? 1 : 0;
 
         edit_debt(debt);

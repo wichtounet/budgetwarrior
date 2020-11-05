@@ -14,7 +14,7 @@
 
 using namespace budget;
 
-money budget::parse_money(const std::string& money_string){
+money budget::money_from_string(const std::string& money_string){
     size_t dot_pos = money_string.rfind(".");
 
     int dollars = 0;
@@ -38,6 +38,12 @@ money budget::parse_money(const std::string& money_string){
     return {dollars, cents};
 }
 
+std::string budget::money_to_string(const money& amount) {
+    std::stringstream stream;
+    stream << amount;
+    return stream.str();
+}
+
 std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
     if(amount.cents() < 10){
         if(amount.negative()){
@@ -52,12 +58,6 @@ std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
             return stream << amount.dollars() << "." << amount.cents();
         }
     }
-}
-
-std::string budget::money_to_string(const money& amount) {
-    std::stringstream stream;
-    stream << amount;
-    return stream.str();
 }
 
 std::string budget::to_flat_string(const money& amount){

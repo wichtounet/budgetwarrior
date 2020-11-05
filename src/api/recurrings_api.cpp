@@ -33,7 +33,7 @@ void budget::add_recurrings_api(const httplib::Request& req, httplib::Response& 
         recurring.guid    = budget::generate_guid();
         recurring.account = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
         recurring.name    = req.get_param_value("input_name");
-        recurring.amount  = budget::parse_money(req.get_param_value("input_amount"));
+        recurring.amount  = budget::money_from_string(req.get_param_value("input_amount"));
         recurring.recurs  = req.get_param_value("input_recurs");
 
         if (recurring.recurs != "monthly" && recurring.recurs != "weekly") {
@@ -72,7 +72,7 @@ void budget::edit_recurrings_api(const httplib::Request& req, httplib::Response&
         recurring recurring = recurring_get(budget::to_number<size_t>(id));
         recurring.account   = budget::get_account(budget::to_number<size_t>(req.get_param_value("input_account"))).name;
         recurring.name      = req.get_param_value("input_name");
-        recurring.amount    = budget::parse_money(req.get_param_value("input_amount"));
+        recurring.amount    = budget::money_from_string(req.get_param_value("input_amount"));
         recurring.recurs    = req.get_param_value("input_recurs");
 
         if (recurring.recurs != "monthly" && recurring.recurs != "weekly") {

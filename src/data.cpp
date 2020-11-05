@@ -123,7 +123,7 @@ budget::data_reader& budget::data_reader::operator>>(budget::date& value) {
 }
 
 budget::data_reader& budget::data_reader::operator>>(budget::money& value) {
-    value = budget::parse_money(parts.at(current));
+    value = budget::money_from_string(parts.at(current));
     ++current;
     return *this;
 }

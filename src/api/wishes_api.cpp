@@ -37,7 +37,7 @@ void budget::add_wishes_api(const httplib::Request& req, httplib::Response& res)
         wish.name        = req.get_param_value("input_name");
         wish.importance  = budget::to_number<int>(req.get_param_value("input_importance"));
         wish.urgency     = budget::to_number<int>(req.get_param_value("input_urgency"));
-        wish.amount      = budget::parse_money(req.get_param_value("input_amount"));
+        wish.amount      = budget::money_from_string(req.get_param_value("input_amount"));
 
         add_wish(std::move(wish));
 
@@ -74,11 +74,11 @@ void budget::edit_wishes_api(const httplib::Request& req, httplib::Response& res
         wish.name       = req.get_param_value("input_name");
         wish.importance = budget::to_number<int>(req.get_param_value("input_importance"));
         wish.urgency    = budget::to_number<int>(req.get_param_value("input_urgency"));
-        wish.amount     = budget::parse_money(req.get_param_value("input_amount"));
+        wish.amount     = budget::money_from_string(req.get_param_value("input_amount"));
         wish.paid       = paid;
 
         if (paid) {
-            wish.paid_amount = budget::parse_money(req.get_param_value("input_paid_amount"));
+            wish.paid_amount = budget::money_from_string(req.get_param_value("input_paid_amount"));
         }
 
         set_wishes_changed();

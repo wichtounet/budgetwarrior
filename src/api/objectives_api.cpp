@@ -34,7 +34,7 @@ void budget::add_objectives_api(const httplib::Request& req, httplib::Response& 
         objective.type   = req.get_param_value("input_type");
         objective.source = req.get_param_value("input_source");
         objective.op     = req.get_param_value("input_operator");
-        objective.amount = budget::parse_money(req.get_param_value("input_amount"));
+        objective.amount = budget::money_from_string(req.get_param_value("input_amount"));
         objective.date   = budget::local_day();
 
         add_objective(std::move(objective));
@@ -70,7 +70,7 @@ void budget::edit_objectives_api(const httplib::Request& req, httplib::Response&
         objective.type      = req.get_param_value("input_type");
         objective.source    = req.get_param_value("input_source");
         objective.op        = req.get_param_value("input_operator");
-        objective.amount    = budget::parse_money(req.get_param_value("input_amount"));
+        objective.amount    = budget::money_from_string(req.get_param_value("input_amount"));
 
         edit_objective(objective);
 

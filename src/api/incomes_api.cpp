@@ -28,7 +28,7 @@ void budget::add_incomes_api(const httplib::Request& req, httplib::Response& res
     }
 
     try {
-        auto amount = budget::parse_money(req.get_param_value("input_amount"));
+        auto amount = budget::money_from_string(req.get_param_value("input_amount"));
 
         auto income = budget::new_income(amount, false);
 
@@ -59,7 +59,7 @@ void budget::edit_incomes_api(const httplib::Request& req, httplib::Response& re
 
     try {
         income income = income_get(budget::to_number<size_t>(id));
-        income.amount = budget::parse_money(req.get_param_value("input_amount"));
+        income.amount = budget::money_from_string(req.get_param_value("input_amount"));
 
         set_incomes_changed();
 

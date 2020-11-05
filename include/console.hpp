@@ -208,7 +208,7 @@ void edit_money(budget::money& ref, const std::string& title, Checker... checker
         std::getline(std::cin, answer);
 
         if(!answer.empty()){
-            ref = parse_money(answer);
+            ref = money_from_string(answer);
         }
 
         checked = check(ref, checkers...);

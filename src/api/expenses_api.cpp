@@ -33,7 +33,7 @@ void budget::add_expenses_api(const httplib::Request& req, httplib::Response& re
         expense.date    = budget::date_from_string(req.get_param_value("input_date"));
         expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
         expense.name    = req.get_param_value("input_name");
-        expense.amount  = budget::parse_money(req.get_param_value("input_amount"));
+        expense.amount  = budget::money_from_string(req.get_param_value("input_amount"));
 
         add_expense(std::move(expense));
 
@@ -67,7 +67,7 @@ void budget::edit_expenses_api(const httplib::Request& req, httplib::Response& r
         expense.date    = budget::date_from_string(req.get_param_value("input_date"));
         expense.account = budget::to_number<size_t>(req.get_param_value("input_account"));
         expense.name    = req.get_param_value("input_name");
-        expense.amount  = budget::parse_money(req.get_param_value("input_amount"));
+        expense.amount  = budget::money_from_string(req.get_param_value("input_amount"));
 
         edit_expense(expense);
 
