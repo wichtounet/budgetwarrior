@@ -177,6 +177,22 @@ TEST_CASE("date/start_of_week") {
     FAST_CHECK_EQ(budget::date(2020, 10, 2).start_of_week(), budget::date(2020, 9, 29));
 }
 
+TEST_CASE("date/week") {
+    FAST_CHECK_EQ(budget::date(2020, 1, 1).week(), 1);
+    FAST_CHECK_EQ(budget::date(2020, 11, 4).week(), 45);
+    FAST_CHECK_EQ(budget::date(2020, 11, 5).week(), 45);
+    FAST_CHECK_EQ(budget::date(2020, 11, 3).week(), 45);
+    FAST_CHECK_EQ(budget::date(2020, 10, 1).week(), 40);
+    FAST_CHECK_EQ(budget::date(2020, 10, 2).week(), 40);
+
+    FAST_CHECK_EQ(budget::date(2019, 1, 1).week(), 1);
+    FAST_CHECK_EQ(budget::date(2019, 11, 4).week(), 45);
+    FAST_CHECK_EQ(budget::date(2019, 11, 5).week(), 45);
+    FAST_CHECK_EQ(budget::date(2019, 11, 3).week(), 44);
+    FAST_CHECK_EQ(budget::date(2019, 10, 1).week(), 40);
+    FAST_CHECK_EQ(budget::date(2019, 10, 2).week(), 40);
+}
+
 TEST_CASE("date/start_of_month") {
     FAST_CHECK_EQ(budget::date(2020, 11, 4).start_of_month(), budget::date(2020, 11, 1));
     FAST_CHECK_EQ(budget::date(2020, 11, 5).start_of_month(), budget::date(2020, 11, 1));
@@ -207,6 +223,69 @@ TEST_CASE("date/year_days") {
     FAST_CHECK_EQ(budget::date(2019, 12, 31).year_days(), 365);
 }
 
-// TODO Test for week()
-// TODO Test for comparisons
-// TODO Test for date differences
+TEST_CASE("date/compare") {
+    budget::date a1(2019, 12, 31);
+    budget::date a2(2019, 12, 31);
+    budget::date b(2020, 1, 1);
+    budget::date c(2020, 1, 2);
+
+    // operator==
+    FAST_CHECK_UNARY(a1 == a1);
+    FAST_CHECK_UNARY(a1 == a2);
+    FAST_CHECK_UNARY(!(a1 == b));
+    FAST_CHECK_UNARY(!(a1 == c));
+
+    // operator!=
+    FAST_CHECK_UNARY(!(a1 != a1));
+    FAST_CHECK_UNARY(!(a1 != a2));
+    FAST_CHECK_UNARY((a1 != b));
+    FAST_CHECK_UNARY((a1 != c));
+
+    // operator<=
+    FAST_CHECK_UNARY(a1 <= a1);
+    FAST_CHECK_UNARY(a1 <= a2);
+    FAST_CHECK_UNARY(a1 <= b);
+    FAST_CHECK_UNARY(a1 <= c);
+    FAST_CHECK_UNARY(b <= c);
+    FAST_CHECK_UNARY(!(c <= b));
+    FAST_CHECK_UNARY(!(b <= a1));
+
+    // operator<
+    FAST_CHECK_UNARY(!(a1 < a1));
+    FAST_CHECK_UNARY(!(a1 < a2));
+    FAST_CHECK_UNARY(a1 < b);
+    FAST_CHECK_UNARY(a1 < c);
+    FAST_CHECK_UNARY(b < c);
+    FAST_CHECK_UNARY(!(c < b));
+    FAST_CHECK_UNARY(!(b < a1));
+
+    // operator>=
+    FAST_CHECK_UNARY(a1 >= a1);
+    FAST_CHECK_UNARY(a1 >= a2);
+    FAST_CHECK_UNARY(!(a1 >= b));
+    FAST_CHECK_UNARY(!(a1 >= c));
+    FAST_CHECK_UNARY(!(b >= c));
+    FAST_CHECK_UNARY((c >= b));
+    FAST_CHECK_UNARY((b >= a1));
+
+    // operator>
+    FAST_CHECK_UNARY(!(a1 > a1));
+    FAST_CHECK_UNARY(!(a1 > a2));
+    FAST_CHECK_UNARY(!(a1 > b));
+    FAST_CHECK_UNARY(!(a1 > c));
+    FAST_CHECK_UNARY(!(b > c));
+    FAST_CHECK_UNARY((c > b));
+    FAST_CHECK_UNARY((b > a1));
+}
+
+TEST_CASE("date/diff") {
+    FAST_CHECK_EQ(budget::date(2020, 3, 3) - budget::date(2020, 3, 3), 0);
+    FAST_CHECK_EQ(budget::date(2020, 3, 4) - budget::date(2020, 3, 3), 1);
+    FAST_CHECK_EQ(budget::date(2020, 3, 3) - budget::date(2020, 3, 4), -1);
+    FAST_CHECK_EQ(budget::date(2020, 4, 4) - budget::date(2020, 3, 3), 32);
+    FAST_CHECK_EQ(budget::date(2021, 4, 4) - budget::date(2020, 3, 3), 397);
+    FAST_CHECK_EQ(budget::date(2031, 4, 4) - budget::date(2020, 3, 3), 4049);
+    FAST_CHECK_EQ(budget::date(2131, 5, 5) - budget::date(2020, 3, 3), 40604);
+    FAST_CHECK_EQ(budget::date(2231, 5, 5) - budget::date(2020, 3, 3), 77128);
+    FAST_CHECK_EQ(budget::date(2020, 3, 3) - budget::date(2231, 5, 5), -77128);
+}

@@ -429,7 +429,7 @@ struct date {
         return (*this == rhs) || (*this > rhs);
     }
 
-    date_type operator-(const date& rhs) const {
+    int64_t operator-(const date& rhs) const {
         if(*this == rhs){
             return 0;
         }
@@ -439,7 +439,7 @@ struct date {
         }
 
         auto x = *this;
-        size_t d = 0;
+        int64_t d = 0;
 
         while(x != rhs){
             x -= days(1);
