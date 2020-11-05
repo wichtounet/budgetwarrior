@@ -54,6 +54,12 @@ std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
     }
 }
 
+std::string budget::money_to_string(const money& amount) {
+    std::stringstream stream;
+    stream << amount;
+    return stream.str();
+}
+
 std::string budget::to_flat_string(const money& amount){
     std::stringstream stream;
     stream.imbue(std::locale("C"));

@@ -229,6 +229,7 @@ struct money {
 std::ostream& operator<<(std::ostream& stream, const money& amount);
 
 std::string to_flat_string(const money& amount);
+std::string money_to_string(const money& amount);
 
 money parse_money(const std::string& money_string);
 
