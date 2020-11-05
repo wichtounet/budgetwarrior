@@ -83,7 +83,7 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
         for (auto& [id, amount] : account_sum) {
             ss << "{";
             ss << "name: '" << get_account(id).name << "',";
-            ss << "y: " << budget::to_flat_string(amount);
+            ss << "y: " << budget::money_to_string(amount);
             ss << "},";
 
             total += amount;
@@ -136,7 +136,7 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
         for (auto& [name, amount] : sorted_expenses) {
             ss << "{";
             ss << "name: '" << name << "',";
-            ss << "y: " << budget::to_flat_string(amount);
+            ss << "y: " << budget::money_to_string(amount);
             ss << "},";
         }
 
@@ -187,7 +187,7 @@ void budget::month_breakdown_expenses_graph(budget::html_writer& w, const std::s
         for (auto& [name, amount] : sorted_expenses) {
             ss << "{";
             ss << "name: '" << name << "',";
-            ss << "y: " << budget::to_flat_string(amount);
+            ss << "y: " << budget::money_to_string(amount);
             ss << "},";
         }
 
@@ -298,7 +298,7 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
             serie.push_back(sum);
             dates.push_back(date);
 
-            ss << "[" << date <<  "," << budget::to_flat_string(sum) << "],";
+            ss << "[" << date <<  "," << budget::money_to_string(sum) << "],";
         }
     }
 
@@ -358,7 +358,7 @@ void budget::time_graph_expenses_page(const httplib::Request& req, httplib::Resp
                     serie.push_back(sum);
                     dates.push_back(date);
 
-                    ss << "[" << date << "," << budget::to_flat_string(sum) << "],";
+                    ss << "[" << date << "," << budget::money_to_string(sum) << "],";
                 }
             }
 
@@ -456,7 +456,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
         for (auto& [name, amount] : account_sum) {
             ss << "{";
             ss << "name: '" << name << "',";
-            ss << "y: " << budget::to_flat_string(amount);
+            ss << "y: " << budget::money_to_string(amount);
             ss << "},";
         }
 
@@ -491,7 +491,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
         for (auto& [name, amount] : sorted_expenses) {
             breakdown_ss << "{";
             breakdown_ss << "name: '" << name << "',";
-            breakdown_ss << "y: " << budget::to_flat_string(amount);
+            breakdown_ss << "y: " << budget::money_to_string(amount);
             breakdown_ss << "},";
         }
 
@@ -539,7 +539,7 @@ void budget::year_breakdown_expenses_page(const httplib::Request& req, httplib::
         for (auto& [name, amount] : sorted_expenses) {
             aggregate_ss << "{";
             aggregate_ss << "name: '" << name << "',";
-            aggregate_ss << "y: " << budget::to_flat_string(amount);
+            aggregate_ss << "y: " << budget::money_to_string(amount);
             aggregate_ss << "},";
         }
 
@@ -613,7 +613,7 @@ void budget::edit_expenses_page(const httplib::Request& req, httplib::Response& 
 
             add_date_picker(w, budget::to_string(expense.date));
             add_name_picker(w, expense.name);
-            add_amount_picker(w, budget::to_flat_string(expense.amount));
+            add_amount_picker(w, budget::money_to_string(expense.amount));
             add_account_picker(w, expense.date, budget::to_string(expense.account));
 
             form_end(w);

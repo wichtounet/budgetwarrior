@@ -73,7 +73,7 @@ void budget::edit_asset_values_page(const httplib::Request& req, httplib::Respon
         auto asset_value = get_asset_value(budget::to_number<size_t>(input_id));
 
         add_value_asset_picker(w, budget::to_string(asset_value.asset_id));
-        add_amount_picker(w, budget::to_flat_string(asset_value.amount));
+        add_amount_picker(w, budget::money_to_string(asset_value.amount));
         add_date_picker(w, budget::to_string(asset_value.set_date));
 
         form_end(w);
@@ -107,7 +107,7 @@ void budget::full_batch_asset_values_page(const httplib::Request& req, httplib::
         if (!asset.share_based) {
             budget::money amount = get_asset_value(asset, cache);
 
-            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, true, asset.currency);
+            add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::money_to_string(amount), true, true, asset.currency);
         }
     }
 
@@ -142,7 +142,7 @@ void budget::current_batch_asset_values_page(const httplib::Request& req, httpli
             budget::money amount = get_asset_value(asset, cache);
 
             if (amount) {
-                add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::to_flat_string(amount), true, true, asset.currency);
+                add_money_picker(w, asset.name, "input_amount_" + budget::to_string(asset.id), budget::money_to_string(amount), true, true, asset.currency);
             }
         }
     }

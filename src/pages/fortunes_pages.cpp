@@ -53,7 +53,7 @@ void budget::graph_fortunes_page(const httplib::Request& req, httplib::Response&
     for (auto& value : sorted_fortunes) {
         auto& date = value.check_date;
 
-        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(value.amount) << "],";
+        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::money_to_string(value.amount) << "],";
     }
 
     ss << "]},";
@@ -122,7 +122,7 @@ void budget::edit_fortunes_page(const httplib::Request& req, httplib::Response& 
         auto fortune = fortune_get(budget::to_number<size_t>(input_id));
 
         add_date_picker(w, budget::to_string(fortune.check_date));
-        add_amount_picker(w, budget::to_flat_string(fortune.amount));
+        add_amount_picker(w, budget::money_to_string(fortune.amount));
 
         form_end(w);
     }

@@ -968,7 +968,7 @@ void budget::add_average_12_serie(std::stringstream& ss,
             average = average / 12;
         }
 
-        ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
+        ss << "[" << dates[i] << "," << budget::money_to_string(average) << "],";
     }
 
     ss << "]},";
@@ -993,7 +993,7 @@ void budget::add_average_5_serie(std::stringstream& ss,
             average = average / 5;
         }
 
-        ss << "[" << dates[i] << "," << budget::to_flat_string(average) << "],";
+        ss << "[" << dates[i] << "," << budget::money_to_string(average) << "],";
     }
 
     ss << "]},";

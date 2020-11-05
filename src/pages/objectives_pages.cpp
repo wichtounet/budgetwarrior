@@ -268,7 +268,7 @@ void budget::edit_objectives_page(const httplib::Request& req, httplib::Response
         add_objective_type_picker(w, objective.type);
         add_objective_source_picker(w, objective.source);
         add_objective_operator_picker(w, objective.op);
-        add_amount_picker(w, budget::to_flat_string(objective.amount));
+        add_amount_picker(w, budget::money_to_string(objective.amount));
 
         form_end(w);
     }

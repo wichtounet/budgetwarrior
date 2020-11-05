@@ -57,14 +57,14 @@ void budget::month_breakdown_income_graph(budget::html_writer& w, const std::str
     if (total) {
         ss << "{";
         ss << "name: 'Salary',";
-        ss << "y: " << budget::to_flat_string(total);
+        ss << "y: " << budget::money_to_string(total);
         ss << "},";
     }
 
     for (auto& [id, amount] : account_sum) {
         ss << "{";
         ss << "name: '" << get_account(id).name << "',";
-        ss << "y: " << budget::to_flat_string(amount);
+        ss << "y: " << budget::money_to_string(amount);
         ss << "},";
 
         total += amount;
@@ -146,7 +146,7 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
                 serie.push_back(sum);
                 dates.push_back(date);
 
-                ss << "[" << date <<  "," << budget::to_flat_string(sum) << "],";
+                ss << "[" << date <<  "," << budget::money_to_string(sum) << "],";
             }
         }
 
@@ -203,7 +203,7 @@ void budget::time_graph_income_page(const httplib::Request& req, httplib::Respon
             serie.push_back(sum);
             dates.push_back(date);
 
-            ss << "[" << date <<  "," << budget::to_flat_string(sum) << "],";
+            ss << "[" << date <<  "," << budget::money_to_string(sum) << "],";
         }
 
         ss << "]},";
@@ -260,7 +260,7 @@ void budget::time_graph_earnings_page(const httplib::Request& req, httplib::Resp
                 sum += earning.amount;
             }
 
-            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << budget::to_flat_string(sum) << "],";
+            ss << "[Date.UTC(" << year << "," << month.value - 1 << ", 1) ," << budget::money_to_string(sum) << "],";
         }
     }
 
@@ -333,7 +333,7 @@ void budget::edit_earnings_page(const httplib::Request& req, httplib::Response& 
 
             add_date_picker(w, budget::to_string(earning.date));
             add_name_picker(w, earning.name);
-            add_amount_picker(w, budget::to_flat_string(earning.amount));
+            add_amount_picker(w, budget::money_to_string(earning.amount));
             add_account_picker(w, earning.date, budget::to_string(earning.account));
 
             form_end(w);

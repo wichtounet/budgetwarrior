@@ -116,7 +116,7 @@ void budget::edit_debts_page(const httplib::Request& req, httplib::Response& res
 
         add_direction_picker(w, debt.direction ? "to" : "from");
         add_name_picker(w, debt.name);
-        add_amount_picker(w, budget::to_flat_string(debt.amount));
+        add_amount_picker(w, budget::money_to_string(debt.amount));
         add_title_picker(w, debt.title);
         add_paid_picker(w, debt.state == 1);
 

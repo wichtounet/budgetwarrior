@@ -236,8 +236,6 @@ money money_from_string(const std::string& money_string);
 
 std::ostream& operator<<(std::ostream& stream, const money& amount);
 
-std::string to_flat_string(const money& amount);
-
 money random_money(size_t min, size_t max);
 
 std::string random_name(size_t length);

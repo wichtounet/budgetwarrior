@@ -69,27 +69,6 @@ std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
     return stream << money_to_string(amount);
 }
 
-std::string budget::to_flat_string(const money& amount){
-    std::stringstream stream;
-    stream.imbue(std::locale("C"));
-
-    if (amount.cents() < 10) {
-        if (amount.negative()) {
-            stream << '-' << (-1 * amount.dollars()) << ".0" << amount.cents();
-        } else {
-            stream << amount.dollars() << ".0" << amount.cents();
-        }
-    } else {
-        if (amount.negative()) {
-            stream << '-' << (-1 * amount.dollars()) << "." << amount.cents();
-        } else {
-            stream << amount.dollars() << "." << amount.cents();
-        }
-    }
-
-    return stream.str();
-}
-
 budget::money budget::random_money(size_t min, size_t max){
     static std::random_device rd;
     static std::mt19937_64 engine(rd());

@@ -305,7 +305,7 @@ void budget::asset_graph(budget::html_writer& w, const std::string style, const 
     while (date <= end_date) {
         auto sum = get_asset_value(asset, date, cache);
 
-        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::money_to_string(sum) << "],";
 
         date += days(1);
     }
@@ -378,7 +378,7 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
             sum -= get_liability_value_conv(asset, date);
         }
 
-        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::money_to_string(sum) << "],";
 
         date += days(1);
     }
@@ -475,7 +475,7 @@ void budget::net_worth_allocation_page(const httplib::Request& req, httplib::Res
                 sum += get_asset_value_conv(asset, date, cache) * (float(get_asset_class_allocation(asset, clas)) / 100.0f);
             }
 
-            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::money_to_string(sum) << "],";
 
             date += days(1);
         }
@@ -509,7 +509,7 @@ void budget::net_worth_allocation_page(const httplib::Request& req, httplib::Res
             sum += get_asset_value_conv(asset, cache) * (float(get_asset_class_allocation(asset, clas)) / 100.0f);
         }
 
-        ss2 << budget::to_flat_string(sum);
+        ss2 << budget::money_to_string(sum);
 
         ss2 << "},";
     }
@@ -560,7 +560,7 @@ void budget::portfolio_allocation_page(const httplib::Request& req, httplib::Res
                 }
             }
 
-            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::money_to_string(sum) << "],";
 
             date += days(1);
         }
@@ -596,7 +596,7 @@ void budget::portfolio_allocation_page(const httplib::Request& req, httplib::Res
             }
         }
 
-        ss2 << budget::to_flat_string(sum);
+        ss2 << budget::money_to_string(sum);
 
         ss2 << "},";
     }
@@ -659,7 +659,7 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
                 }
             }
 
-            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::money_to_string(sum) << "],";
 
             date += days(1);
         }
@@ -711,7 +711,7 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
             }
         }
 
-        ss2 << budget::to_flat_string(sum);
+        ss2 << budget::money_to_string(sum);
 
         ss2 << "},";
     }
@@ -784,7 +784,7 @@ void budget::portfolio_currency_page(const httplib::Request& req, httplib::Respo
                 }
             }
 
-            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+            ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::money_to_string(sum) << "],";
 
             date += days(1);
         }
@@ -820,7 +820,7 @@ void budget::portfolio_currency_page(const httplib::Request& req, httplib::Respo
             }
         }
 
-        ss2 << budget::to_flat_string(sum);
+        ss2 << budget::money_to_string(sum);
 
         ss2 << "},";
     }
@@ -871,7 +871,7 @@ void budget::portfolio_graph_page(const httplib::Request& req, httplib::Response
             }
         }
 
-        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::to_flat_string(sum) << "],";
+        ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::money_to_string(sum) << "],";
 
         date += days(1);
     }
@@ -974,7 +974,7 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
 
             ss << "{ name: '" << asset.name << "',";
             ss << "y: ";
-            ss << budget::to_flat_string(conv_amount);
+            ss << budget::money_to_string(conv_amount);
             ss << "},";
 
             sum += conv_amount;
@@ -1028,7 +1028,7 @@ void rebalance_page_base(const httplib::Request& req, httplib::Response& res, bo
         if (asset.portfolio && asset.portfolio_alloc) {
             ss2 << "{ name: '" << asset.name << "',";
             ss2 << "y: ";
-            ss2 << budget::to_flat_string(sum * (static_cast<float>(asset.portfolio_alloc) / 100.0f));
+            ss2 << budget::money_to_string(sum * (static_cast<float>(asset.portfolio_alloc) / 100.0f));
             ss2 << "},";
         }
     }

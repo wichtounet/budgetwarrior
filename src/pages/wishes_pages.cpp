@@ -168,9 +168,9 @@ void budget::edit_wishes_page(const httplib::Request& req, httplib::Response& re
         add_name_picker(w, wish.name);
         add_importance_picker(w, wish.importance);
         add_urgency_picker(w, wish.urgency);
-        add_amount_picker(w, budget::to_flat_string(wish.amount));
+        add_amount_picker(w, budget::money_to_string(wish.amount));
         add_paid_picker(w, wish.paid);
-        add_paid_amount_picker(w, budget::to_flat_string(wish.paid_amount));
+        add_paid_amount_picker(w, budget::money_to_string(wish.paid_amount));
 
         form_end(w);
     }

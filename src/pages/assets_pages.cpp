@@ -101,12 +101,12 @@ void budget::edit_assets_page(const httplib::Request& req, httplib::Response& re
             add_name_picker(w, asset.name);
 
             for (auto & clas : all_asset_classes()) {
-                add_money_picker(w, clas.name + " (%)", "input_class_" + to_string(clas.id), budget::to_flat_string(get_asset_class_allocation(asset, clas)));
+                add_money_picker(w, clas.name + " (%)", "input_class_" + to_string(clas.id), budget::money_to_string(get_asset_class_allocation(asset, clas)));
             }
 
             add_currency_picker(w, asset.currency);
             add_portfolio_picker(w, asset.portfolio);
-            add_money_picker(w, "Percent of portfolio (%)", "input_alloc", budget::to_flat_string(asset.portfolio_alloc));
+            add_money_picker(w, "Percent of portfolio (%)", "input_alloc", budget::money_to_string(asset.portfolio_alloc));
             add_share_based_picker(w, asset.share_based);
             add_text_picker(w, "Ticker", "input_ticker", asset.ticker);
 
