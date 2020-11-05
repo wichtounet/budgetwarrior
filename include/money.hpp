@@ -27,8 +27,12 @@ struct money {
         //Nothing to init
     }
 
-    money(long dollars, int cents) : value(dollars * SCALE + cents) {
-        //Nothing to init
+    money(long dollars, int cents) {
+        if (dollars < 0) {
+            value = -(-dollars * SCALE + cents);
+        } else {
+            value = dollars * SCALE + cents;
+        }
     }
 
     money& operator=(long dollars){
