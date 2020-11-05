@@ -7,6 +7,7 @@
 
 #include <stdexcept>
 #include <random>
+#include <charconv>
 
 #include "money.hpp"
 #include "utils.hpp"
@@ -39,25 +40,33 @@ money budget::money_from_string(const std::string& money_string){
 }
 
 std::string budget::money_to_string(const money& amount) {
-    std::stringstream stream;
-    stream << amount;
-    return stream.str();
+    std::array<char, 128> buffer;
+
+    auto p1 = buffer.begin();
+
+    if (amount.negative()){
+        *p1++ = '-';
+    }
+
+    if (auto [p2, ec] = std::to_chars(p1, buffer.end(), std::abs(amount.dollars())); ec == std::errc()) {
+        *p2++ = '.';
+
+        if (amount.cents() < 10){
+            *p2++ = '0';
+        }
+
+        if (auto [p3, ec] = std::to_chars(p2, buffer.end(), amount.cents()); ec == std::errc()) {
+            return {buffer.begin(), p3};
+        } else {
+            throw budget::budget_exception("money cant' be converted to string");
+        }
+    } else {
+        throw budget::budget_exception("money cant' be converted to string");
+    }
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
-    if(amount.cents() < 10){
-        if(amount.negative()){
-            return stream << '-' << (-1 * amount.dollars()) << ".0" << amount.cents();
-        } else {
-            return stream << amount.dollars() << ".0" << amount.cents();
-        }
-    } else {
-        if(amount.negative()){
-            return stream << '-' << (-1 * amount.dollars()) << "." << amount.cents();
-        } else {
-            return stream << amount.dollars() << "." << amount.cents();
-        }
-    }
+    return stream << money_to_string(amount);
 }
 
 std::string budget::to_flat_string(const money& amount){

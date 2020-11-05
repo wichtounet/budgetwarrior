@@ -25,6 +25,16 @@ TEST_CASE("money/to_string") {
 
     FAST_CHECK_EQ(budget::money_to_string(c), "123456.55"s);
     FAST_CHECK_EQ(budget::to_string(c), "123456.55"s);
+
+    budget::money d(0, 5);
+
+    FAST_CHECK_EQ(budget::money_to_string(d), "0.05"s);
+    FAST_CHECK_EQ(budget::to_string(d), "0.05"s);
+
+    budget::money e(-1, 5);
+
+    FAST_CHECK_EQ(budget::money_to_string(e), "-1.05"s);
+    FAST_CHECK_EQ(budget::to_string(e), "-1.05"s);
 }
 
 TEST_CASE("money/money_from_string/1") {
@@ -43,7 +53,6 @@ TEST_CASE("money/money_from_string/1") {
     FAST_CHECK_EQ(e, budget::money(100, 6));
     FAST_CHECK_EQ(f, budget::money(10000, 60));
 }
-
 
 // Test operator + -
 // Test operator *
