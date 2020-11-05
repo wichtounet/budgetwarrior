@@ -37,6 +37,7 @@ struct data_reader {
     data_reader& operator>>(budget::money& value);
 
     bool more() const;
+    void skip();
 
 private:
     std::vector<std::string> parts;

@@ -132,6 +132,12 @@ bool budget::data_reader::more() const {
     return current < parts.size();
 }
 
+void budget::data_reader::skip() {
+    if (more()) {
+        ++current;
+    }
+}
+
 // data_writer
 
 budget::data_writer& budget::data_writer::operator<<(const bool& value){
