@@ -141,23 +141,49 @@ void budget::data_reader::skip() {
 // data_writer
 
 budget::data_writer& budget::data_writer::operator<<(const bool& value){
-    parts.emplace_back(std::to_string(static_cast<size_t>(value)));
-    return *this;
+    size_t temp = value;
+
+    std::array<char, 64> buffer;
+
+    if (auto [p, ec] = std::to_chars(buffer.begin(), buffer.end(), temp); ec == std::errc()) {
+        parts.emplace_back(buffer.begin(), p);
+        return *this;
+    } else {
+        throw budget::budget_exception("\"" + std::to_string(temp) + "\" cant' be converted to string");
+    }
 }
 
 budget::data_writer& budget::data_writer::operator<<(const size_t& value){
-    parts.emplace_back(std::to_string(value));
-    return *this;
+    std::array<char, 64> buffer;
+
+    if (auto [p, ec] = std::to_chars(buffer.begin(), buffer.end(), value); ec == std::errc()) {
+        parts.emplace_back(buffer.begin(), p);
+        return *this;
+    } else {
+        throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
+    }
 }
 
 budget::data_writer& budget::data_writer::operator<<(const int64_t& value){
-    parts.emplace_back(std::to_string(value));
-    return *this;
+    std::array<char, 64> buffer;
+
+    if (auto [p, ec] = std::to_chars(buffer.begin(), buffer.end(), value); ec == std::errc()) {
+        parts.emplace_back(buffer.begin(), p);
+        return *this;
+    } else {
+        throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
+    }
 }
 
 budget::data_writer& budget::data_writer::operator<<(const int32_t& value){
-    parts.emplace_back(std::to_string(value));
-    return *this;
+    std::array<char, 64> buffer;
+
+    if (auto [p, ec] = std::to_chars(buffer.begin(), buffer.end(), value); ec == std::errc()) {
+        parts.emplace_back(buffer.begin(), p);
+        return *this;
+    } else {
+        throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
+    }
 }
 
 budget::data_writer& budget::data_writer::operator<<(const std::string& value){
