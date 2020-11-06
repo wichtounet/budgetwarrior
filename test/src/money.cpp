@@ -7,6 +7,7 @@
 
 #include "test.hpp"
 #include "money.hpp"
+#include "budget_exception.hpp"
 
 using namespace std::string_literals;
 
@@ -44,7 +45,8 @@ TEST_CASE("money/money_from_string/1") {
     auto d = budget::money_from_string("100.06");
     auto e = budget::money_from_string("100.6");
     auto f = budget::money_from_string("10000.60");
-    // TODO Add test with , once locale-independent
+    auto g = budget::money_from_string("10,000.60");
+    auto h = budget::money_from_string("1,100,000.60");
 
     FAST_CHECK_EQ(a, budget::money(100));
     FAST_CHECK_EQ(b, budget::money(100));
@@ -52,6 +54,16 @@ TEST_CASE("money/money_from_string/1") {
     FAST_CHECK_EQ(d, budget::money(100, 6));
     FAST_CHECK_EQ(e, budget::money(100, 6));
     FAST_CHECK_EQ(f, budget::money(10000, 60));
+    FAST_CHECK_EQ(g, budget::money(10000, 60));
+    FAST_CHECK_EQ(h, budget::money(1100000, 60));
+}
+
+TEST_CASE("money/money_from_string/2") {
+    REQUIRE_THROWS_AS(budget::money_from_string("100.100"), budget::budget_exception);
+    REQUIRE_THROWS_AS(budget::money_from_string("10.0.0"), budget::budget_exception);
+    REQUIRE_THROWS_AS(budget::money_from_string(".0"), budget::budget_exception);
+    REQUIRE_THROWS_AS(budget::money_from_string("100'000.0"), budget::budget_exception);
+    REQUIRE_THROWS_AS(budget::money_from_string("100.-100"), budget::budget_exception);
 }
 
 // Test operator + -

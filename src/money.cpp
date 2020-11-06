@@ -15,28 +15,32 @@
 
 using namespace budget;
 
-money budget::money_from_string(const std::string& money_string){
-    size_t dot_pos = money_string.rfind(".");
+money budget::money_from_string(std::string money_string){
+    // In order to read locale-dependent data (legacy), we need
+    // to allow , in the numbers
+    // TODO In the future, we can remove this code
+    money_string.erase(std::remove(money_string.begin(), money_string.end(), ','), money_string.end());
 
     int dollars = 0;
     int cents = 0;
 
-    try {
-        if(dot_pos == std::string::npos){
-            dollars = to_number<int>(money_string);
-        } else {
-            dollars = to_number<int>(money_string.substr(0, dot_pos));
+    if (auto [p, ec] = std::from_chars(money_string.data(), money_string.data() + money_string.size(), dollars); ec == std::errc()) {
+        if (p == money_string.data() + money_string.size()) {
+            return {dollars, cents};
+        } else if(*p == '.') {
+            ++p;
 
-            auto cents_str = money_string.substr(dot_pos+1, money_string.size() - dot_pos);
-            cents = to_number<int>(cents_str);
+            if (auto [p2, ec] = std::from_chars(p, money_string.data() + money_string.size(), cents); ec == std::errc()) {
+                if (p2 == money_string.data() + money_string.size()) {
+                    if (cents >= 0 && cents < 100) {
+                        return {dollars, cents};
+                    }
+                }
+            }
         }
-    } catch (std::invalid_argument& e){
-        throw budget::budget_exception("\"" + money_string + "\" is not a valid amount of money");
-    } catch (std::out_of_range& e){
-        throw budget::budget_exception("\"" + money_string + "\" is not a valid amount of money");
     }
 
-    return {dollars, cents};
+    throw budget::budget_exception("\"" + money_string + "\" is not a valid amount of money");
 }
 
 std::string budget::money_to_string(const money& amount) {

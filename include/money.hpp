@@ -232,7 +232,7 @@ struct money {
 
 // Official money parsing functions
 std::string money_to_string(const money& amount);
-money money_from_string(const std::string& money_string);
+money money_from_string(std::string money_string);
 
 std::ostream& operator<<(std::ostream& stream, const money& amount);
 
