@@ -7,6 +7,7 @@
 
 #include "test.hpp"
 #include "data.hpp"
+#include "date.hpp"
 
 using namespace std::string_literals;
 
@@ -74,4 +75,53 @@ TEST_CASE("data_reader/numbers/int32_t") {
     REQUIRE_THROWS_AS(reader >> e, budget::budget_exception);
     reader.skip();
     REQUIRE_THROWS_AS(reader >> f, budget::budget_exception);
+}
+
+TEST_CASE("data_reader/numbers/bool") {
+    budget::data_reader reader;
+    reader.parse("0:999:a:123456789:1:a:2020-10-10");
+
+    bool a, b, c, d;
+
+    reader >> a;
+    reader >> b;
+    reader.skip();
+    reader >> c;
+    reader >> d;
+
+    FAST_CHECK_UNARY(!a);
+    FAST_CHECK_UNARY(b);
+    FAST_CHECK_UNARY(c);
+    FAST_CHECK_UNARY(d);
+
+    REQUIRE_THROWS_AS(reader >> d, budget::budget_exception);
+    reader.skip();
+    REQUIRE_THROWS_AS(reader >> d, budget::budget_exception);
+}
+
+TEST_CASE("data_writer/date") {
+    budget::data_reader reader;
+    reader.parse("2020-01-01:2020-12-31:2020-12-01:2020-01-12:1999-03-03:a:2020-100-1");
+
+    budget::date a;
+    budget::date b;
+    budget::date c;
+    budget::date d;
+    budget::date e;
+
+    reader >> a;
+    reader >> b;
+    reader >> c;
+    reader >> d;
+    reader >> e;
+
+    FAST_CHECK_EQ(a, budget::date(2020, 1, 1));
+    FAST_CHECK_EQ(b, budget::date(2020, 12, 31));
+    FAST_CHECK_EQ(c, budget::date(2020, 12, 1));
+    FAST_CHECK_EQ(d, budget::date(2020, 1, 12));
+    FAST_CHECK_EQ(e, budget::date(1999, 3, 3));
+
+    REQUIRE_THROWS_AS(reader >> d, budget::date_exception);
+    reader.skip();
+    REQUIRE_THROWS_AS(reader >> d, budget::date_exception);
 }

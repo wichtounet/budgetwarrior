@@ -7,6 +7,7 @@
 
 #include "test.hpp"
 #include "data.hpp"
+#include "date.hpp"
 
 using namespace std::string_literals;
 
@@ -53,4 +54,35 @@ TEST_CASE("data_writer/numbers/int32_t") {
     reader << f;
 
     FAST_CHECK_EQ(reader.to_string(), "0:999:-999:123456789:1:-1"s);
+}
+
+TEST_CASE("data_writer/numbers/bool") {
+    budget::data_writer reader;
+
+    bool a = 0, b = 999, c = 123456789, d = 1;
+
+    reader << a;
+    reader << b;
+    reader << c;
+    reader << d;
+
+    FAST_CHECK_EQ(reader.to_string(), "0:1:1:1"s);
+}
+
+TEST_CASE("data_writer/date") {
+    budget::data_writer reader;
+
+    budget::date a(2020, 1, 1);
+    budget::date b(2020, 12, 31);
+    budget::date c(2020, 12, 1);
+    budget::date d(2020, 1, 12);
+    budget::date e(1999, 3, 3);
+
+    reader << a;
+    reader << b;
+    reader << c;
+    reader << d;
+    reader << e;
+
+    FAST_CHECK_EQ(reader.to_string(), "2020-01-01:2020-12-31:2020-12-01:2020-01-12:1999-03-03"s);
 }
