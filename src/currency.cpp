@@ -15,6 +15,7 @@
 #include "http.hpp"
 #include "date.hpp"
 #include "config.hpp"
+#include "server_lock.hpp"
 
 namespace {
 
@@ -35,6 +36,7 @@ struct currency_cache_key {
 };
 
 std::map<currency_cache_key, double> exchanges;
+budget::server_lock exchanges_lock;
 
 // V1 is using free.currencyconverterapi.com
 double get_rate_v1(const std::string& from, const std::string& to){
@@ -142,9 +144,13 @@ void budget::save_currency_cache() {
         return;
     }
 
-    for (auto & [key, value] : exchanges) {
-        if (value != 1.0) {
-            file << key.date << ':' << key.from << ':' << key.to << ':' << value << std::endl;
+    {
+        server_lock_guard l(exchanges_lock);
+
+        for (auto & [key, value] : exchanges) {
+            if (value != 1.0) {
+                file << key.date << ':' << key.from << ':' << key.to << ':' << value << std::endl;
+            }
         }
     }
 
@@ -155,8 +161,16 @@ void budget::save_currency_cache() {
 }
 
 void budget::refresh_currency_cache(){
+    std::map<currency_cache_key, double> copy;
+
+    {
+        server_lock_guard l(exchanges_lock);
+
+        copy = exchanges;
+    }
+
     // Refresh/Prefetch the current exchange rates
-    for (auto & pair : exchanges) {
+    for (auto & pair : copy) {
         auto& key = pair.first;
 
         exchange_rate(key.from, key.to);
@@ -189,6 +203,8 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
         auto date_str    = budget::date_to_string(d);
         currency_cache_key key(date_str, from, to);
         currency_cache_key reverse_key(date_str, to, from);
+
+        server_lock_guard l(exchanges_lock);
 
         if (!exchanges.count(key)) {
             auto rate = get_rate_v2(from, to, date_str);
