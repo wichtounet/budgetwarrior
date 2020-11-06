@@ -132,6 +132,10 @@ bool budget::data_reader::more() const {
     return current < parts.size();
 }
 
+std::string budget::data_reader::peek() const {
+    return parts.at(current);
+}
+
 void budget::data_reader::skip() {
     if (more()) {
         ++current;

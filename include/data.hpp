@@ -38,6 +38,7 @@ struct data_reader {
 
     bool more() const;
     void skip();
+    std::string peek() const;
 
 private:
     std::vector<std::string> parts;
