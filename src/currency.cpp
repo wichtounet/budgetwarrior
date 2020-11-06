@@ -204,20 +204,33 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
         currency_cache_key key(date_str, from, to);
         currency_cache_key reverse_key(date_str, to, from);
 
-        server_lock_guard l(exchanges_lock);
+        // Return directly if we already have the data in cache
+        {
+            server_lock_guard l(exchanges_lock);
 
-        if (!exchanges.count(key)) {
-            auto rate = get_rate_v2(from, to, date_str);
-
-            if (budget::is_server_running()) {
-                std::cout << "INFO: Currency: Rate (" << date_str << ")"
-                          << " from " << from << " to " << to << " = " << rate << std::endl;
+            if (exchanges.count(key)) {
+                return exchanges[key];
             }
+        }
+
+        // Otherwise, make the API call without the call
+
+        auto rate = get_rate_v2(from, to, date_str);
+
+        if (budget::is_server_running()) {
+            std::cout << "INFO: Currency: Rate (" << date_str << ")"
+                << " from " << from << " to " << to << " = " << rate << std::endl;
+        }
+
+        // Update the cache
+
+        {
+            server_lock_guard l(exchanges_lock);
 
             exchanges[key]         = rate;
             exchanges[reverse_key] = 1.0 / rate;
         }
 
-        return exchanges[key];
+        return rate;
     }
 }
