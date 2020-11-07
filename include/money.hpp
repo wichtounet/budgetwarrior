@@ -47,7 +47,7 @@ struct money {
 
     money operator+(const money& rhs) const {
         money new_money = *this;
-        new_money.value += rhs.value;
+        new_money += rhs;
         return new_money;
     }
 
@@ -58,7 +58,7 @@ struct money {
 
     money operator-(const money& rhs) const {
         money new_money = *this;
-        new_money.value -= rhs.value;
+        new_money-= rhs;
         return new_money;
     }
 
@@ -72,8 +72,7 @@ struct money {
     }
 
     money& operator+=(long rhs){
-        *this += money(rhs);
-        return *this;
+        return *this += money(rhs);
     }
 
     money operator-(long rhs) const {
@@ -81,8 +80,7 @@ struct money {
     }
 
     money& operator-=(long rhs){
-        *this -= money(rhs);
-        return *this;
+        return *this -= money(rhs);
     }
 
     money operator+(int rhs) const {
@@ -90,8 +88,7 @@ struct money {
     }
 
     money& operator+=(int rhs){
-        *this += money(rhs);
-        return *this;
+        return *this += money(rhs);
     }
 
     money operator-(int rhs) const {
@@ -99,13 +96,12 @@ struct money {
     }
 
     money& operator-=(int rhs){
-        *this -= money(rhs);
-        return *this;
+        return *this -= money(rhs);
     }
 
     money operator*(double factor) const {
         money new_money = *this;
-        new_money.value *= factor;
+        new_money *= factor;
         return new_money;
     }
 
@@ -116,7 +112,7 @@ struct money {
 
     money operator*(float factor) const {
         money new_money = *this;
-        new_money.value *= factor;
+        new_money *= factor;
         return new_money;
     }
 
@@ -127,7 +123,7 @@ struct money {
 
     money operator*(int factor) const {
         money new_money = *this;
-        new_money.value *= factor;
+        new_money *= factor;
         return new_money;
     }
 
@@ -138,13 +134,13 @@ struct money {
 
     money operator/(int factor) const {
         money new_money = *this;
-        new_money.value /= factor;
+        new_money /= factor;
         return new_money;
     }
 
     money operator/(long factor) const {
         money new_money = *this;
-        new_money.value /= factor;
+        new_money /= factor;
         return new_money;
     }
 
