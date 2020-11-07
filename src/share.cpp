@@ -21,6 +21,7 @@
 #include "data.hpp"
 #include "date.hpp"
 #include "money.hpp"
+#include "server_lock.hpp"
 
 namespace {
 
@@ -40,6 +41,7 @@ struct share_price_cache_key {
 };
 
 std::map<share_price_cache_key, budget::money> share_prices;
+budget::server_lock shares_lock;
 
 budget::date get_valid_date(budget::date d){
     // We cannot get closing price in the future, so we use the day before date
@@ -322,9 +324,13 @@ void budget::save_share_price_cache() {
         return;
     }
 
-    for (auto & [key, value] : share_prices) {
-        if (value != budget::money(1)) {
-            file << budget::date_to_string(key.date) << ':' << key.ticker << ':' << value << std::endl;
+    {
+        server_lock_guard l(shares_lock);
+
+        for (auto& [key, value] : share_prices) {
+            if (value != budget::money(1)) {
+                file << budget::date_to_string(key.date) << ':' << key.ticker << ':' << value << std::endl;
+            }
         }
     }
 
@@ -337,9 +343,13 @@ void budget::save_share_price_cache() {
 void budget::prefetch_share_price_cache(){
     std::set<std::string> tickers;
 
-    // Collect all the tickers
-    for (auto & [key, value] : share_prices) {
-        tickers.insert(key.ticker);
+    {
+        server_lock_guard l(shares_lock);
+
+        // Collect all the tickers
+        for (auto& [key, value] : share_prices) {
+            tickers.insert(key.ticker);
+        }
     }
 
     // Prefetch the current prices
@@ -362,51 +372,59 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
 
     share_price_cache_key key(date, ticker);
 
-    if (!share_prices.count(key)) {
-        // Note: We use a range in order to handle potential holidays
-        // where the stock market is closed
-        auto quotes = get_share_price_v3(ticker, d - budget::days(8), d);
+    {
+        server_lock_guard l(shares_lock);
 
-        // If the API did not find anything, it must mean that the ticker is
-        // invalid
-        if (quotes.empty()) {
-            if (budget::is_server_running()) {
-                std::cout << "INFO: Price: Could not find quotes for " << ticker << std::endl;
-            }
-
-            share_prices[key] = money(1);
-            return money(1);
+        if (share_prices.count(key)) {
+            return share_prices[key];
         }
+    }
 
-        for (auto [new_key, new_value] : quotes) {
-            share_prices[new_key] = new_value;
-        }
+    // Note: We use a range in order to handle potential holidays
+    // where the stock market is closed
+    auto quotes = get_share_price_v3(ticker, d - budget::days(8), d);
 
-        // If it has not been found, it may be a holiday, so we try to get
-        // back in time to find a proper value
-        if (!share_prices.count(key)) {
-            for (size_t i = 0; i < 4; ++i){
-                auto next_date = get_valid_date(date - budget::days(1));
+    server_lock_guard l(shares_lock);
 
-                if (budget::is_server_running()) {
-                    std::cout << "INFO: Price: Possible holiday, retrying on previous day" << std::endl;
-                    std::cout << "INFO: Date was " << date << " retrying with " << next_date << std::endl;
-                }
-
-                share_price_cache_key next_key(next_date, ticker);
-                if (share_prices.count(next_key)) {
-                    share_prices[key] = share_prices[next_key];
-                    break;
-                }
-            }
-        }
-
-        cpp_assert(share_prices.count(key), "Invalid state in share_price");
-
+    // If the API did not find anything, it must mean that the ticker is
+    // invalid
+    if (quotes.empty()) {
         if (budget::is_server_running()) {
-            std::cout << "INFO: Share: Price (" << date << ")"
-                      << " ticker " << ticker << " = " << share_prices[key] << std::endl;
+            std::cout << "INFO: Price: Could not find quotes for " << ticker << std::endl;
         }
+
+        share_prices[key] = money(1);
+        return money(1);
+    }
+
+    for (auto [new_key, new_value] : quotes) {
+        share_prices[new_key] = new_value;
+    }
+
+    // If it has not been found, it may be a holiday, so we try to get
+    // back in time to find a proper value
+    if (!share_prices.count(key)) {
+        for (size_t i = 0; i < 4; ++i){
+            auto next_date = get_valid_date(date - budget::days(1));
+
+            if (budget::is_server_running()) {
+                std::cout << "INFO: Price: Possible holiday, retrying on previous day" << std::endl;
+                std::cout << "INFO: Date was " << date << " retrying with " << next_date << std::endl;
+            }
+
+            share_price_cache_key next_key(next_date, ticker);
+            if (share_prices.count(next_key)) {
+                share_prices[key] = share_prices[next_key];
+                break;
+            }
+        }
+    }
+
+    cpp_assert(share_prices.count(key), "Invalid state in share_price");
+
+    if (budget::is_server_running()) {
+        std::cout << "INFO: Share: Price (" << date << ")"
+                  << " ticker " << ticker << " = " << share_prices[key] << std::endl;
     }
 
     return share_prices[key];
