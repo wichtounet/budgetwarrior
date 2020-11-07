@@ -320,23 +320,6 @@ void budget::save_share_price_cache() {
     }
 }
 
-void budget::refresh_share_price_cache(){
-    // Refresh the prices for each value
-    for (auto & [key, value] : share_prices) {
-        share_prices[key] = get_share_price_v2(key.ticker, key.date);
-    }
-
-    // Prefetch the current prices
-    for (auto & [key, value] : share_prices) {
-        share_price(key.ticker);
-    }
-
-    if (budget::is_server_running()) {
-        std::cout << "INFO: Share Price Cache has been refreshed" << std::endl;
-        std::cout << "INFO: Share Price Cache has " << share_prices.size() << " entries " << std::endl;
-    }
-}
-
 void budget::prefetch_share_price_cache(){
     std::set<std::string> tickers;
 

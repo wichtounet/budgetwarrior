@@ -16,7 +16,6 @@ struct date;
 double share_price(const std::string& quote);
 double share_price(const std::string& quote, budget::date d);
 
-void refresh_share_price_cache();
 void load_share_price_cache();
 void save_share_price_cache();
 void prefetch_share_price_cache();
