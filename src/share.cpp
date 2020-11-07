@@ -18,7 +18,9 @@
 #include "config.hpp"
 #include "server.hpp"
 #include "http.hpp"
+#include "data.hpp"
 #include "date.hpp"
+#include "money.hpp"
 
 namespace {
 
@@ -62,6 +64,64 @@ budget::date get_valid_date(budget::date d){
     }
 
     return d;
+}
+
+std::string exec_command(const std::string& command) {
+    std::stringstream output;
+
+    char buffer[1024];
+
+    FILE* stream = popen(command.c_str(), "r");
+
+    while (fgets(buffer, 1024, stream) != NULL) {
+        output << buffer;
+    }
+
+    pclose(stream);
+
+    return output.str();
+}
+
+// V3 is using Yahoo Finance
+// Starting from this version, the get_share_price function must be thread
+// safe. This means, it cannot touch the cache itself
+std::map<share_price_cache_key, double> get_share_price_v3(const std::string & ticker, budget::date start_date, budget::date end_date) {
+    std::string command = "yfinance_quote.py " + ticker + " " + date_to_string(start_date) + " " + date_to_string(end_date);
+
+    auto result = exec_command(command);
+
+    if (result.empty()) {
+        std::cout << "ERROR: Price(v3): yfinance_quote.py returned nothing" << std::endl;
+
+        return {};
+    }
+
+    std::map<share_price_cache_key, double> quotes;
+
+    std::stringstream ss(result);
+
+    try {
+        std::string line;
+        while (getline(ss, line)) {
+            budget::data_reader reader;
+            reader.parse(line);
+
+            budget::date  d;
+            budget::money m;
+
+            reader >> d;
+            reader >> m;
+
+            share_price_cache_key key(d, ticker);
+            quotes[key] = static_cast<double>(m);
+        }
+    } catch (const budget::date_exception& e) {
+        return {};
+    } catch (const budget::budget_exception& e) {
+        return {};
+    }
+
+    return quotes;
 }
 
 // V2 is using alpha_vantage
@@ -306,14 +366,50 @@ double budget::share_price(const std::string& ticker, budget::date d){
     share_price_cache_key key(date, ticker);
 
     if (!share_prices.count(key)) {
-        auto price = get_share_price_v2(ticker, date);
+        // Note: We use a range in order to handle potential holidays
+        // where the stock market is closed
+        auto quotes = get_share_price_v3(ticker, d - budget::days(8), d);
+
+        // If the API did not find anything, it must mean that the ticker is
+        // invalid
+        if (quotes.empty()) {
+            if (budget::is_server_running()) {
+                std::cout << "INFO: Price: Could not find quotes for " << ticker << std::endl;
+            }
+
+            share_prices[key] = 1.0;
+            return 1.0;
+        }
+
+        for (auto [new_key, new_value] : quotes) {
+            share_prices[new_key] = new_value;
+        }
+
+        // If it has not been found, it may be a holiday, so we try to get
+        // back in time to find a proper value
+        if (!share_prices.count(key)) {
+            for (size_t i = 0; i < 4; ++i){
+                auto next_date = get_valid_date(date - budget::days(1));
+
+                if (budget::is_server_running()) {
+                    std::cout << "INFO: Price: Possible holiday, retrying on previous day" << std::endl;
+                    std::cout << "INFO: Date was " << date << " retrying with " << next_date << std::endl;
+                }
+
+                share_price_cache_key next_key(next_date, ticker);
+                if (share_prices.count(next_key)) {
+                    share_prices[key] = share_prices[next_key];
+                    break;
+                }
+            }
+        }
+
+        cpp_assert(share_prices.count(key), "Invalid state in share_price");
 
         if (budget::is_server_running()) {
             std::cout << "INFO: Share: Price (" << date << ")"
-                      << " ticker " << ticker << " = " << price << std::endl;
+                      << " ticker " << ticker << " = " << share_prices[key] << std::endl;
         }
-
-        share_prices[key] = price;
     }
 
     return share_prices[key];
