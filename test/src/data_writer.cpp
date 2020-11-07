@@ -8,6 +8,7 @@
 #include "test.hpp"
 #include "data.hpp"
 #include "date.hpp"
+#include "money.hpp"
 
 using namespace std::string_literals;
 
@@ -85,4 +86,22 @@ TEST_CASE("data_writer/date") {
     reader << e;
 
     FAST_CHECK_EQ(reader.to_string(), "2020-01-01:2020-12-31:2020-12-01:2020-01-12:1999-03-03"s);
+}
+
+TEST_CASE("data_writer/money") {
+    budget::data_writer reader;
+
+    budget::money a(0);
+    budget::money b(0, 5);
+    budget::money c(100, 50);
+    budget::money d(-100, 0);
+    budget::money e(1,1);
+
+    reader << a;
+    reader << b;
+    reader << c;
+    reader << d;
+    reader << e;
+
+    FAST_CHECK_EQ(reader.to_string(), "0.00:0.05:100.50:-100.00:1.01"s);
 }

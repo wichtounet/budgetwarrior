@@ -8,6 +8,7 @@
 #include "test.hpp"
 #include "data.hpp"
 #include "date.hpp"
+#include "money.hpp"
 
 using namespace std::string_literals;
 
@@ -99,7 +100,7 @@ TEST_CASE("data_reader/numbers/bool") {
     REQUIRE_THROWS_AS(reader >> d, budget::budget_exception);
 }
 
-TEST_CASE("data_writer/date") {
+TEST_CASE("data_reader/date") {
     budget::data_reader reader;
     reader.parse("2020-01-01:2020-12-31:2020-12-01:2020-01-12:1999-03-03:a:2020-100-1");
 
@@ -124,4 +125,31 @@ TEST_CASE("data_writer/date") {
     REQUIRE_THROWS_AS(reader >> d, budget::date_exception);
     reader.skip();
     REQUIRE_THROWS_AS(reader >> d, budget::date_exception);
+}
+
+TEST_CASE("data_reader/money") {
+    budget::data_reader reader;
+    reader.parse("100:200.50:0.4:-100.40:-100:a:100.287");
+
+    budget::money a;
+    budget::money b;
+    budget::money c;
+    budget::money d;
+    budget::money e;
+
+    reader >> a;
+    reader >> b;
+    reader >> c;
+    reader >> d;
+    reader >> e;
+
+    FAST_CHECK_EQ(a, budget::money(100, 0));
+    FAST_CHECK_EQ(b, budget::money(200, 50));
+    FAST_CHECK_EQ(c, budget::money(0, 4));
+    FAST_CHECK_EQ(d, budget::money(-100, 40));
+    FAST_CHECK_EQ(e, budget::money(-100, 0));
+
+    REQUIRE_THROWS_AS(reader >> d, budget::budget_exception);
+    reader.skip();
+    REQUIRE_THROWS_AS(reader >> d, budget::budget_exception);
 }
