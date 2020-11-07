@@ -66,9 +66,106 @@ TEST_CASE("money/money_from_string/2") {
     REQUIRE_THROWS_AS(budget::money_from_string("100.-100"), budget::budget_exception);
 }
 
-// Test operator + -
-// Test operator *
-// Test operator /
+TEST_CASE("money/abs/1") {
+    budget::money a(1, 11);
+    budget::money b(-1, 11);
+    budget::money c(-1000, 0);
+
+    FAST_CHECK_EQ(a.abs(), budget::money(1, 11));
+    FAST_CHECK_EQ(b.abs(), budget::money(1, 11));
+    FAST_CHECK_EQ(c.abs(), budget::money(1000, 0));
+}
+
+TEST_CASE("money/plus/1") {
+    budget::money a(100, 10);
+
+    a += budget::money(99, 50);
+    FAST_CHECK_EQ(a, budget::money(199, 60));
+
+    a += 111;
+    FAST_CHECK_EQ(a, budget::money(310, 60));
+
+    FAST_CHECK_EQ(a + budget::money(25, 65), budget::money(336, 25));
+    FAST_CHECK_EQ(a + 25, budget::money(335, 60));
+
+    a += budget::money(-400, 50);
+    FAST_CHECK_EQ(a, budget::money(-89, 90));
+}
+
+TEST_CASE("money/minus/1") {
+    budget::money a(100, 10);
+
+    a -= budget::money(39, 50);
+    FAST_CHECK_EQ(a, budget::money(60, 60));
+
+    a -= 100;
+    FAST_CHECK_EQ(a, budget::money(-39, 40));
+
+    FAST_CHECK_EQ(a - budget::money(25, 65), budget::money(-65, 5));
+    FAST_CHECK_EQ(a - 25, budget::money(-64, 40));
+
+    FAST_CHECK_EQ(a - budget::money(-10, 10), budget::money(-29, 30));
+    FAST_CHECK_EQ(a - -10, budget::money(-29, 40));
+}
+
+TEST_CASE("money/factor/1") {
+    budget::money a(100, 10);
+
+    a *= 2;
+    FAST_CHECK_EQ(a, budget::money(200, 20));
+
+    a *= 1.2;
+    FAST_CHECK_EQ(a, budget::money(240, 24));
+
+    a *= -1;
+    FAST_CHECK_EQ(a, budget::money(-240, 24));
+}
+
+TEST_CASE("money/factor/2") {
+    budget::money a(100, 10);
+
+    a /= 2;
+    FAST_CHECK_EQ(a, budget::money(50, 5));
+
+    a /= -1;
+    FAST_CHECK_EQ(a, budget::money(-50, 5));
+}
+
+TEST_CASE("money/conversions/bool/1") {
+    budget::money a(100, 10);
+    budget::money b(-100, 10);
+    budget::money c(0, 10);
+    budget::money d(0, 0);
+
+    FAST_CHECK_UNARY(static_cast<bool>(a));
+    FAST_CHECK_UNARY(static_cast<bool>(b));
+    FAST_CHECK_UNARY(static_cast<bool>(c));
+    FAST_CHECK_UNARY(!static_cast<bool>(d));
+}
+
+TEST_CASE("money/conversions/float/1") {
+    budget::money a(100, 10);
+    budget::money b(-100, 10);
+    budget::money c(0, 10);
+    budget::money d(0, 0);
+
+    FAST_CHECK_EQ(static_cast<float>(a), 100.10f);
+    FAST_CHECK_EQ(static_cast<float>(b), -100.10f);
+    FAST_CHECK_EQ(static_cast<float>(c), 0.10f);
+    FAST_CHECK_EQ(static_cast<float>(d), 0.0f);
+}
+
+TEST_CASE("money/conversions/double/1") {
+    budget::money a(100, 10);
+    budget::money b(-100, 10);
+    budget::money c(0, 10);
+    budget::money d(0, 0);
+
+    FAST_CHECK_EQ(static_cast<double>(a), 100.10);
+    FAST_CHECK_EQ(static_cast<double>(b), -100.10);
+    FAST_CHECK_EQ(static_cast<double>(c), 0.10);
+    FAST_CHECK_EQ(static_cast<double>(d), 0.0);
+}
+
 // Test comparisons
-// Test conversions
-// Test abs
+// Test differences
