@@ -32,6 +32,7 @@ struct data_reader {
     data_reader& operator>>(size_t& value);
     data_reader& operator>>(int64_t& value);
     data_reader& operator>>(int32_t& value);
+    data_reader& operator>>(double& value);
     data_reader& operator>>(std::string& value);
     data_reader& operator>>(budget::date& value);
     data_reader& operator>>(budget::money& value);

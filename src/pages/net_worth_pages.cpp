@@ -211,7 +211,7 @@ void budget::asset_graph_page(const httplib::Request& req, httplib::Response& re
         budget::money average_buy_price;
         budget::money average_sell_price;
 
-        auto current_price = budget::money(1) * share_price(asset.ticker);
+        auto current_price = share_price(asset.ticker);
         date first_date    = local_day();
         bool first_date_set = false;
 

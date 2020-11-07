@@ -39,7 +39,7 @@ struct share_price_cache_key {
     }
 };
 
-std::map<share_price_cache_key, double> share_prices;
+std::map<share_price_cache_key, budget::money> share_prices;
 
 budget::date get_valid_date(budget::date d){
     // We cannot get closing price in the future, so we use the day before date
@@ -85,7 +85,7 @@ std::string exec_command(const std::string& command) {
 // V3 is using Yahoo Finance
 // Starting from this version, the get_share_price function must be thread
 // safe. This means, it cannot touch the cache itself
-std::map<share_price_cache_key, double> get_share_price_v3(const std::string & ticker, budget::date start_date, budget::date end_date) {
+std::map<share_price_cache_key, budget::money> get_share_price_v3(const std::string & ticker, budget::date start_date, budget::date end_date) {
     std::string command = "yfinance_quote.py " + ticker + " " + date_to_string(start_date) + " " + date_to_string(end_date);
 
     auto result = exec_command(command);
@@ -96,7 +96,7 @@ std::map<share_price_cache_key, double> get_share_price_v3(const std::string & t
         return {};
     }
 
-    std::map<share_price_cache_key, double> quotes;
+    std::map<share_price_cache_key, budget::money> quotes;
 
     std::stringstream ss(result);
 
@@ -113,7 +113,7 @@ std::map<share_price_cache_key, double> get_share_price_v3(const std::string & t
             reader >> m;
 
             share_price_cache_key key(d, ticker);
-            quotes[key] = static_cast<double>(m);
+            quotes[key] = m;
         }
     } catch (const budget::date_exception& e) {
         return {};
@@ -125,11 +125,11 @@ std::map<share_price_cache_key, double> get_share_price_v3(const std::string & t
 }
 
 // V2 is using alpha_vantage
-double get_share_price_v2(const std::string& quote, const budget::date& date, int /*depth*/ = 0) {
+budget::money get_share_price_v2(const std::string& quote, const budget::date& date, int /*depth*/ = 0) {
     if (!budget::config_contains("alpha_vantage_api_key")) {
         std::cout << "ERROR: Price(v2): Need Alpha Vantage API KEY configured to work" << std::endl;
 
-        return  1.0;
+        return budget::money{1};
     }
 
     auto api_key = budget::config_value("alpha_vantage_api_key");
@@ -147,13 +147,13 @@ double get_share_price_v2(const std::string& quote, const budget::date& date, in
         std::cout << "ERROR: Price(v2): No response" << std::endl;
         std::cout << "ERROR: Price(v2): URL is " << api_complete << std::endl;
 
-        return  1.0;
+        return budget::money{1};
     } else if (res->status != 200) {
         std::cout << "ERROR: Price(v2): Error response " << res->status << std::endl;
         std::cout << "ERROR: Price(v2): URL is " << api_complete << std::endl;
         std::cout << "ERROR: Price(v2): Response is " << res->body << std::endl;
 
-        return  1.0;
+        return budget::money{1};
     } else {
         std::stringstream bodyreader(res->body);
 
@@ -199,16 +199,16 @@ double get_share_price_v2(const std::string& quote, const budget::date& date, in
             }
         }
 
-        return 1.0;
+        return budget::money{1};
     }
 }
 
 // V1 is using cloud.iexapis.com
-double get_share_price_v1(const std::string& quote, const budget::date& date, int depth = 0) {
+budget::money get_share_price_v1(const std::string& quote, const budget::date& date, int depth = 0) {
     if (!budget::config_contains("iex_cloud_token")) {
         std::cout << "ERROR: Price(v1): Need IEX cloud token configured to work" << std::endl;
 
-        return  1.0;
+        return budget::money{1};
     }
 
     auto token = budget::config_value("iex_cloud_token");
@@ -224,13 +224,13 @@ double get_share_price_v1(const std::string& quote, const budget::date& date, in
         std::cout << "ERROR: Price(v1): No response" << std::endl;
         std::cout << "ERROR: Price(v1): URL is " << api_complete << std::endl;
 
-        return  1.0;
+        return budget::money{1};
     } else if (res->status != 200) {
         std::cout << "ERROR: Price(v1): Error response " << res->status << std::endl;
         std::cout << "ERROR: Price(v1): URL is " << api_complete << std::endl;
         std::cout << "ERROR: Price(v1): Response is " << res->body << std::endl;
 
-        return  1.0;
+        return budget::money{1};
     } else {
         // Pseudo handling of holidays
         if (res->body == "[]") {
@@ -261,11 +261,11 @@ double get_share_price_v1(const std::string& quote, const budget::date& date, in
             std::cout << "ERROR: Price(v1): URL is " << api_complete << std::endl;
             std::cout << "ERROR: Price(v1): Response is " << res->body << std::endl;
 
-            return  1.0;
+            return budget::money{1};
         } else {
             std::string ratio_result(buffer.begin() + buffer.find(start) + start.size(), buffer.begin() + buffer.find(stop));
 
-            return atof(ratio_result.c_str());
+            return budget::money::from_double(atof(ratio_result.c_str()));
         }
     }
 }
@@ -287,10 +287,24 @@ void budget::load_share_price_cache(){
             continue;
         }
 
-        auto parts = split(line, ':');
+        // Note: For now, we still need to use double instead of money since
+        // previous data was written in an invalid format related to money
+        // However, this will be able to go away since they are written down
+        // with budget::money now
 
-        share_price_cache_key key(budget::date_from_string(parts[0]), parts[1]);
-        share_prices[key] = budget::to_number<double>(parts[2]);
+        budget::date day;
+        std::string  ticker;
+        double       value;
+
+        data_reader reader;
+        reader.parse(line);
+
+        reader >> day;
+        reader >> ticker;
+        reader >> value;
+
+        share_price_cache_key key(day, ticker);
+        share_prices[key] = budget::money::from_double(value);
     }
 
     if (budget::is_server_running()) {
@@ -309,7 +323,7 @@ void budget::save_share_price_cache() {
     }
 
     for (auto & [key, value] : share_prices) {
-        if (value != 1.0) {
+        if (value != budget::money(1)) {
             file << budget::date_to_string(key.date) << ':' << key.ticker << ':' << value << std::endl;
         }
     }
@@ -339,11 +353,11 @@ void budget::prefetch_share_price_cache(){
     }
 }
 
-double budget::share_price(const std::string& ticker){
+budget::money budget::share_price(const std::string& ticker){
     return share_price(ticker, budget::local_day());
 }
 
-double budget::share_price(const std::string& ticker, budget::date d){
+budget::money budget::share_price(const std::string& ticker, budget::date d){
     auto date = get_valid_date(d);
 
     share_price_cache_key key(date, ticker);
@@ -360,8 +374,8 @@ double budget::share_price(const std::string& ticker, budget::date d){
                 std::cout << "INFO: Price: Could not find quotes for " << ticker << std::endl;
             }
 
-            share_prices[key] = 1.0;
-            return 1.0;
+            share_prices[key] = money(1);
+            return money(1);
         }
 
         for (auto [new_key, new_value] : quotes) {

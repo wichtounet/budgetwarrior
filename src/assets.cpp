@@ -1300,7 +1300,7 @@ budget::money budget::get_asset_value(const budget::asset & asset, budget::date 
         }
 
         if (shares > 0) {
-            return budget::money(shares) * share_price(asset.ticker, d);
+            return static_cast<int>(shares) * share_price(asset.ticker, d);
         }
     } else {
         budget::money asset_value_amount;

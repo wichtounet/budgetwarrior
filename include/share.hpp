@@ -12,9 +12,10 @@
 namespace budget {
 
 struct date;
+struct money;
 
-double share_price(const std::string& quote);
-double share_price(const std::string& quote, budget::date d);
+money share_price(const std::string& quote);
+money share_price(const std::string& quote, budget::date d);
 
 void load_share_price_cache();
 void save_share_price_cache();
