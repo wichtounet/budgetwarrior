@@ -72,6 +72,7 @@ install: release_debug
 	@ echo "============================="
 	@ echo ""
 	install release_debug/bin/budget $(bindir)/budget
+	install tools/yfinance_quote.py $(bindir)/yfinance_quote.py
 
 install_light: install
 
