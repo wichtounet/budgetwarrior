@@ -167,5 +167,51 @@ TEST_CASE("money/conversions/double/1") {
     FAST_CHECK_EQ(static_cast<double>(d), 0.0);
 }
 
-// Test comparisons
-// Test differences
+TEST_CASE("money/comparisons/1") {
+    budget::money a(1, 1);
+    budget::money b(1, 10);
+    budget::money c(0, 0);
+    budget::money d(1, 1);
+
+    FAST_CHECK_UNARY(a == a);
+    FAST_CHECK_UNARY(b == b);
+    FAST_CHECK_UNARY(c == c);
+
+    FAST_CHECK_UNARY(a == d);
+    FAST_CHECK_UNARY(!(a != d));
+
+    FAST_CHECK_UNARY(!(a != a));
+    FAST_CHECK_UNARY(!(b != b));
+    FAST_CHECK_UNARY(!(c != c));
+
+    FAST_CHECK_UNARY(a >= a);
+
+    FAST_CHECK_UNARY(!(a >= b));
+    FAST_CHECK_UNARY(!(a > b));
+    FAST_CHECK_UNARY(a < b);
+    FAST_CHECK_UNARY(a <= b);
+    FAST_CHECK_UNARY(!(a == b));
+    FAST_CHECK_UNARY(a != b);
+
+    FAST_CHECK_UNARY(a >= c);
+    FAST_CHECK_UNARY(a > c);
+    FAST_CHECK_UNARY(!(a < c));
+    FAST_CHECK_UNARY(!(a <= c));
+    FAST_CHECK_UNARY(!(a == c));
+    FAST_CHECK_UNARY(a != c);
+
+    FAST_CHECK_UNARY(b >= c);
+    FAST_CHECK_UNARY(b > c);
+    FAST_CHECK_UNARY(!(b < c));
+    FAST_CHECK_UNARY(!(b <= c));
+    FAST_CHECK_UNARY(!(b == c));
+    FAST_CHECK_UNARY(b != c);
+}
+
+TEST_CASE("money/diff/1") {
+    FAST_CHECK_EQ(budget::money(1, 1) - budget::money(1, 1), budget::money(0, 0));
+    FAST_CHECK_EQ(budget::money(10, 1) - budget::money(1, 1), budget::money(9, 0));
+    FAST_CHECK_EQ(budget::money(10, 1) - budget::money(10, 0), budget::money(0, 1));
+    FAST_CHECK_EQ(budget::money(10, 0) - budget::money(100, 0), budget::money(-90, 0));
+    FAST_CHECK_EQ(budget::money(10, 0) - budget::money(100, 1), budget::money(-90, 1));
+}
