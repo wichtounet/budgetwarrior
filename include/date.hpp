@@ -186,6 +186,19 @@ struct date {
         return 1 + year_days() / 7;
     }
 
+    // ISO-8601 Week Number
+    size_t iso_week() const {
+        int doy      = year_days();
+        int dow      = day_of_the_week() - 1;
+        int dowFirst = date(_year, 1, 1).day_of_the_week() - 1;
+
+        if (dow < dowFirst) {
+            return (doy + 6) / 7 + 1;
+        } else {
+            return (doy + 6) / 7;
+        }
+    }
+
     date start_of_week() const {
         date r = *this;
 
