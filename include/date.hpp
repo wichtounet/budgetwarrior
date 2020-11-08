@@ -9,6 +9,8 @@
 
 #include <ctime>
 
+#include "cpp_utils/assert.hpp"
+
 #include "utils.hpp"
 
 namespace budget {
@@ -208,6 +210,41 @@ struct date {
         } else {
             return (doy + 6) / 7;
         }
+    }
+
+    date iso_start_of_week() const {
+        size_t w = iso_week();
+
+        date r = *this;
+
+        if (cpp_unlikely(w == 1)) {
+            for (size_t i = 0; i < 8; ++i) {
+                r -= days(1);
+
+                if (r.iso_week() > w) {
+                    break;
+                }
+            }
+
+            date r1 = r.iso_start_of_week();
+            if (*this - r1 >= 7) {
+                return r + days(1);
+            } else {
+                return r1;
+            }
+        } else {
+            for (size_t i = 0; i < 8; ++i) {
+                r -= days(1);
+
+                if (r.iso_week() < w) {
+                    return r + days(1);
+                }
+            }
+        }
+
+        cpp_unreachable("Invalid state in iso_start_of_week");
+
+        return *this;
     }
 
     date_type day_of_the_week() const {

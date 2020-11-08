@@ -194,6 +194,7 @@ TEST_CASE("date/week") {
 }
 
 TEST_CASE("date/iso_week") {
+    FAST_CHECK_EQ(budget::date(2018, 1, 1).iso_week(), 1);
     FAST_CHECK_EQ(budget::date(2020, 1, 1).iso_week(), 1);
 
     FAST_CHECK_EQ(budget::date(2020, 11, 1).iso_week(), 44);
@@ -201,6 +202,23 @@ TEST_CASE("date/iso_week") {
     FAST_CHECK_EQ(budget::date(2020, 11, 30).iso_week(), 49);
     FAST_CHECK_EQ(budget::date(2020, 12, 1).iso_week(), 49);
     FAST_CHECK_EQ(budget::date(2020, 12, 30).iso_week(), 53);
+
+    FAST_CHECK_EQ(budget::date(2019, 12, 30).iso_week(), 53);
+    FAST_CHECK_EQ(budget::date(2019, 12, 31).iso_week(), 53);
+}
+
+TEST_CASE("date/iso_start_of_week") {
+    FAST_CHECK_EQ(budget::date(2020, 1, 1).iso_start_of_week(), budget::date(2019, 12, 30));
+    FAST_CHECK_EQ(budget::date(2018, 1, 1).iso_start_of_week(), budget::date(2018, 1, 1));
+
+    FAST_CHECK_EQ(budget::date(2020, 11, 1).iso_start_of_week(), budget::date(2020, 10, 26));
+    FAST_CHECK_EQ(budget::date(2020, 11, 2).iso_start_of_week(), budget::date(2020, 11, 2));
+    FAST_CHECK_EQ(budget::date(2020, 11, 3).iso_start_of_week(), budget::date(2020, 11, 2));
+    FAST_CHECK_EQ(budget::date(2020, 11, 30).iso_start_of_week(), budget::date(2020, 11, 30));
+    FAST_CHECK_EQ(budget::date(2020, 12, 1).iso_start_of_week(), budget::date(2020, 11, 30));
+    FAST_CHECK_EQ(budget::date(2020, 12, 1).iso_start_of_week(), budget::date(2020, 11, 30));
+
+    FAST_CHECK_EQ(budget::date(2017, 12, 31).iso_start_of_week(), budget::date(2017, 12, 25));
 }
 
 TEST_CASE("date/start_of_month") {
