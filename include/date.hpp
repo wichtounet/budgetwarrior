@@ -186,6 +186,17 @@ struct date {
         return 1 + day_of_year() / 7;
     }
 
+    date start_of_week() const {
+        date r = *this;
+
+        auto w = r.week();
+        auto d = r.day_of_year();
+
+        r -= days(d - (w - 1) * 7);
+
+        return r;
+    }
+
     // ISO-8601 Week Number
     size_t iso_week() const {
         int doy      = day_of_year();
@@ -197,17 +208,6 @@ struct date {
         } else {
             return (doy + 6) / 7;
         }
-    }
-
-    date start_of_week() const {
-        date r = *this;
-
-        auto w = r.week();
-        auto d = r.day_of_year();
-
-        r -= days(d - (w - 1) * 7);
-
-        return r;
     }
 
     date_type day_of_the_week() const {
