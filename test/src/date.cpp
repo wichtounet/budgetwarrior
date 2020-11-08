@@ -219,18 +219,18 @@ TEST_CASE("date/end_of_month") {
     FAST_CHECK_EQ(budget::date(2020, 10, 2).end_of_month(), budget::date(2020, 10, 31));
 }
 
-TEST_CASE("date/year_days") {
+TEST_CASE("date/day_of_year") {
     // Leap year
-    FAST_CHECK_EQ(budget::date(2020, 1, 1).year_days(), 1);
-    FAST_CHECK_EQ(budget::date(2020, 2, 29).year_days(), 60);
-    FAST_CHECK_EQ(budget::date(2020, 3, 3).year_days(), 63);
-    FAST_CHECK_EQ(budget::date(2020, 12, 31).year_days(), 366);
+    FAST_CHECK_EQ(budget::date(2020, 1, 1).day_of_year(), 1);
+    FAST_CHECK_EQ(budget::date(2020, 2, 29).day_of_year(), 60);
+    FAST_CHECK_EQ(budget::date(2020, 3, 3).day_of_year(), 63);
+    FAST_CHECK_EQ(budget::date(2020, 12, 31).day_of_year(), 366);
 
     // Non-leap year
-    FAST_CHECK_EQ(budget::date(2019, 1, 1).year_days(), 1);
-    FAST_CHECK_EQ(budget::date(2019, 2, 28).year_days(), 59);
-    FAST_CHECK_EQ(budget::date(2019, 3, 3).year_days(), 62);
-    FAST_CHECK_EQ(budget::date(2019, 12, 31).year_days(), 365);
+    FAST_CHECK_EQ(budget::date(2019, 1, 1).day_of_year(), 1);
+    FAST_CHECK_EQ(budget::date(2019, 2, 28).day_of_year(), 59);
+    FAST_CHECK_EQ(budget::date(2019, 3, 3).day_of_year(), 62);
+    FAST_CHECK_EQ(budget::date(2019, 12, 31).day_of_year(), 365);
 }
 
 TEST_CASE("date/compare") {

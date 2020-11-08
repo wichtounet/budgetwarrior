@@ -169,7 +169,7 @@ struct date {
 
     // The number of days of this year until today
     // January 1 is 1
-    size_t year_days() const {
+    size_t day_of_year() const {
         size_t result = 0;
 
         for (size_t m = 1; m < _month; ++m) {
@@ -183,12 +183,12 @@ struct date {
 
     // The current week number
     size_t week() const {
-        return 1 + year_days() / 7;
+        return 1 + day_of_year() / 7;
     }
 
     // ISO-8601 Week Number
     size_t iso_week() const {
-        int doy      = year_days();
+        int doy      = day_of_year();
         int dow      = day_of_the_week() - 1;
         int dowFirst = date(_year, 1, 1).day_of_the_week() - 1;
 
@@ -203,7 +203,7 @@ struct date {
         date r = *this;
 
         auto w = r.week();
-        auto d = r.year_days();
+        auto d = r.day_of_year();
 
         r -= days(d - (w - 1) * 7);
 
