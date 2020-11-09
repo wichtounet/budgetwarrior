@@ -384,9 +384,10 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
         }
     }
 
-    // Note: We use a range in order to handle potential holidays
-    // where the stock market is closed
-    auto quotes = get_share_price_v3(ticker, d - budget::days(8), d);
+    // Note: we use a range for two reasons
+    // 1) Handle potential holidays, so we have a range in the past
+    // 2) Opportunistically grab several quotes in the past and future to save on API calls
+    auto quotes = get_share_price_v3(ticker, d - budget::days(10), d + budget::days(10));
 
     server_lock_guard l(shares_lock);
 
