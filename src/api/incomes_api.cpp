@@ -61,7 +61,7 @@ void budget::edit_incomes_api(const httplib::Request& req, httplib::Response& re
         income income = income_get(budget::to_number<size_t>(id));
         income.amount = budget::money_from_string(req.get_param_value("input_amount"));
 
-        set_incomes_changed();
+        edit_income(income);
 
         api_success(req, res, "Income " + to_string(income.id) + " has been modified");
     } catch (const budget_exception& e) {

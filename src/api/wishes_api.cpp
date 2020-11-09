@@ -81,7 +81,7 @@ void budget::edit_wishes_api(const httplib::Request& req, httplib::Response& res
             wish.paid_amount = budget::money_from_string(req.get_param_value("input_paid_amount"));
         }
 
-        set_wishes_changed();
+        edit_wish(wish);
 
         api_success(req, res, "wish " + to_string(wish.id) + " has been modified");
     } catch (const budget_exception& e) {

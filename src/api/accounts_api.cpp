@@ -67,7 +67,7 @@ void budget::edit_accounts_api(const httplib::Request& req, httplib::Response& r
         account.name    = req.get_param_value("input_name");
         account.amount  = budget::money_from_string(req.get_param_value("input_amount"));
 
-        set_accounts_changed();
+        edit_account(account);
 
         api_success(req, res, "Account " + to_string(account.id) + " has been modified");
     } catch (const budget_exception & e) {

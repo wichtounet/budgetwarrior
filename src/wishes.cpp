@@ -563,3 +563,7 @@ wish budget::wish_get(size_t id) {
 void budget::add_wish(budget::wish&& wish){
     wishes.add(std::forward<budget::wish>(wish));
 }
+
+bool budget::edit_wish(const budget::wish& wish){
+    return wishes.indirect_edit(wish);
+}

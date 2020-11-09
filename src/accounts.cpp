@@ -545,6 +545,10 @@ void budget::add_account(budget::account&& account){
     accounts.add(std::forward<budget::account>(account));
 }
 
+bool budget::edit_account(const budget::account& account){
+    return accounts.indirect_edit(account);
+}
+
 budget::date budget::find_new_since(){
     budget::date date(1400,1,1);
 

@@ -117,7 +117,7 @@ void budget::edit_assets_api(const httplib::Request& req, httplib::Response& res
             return;
         }
 
-        set_assets_changed();
+        edit_asset(asset);
 
         api_success(req, res, "asset " + to_string(asset.id) + " has been modified");
     } catch (const budget_exception& e) {
@@ -229,7 +229,7 @@ void budget::edit_asset_values_api(const httplib::Request& req, httplib::Respons
         asset_value.set_date    = budget::date_from_string(req.get_param_value("input_date"));
         asset_value.liability   = req.get_param_value("input_liability") == "true";
 
-        set_asset_values_changed();
+        edit_asset_value(asset_value);
 
         api_success(req, res, "Asset " + to_string(asset_value.id) + " has been modified");
     } catch (const budget_exception& e) {
@@ -493,7 +493,7 @@ void budget::edit_asset_classes_api(const httplib::Request& req, httplib::Respon
         asset_class asset_class = get_asset_class(budget::to_number<size_t>(id));
         asset_class.name        = req.get_param_value("input_name");
 
-        set_asset_classes_changed();
+        edit_asset_class(asset_class);
 
         api_success(req, res, "Asset Class " + to_string(asset_class.id) + " has been modified");
     } catch (const budget_exception& e) {

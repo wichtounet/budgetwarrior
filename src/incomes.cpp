@@ -151,6 +151,10 @@ void budget::add_income(budget::income&& income){
     incomes.add(std::forward<budget::income>(income));
 }
 
+bool budget::edit_income(const budget::income& income){
+    return incomes.indirect_edit(income);
+}
+
 budget::money budget::get_base_income(data_cache & cache){
     auto today = budget::local_day();
     return get_base_income(cache, today);

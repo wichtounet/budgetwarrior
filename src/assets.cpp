@@ -1231,6 +1231,10 @@ void budget::add_asset(budget::asset& asset){
     assets.add(asset);
 }
 
+bool budget::edit_asset(const budget::asset& asset){
+    return assets.indirect_edit(asset);
+}
+
 budget::money budget::get_portfolio_value(){
     budget::money total;
 

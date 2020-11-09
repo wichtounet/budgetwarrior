@@ -60,6 +60,7 @@ void show_all_incomes(budget::writer& w);
 void show_incomes(budget::writer& w);
 
 void add_income(income&& income);
+bool edit_income(const income& income);
 bool income_exists(size_t id);
 void income_delete(size_t id);
 income income_get(size_t id);

@@ -201,6 +201,7 @@ bool asset_class_exists(size_t id);
 void asset_class_delete(size_t id);
 
 void add_asset(asset& asset);
+bool edit_asset(const asset& asset);
 bool asset_exists(size_t id);
 void asset_delete(size_t id);
 
