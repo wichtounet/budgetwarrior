@@ -329,7 +329,11 @@ void budget::save_share_price_cache() {
 
         for (auto& [key, value] : share_prices) {
             if (value != budget::money(1)) {
-                file << budget::date_to_string(key.date) << ':' << key.ticker << ':' << value << std::endl;
+                data_writer writer;
+                writer << key.date;
+                writer << key.ticker;
+                writer << value;
+                file << writer.to_string() << std::endl;
             }
         }
     }
