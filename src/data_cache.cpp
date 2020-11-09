@@ -45,7 +45,7 @@ std::vector<asset_value> & data_cache::sorted_asset_values() {
     if (sorted_asset_values_.empty()) {
         sorted_asset_values_ = all_asset_values();
 
-        std::sort(sorted_asset_values_.begin(), sorted_asset_values_.end(), [](auto& lhs, auto& rhs) {
+        std::stable_sort(sorted_asset_values_.begin(), sorted_asset_values_.end(), [](auto& lhs, auto& rhs) {
             return lhs.set_date < rhs.set_date;
         });
     }
