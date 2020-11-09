@@ -214,11 +214,11 @@ struct money {
         return value;
     }
 
-    operator float() const {
+    explicit operator float() const {
         return value / float(SCALE);
     }
 
-    operator double() const {
+    explicit operator double() const {
         return value / double(SCALE);
     }
 
