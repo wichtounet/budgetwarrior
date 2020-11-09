@@ -153,3 +153,28 @@ TEST_CASE("data_reader/money") {
     reader.skip();
     REQUIRE_THROWS_AS(reader >> d, budget::budget_exception);
 }
+
+TEST_CASE("data_reader/double") {
+    budget::data_reader reader;
+    reader.parse("100:200.50:0.4:-100.40:-100:a");
+
+    double a;
+    double b;
+    double c;
+    double d;
+    double e;
+
+    reader >> a;
+    reader >> b;
+    reader >> c;
+    reader >> d;
+    reader >> e;
+
+    FAST_CHECK_EQ(a, 100.0);
+    FAST_CHECK_EQ(b, 200.50);
+    FAST_CHECK_EQ(c, 0.4);
+    FAST_CHECK_EQ(d, -100.40);
+    FAST_CHECK_EQ(e, -100.0);
+
+    REQUIRE_THROWS_AS(reader >> d, budget::budget_exception);
+}
