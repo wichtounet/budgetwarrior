@@ -36,7 +36,8 @@ struct money {
     }
 
     static money from_double(double dollars) {
-        return {static_cast<long>(dollars), static_cast<int>(dollars * SCALE)};
+        long dollars_long = static_cast<long>(dollars);
+        return {dollars_long, static_cast<int>((dollars - dollars_long) * SCALE)};
     }
 
     money& operator=(long dollars){
