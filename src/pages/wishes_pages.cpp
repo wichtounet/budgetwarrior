@@ -81,7 +81,7 @@ void add_urgency_picker(budget::writer& w, int urgency) {
 
 void budget::wishes_list_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Objectives List")) {
+    if (!page_start(req, res, content_stream, "Wishes List")) {
         return;
     }
 
@@ -95,7 +95,7 @@ void budget::wishes_list_page(const httplib::Request& req, httplib::Response& re
 
 void budget::wishes_status_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Objectives Status")) {
+    if (!page_start(req, res, content_stream, "Wishes Status")) {
         return;
     }
 
@@ -109,7 +109,7 @@ void budget::wishes_status_page(const httplib::Request& req, httplib::Response& 
 
 void budget::wishes_estimate_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Objectives Status")) {
+    if (!page_start(req, res, content_stream, "Wishes Estimate")) {
         return;
     }
 
