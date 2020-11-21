@@ -21,6 +21,7 @@ namespace budget {
 
 struct data_reader;
 struct data_writer;
+struct data_cache;
 
 struct liabilities_module {
     void load();
@@ -57,8 +58,8 @@ budget::liability get_liability(std::string name);
 
 std::vector<budget::liability> all_liabilities();
 
-budget::date liability_start_date();
-budget::date liability_start_date(const liability& liability);
+budget::date liability_start_date(data_cache & cache);
+budget::date liability_start_date(data_cache & cache, const liability& liability);
 
 void set_liabilities_next_id(size_t next_id);
 
@@ -71,15 +72,15 @@ bool liability_exists(const std::string& name);
 void liability_delete(size_t id);
 
 // The value of a liability in its own currency
-budget::money get_liability_value(budget::liability & liability);
-budget::money get_liability_value(budget::liability & liability, budget::date d);
+budget::money get_liability_value(budget::liability & liability, data_cache & cache);
+budget::money get_liability_value(budget::liability & liability, budget::date d, data_cache & cache);
 
 // The value of a liability in the default currency
-budget::money get_liability_value_conv(budget::liability & liability);
-budget::money get_liability_value_conv(budget::liability & liability, budget::date d);
+budget::money get_liability_value_conv(budget::liability & liability, data_cache & cache);
+budget::money get_liability_value_conv(budget::liability & liability, budget::date d, data_cache & cache);
 
 // The value of a liability in a specific currency
-budget::money get_liability_value_conv(budget::liability & liability, const std::string& currency);
-budget::money get_liability_value_conv(budget::liability & liability, budget::date d, const std::string& currency);
+budget::money get_liability_value_conv(budget::liability & liability, const std::string& currency, data_cache & cache);
+budget::money get_liability_value_conv(budget::liability & liability, budget::date d, const std::string& currency, data_cache & cache);
 
 } //end of namespace budget

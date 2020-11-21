@@ -134,9 +134,9 @@ void budget::assets_card(budget::html_writer& w){
 }
 
 void budget::liabilities_card(budget::html_writer& w){
-    auto liabilities = all_liabilities();
+    data_cache cache;
 
-    if (liabilities.empty()) {
+    if (cache.liabilities().empty()) {
         return;
     }
 
@@ -155,8 +155,8 @@ void budget::liabilities_card(budget::html_writer& w){
 
     bool first = true;
 
-    for (auto& liability : liabilities) {
-        auto amount = get_liability_value(liability);
+    for (auto& liability : cache.liabilities()) {
+        auto amount = get_liability_value(liability, cache);
 
         if (amount) {
             if (!first) {
@@ -375,7 +375,7 @@ void budget::net_worth_graph(budget::html_writer& w, const std::string style, bo
         }
 
         for (auto & asset : cache.liabilities()) {
-            sum -= get_liability_value_conv(asset, date);
+            sum -= get_liability_value_conv(asset, date, cache);
         }
 
         ss << "[Date.UTC(" << date.year() << "," << date.month().value - 1 << "," << date.day() << ") ," << budget::money_to_string(sum) << "],";
@@ -655,7 +655,7 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
 
             for (auto & liability : cache.liabilities()) {
                 if (liability.currency == currency) {
-                    sum -= get_liability_value_conv(liability, date);
+                    sum -= get_liability_value_conv(liability, date, cache);
                 }
             }
 
@@ -681,7 +681,7 @@ void budget::net_worth_currency_page(const httplib::Request& req, httplib::Respo
         }
 
         for (auto & liability : cache.liabilities()) {
-            net_worth -= get_liability_value_conv(liability, currency);
+            net_worth -= get_liability_value_conv(liability, currency, cache);
         }
 
         w << p_begin << "Net worth in " << currency << " : " << net_worth << " " << currency << p_end;

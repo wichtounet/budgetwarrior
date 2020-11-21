@@ -971,12 +971,12 @@ void budget::show_asset_values(budget::writer& w, bool liability){
         return;
     }
 
+    data_cache cache;
+
     if (!liability) {
         w << title_begin << "Net Worth" << title_end;
 
         std::vector<std::string> columns = {"Name"};
-
-        data_cache cache;
 
         for (auto & clas : cache.asset_classes()) {
             columns.emplace_back(clas.name);
@@ -1108,13 +1108,13 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             contents.emplace_back(std::move(line3));
         }
 
-        auto liabilities = all_liabilities();
+        auto liabilities = cache.liabilities();
 
         if (liabilities.size()) {
             contents.emplace_back(columns.size(), "");
 
             for (auto & liability : liabilities) {
-                auto amount = get_liability_value(liability);
+                auto amount = get_liability_value(liability, cache);
 
                 if (amount) {
                     std::vector<std::string> line(columns.size(), "");
@@ -1179,10 +1179,8 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         budget::money total;
 
-        auto liabilities = all_liabilities();
-
-        for(auto& asset : liabilities){
-            auto amount = get_liability_value(asset);
+        for(auto& asset : cache.liabilities()){
+            auto amount = get_liability_value(asset, cache);
 
             if (amount) {
                 std::vector<std::string> line;
@@ -1271,7 +1269,7 @@ budget::money budget::get_net_worth(budget::date d, data_cache & cache) {
     }
 
     for (auto & asset : cache.liabilities()) {
-        total -= get_liability_value_conv(asset, d);
+        total -= get_liability_value_conv(asset, d, cache);
     }
 
     return total;
