@@ -1290,8 +1290,11 @@ budget::money budget::get_net_worth_cash(){
 }
 
 budget::money budget::get_asset_value(const budget::asset & asset, budget::date d, data_cache & cache) {
-    if (asset.share_based) {
+    if (cpp_unlikely(asset.share_based)) {
         int64_t shares = 0;
+
+        // OPTIM: if this part becomes a bottleneck, we can easily
+        // do the same optimization as for asset values
 
         for (auto& asset_share : cache.asset_shares()) {
             if (asset_share.asset_id == asset.id) {
