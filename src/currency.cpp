@@ -57,6 +57,10 @@ struct hash<currency_cache_key> {
 
 namespace {
 
+// OPTIM: If necessary, this could be made faster with a two layer cache
+// We can take advantages from the low number of currency pair in the first layer
+// and then the quick hash from the high number of dates
+
 std::unordered_map<currency_cache_key, double> exchanges;
 budget::server_lock exchanges_lock;
 
