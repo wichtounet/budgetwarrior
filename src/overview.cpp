@@ -1217,6 +1217,17 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
        }
     }
 
+    budget::date month_start(year, month, 1);
+    budget::date month_end = month_start.end_of_month();
+
+    auto net_worth_end = get_net_worth(month_end, cache);
+    auto net_worth_month_start = get_net_worth(month_start, cache);
+
+    auto month_increase = net_worth_end - net_worth_month_start;
+
+    second_contents.emplace_back(std::vector<std::string>{"Net Worth Increase", budget::to_string(month_increase)});
+    second_contents.emplace_back(std::vector<std::string>{"Savings Contribution", budget::to_string(100.0 * (savings / month_increase)) + "%"});
+
     writer.display_table(second_columns, second_contents, 1, {}, accounts.size() * 9 + 1);
 }
 
