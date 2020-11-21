@@ -26,16 +26,30 @@ struct currency_cache_key {
 
     currency_cache_key(std::string date, std::string from, std::string to) : date(date), from(from), to(to) {}
 
-    friend bool operator<(const currency_cache_key & lhs, const currency_cache_key & rhs){
-        return std::tie(lhs.date, lhs.from, lhs.to) < std::tie(rhs.date, rhs.from, rhs.to);
-    }
-
     friend bool operator==(const currency_cache_key & lhs, const currency_cache_key & rhs){
         return std::tie(lhs.date, lhs.from, lhs.to) == std::tie(rhs.date, rhs.from, rhs.to);
     }
 };
 
-std::map<currency_cache_key, double> exchanges;
+} // end of anonymous namespace
+
+namespace std {
+
+template <>
+struct hash<currency_cache_key> {
+    std::size_t operator()(const currency_cache_key & key) const noexcept {
+        auto seed = std::hash<std::string>()(key.date);
+        seed ^= std::hash<std::string>()(key.from) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+        seed ^= std::hash<std::string>()(key.to) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+        return seed;
+    }
+};
+
+} // end of namespace std
+
+namespace {
+
+std::unordered_map<currency_cache_key, double> exchanges;
 budget::server_lock exchanges_lock;
 
 // V1 is using free.currencyconverterapi.com
@@ -161,7 +175,7 @@ void budget::save_currency_cache() {
 }
 
 void budget::refresh_currency_cache(){
-    std::map<currency_cache_key, double> copy;
+    std::unordered_map<currency_cache_key, double> copy;
 
     {
         server_lock_guard l(exchanges_lock);
