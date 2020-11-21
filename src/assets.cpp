@@ -1289,12 +1289,15 @@ budget::money budget::get_net_worth_cash(){
     return total;
 }
 
+// OPTIM get_asset_value is the current hotspot for almost all pages
+// 1) If the share_based part becomes a bottleneck, we can apply the same
+//    optimization than for the asset value part
+// 2) If this becomes too high, we can also store the value an asset id for each
+//    possible date (in one pass of all asset values of an asset)
+
 budget::money budget::get_asset_value(const budget::asset & asset, budget::date d, data_cache & cache) {
     if (cpp_unlikely(asset.share_based)) {
         int64_t shares = 0;
-
-        // OPTIM: if this part becomes a bottleneck, we can easily
-        // do the same optimization as for asset values
 
         for (auto& asset_share : cache.asset_shares()) {
             if (asset_share.asset_id == asset.id) {
