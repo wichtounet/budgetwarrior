@@ -227,18 +227,17 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
         return 1.0;
     } else {
         currency_cache_key key(d, from, to);
-        currency_cache_key reverse_key(d, to, from);
 
         // Return directly if we already have the data in cache
         {
             server_lock_guard l(exchanges_lock);
 
-            if (exchanges.count(key)) {
+            if (exchanges.find(key) != exchanges.end()) {
                 return exchanges[key];
             }
         }
 
-        // Otherwise, make the API call without the call
+        // Otherwise, make the API call without the lock
 
         auto rate = get_rate_v2(from, to, date_to_string(d));
 
@@ -247,7 +246,9 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
                 << " from " << from << " to " << to << " = " << rate << std::endl;
         }
 
-        // Update the cache
+        // Update the cache and the reverse cache with the lock
+
+        currency_cache_key reverse_key(d, to, from);
 
         {
             server_lock_guard l(exchanges_lock);
