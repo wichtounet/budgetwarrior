@@ -20,14 +20,22 @@
 namespace {
 
 struct currency_cache_key {
-    std::string date;
+    budget::date date;
     std::string from;
     std::string to;
 
-    currency_cache_key(std::string date, std::string from, std::string to) : date(date), from(from), to(to) {}
+    currency_cache_key(budget::date date, std::string from, std::string to) : date(date), from(from), to(to) {}
 
     friend bool operator==(const currency_cache_key & lhs, const currency_cache_key & rhs){
-        return std::tie(lhs.date, lhs.from, lhs.to) == std::tie(rhs.date, rhs.from, rhs.to);
+        if (lhs.date != rhs.date) {
+            return false;
+        }
+
+        if (lhs.from != rhs.from) {
+            return false;
+        }
+
+        return lhs.to == rhs.to;
     }
 };
 
@@ -38,7 +46,7 @@ namespace std {
 template <>
 struct hash<currency_cache_key> {
     std::size_t operator()(const currency_cache_key & key) const noexcept {
-        auto seed = std::hash<std::string>()(key.date);
+        auto seed = std::hash<budget::date>()(key.date);
         seed ^= std::hash<std::string>()(key.from) + 0x9e3779b9 + (seed<<6) + (seed>>2);
         seed ^= std::hash<std::string>()(key.to) + 0x9e3779b9 + (seed<<6) + (seed>>2);
         return seed;
@@ -139,7 +147,7 @@ void budget::load_currency_cache(){
 
         auto parts = split(line, ':');
 
-        currency_cache_key key(parts[0], parts[1], parts[2]);
+        currency_cache_key key(date_from_string(parts[0]), parts[1], parts[2]);
         exchanges[key] = budget::to_number<double>(parts[3]);
     }
 
@@ -214,9 +222,8 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
     if (from == to) {
         return 1.0;
     } else {
-        auto date_str    = budget::date_to_string(d);
-        currency_cache_key key(date_str, from, to);
-        currency_cache_key reverse_key(date_str, to, from);
+        currency_cache_key key(d, from, to);
+        currency_cache_key reverse_key(d, to, from);
 
         // Return directly if we already have the data in cache
         {
@@ -229,10 +236,10 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
 
         // Otherwise, make the API call without the call
 
-        auto rate = get_rate_v2(from, to, date_str);
+        auto rate = get_rate_v2(from, to, date_to_string(d));
 
         if (budget::is_server_running()) {
-            std::cout << "INFO: Currency: Rate (" << date_str << ")"
+            std::cout << "INFO: Currency: Rate (" << d << ")"
                 << " from " << from << " to " << to << " = " << rate << std::endl;
         }
 
