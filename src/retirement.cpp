@@ -32,13 +32,19 @@ money running_expenses(data_cache & cache, budget::date d = budget::local_day())
 
     budget::money total;
 
-    for (auto& expense : cache.sorted_expenses()) {
-        if (expense.date < end) {
-            if(expense.date >= start){
-                total += expense.amount;
+    auto & expenses = cache.sorted_expenses();
+
+    if (!expenses.empty()) {
+        auto it = std::lower_bound(expenses.begin(), expenses.end(), start, [](const auto & value, budget::date d) { return value.date < d; });
+
+        while (it != expenses.end()) {
+            if (it->date < end) {
+                total += it->amount;
+
+                ++it;
+            } else {
+                break;
             }
-        } else {
-            break;
         }
     }
 
