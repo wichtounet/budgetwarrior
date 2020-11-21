@@ -1310,13 +1310,14 @@ budget::money budget::get_asset_value(const budget::asset & asset, budget::date 
     } else {
         budget::money asset_value_amount;
 
-        for (auto& asset_value : cache.sorted_group_asset_values()[asset.id]) {
-            if (asset_value.set_date <= d) {
-                if (!asset_value.liability) {
-                    asset_value_amount = asset_value.amount;
-                }
-            } else {
-                break;
+        auto & asset_values = cache.sorted_group_asset_values()[asset.id];
+
+        if (!asset_values.empty()) {
+            auto it = std::upper_bound(asset_values.begin(), asset_values.end(), d, [](budget::date d, auto & value) { return d < value.set_date; });
+
+            if (it != asset_values.begin()) {
+                --it;
+                asset_value_amount = it->amount;
             }
         }
 
