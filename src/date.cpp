@@ -112,7 +112,7 @@ unsigned short budget::start_year(){
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const date& date){
-    return stream << date_to_string(date) << date.day();
+    return stream << date_to_string(date);
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const month& month){
