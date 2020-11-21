@@ -515,3 +515,42 @@ unsigned short start_year();
 unsigned short start_month(budget::year year);
 
 } //end of namespace budget
+
+namespace std {
+
+template <>
+struct hash<budget::day> {
+    std::size_t operator()(budget::day d) const noexcept {
+        std::hash<budget::date_type> hasher;
+        return hasher(d.value);
+    }
+};
+
+template <>
+struct hash<budget::month> {
+    std::size_t operator()(budget::month d) const noexcept {
+        std::hash<budget::date_type> hasher;
+        return hasher(d.value);
+    }
+};
+
+template <>
+struct hash<budget::year> {
+    std::size_t operator()(budget::year d) const noexcept {
+        std::hash<budget::date_type> hasher;
+        return hasher(d.value);
+    }
+};
+
+template <>
+struct hash<budget::date> {
+    std::size_t operator()(budget::date d) const noexcept {
+        std::hash<budget::date_type> hasher;
+        auto seed = hasher(d._day);
+        seed ^= hasher(d._month) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+        seed ^= hasher(d._year) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+        return seed;
+    }
+};
+
+} // end of namespace std
