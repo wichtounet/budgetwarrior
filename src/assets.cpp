@@ -821,7 +821,7 @@ void budget::show_assets(budget::writer& w){
 }
 
 void budget::show_asset_portfolio(budget::writer& w){
-    if (!all_asset_values().size() && !all_asset_shares().size()) {
+    if (no_asset_values() && no_asset_shares()) {
         w << "No asset values nor shares" << end_of_line;
         return;
     }
@@ -865,7 +865,7 @@ void budget::show_asset_portfolio(budget::writer& w){
 }
 
 void budget::show_asset_rebalance(budget::writer& w, bool nocash){
-    if (!all_asset_values().size() && !all_asset_shares().size()) {
+    if (no_asset_values() && no_asset_shares()) {
         w << "No asset values" << end_of_line;
         return;
     }
@@ -933,7 +933,7 @@ void budget::show_asset_rebalance(budget::writer& w, bool nocash){
 }
 
 void budget::small_show_asset_values(budget::writer& w){
-    if (!all_asset_values().size() && !all_asset_shares().size()) {
+    if (no_asset_values() && no_asset_shares()) {
         w << "No asset values" << end_of_line;
         return;
     }
@@ -966,7 +966,7 @@ void budget::small_show_asset_values(budget::writer& w){
 }
 
 void budget::show_asset_values(budget::writer& w, bool liability){
-    if (!all_asset_values().size() && !all_asset_shares().size()) {
+    if (no_asset_values() && no_asset_shares()) {
         w << "No asset values" << end_of_line;
         return;
     }
@@ -1223,6 +1223,10 @@ void budget::asset_delete(size_t id) {
     }
 
     assets.remove(id);
+}
+
+bool budget::no_assets() {
+    return assets.empty();
 }
 
 void budget::add_asset(budget::asset& asset){

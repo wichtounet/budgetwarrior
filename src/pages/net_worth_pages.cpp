@@ -319,7 +319,7 @@ void budget::asset_graph(budget::html_writer& w, const std::string style, const 
 
 void budget::net_worth_graph(budget::html_writer& w, const std::string style, bool card) {
     // if the user does not use assets, this graph does not make sense
-    if (all_assets().empty() || all_asset_values().empty()) {
+    if (no_assets() || no_asset_values()) {
         return;
     }
 

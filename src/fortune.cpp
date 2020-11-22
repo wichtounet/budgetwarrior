@@ -277,6 +277,10 @@ fortune budget::fortune_get(size_t id) {
     return fortunes[id];
 }
 
+bool budget::no_fortunes() {
+    return fortunes.empty();
+}
+
 void budget::edit_fortune(const budget::fortune& fortune){
     fortunes.indirect_edit(fortune);
 }

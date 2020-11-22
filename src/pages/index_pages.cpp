@@ -108,7 +108,7 @@ void budget::index_page(const httplib::Request& req, httplib::Response& res) {
 
     budget::html_writer w(content_stream);
 
-    bool left_column = !all_assets().empty() && !all_asset_values().empty();
+    bool left_column = !no_assets() && !no_asset_values();
 
     if (left_column) {
         // A. The left column

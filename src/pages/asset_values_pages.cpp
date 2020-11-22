@@ -160,7 +160,7 @@ void budget::add_asset_values_liability_page(const httplib::Request& req, httpli
 
     budget::html_writer w(content_stream);
 
-    if (all_liabilities().empty()) {
+    if (no_liabilities()) {
         w << title_begin << "No liabilities" << title_end;
     } else {
         w << title_begin << "New liability asset value" << title_end;

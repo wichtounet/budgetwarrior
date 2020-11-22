@@ -101,6 +101,10 @@ void budget::asset_share_delete(size_t id) {
     asset_shares.remove(id);
 }
 
+bool budget::no_asset_shares() {
+    return asset_shares.empty();
+}
+
 size_t budget::add_asset_share(budget::asset_share& asset_share){
     return asset_shares.add(asset_share);
 }

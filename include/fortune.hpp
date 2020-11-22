@@ -63,5 +63,6 @@ void edit_fortune(const fortune& fortune);
 bool fortune_exists(size_t id);
 void fortune_delete(size_t id);
 fortune fortune_get(size_t id);
+bool no_fortunes();
 
 } //end of namespace budget

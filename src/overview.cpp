@@ -693,7 +693,7 @@ void budget::overview_module::load(){
 }
 
 void budget::overview_module::handle(std::vector<std::string>& args) {
-    if (all_accounts().empty()) {
+    if (no_accounts()) {
         throw budget_exception("No accounts defined, you should start by defining some of them");
     }
 

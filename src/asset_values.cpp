@@ -107,6 +107,10 @@ void budget::asset_value_delete(size_t id) {
     asset_values.remove(id);
 }
 
+bool budget::no_asset_values() {
+    return asset_values.empty();
+}
+
 size_t budget::add_asset_value(budget::asset_value& asset_value){
     return asset_values.add(asset_value);
 }

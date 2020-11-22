@@ -204,16 +204,19 @@ void add_asset(asset& asset);
 bool edit_asset(const asset& asset);
 bool asset_exists(size_t id);
 void asset_delete(size_t id);
+bool no_assets();
 
 size_t add_asset_value(asset_value& asset_value);
 bool edit_asset_value(asset_value& asset_value);
 bool asset_value_exists(size_t id);
 void asset_value_delete(size_t id);
+bool no_asset_values();
 
 size_t add_asset_share(asset_share& asset_share);
 bool edit_asset_share(asset_share& c);
 bool asset_share_exists(size_t id);
 void asset_share_delete(size_t id);
+bool no_asset_shares();
 
 budget::money get_portfolio_value();
 budget::money get_net_worth_cash();

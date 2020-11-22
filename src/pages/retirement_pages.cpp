@@ -98,7 +98,7 @@ void budget::retirement_fi_ratio_over_time(const httplib::Request& req, httplib:
 
     budget::html_writer w(content_stream);
 
-    if (all_assets().empty() || all_asset_values().empty()){
+    if (no_assets() || no_asset_values()){
         page_end(w, req, res);
         return;
     }

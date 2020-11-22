@@ -70,6 +70,7 @@ void edit_liability(const liability& liability);
 bool liability_exists(size_t id);
 bool liability_exists(const std::string& name);
 void liability_delete(size_t id);
+bool no_liabilities();
 
 // The value of a liability in its own currency
 budget::money get_liability_value(budget::liability & liability, data_cache & cache);

@@ -73,6 +73,7 @@ void add_account(account&& account);
 bool edit_account(const account& account);
 bool account_exists(size_t id);
 void account_delete(size_t id);
+bool no_accounts();
 
 date find_new_since();
 

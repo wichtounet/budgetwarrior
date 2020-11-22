@@ -297,7 +297,7 @@ bool budget::net_worth_over_fortune(){
     // Unless it's not used and net worth is used
 
     // TODO This can be a very expensive operation!
-    return all_asset_values().size() && !all_fortunes().size();
+    return !no_asset_values() && no_fortunes();
 }
 
 void budget::set_server_running(){

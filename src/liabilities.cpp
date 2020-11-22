@@ -369,6 +369,10 @@ void budget::edit_liability(const budget::liability& liability){
     liabilities.indirect_edit(liability);
 }
 
+bool budget::no_liabilities() {
+    return liabilities.empty();
+}
+
 budget::money budget::get_liability_value(budget::liability & liability, budget::date d, data_cache & cache) {
     budget::money asset_value_amount;
 
