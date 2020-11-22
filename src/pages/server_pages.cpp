@@ -375,8 +375,8 @@ std::string header(const std::string& title, bool menu = true) {
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="dropdown_others" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Others</a>
                 <div class="dropdown-menu" aria-labelledby="dropdown_others">
-                  <a class="dropdown-item" href="/recurrings/list/">List Recurrings</a>
-                  <a class="dropdown-item" href="/recurrings/add/">Add Recurring Expense</a>
+                  <a class="dropdown-item" href="/recurrings/list/">List Recurring Operations</a>
+                  <a class="dropdown-item" href="/recurrings/add/">Add Recurring Operation</a>
         )=====";
 
         if (budget::is_debts_disabled()) {

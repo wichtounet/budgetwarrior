@@ -35,12 +35,13 @@ struct module_traits<recurring_module> {
 };
 
 struct recurring {
-    size_t id;
+    size_t      id;
     std::string guid;
     std::string name;
-    money amount;
+    money       amount;
     std::string recurs;
     std::string account;
+    std::string type;
 
     std::map<std::string, std::string> get_params() const ;
 
@@ -60,8 +61,8 @@ void set_recurrings_next_id(size_t next_id);
 
 void show_recurrings(budget::writer& w);
 
-void add_recurring(recurring&& recurring);
-void edit_recurring(const recurring& recurring);
+size_t add_recurring(recurring&& recurring);
+bool edit_recurring(const recurring& recurring, const budget::recurring & previous_recurring);
 bool recurring_exists(size_t id);
 void recurring_delete(size_t id);
 recurring recurring_get(size_t id);

@@ -42,11 +42,36 @@ void add_frequencypicker(budget::writer& w, const std::string& default_value = "
     )=====";
 }
 
+void add_type_picker(budget::writer& w, const std::string& default_value = "") {
+    w << R"=====(
+            <div class="form-group">
+                <label for="input_type">Type</label>
+                <select class="form-control" id="input_type" name="input_type">
+    )=====";
+
+    if ("expense" == default_value) {
+        w << "<option selected value=\"expense\">Expense</option>";
+    } else {
+        w << "<option value=\"expense\">Expense</option>";
+    }
+
+    if ("earning" == default_value) {
+        w << "<option selected value=\"earning\">Earning</option>";
+    } else {
+        w << "<option value=\"earning\">Earning</option>";
+    }
+
+    w << R"=====(
+                </select>
+            </div>
+    )=====";
+}
+
 } // namespace
 
 void budget::recurrings_list_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Recurrings List")) {
+    if (!page_start(req, res, content_stream, "Recurring Operations")) {
         return;
     }
 
@@ -60,7 +85,7 @@ void budget::recurrings_list_page(const httplib::Request& req, httplib::Response
 
 void budget::add_recurrings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "New Recurring Expense")) {
+    if (!page_start(req, res, content_stream, "New Recurring Operation")) {
         return;
     }
 
@@ -74,6 +99,7 @@ void budget::add_recurrings_page(const httplib::Request& req, httplib::Response&
     add_amount_picker(w);
     add_account_picker(w, budget::local_day());
     add_frequencypicker(w);
+    add_type_picker(w);
 
     form_end(w);
 
@@ -82,7 +108,7 @@ void budget::add_recurrings_page(const httplib::Request& req, httplib::Response&
 
 void budget::edit_recurrings_page(const httplib::Request& req, httplib::Response& res) {
     std::stringstream content_stream;
-    if (!page_start(req, res, content_stream, "Edit Recurring Expense")) {
+    if (!page_start(req, res, content_stream, "Edit Recurring Operation")) {
         return;
     }
 
