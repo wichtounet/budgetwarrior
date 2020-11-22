@@ -271,10 +271,12 @@ struct data_handler {
     }
 
     size_t size() const {
+        server_lock_guard l(lock);
         return data_.size();
     }
 
     bool empty() const {
+        server_lock_guard l(lock);
         return data_.empty();
     }
 
