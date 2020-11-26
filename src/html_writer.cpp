@@ -12,6 +12,7 @@
 #include "console.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
+#include "budget_exception.hpp"
 
 namespace {
 
@@ -409,7 +410,10 @@ budget::writer& budget::html_writer::operator<<(const budget::set_button& b) {
 }
 
 void budget::html_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left, size_t foot){
-    cpp_assert(groups > 0, "There must be at least 1 group");
+    if (!groups) {
+        throw budget_exception("Invaldid number of groups in display_table", true);
+    }
+
     cpp_unused(left);
     cpp_unused(lines);
 

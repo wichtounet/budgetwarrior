@@ -12,29 +12,29 @@
 #include "cpp_utils/assert.hpp"
 
 #include "utils.hpp"
+#include "budget_exception.hpp"
 
 namespace budget {
 
 using date_type = unsigned short;
 
-class date_exception: public std::exception {
-    protected:
-        std::string _message;
+struct date_exception : std::exception {
+    date_exception(const std::string& message) : message_(message) {}
 
-    public:
-        date_exception(const std::string& message) : _message(message){}
+    /*!
+     * Return the error message.
+     * \return The error message.
+     */
+    const std::string& message() const {
+        return message_;
+    }
 
-        /*!
-         * Return the error message.
-         * \return The error message.
-         */
-        const std::string& message() const {
-            return _message;
-        }
+    virtual const char* what() const throw() {
+        return message_.c_str();
+    }
 
-        virtual const char* what() const throw() {
-            return _message.c_str();
-        }
+protected:
+    std::string message_;
 };
 
 struct day {
@@ -242,9 +242,7 @@ struct date {
             }
         }
 
-        cpp_unreachable("Invalid state in iso_start_of_week");
-
-        return *this;
+        throw budget_exception("Invalid state in iso_start_of_week", true);
     }
 
     date_type day_of_the_week() const {

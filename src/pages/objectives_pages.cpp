@@ -154,7 +154,7 @@ void budget::objectives_card(budget::html_writer& w){
             status      = budget::get_status(month_status, objective);
             success_int = budget::compute_success(month_status, objective);
         } else {
-            cpp_unreachable("Invalid objective type");
+            throw budget_exception("Invalid objective type", true);
         }
 
         ss << R"=====(plotOptions: {)=====";

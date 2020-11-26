@@ -17,6 +17,7 @@
 #include "version.hpp"
 #include "writer.hpp"
 #include "currency.hpp"
+#include "budget_exception.hpp"
 
 // Include all the pages
 #include "pages/assets_pages.hpp"
@@ -1131,7 +1132,7 @@ void budget::add_integer_picker(budget::writer& w, const std::string& title, con
 void budget::add_money_picker(budget::writer& w, const std::string& title, const std::string& name, const std::string& default_value, bool required,
                               bool one_line, const std::string& currency) {
     if(!currency.empty()){
-        cpp_assert(one_line, "add_money_picker currency only works with one_line");
+        throw budget_exception("add_money_picker currency only works with one_line", true);
     }
 
     if (one_line) {
