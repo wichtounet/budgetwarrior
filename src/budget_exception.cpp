@@ -7,14 +7,18 @@
 
 #include "budget_exception.hpp"
 
-budget::budget_exception::budget_exception(std::string message) : m_message(std::move(message)) {}
+budget::budget_exception::budget_exception(std::string message, bool should_log) : message_(std::move(message)), should_log_(should_log) {}
 
 budget::budget_exception::~budget_exception() throw() {}
 
 const char* budget::budget_exception::what() const throw() {
-    return m_message.c_str();
+    return message_.c_str();
 }
 
 const std::string& budget::budget_exception::message() const {
-    return m_message;
+    return message_;
+}
+
+bool budget::budget_exception::should_log() const {
+    return should_log_;
 }
