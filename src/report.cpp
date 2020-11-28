@@ -15,6 +15,7 @@
 #include "console.hpp"
 #include "writer.hpp"
 #include "date.hpp"
+#include "incomes.hpp"
 
 using namespace budget;
 
@@ -46,6 +47,7 @@ void budget::report_module::load() {
     load_accounts();
     load_expenses();
     load_earnings();
+    load_incomes();
 }
 
 void budget::report_module::handle(const std::vector<std::string>& args) {
@@ -114,6 +116,10 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
                 }
             }
 
+            if (!filter) {
+                m_balance = get_base_income(cache, budget::date(year, month, 1)) + m_earnings - m_expenses;
+            }
+
             series_values[0].push_back(static_cast<float>(m_expenses));
             series_values[1].push_back(static_cast<float>(m_earnings));
             series_values[2].push_back(static_cast<float>(m_balance));
@@ -158,6 +164,10 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
                 total_balance += balance;
             }
+        }
+
+        if (!filter) {
+            total_balance = get_base_income(cache, budget::date(year, month, 1)) + total_earnings - total_expenses;
         }
 
         expenses[month - 1] = total_expenses.dollars();
