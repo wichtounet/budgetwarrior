@@ -20,7 +20,6 @@
 
 #include "config.hpp"
 #include "utils.hpp"
-#include "server.hpp"
 
 #include "assets.hpp"
 #include "fortune.hpp"

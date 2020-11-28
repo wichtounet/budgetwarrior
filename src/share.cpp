@@ -16,7 +16,6 @@
 
 #include "share.hpp"
 #include "config.hpp"
-#include "server.hpp"
 #include "http.hpp"
 #include "data.hpp"
 #include "date.hpp"

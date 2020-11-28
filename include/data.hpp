@@ -15,7 +15,6 @@
 
 #include "config.hpp"
 #include "utils.hpp"
-#include "server.hpp"
 #include "api.hpp"
 #include "server_lock.hpp"
 #include "budget_exception.hpp"

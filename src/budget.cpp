@@ -37,7 +37,6 @@
 #include "versioning.hpp"
 #include "version.hpp"
 #include "predict.hpp"
-#include "server.hpp"
 #include "retirement.hpp"
 
 using namespace budget;
@@ -45,7 +44,6 @@ using namespace budget;
 namespace {
 
 typedef std::tuple<
-            budget::server_module,
             budget::debt_module,
             budget::expenses_module,
             budget::overview_module,

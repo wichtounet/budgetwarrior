@@ -10,7 +10,6 @@
 #include <iostream>
 
 #include "currency.hpp"
-#include "server.hpp"
 #include "assets.hpp" // For get_default_currency
 #include "http.hpp"
 #include "date.hpp"
