@@ -246,10 +246,6 @@ int main(int argc, const char* argv[]) {
     //Parse the command line args
     auto args = parse_args(argc, argv, collector.aliases);
 
-    if(args.size() && args[0] == "server"){
-        set_server_running();
-    }
-
     if (!load_config()) {
         return 0;
     }
@@ -268,7 +264,7 @@ int main(int argc, const char* argv[]) {
     load_currency_cache();
     load_share_price_cache();
 
-    if (!is_server_running() && is_server_mode()) {
+    if (is_server_mode()) {
         // 1. Ensure that the server is running
 
         auto res = budget::api_get("/server/up/", false);
