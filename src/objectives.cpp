@@ -34,9 +34,9 @@ void edit(budget::objective& objective){
     edit_string_complete(objective.type, "Type", {"monthly", "yearly"}, not_empty_checker(), one_of_checker({"monthly", "yearly"}));
     edit_string_complete(objective.source,
                          "Source",
-                         {"balance", "earnings", "expenses", "savings_rate"},
+                         {"balance", "earnings", "expenses", "expenses_no_taxes", "savings_rate"},
                          not_empty_checker(),
-                         one_of_checker({"balance", "earnings", "expenses", "savings_rate"}));
+                         one_of_checker({"balance", "earnings", "expenses", "expenses_no_taxes", "savings_rate"}));
     edit_string_complete(objective.op, "Operator", {"min", "max"}, not_empty_checker(), one_of_checker({"min", "max"}));
     edit_money(objective.amount, "Amount");
 }
@@ -189,6 +189,8 @@ int budget::compute_success(const budget::status& status, const budget::objectiv
     budget::money basis;
     if (objective.source == "expenses") {
         basis = status.expenses;
+    } else if (objective.source == "expenses_no_taxes") {
+        basis = status.expenses - status.taxes;
     } else if (objective.source == "earnings") {
         basis = status.earnings;
     } else if (objective.source == "savings_rate") {
@@ -409,6 +411,8 @@ std::string budget::get_status(const budget::status& status, const budget::objec
     budget::money basis;
     if(objective.source == "expenses"){
         basis = status.expenses;
+    } else if(objective.source == "expenses_no_taxes"){
+        basis = status.expenses - status.taxes;
     } else if (objective.source == "earnings") {
         basis = status.earnings;
     } else if (objective.source == "savings_rate") {
