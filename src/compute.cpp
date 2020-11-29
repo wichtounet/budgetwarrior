@@ -40,6 +40,7 @@ budget::status budget::compute_year_status(data_cache & cache, year year, month 
     status.income  = status.base_income + status.earnings;
     status.savings = status.income - status.earnings;
 
+    status.taxes = 0;
     if (config_contains("taxes_account")) {
         auto taxes_account = config_value("taxes_account");
 
@@ -74,6 +75,7 @@ budget::status budget::compute_month_status(data_cache & cache, year year, month
     status.income      = status.base_income + status.earnings;
     status.savings     = status.income - status.expenses;
 
+    status.taxes = 0;
     if (config_contains("taxes_account")) {
         auto taxes_account = config_value("taxes_account");
 
