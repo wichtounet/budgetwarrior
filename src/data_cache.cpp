@@ -17,6 +17,18 @@ std::vector<earning> & data_cache::earnings() {
     return earnings_;
 }
 
+std::vector<earning> & data_cache::sorted_earnings() {
+    if (sorted_earnings_.empty()) {
+        sorted_earnings_ = all_earnings();
+
+        std::sort(sorted_earnings_.begin(), sorted_earnings_.end(), [](auto& lhs, auto& rhs) {
+            return lhs.date < rhs.date;
+        });
+    }
+
+    return sorted_earnings_;
+}
+
 std::vector<debt> & data_cache::debts() {
     if (debts_.empty()) {
         debts_ = all_debts();

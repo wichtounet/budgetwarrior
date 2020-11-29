@@ -25,6 +25,7 @@ namespace budget {
 
 struct data_cache {
     std::vector<earning> & earnings();
+    std::vector<earning> & sorted_earnings();
     std::vector<debt> & debts();
     std::vector<fortune> & fortunes();
     std::vector<asset_value> & asset_values();
@@ -51,6 +52,7 @@ struct data_cache {
 
 private:
     std::vector<earning> earnings_;
+    std::vector<earning> sorted_earnings_;
     std::vector<debt> debts_;
     std::vector<fortune> fortunes_;
     std::vector<asset_value> asset_values_;
