@@ -70,7 +70,7 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
     }
 
     if (yearly) {
-        w << title_begin << "Year objectives" << title_end;
+        w << title_begin << "Year goals" << title_end;
 
         if (lines) {
             w << end_of_line;
@@ -92,7 +92,7 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
         //Compute the year status
         auto year_status = budget::compute_year_status(cache);
 
-        std::vector<std::string> columns = {"Objective", "Status", "Progress"};
+        std::vector<std::string> columns = {"Goal", "Status", "Progress"};
         std::vector<std::vector<std::string>> contents;
 
         for (auto& objective : cache.objectives()) {
@@ -106,7 +106,7 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
 }
 
 void budget::monthly_objective_status(budget::writer& w){
-    w << title_begin << "Month objectives" << title_end;
+    w << title_begin << "Month goals" << title_end;
 
     auto today         = budget::local_day();
     auto current_month = today.month();
@@ -136,7 +136,7 @@ void budget::monthly_objective_status(budget::writer& w){
 
 void budget::current_monthly_objective_status(budget::writer& w, bool full_align){
     if (objectives.empty()) {
-        w << title_begin << "No objectives" << title_end;
+        w << title_begin << "No goals" << title_end;
         return;
     }
 
@@ -147,11 +147,11 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
     });
 
     if (!monthly_objectives) {
-        w << title_begin << "No objectives" << title_end;
+        w << title_begin << "No goals" << title_end;
         return;
     }
 
-    w << title_begin << "Month objectives" << title_end;
+    w << title_begin << "Month goals" << title_end;
 
     auto today = budget::local_day();
 
@@ -168,7 +168,7 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
         }
     }
 
-    std::vector<std::string> columns = {"Objective", "Status", "Progress"};
+    std::vector<std::string> columns = {"Goal", "Status", "Progress"};
     std::vector<std::vector<std::string>> contents;
 
     // Compute the month status
@@ -252,16 +252,16 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
             edit(objective);
 
             auto id = objectives.add(std::move(objective));
-            std::cout << "Objective " << id << " has been created" << std::endl;
+            std::cout << "Goal " << id << " has been created" << std::endl;
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
             size_t id = to_number<size_t>(args[2]);
 
             if (objectives.remove(id)) {
-                std::cout << "Objective " << id << " has been deleted" << std::endl;
+                std::cout << "Goal " << id << " has been deleted" << std::endl;
             } else {
-                throw budget_exception("There are no objective with id " + args[2]);
+                throw budget_exception("There are no goal with id " + args[2]);
             }
         } else if(subcommand == "edit"){
             enough_args(args, 3);
@@ -273,7 +273,7 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
             edit(objective);
 
             if (objectives.indirect_edit(objective)) {
-                std::cout << "Objective " << id << " has been modified" << std::endl;
+                std::cout << "Goal " << id << " has been modified" << std::endl;
             }
         } else {
             throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
@@ -328,10 +328,10 @@ void budget::set_objectives_next_id(size_t next_id){
 }
 
 void budget::list_objectives(budget::writer& w){
-    w << title_begin << "Objectives " << add_button("objectives") << title_end;
+    w << title_begin << "Goals " << add_button("objectives") << title_end;
 
     if (objectives.size() == 0) {
-        w << "No objectives" << end_of_line;
+        w << "No goals" << end_of_line;
     } else {
         std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount", "Edit"};
         std::vector<std::vector<std::string>> contents;
@@ -345,10 +345,10 @@ void budget::list_objectives(budget::writer& w){
 }
 
 void budget::status_objectives(budget::writer& w){
-    w << title_begin << "Objectives " << add_button("objectives") << title_end;
+    w << title_begin << "Goals " << add_button("objectives") << title_end;
 
     if(objectives.size() == 0){
-        w << "No objectives" << end_of_line;
+        w << "No goals" << end_of_line;
     } else {
         auto today = budget::local_day();
 
@@ -387,7 +387,7 @@ bool budget::objective_exists(size_t id){
 
 void budget::objective_delete(size_t id) {
     if (!objectives.exists(id)) {
-        throw budget_exception("There are no objective with id ");
+        throw budget_exception("There are no goal with id ");
     }
 
     objectives.remove(id);

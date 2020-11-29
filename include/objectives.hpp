@@ -31,7 +31,9 @@ struct objectives_module {
 template<>
 struct module_traits<objectives_module> {
     static constexpr const bool is_default = false;
-    static constexpr const char* command = "objective";
+    static constexpr const char* command = "goal";
+
+    static constexpr const inline std::array<std::pair<const char*, const char*>, 1> aliases = {{{"objective", "goal"}}};
 };
 
 struct objective {
