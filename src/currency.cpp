@@ -224,6 +224,8 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
 
     if (from == to) {
         return 1.0;
+    } else if (d > budget::local_day()) {
+        return exchange_rate(from, to, budget::local_day());
     } else {
         currency_cache_key key(d, from, to);
 
