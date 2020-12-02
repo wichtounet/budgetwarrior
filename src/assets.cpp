@@ -1344,7 +1344,12 @@ budget::money budget::get_asset_value_conv(const budget::asset & asset, data_cac
 
 budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d, data_cache & cache) {
     auto amount = get_asset_value(asset, d, cache);
-    return amount * exchange_rate(asset.currency, d);
+
+    if (amount) {
+        return amount * exchange_rate(asset.currency, d);
+    } else {
+        return amount;
+    }
 }
 
 budget::money budget::get_asset_value_conv(const budget::asset & asset, const std::string& currency, data_cache & cache) {
@@ -1353,5 +1358,10 @@ budget::money budget::get_asset_value_conv(const budget::asset & asset, const st
 
 budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d, const std::string& currency, data_cache & cache) {
     auto amount = get_asset_value(asset, d, cache);
-    return amount * exchange_rate(asset.currency, currency, d);
+
+    if (amount) {
+        return amount * exchange_rate(asset.currency, currency, d);
+    } else {
+        return amount;
+    }
 }

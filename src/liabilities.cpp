@@ -399,7 +399,12 @@ budget::money budget::get_liability_value_conv(budget::liability & liability, da
 
 budget::money budget::get_liability_value_conv(budget::liability & liability, budget::date d, data_cache & cache) {
     auto amount = get_liability_value(liability, d, cache);
-    return amount * exchange_rate(liability.currency, d);
+
+    if (amount) {
+        return amount * exchange_rate(liability.currency, d);
+    } else {
+        return amount;
+    }
 }
 
 budget::money budget::get_liability_value_conv(budget::liability & liability, const std::string& currency, data_cache & cache) {
@@ -408,5 +413,10 @@ budget::money budget::get_liability_value_conv(budget::liability & liability, co
 
 budget::money budget::get_liability_value_conv(budget::liability & liability, budget::date d, const std::string& currency, data_cache & cache) {
     auto amount = get_liability_value(liability, d, cache);
-    return amount * exchange_rate(liability.currency, currency, d);
+
+    if (amount) {
+        return amount * exchange_rate(liability.currency, currency, d);
+    } else {
+        return amount;
+    }
 }
