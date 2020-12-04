@@ -39,6 +39,14 @@ struct status {
 
         return new_status;
     }
+
+    double savings_rate() const {
+        if (savings.dollars() > 0) {
+            return 100.0 * (savings / income);
+        } else {
+            return 0.0;
+        }
+    }
 };
 
 struct data_cache;
