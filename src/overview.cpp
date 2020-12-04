@@ -1227,7 +1227,7 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
 
     second_contents.emplace_back(std::vector<std::string>{"Net Worth Increase", budget::to_string(month_increase)});
 
-    if (month_increase.zero()) {
+    if (month_increase.zero() || month_increase.negative()) {
         second_contents.emplace_back(std::vector<std::string>{"Savings Contribution", "N/A"});
     } else {
         second_contents.emplace_back(std::vector<std::string>{"Savings Contribution", budget::to_string(100.0 * (savings / month_increase)) + "%"});
