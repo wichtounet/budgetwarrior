@@ -38,7 +38,7 @@ budget::status budget::compute_year_status(data_cache & cache, year year, month 
 
     status.balance = status.budget + status.earnings - status.expenses;
     status.income  = status.base_income + status.earnings;
-    status.savings = status.income - status.earnings;
+    status.savings = status.income - status.expenses;
 
     status.taxes = 0;
     if (config_contains("taxes_account")) {
