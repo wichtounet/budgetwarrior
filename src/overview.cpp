@@ -690,6 +690,11 @@ void budget::overview_module::load(){
     load_incomes();
     load_expenses();
     load_earnings();
+
+    // Yearly overview needs net worth data
+    load_earnings();
+    load_fortunes();
+    load_assets();
 }
 
 void budget::overview_module::handle(std::vector<std::string>& args) {
@@ -1385,8 +1390,50 @@ void budget::display_year_overview(budget::year year, budget::writer& w){
 
     w << title_begin << "Overview of " << year << budget::year_selector{"overview/year", year} << title_end;
 
+    data_cache cache;
+
     auto today = budget::local_day();
     bool current = year == today.year() && today.month() != 12;
+
+    auto status = current ? compute_year_status(cache, year, today.month()) : compute_year_status(cache, year);
+
+    std::vector<std::string> second_columns;
+    std::vector<std::vector<std::string>> second_contents;
+
+    second_contents.emplace_back(std::vector<std::string>{"Total expenses", budget::to_string(status.expenses)});
+
+    if (!status.taxes.zero()){
+        auto expenses_no_taxes = status.expenses - status.taxes;
+        second_contents.emplace_back(std::vector<std::string>{"Expenses w/o taxes", budget::to_string(expenses_no_taxes)});
+    }
+
+    second_contents.emplace_back(std::vector<std::string>{"Total earnings", budget::to_string(status.earnings)});
+    second_contents.emplace_back(std::vector<std::string>{"Total income", budget::to_string(status.income)});
+    second_contents.emplace_back(std::vector<std::string>{"Savings", budget::to_string(status.savings)});
+    second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(status.savings_rate()) + "%"});
+
+    if (!status.taxes.zero()){
+        double tax_rate = 100 * (status.taxes / status.income);
+        second_contents.emplace_back(std::vector<std::string>{"Tax Rate", budget::to_string(tax_rate) + "%"});
+    }
+
+    budget::date year_start(year, 1, 1);
+    budget::date year_end = year_start.end_of_year();
+
+    auto net_worth_end = get_net_worth(year_end, cache);
+    auto net_worth_start = get_net_worth(year_start, cache);
+
+    auto year_increase = net_worth_end - net_worth_start;
+
+    second_contents.emplace_back(std::vector<std::string>{"Net Worth Increase", budget::to_string(year_increase)});
+
+    if (year_increase.zero() || year_increase.negative()) {
+        second_contents.emplace_back(std::vector<std::string>{"Savings Contribution", "N/A"});
+    } else {
+        second_contents.emplace_back(std::vector<std::string>{"Savings Contribution", budget::to_string(100.0 * (status.savings / year_increase)) + "%"});
+    }
+
+    w.display_table(second_columns, second_contents);
 
     display_local_balance(w, year, current, false, true);
     display_balance(w, year, false, true);
