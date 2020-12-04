@@ -725,10 +725,11 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
                 throw budget_exception("Too many arguments to overview month");
             }
         } else if (subcommand == "year") {
+            data_cache cache;
             if (args.size() == 2) {
-                display_year_overview(today.year(), w);
+                display_year_overview(cache, today.year(), w);
             } else if (args.size() == 3) {
-                display_year_overview(budget::year(to_number<unsigned short>(args[2])), w);
+                display_year_overview(cache, budget::year(to_number<unsigned short>(args[2])), w);
             } else {
                 throw budget_exception("Too many arguments to overview month");
             }
@@ -1343,14 +1344,12 @@ void budget::display_side_month_overview(budget::month month, budget::year year,
     writer.display_table(second_columns, second_contents, 1, {}, accounts.size() * 9 + 1);
 }
 
-void budget::display_year_overview(budget::year year, budget::writer& w){
+void budget::display_year_overview(data_cache & cache, budget::year year, budget::writer& w){
     if(invalid_accounts(year)){
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
     }
 
     w << title_begin << "Overview of " << year << budget::year_selector{"overview/year", year} << title_end;
-
-    data_cache cache;
 
     auto today = budget::local_day();
     bool current = year == today.year() && today.month() != 12;

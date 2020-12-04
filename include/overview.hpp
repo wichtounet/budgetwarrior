@@ -40,7 +40,8 @@ void display_earnings(data_cache & cache, budget::writer& , budget::year year, b
 void display_month_overview(budget::month month, budget::year year, budget::writer& );
 void display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& );
 void display_side_month_overview(budget::month month, budget::year year, budget::writer& );
-void display_year_overview(budget::year year, budget::writer& w);
+
+void display_year_overview(data_cache & cache, budget::year year, budget::writer& w);
 
 void aggregate_all_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator);
 void aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year);
