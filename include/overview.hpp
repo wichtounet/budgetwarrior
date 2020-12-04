@@ -32,10 +32,10 @@ struct module_traits<overview_module> {
     static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"aggregate", "overview aggregate"}}};
 };
 
-void display_local_balance(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
-void display_balance(budget::writer& , budget::year year, bool relaxed = false, bool last = false);
-void display_expenses(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
-void display_earnings(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_local_balance(data_cache & cache, budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_balance(data_cache & cache, budget::writer& , budget::year year, bool relaxed = false, bool last = false);
+void display_expenses(data_cache & cache, budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_earnings(data_cache & cache, budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
 
 void display_month_overview(budget::month month, budget::year year, budget::writer& );
 void display_month_overview(budget::month month, budget::writer& );

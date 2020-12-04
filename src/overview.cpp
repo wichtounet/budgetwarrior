@@ -563,7 +563,7 @@ inline void generate_total_line(std::vector<std::vector<std::string>>& contents,
 }
 
 template<typename T>
-void display_values(budget::writer& w, budget::year year, const std::string& title, const std::vector<T>& values, bool current = true, bool relaxed = true, bool last = false){
+void display_values(data_cache & cache, budget::writer& w, budget::year year, const std::string& title, const std::vector<T>& values, bool current = true, bool relaxed = true, bool last = false){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -585,8 +585,6 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
     std::unordered_map<std::string, budget::money> account_totals;;
     std::unordered_map<std::string, budget::money> account_current_totals;;
     std::vector<budget::money> totals(13, budget::money());
-
-    data_cache cache;
 
     //Prepare the rows
 
@@ -846,15 +844,15 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
     }
 }
 
-void budget::display_expenses(budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
-    display_values(w, year, "Expenses", all_expenses(), current, relaxed, last);
+void budget::display_expenses(data_cache & cache, budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
+    display_values(cache, w, year, "Expenses", all_expenses(), current, relaxed, last);
 }
 
-void budget::display_earnings(budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
-    display_values(w, year, "Earnings", all_earnings(), current, relaxed, last);
+void budget::display_earnings(data_cache & cache, budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
+    display_values(cache, w, year, "Earnings", all_earnings(), current, relaxed, last);
 }
 
-void budget::display_local_balance(budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
+void budget::display_local_balance(data_cache & cache, budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -877,8 +875,6 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
     std::unordered_map<std::string, size_t> row_mapping;
     std::unordered_map<std::string, budget::money> account_totals;
     std::unordered_map<std::string, budget::money> account_current_totals;
-
-    data_cache cache;
 
     //Prepare the rows
 
@@ -1039,7 +1035,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
     w.display_table(columns, contents, 1, {6, 8}, 0, contents.size() - c_foot);
 }
 
-void budget::display_balance(budget::writer& w, budget::year year, bool relaxed, bool last){
+void budget::display_balance(data_cache & cache, budget::writer& w, budget::year year, bool relaxed, bool last){
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
@@ -1052,8 +1048,6 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
 
     std::unordered_map<std::string, size_t> row_mapping;
     std::unordered_map<std::string, std::vector<budget::money>> account_previous;
-
-    data_cache cache;
 
     //Prepare the rows
 
@@ -1435,10 +1429,10 @@ void budget::display_year_overview(budget::year year, budget::writer& w){
 
     w.display_table(second_columns, second_contents);
 
-    display_local_balance(w, year, current, false, true);
-    display_balance(w, year, false, true);
-    display_expenses(w, year, current, false, true);
-    display_earnings(w, year, current, false, true);
+    display_local_balance(cache, w, year, current, false, true);
+    display_balance(cache, w, year, false, true);
+    display_expenses(cache, w, year, current, false, true);
+    display_earnings(cache, w, year, current, false, true);
 }
 
 void budget::display_year_overview(budget::writer& w){

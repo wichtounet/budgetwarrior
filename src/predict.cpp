@@ -20,6 +20,7 @@
 #include "budget_exception.hpp"
 #include "config.hpp"
 #include "writer.hpp"
+#include "data_cache.hpp"
 
 using namespace budget;
 
@@ -28,8 +29,10 @@ namespace {
 void predict_overview(){
     auto today = budget::local_day();
 
-    auto expenses = all_expenses();
-    auto earnings = all_earnings();
+    data_cache cache;
+
+    auto expenses = cache.expenses();
+    auto earnings = cache.earnings();
 
     auto accounts = current_accounts();
 
@@ -81,10 +84,10 @@ void predict_overview(){
 
     console_writer w(std::cout);
 
-    display_local_balance(w, today.year(), false, true);
-    display_balance(w, today.year(), true);
-    display_expenses(w, today.year(), false, true);
-    display_earnings(w, today.year(), false, true);
+    display_local_balance(cache, w, today.year(), false, true);
+    display_balance(cache, w, today.year(), true);
+    display_expenses(cache, w, today.year(), false, true);
+    display_earnings(cache, w, today.year(), false, true);
 }
 
 } // end of anonymous namespace
