@@ -38,19 +38,9 @@ void display_expenses(data_cache & cache, budget::writer& , budget::year year, b
 void display_earnings(data_cache & cache, budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
 
 void display_month_overview(budget::month month, budget::year year, budget::writer& );
-void display_month_overview(budget::month month, budget::writer& );
-void display_month_overview(budget::writer& );
-
 void display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& );
-void display_month_account_overview(size_t account_id, budget::month month, budget::writer& );
-void display_month_account_overview(size_t account_id, budget::writer& );
-
 void display_side_month_overview(budget::month month, budget::year year, budget::writer& );
-void display_side_month_overview(budget::month month, budget::writer& );
-void display_side_month_overview(budget::writer& );
-
 void display_year_overview(budget::year year, budget::writer& w);
-void display_year_overview(budget::writer& w);
 
 void aggregate_all_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator);
 void aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year);

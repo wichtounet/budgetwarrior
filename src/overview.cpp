@@ -702,18 +702,20 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
 
     budget::console_writer w(std::cout);
 
+    auto today = budget::local_day();
+
     if (args.empty() || args.size() == 1) {
-        display_month_overview(w);
+        display_month_overview(today.month(), today.year(), w);
     } else {
         auto& subcommand = args[1];
 
-        auto today = budget::local_day();
-
         if (subcommand == "month") {
+            auto today = budget::local_day();
+
             if (args.size() == 2) {
-                display_month_overview(w);
+                display_month_overview(today.month(), today.year(), w);
             } else if (args.size() == 3) {
-                display_month_overview(budget::month(to_number<unsigned short>(args[2])), w);
+                display_month_overview(budget::month(to_number<unsigned short>(args[2])), today.year(), w);
             } else if (args.size() == 4) {
                 display_month_overview(
                     budget::month(to_number<unsigned short>(args[2])),
@@ -724,7 +726,7 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
             }
         } else if (subcommand == "year") {
             if (args.size() == 2) {
-                display_year_overview(w);
+                display_year_overview(today.year(), w);
             } else if (args.size() == 3) {
                 display_year_overview(budget::year(to_number<unsigned short>(args[2])), w);
             } else {
@@ -816,16 +818,16 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
             };
 
             if (args.size() == 2) {
-                display_month_account_overview(ask_for_account(), w);
+                display_month_account_overview(ask_for_account(), today.month(), today.year(),w);
             } else {
                 auto& subsubcommand = args[2];
 
                 if (subsubcommand == "month") {
                     if (args.size() == 3) {
-                        display_month_account_overview(ask_for_account(), w);
+                        display_month_account_overview(ask_for_account(), today.month(), today.year(),w);
                     } else if (args.size() == 4) {
                         budget::month m(to_number<unsigned short>(args[3]));
-                        display_month_account_overview(ask_for_account(m), m, w);
+                        display_month_account_overview(ask_for_account(m), m, today.year(), w);
                     } else if (args.size() == 5) {
                         budget::month m(to_number<unsigned short>(args[3]));
                         budget::year y(to_number<unsigned short>(args[4]));
@@ -1235,18 +1237,6 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     writer.display_table(second_columns, second_contents, 1, {}, accounts.size() * 9 + 1);
 }
 
-void budget::display_month_overview(budget::month month, budget::writer& writer){
-    auto today = budget::local_day();
-
-    display_month_overview(month, today.year(), writer);
-}
-
-void budget::display_month_overview(budget::writer& writer){
-    auto today = budget::local_day();
-
-    display_month_overview(today.month(), today.year(), writer);
-}
-
 void budget::display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& writer){
     data_cache cache;
 
@@ -1285,18 +1275,6 @@ void budget::display_month_account_overview(size_t account_id, budget::month mon
     add_recap_line(contents, "Local Balance", local_balances, [](const budget::money& m){ return format_money(m);});
 
     writer.display_table(columns, contents, 3);
-}
-
-void budget::display_month_account_overview(size_t account_id, budget::month month, budget::writer& writer){
-    auto today = budget::local_day();
-
-    display_month_account_overview(account_id, month, today.year(), writer);
-}
-
-void budget::display_month_account_overview(size_t account_id, budget::writer& writer){
-    auto today = budget::local_day();
-
-    display_month_account_overview(account_id, today.month(), today.year(), writer);
 }
 
 void budget::display_side_month_overview(budget::month month, budget::year year, budget::writer& writer){
@@ -1365,18 +1343,6 @@ void budget::display_side_month_overview(budget::month month, budget::year year,
     writer.display_table(second_columns, second_contents, 1, {}, accounts.size() * 9 + 1);
 }
 
-void budget::display_side_month_overview(budget::month month, budget::writer& writer){
-    auto today = budget::local_day();
-
-    display_side_month_overview(month, today.year(), writer);
-}
-
-void budget::display_side_month_overview(budget::writer& writer){
-    auto today = budget::local_day();
-
-    display_side_month_overview(today.month(), today.year(), writer);
-}
-
 void budget::display_year_overview(budget::year year, budget::writer& w){
     if(invalid_accounts(year)){
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
@@ -1433,12 +1399,6 @@ void budget::display_year_overview(budget::year year, budget::writer& w){
     display_balance(cache, w, year, false, true);
     display_expenses(cache, w, year, current, false, true);
     display_earnings(cache, w, year, current, false, true);
-}
-
-void budget::display_year_overview(budget::writer& w){
-    auto today = budget::local_day();
-
-    display_year_overview(today.year(), w);
 }
 
 void budget::aggregate_all_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator){
