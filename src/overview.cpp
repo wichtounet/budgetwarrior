@@ -1367,49 +1367,77 @@ void budget::display_year_overview_header(data_cache & cache, budget::year year,
 
     w << title_begin << "Overview of " << year << budget::year_selector{"overview/year", year} << title_end;
 
-    auto today = budget::local_day();
-    bool current = year == today.year() && today.month() != 12;
+    auto today       = budget::local_day();
+    auto status      = year == today.year() ? compute_year_status(cache, year, today.month()) : compute_year_status(cache, year);
+    auto prev_year   = year - 1;
+    auto prev_status = prev_year == today.year() ? compute_year_status(cache, prev_year, today.month()) : compute_year_status(cache, prev_year);
 
-    auto status = current ? compute_year_status(cache, year, today.month()) : compute_year_status(cache, year);
+    std::vector<std::vector<std::string>> contents;
 
-    std::vector<std::string> second_columns;
-    std::vector<std::vector<std::string>> second_contents;
+    contents.push_back({"Total expenses",
+                        to_string(status.expenses),
+                        format_money_reverse(status.expenses - prev_status.expenses),
+                        format_double_reverse(100.0 * (status.expenses / prev_status.expenses - 1.0)) + "%"});
 
-    second_contents.emplace_back(std::vector<std::string>{"Total expenses", budget::to_string(status.expenses)});
-
-    if (!status.taxes.zero()){
-        auto expenses_no_taxes = status.expenses - status.taxes;
-        second_contents.emplace_back(std::vector<std::string>{"Expenses w/o taxes", budget::to_string(expenses_no_taxes)});
+    if (!status.taxes.zero()) {
+        contents.push_back({"Expenses w/o taxes",
+                            to_string(status.expenses_no_taxes()),
+                            format_money_reverse(status.expenses_no_taxes() - prev_status.expenses_no_taxes()),
+                            format_double_reverse(100.0 * (status.expenses_no_taxes() / prev_status.expenses_no_taxes() - 1.0)) + "%"});
     }
 
-    second_contents.emplace_back(std::vector<std::string>{"Total earnings", budget::to_string(status.earnings)});
-    second_contents.emplace_back(std::vector<std::string>{"Total income", budget::to_string(status.income)});
-    second_contents.emplace_back(std::vector<std::string>{"Savings", budget::to_string(status.savings)});
-    second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(status.savings_rate()) + "%"});
-    second_contents.emplace_back(std::vector<std::string>{"Savings Rate After Tax", budget::to_string(status.savings_rate_after_tax()) + "%"});
+    contents.push_back({"Total earnings",
+                        to_string(status.earnings),
+                        format_money(status.earnings - prev_status.earnings),
+                        format_double(100 * (status.earnings / prev_status.earnings - 1.0)) + "%"});
+    contents.push_back({"Total income",
+                        to_string(status.income),
+                        format_money(status.income - prev_status.income),
+                        format_double(100.0 * (status.income / prev_status.income - 1.0)) + "%"});
+    contents.push_back({"Savings",
+                        to_string(status.savings),
+                        format_money(status.savings - prev_status.savings),
+                        format_double(100.0 * (status.savings / prev_status.savings - 1.0)) + "%"});
+    contents.push_back({"Savings Rate",
+                        to_string(status.savings_rate()) + "%",
+                        format_double(status.savings_rate() - prev_status.savings_rate()),
+                        format_double(100.0 * (status.savings_rate() / prev_status.savings_rate() - 1.0)) + "%"});
+    contents.push_back({"Savings Rate After Tax",
+                        to_string(status.savings_rate_after_tax()) + "%",
+                        format_double(status.savings_rate_after_tax() - prev_status.savings_rate_after_tax()),
+                        format_double(100.0 * (status.savings_rate_after_tax() / prev_status.savings_rate_after_tax() - 1.0)) + "%"});
 
     if (!status.taxes.zero()){
-        double tax_rate = 100 * (status.taxes / status.income);
-        second_contents.emplace_back(std::vector<std::string>{"Tax Rate", budget::to_string(tax_rate) + "%"});
+        contents.push_back({"Tax Rate",
+                            to_string(status.tax_rate()) + "%",
+                            format_double_reverse(status.tax_rate() - prev_status.tax_rate()),
+                            format_double_reverse(100.0 * (status.tax_rate() / prev_status.tax_rate() - 1.0)) + "%"});
     }
 
-    budget::date year_start(year, 1, 1);
-    budget::date year_end = year_start.end_of_year();
+    budget::date  year_start(year, 1, 1);
+    budget::money year_increase = get_net_worth(year_start.end_of_year(), cache) - get_net_worth(year_start, cache);
 
-    auto net_worth_end = get_net_worth(year_end, cache);
-    auto net_worth_start = get_net_worth(year_start, cache);
+    budget::date  prev_year_start(prev_year, 1, 1);
+    budget::money prev_year_increase = get_net_worth(prev_year_start.end_of_year(), cache) - get_net_worth(prev_year_start, cache);
 
-    auto year_increase = net_worth_end - net_worth_start;
-
-    second_contents.emplace_back(std::vector<std::string>{"Net Worth Increase", budget::to_string(year_increase)});
+    contents.push_back({"Net Worth Increase",
+                        to_string(year_increase),
+                        format_money(year_increase - prev_year_increase),
+                        format_double(100.0 * (year_increase / prev_year_increase - 1.0)) + "%"});
 
     if (year_increase.zero() || year_increase.negative()) {
-        second_contents.emplace_back(std::vector<std::string>{"Savings Contribution", "N/A"});
+        contents.push_back({"Savings Contribution", "N/A", "" , ""});
     } else {
-        second_contents.emplace_back(std::vector<std::string>{"Savings Contribution", budget::to_string(100.0 * (status.savings / year_increase)) + "%"});
+        auto savings_contribution      = 100.0 * (status.savings / year_increase);
+        auto prev_savings_contribution = 100.0 * (prev_status.savings / prev_year_increase);
+        contents.push_back({"Savings Contribution",
+                            to_string(savings_contribution) + "%",
+                            format_double_reverse(savings_contribution - prev_savings_contribution),
+                            format_double_reverse(100.0 * (savings_contribution / prev_savings_contribution - 1.0)) + "%"});
     }
 
-    w.display_table(second_columns, second_contents);
+    std::vector<std::string> columns;
+    w.display_table(columns, contents);
 }
 
 void budget::display_year_overview(data_cache & cache, budget::year year, budget::writer& w){
