@@ -36,10 +36,6 @@ std::string budget::format_money(const budget::money& m) {
     }
 }
 
-std::string budget::format_money_no_color(const budget::money& m) {
-    return budget::to_string(m);
-}
-
 std::string budget::format_money_reverse(const budget::money& m) {
     if (m.positive()) {
         return "::red" + budget::to_string(m);

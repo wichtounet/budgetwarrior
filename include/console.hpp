@@ -30,8 +30,15 @@ inline std::string cyan(const std::string& str){
 }
 
 std::string format_money(const budget::money& m);
-std::string format_money_no_color(const budget::money& m);
 std::string format_money_reverse(const budget::money& m);
+
+inline std::string format_double(double m) {
+    return format_money(money::from_double(m));
+}
+
+inline std::string format_double_reverse(double m) {
+    return format_money_reverse(money::from_double(m));
+}
 
 /**
  * Returns the real size of a string. By default, accented characteres are
