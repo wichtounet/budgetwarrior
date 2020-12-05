@@ -1177,13 +1177,6 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     auto total_balance = std::accumulate(balances.begin(), balances.end(), budget::money());
     auto total_local_balance = std::accumulate(local_balances.begin(), local_balances.end(), budget::money());
 
-    budget::money savings = income - total_all_expenses;
-    double savings_rate = 0.0;
-
-    if (savings.value > 0) {
-        savings_rate = 100 * (savings / income);
-    }
-
     auto avg_status = budget::compute_avg_month_status(cache, year, month);
 
     std::vector<std::string> second_columns;
@@ -1191,23 +1184,44 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
 
     second_contents.emplace_back(std::vector<std::string>{"Total expenses", budget::to_string(total_all_expenses)});
 
+    budget::money taxes;
     if (config_contains("taxes_account")) {
        auto taxes_account = config_value("taxes_account");
 
        if (account_exists(taxes_account)) {
            auto expenses_no_taxes = total_all_expenses - total_expenses[indexes[taxes_account]];
            second_contents.emplace_back(std::vector<std::string>{"Expenses w/o taxes", budget::to_string(expenses_no_taxes)});
+           taxes = total_expenses[indexes[taxes_account]];
        }
     }
 
     second_contents.emplace_back(std::vector<std::string>{"Avg expenses", budget::to_string(avg_status.expenses)});
     second_contents.emplace_back(std::vector<std::string>{"Total earnings", budget::to_string(total_all_earnings)});
     second_contents.emplace_back(std::vector<std::string>{"Avg earnings", budget::to_string(avg_status.earnings)});
+    second_contents.emplace_back(std::vector<std::string>{"Income", budget::format_money(income)});
     second_contents.emplace_back(std::vector<std::string>{"Balance", budget::format_money(total_balance)});
     second_contents.emplace_back(std::vector<std::string>{"Local Balance", budget::format_money(total_local_balance)});
     second_contents.emplace_back(std::vector<std::string>{"Avg Local Balance", budget::format_money(avg_status.balance)});
+
+    auto savings           = income - total_all_expenses;
+    auto income_no_taxes   = income - taxes;
+    auto expenses_no_taxes = total_all_expenses - taxes;
+    auto savings_no_taxes  = income_no_taxes - expenses_no_taxes;
+
+    double savings_rate       = 0.0;
+    double savings_rate_after = 0.0;
+
+    if (savings.value > 0) {
+        savings_rate = 100 * (savings / income);
+    }
+
+    if (savings_no_taxes > 0) {
+        savings_rate_after = 100 * (savings_no_taxes / income_no_taxes);
+    }
+
     second_contents.emplace_back(std::vector<std::string>{"Savings", budget::to_string(savings)});
     second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(savings_rate) + "%"});
+    second_contents.emplace_back(std::vector<std::string>{"Savings Rate After Tax", budget::to_string(savings_rate_after) + "%"});
 
     if (config_contains("taxes_account")) {
        auto taxes_account = config_value("taxes_account");
@@ -1372,6 +1386,7 @@ void budget::display_year_overview_header(data_cache & cache, budget::year year,
     second_contents.emplace_back(std::vector<std::string>{"Total income", budget::to_string(status.income)});
     second_contents.emplace_back(std::vector<std::string>{"Savings", budget::to_string(status.savings)});
     second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(status.savings_rate()) + "%"});
+    second_contents.emplace_back(std::vector<std::string>{"Savings Rate After Tax", budget::to_string(status.savings_rate_after_tax()) + "%"});
 
     if (!status.taxes.zero()){
         double tax_rate = 100 * (status.taxes / status.income);
