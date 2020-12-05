@@ -75,6 +75,15 @@ struct month {
     bool is_default() const {
         return value == 0;
     }
+
+    bool is_valid() const {
+        return value <= 13;
+    }
+
+    month operator++() {
+        ++value;
+        return *this;
+    }
 };
 
 struct year {
