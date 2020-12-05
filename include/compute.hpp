@@ -40,6 +40,14 @@ struct status {
         return new_status;
     }
 
+    budget::money expenses_no_taxes() const {
+        return expenses - taxes;
+    }
+
+    double tax_rate() const {
+        return 100.0 * (taxes / income);
+    }
+
     double savings_rate() const {
         if (savings.dollars() > 0) {
             return 100.0 * (savings / income);
