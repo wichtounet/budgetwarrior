@@ -26,18 +26,18 @@ using namespace budget;
 namespace {
 
 bool invalid_accounts_all(){
-    auto sy = start_year();
+    data_cache cache;
+
+    auto sy = start_year(cache);
 
     auto today = budget::local_day();
 
-    data_cache cache;
-
-    std::vector<budget::account> previous = all_accounts(cache, sy, start_month(sy));
+    std::vector<budget::account> previous = all_accounts(cache, sy, start_month(cache, sy));
 
     for(unsigned short j = sy; j <= today.year(); ++j){
         budget::year year = j;
 
-        auto sm = start_month(year);
+        auto sm = start_month(cache, year);
 
         for(unsigned short i = sm; i < 13; ++i){
             budget::month month = i;
@@ -69,9 +69,9 @@ bool invalid_accounts_all(){
 }
 
 bool invalid_accounts(budget::year year){
-    auto sm = start_month(year);
-
     data_cache cache;
+
+    auto sm = start_month(cache, year);
 
     std::vector<budget::account> previous = all_accounts(cache, year, sm);;
 
@@ -128,20 +128,20 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
 }
 
 budget::money compute_total_budget_account(budget::account & account, budget::month month, budget::year year){
+    data_cache cache;
+
     // By default, the start is the year of the overview
     auto start_year_report = year;
 
     // Using option, can change to the beginning of all time
     if(budget::config_contains("multi_year_balance") && budget::config_value("multi_year_balance") == "true"){
-        start_year_report = start_year();
+        start_year_report = start_year(cache);
     }
-
-    data_cache cache;
 
     budget::money total;
 
     for(budget::year y = start_year_report; y <= year; y = y + 1){
-        budget::month m = start_month(y);
+        budget::month m = start_month(cache, y);
 
         while(true){
             if(y == year && m >= month){
@@ -190,11 +190,11 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
 
     // Using option, can change to the beginning of all time
     if(budget::config_contains("multi_year_balance") && budget::config_value("multi_year_balance") == "true"){
-        start_year_report = start_year();
+        start_year_report = start_year(cache);
     }
 
     for(budget::year y = start_year_report; y <= year; y = y + 1){
-        budget::month m = start_month(y);
+        budget::month m = start_month(cache, y);
 
         while(true){
             if(y == year && m >= month){
@@ -382,7 +382,8 @@ void aggregate_overview_month(const Data & data, budget::writer& w, bool full, b
     if (year == budget::local_day().year()) {
         months = budget::local_day().month();
     } else {
-        months = 12 - budget::start_month(year) + 1;
+        data_cache cache;
+        months = 12 - budget::start_month(cache, year) + 1;
     }
 
     auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
@@ -515,7 +516,9 @@ void add_month_columns(std::vector<std::string>& columns, budget::month sm){
 }
 
 int get_current_months(budget::year year){
-    auto sm = start_month(year);
+    data_cache cache;
+
+    auto sm = start_month(cache, year);
     auto current_months = 12 - sm + 1;
 
     auto today = budget::local_day();
@@ -567,7 +570,7 @@ void display_values(data_cache & cache, budget::writer& w, budget::year year, co
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    auto sm = start_month(year);
+    auto sm = start_month(cache, year);
     auto months = 12 - sm + 1;
     auto current_months = get_current_months(year);
 
@@ -861,7 +864,7 @@ void budget::display_local_balance(data_cache & cache, budget::writer& w, budget
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    auto sm = start_month(year);
+    auto sm = start_month(cache, year);
     auto months = 12 - sm + 1;
     auto current_months = get_current_months(year);
 
@@ -1044,7 +1047,7 @@ void budget::display_balance(data_cache & cache, budget::writer& w, budget::year
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    auto sm = start_month(year);
+    auto sm = start_month(cache, year);
 
     columns.push_back("Balance");
     add_month_columns(columns, sm);

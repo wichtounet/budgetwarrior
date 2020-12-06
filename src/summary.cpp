@@ -204,8 +204,6 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    auto sm = start_month(year);
-
     columns.push_back("Account");
     columns.push_back("Expenses");
     columns.push_back("Earnings");
@@ -232,6 +230,8 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
     budget::money prev_local;
 
     data_cache cache;
+
+    auto sm = start_month(cache, year);
 
     for (unsigned short i = sm; i <= month; ++i) {
         budget::month m = i;

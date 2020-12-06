@@ -26,7 +26,7 @@ budget::status budget::compute_year_status(data_cache & cache, year year) {
 budget::status budget::compute_year_status(data_cache & cache, year year, month month) {
     budget::status status;
 
-    auto sm = start_month(year);
+    auto sm = start_month(cache, year);
 
     status.expenses = accumulate_amount(all_expenses_between(cache, year, sm, month));
     status.earnings = accumulate_amount(all_earnings_between(cache, year, sm, month));

@@ -76,9 +76,9 @@ void budget::report_module::handle(const std::vector<std::string>& args) {
 void budget::report(budget::writer& w, budget::year year, bool filter, const std::string& filter_account) {
     auto today = budget::local_day();
 
-    auto sm = start_month(year);
-
     data_cache cache;
+
+    auto sm = start_month(cache, year);
 
     if (w.is_web()) {
         w << title_begin << "Monthly report of " + to_string(year) << title_end;

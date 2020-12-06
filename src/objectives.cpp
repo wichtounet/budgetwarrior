@@ -108,12 +108,12 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
 void budget::monthly_objective_status(budget::writer& w){
     w << title_begin << "Month goals" << title_end;
 
+    data_cache cache;
+
     auto today         = budget::local_day();
     auto current_month = today.month();
     auto current_year  = today.year();
-    auto sm            = start_month(current_year);
-
-    data_cache cache;
+    auto sm            = start_month(cache, current_year);
 
     for (auto& objective : cache.objectives()) {
         if (objective.type == "monthly") {

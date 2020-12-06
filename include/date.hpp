@@ -526,8 +526,10 @@ inline std::string to_string(budget::date date){
     return date_to_string(date);
 }
 
-unsigned short start_year();
-unsigned short start_month(budget::year year);
+struct data_cache;
+
+unsigned short start_year(data_cache & cache);
+unsigned short start_month(data_cache & cache, budget::year year);
 
 } //end of namespace budget
 
