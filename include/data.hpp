@@ -241,7 +241,7 @@ struct data_handler {
         } else {
             set_changed_internal();
 
-            return size() < before;
+            return data_.size() < before;
         }
     }
 
