@@ -229,16 +229,14 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
     budget::money prev_balance;
     budget::money prev_local;
 
-    data_cache cache;
-
-    auto sm = start_month(cache, year);
+    auto sm = start_month(w.cache, year);
 
     for (unsigned short i = sm; i <= month; ++i) {
         budget::month m = i;
 
-        for (auto& account : all_accounts(cache, year, m)) {
-            auto total_expenses = accumulate_amount_if(cache.expenses(), [account, year, m](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
-            auto total_earnings = accumulate_amount_if(cache.earnings(), [account, year, m](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
+        for (auto& account : all_accounts(w.cache, year, m)) {
+            auto total_expenses = accumulate_amount_if(w.cache.expenses(), [account, year, m](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
+            auto total_earnings = accumulate_amount_if(w.cache.earnings(), [account, year, m](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
 
             auto balance       = account_previous[account.name] + account.amount - total_expenses + total_earnings;
             auto local_balance = account.amount - total_expenses + total_earnings;

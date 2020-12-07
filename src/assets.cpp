@@ -32,10 +32,9 @@ namespace {
 
 static data_handler<asset> assets { "assets", "assets.data" };
 
-std::vector<std::string> get_asset_names(){
+std::vector<std::string> get_asset_names(data_cache& cache) {
     std::vector<std::string> asset_names;
 
-    data_cache cache;
     for (auto& asset : cache.user_assets()) {
         asset_names.push_back(asset.name);
     }
@@ -43,10 +42,9 @@ std::vector<std::string> get_asset_names(){
     return asset_names;
 }
 
-std::vector<std::string> get_share_asset_names(){
+std::vector<std::string> get_share_asset_names(data_cache& cache) {
     std::vector<std::string> asset_names;
 
-    data_cache cache;
     for (auto& asset : cache.user_assets()) {
         if (asset.share_based) {
             asset_names.push_back(asset.name);
@@ -163,7 +161,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 id = to_number<size_t>(args[2]);
             } else {
                 std::string name;
-                edit_string_complete(name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
+                edit_string_complete(name, "Asset", get_asset_names(w.cache), not_empty_checker(), asset_checker());
 
                 id = budget::get_asset(name).id;
             }
@@ -198,7 +196,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 id = to_number<size_t>(args[2]);
             } else {
                 std::string name;
-                edit_string_complete(name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
+                edit_string_complete(name, "Asset", get_asset_names(w.cache), not_empty_checker(), asset_checker());
 
                 id = get_asset(name).id;
             }
@@ -210,9 +208,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             //Verify that there are no OTHER asset with this name
             //in the current set of assets (taking archiving into asset)
 
-            data_cache cache;
-
-            for (auto& other_asset : cache.user_assets()) {
+            for (auto& other_asset : w.cache.user_assets()) {
                 if (other_asset.id != id) {
                     if (other_asset.name == asset.name) {
                         throw budget_exception("There is already an asset with the name " + asset.name);
@@ -221,7 +217,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             }
 
             do {
-                for (auto & clas : cache.asset_classes()) {
+                for (auto & clas : w.cache.asset_classes()) {
                     budget::money alloc = get_asset_class_allocation(asset, clas);
                     edit_money(alloc, clas.name);
                     update_asset_class_allocation(asset, clas, alloc);
@@ -343,7 +339,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     asset_value.liability = false;
 
                     std::string asset_name;
-                    edit_string_complete(asset_name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
+                    edit_string_complete(asset_name, "Asset", get_asset_names(w.cache), not_empty_checker(), asset_checker());
                     asset_value.asset_id = get_asset(asset_name).id;
 
                     edit_money(asset_value.amount, "Amount", not_negative_checker());
@@ -377,7 +373,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     }
 
                     std::string asset_name = get_asset(value.asset_id).name;
-                    edit_string_complete(asset_name, "Asset", get_asset_names(), not_empty_checker(), asset_checker());
+                    edit_string_complete(asset_name, "Asset", get_asset_names(w.cache), not_empty_checker(), asset_checker());
                     value.asset_id = get_asset(asset_name).id;
 
                     edit_money(value.amount, "Amount", not_negative_checker());
@@ -411,7 +407,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 auto& subsubcommand = args[2];
 
                 if (subsubcommand == "add") {
-                    if (get_share_asset_names().empty()) {
+                    if (get_share_asset_names(w.cache).empty()) {
                         throw budget_exception("There are no asset with shares, create one first");
                     }
 
@@ -419,7 +415,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     asset_share.guid = generate_guid();
 
                     std::string asset_name;
-                    edit_string_complete(asset_name, "Asset", get_share_asset_names(), not_empty_checker(), share_asset_checker());
+                    edit_string_complete(asset_name, "Asset", get_share_asset_names(w.cache), not_empty_checker(), share_asset_checker());
                     asset_share.asset_id = get_asset(asset_name).id;
 
                     asset_share.shares = 0;
@@ -453,7 +449,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                     auto share = get_asset_share(id);
 
                     std::string asset_name = get_asset(share.asset_id).name;
-                    edit_string_complete(asset_name, "Asset", get_share_asset_names(), not_empty_checker(), share_asset_checker());
+                    edit_string_complete(asset_name, "Asset", get_share_asset_names(w.cache), not_empty_checker(), share_asset_checker());
                     share.asset_id = get_asset(asset_name).id;
 
                     edit_number(share.shares, "Shares");
@@ -833,17 +829,15 @@ void budget::show_asset_portfolio(budget::writer& w){
 
     budget::money total;
 
-    data_cache cache;
-
-    for (auto& asset : cache.user_assets()) {
+    for (auto& asset : w.cache.user_assets()) {
         if (asset.portfolio) {
-            total += get_asset_value_conv(asset, cache);
+            total += get_asset_value_conv(asset, w.cache);
         }
     }
 
-    for(auto& asset : cache.user_assets()){
+    for(auto& asset : w.cache.user_assets()){
         if (asset.portfolio) {
-            auto amount = get_asset_value(asset, cache);
+            auto amount = get_asset_value(asset, w.cache);
 
             if (amount) {
                 auto conv_amount  = amount * exchange_rate(asset.currency);
@@ -877,27 +871,25 @@ void budget::show_asset_rebalance(budget::writer& w, bool nocash){
 
     budget::money total;
 
-    data_cache cache;
-
-    for (auto& asset : cache.user_assets()) {
+    for (auto& asset : w.cache.user_assets()) {
         if (asset.portfolio) {
             if (nocash && asset.is_cash()) {
                 continue;
             }
 
-            total += get_asset_value_conv(asset, cache);
+            total += get_asset_value_conv(asset, w.cache);
         }
     }
 
     budget::money total_rebalance;
 
-    for (auto& asset : cache.user_assets()) {
+    for (auto& asset : w.cache.user_assets()) {
         if (asset.portfolio) {
             if (nocash && asset.is_cash()) {
                 continue;
             }
 
-            auto amount = get_asset_value(asset, cache);
+            auto amount = get_asset_value(asset, w.cache);
 
             if (amount.zero() && asset.portfolio_alloc.zero()) {
                 continue;
@@ -945,10 +937,8 @@ void budget::small_show_asset_values(budget::writer& w){
 
     budget::money total;
 
-    data_cache cache;
-
-    for (auto& asset : cache.user_assets()) {
-        auto amount = get_asset_value(asset, cache);
+    for (auto& asset : w.cache.user_assets()) {
+        auto amount = get_asset_value(asset, w.cache);
 
         if (amount) {
             contents.push_back({asset.name, to_string(amount), asset.currency});
@@ -971,14 +961,12 @@ void budget::show_asset_values(budget::writer& w, bool liability){
         return;
     }
 
-    data_cache cache;
-
     if (!liability) {
         w << title_begin << "Net Worth" << title_end;
 
         std::vector<std::string> columns = {"Name"};
 
-        for (auto & clas : cache.asset_classes()) {
+        for (auto & clas : w.cache.asset_classes()) {
             columns.emplace_back(clas.name);
         }
 
@@ -992,15 +980,15 @@ void budget::show_asset_values(budget::writer& w, bool liability){
         budget::money assets_total;
         budget::money liabilities_total;
 
-        for(auto& asset : cache.user_assets()){
-            auto amount = get_asset_value(asset, cache);
+        for(auto& asset : w.cache.user_assets()){
+            auto amount = get_asset_value(asset, w.cache);
 
             if (amount) {
                 std::vector<std::string> line;
 
                 line.emplace_back(asset.name);
 
-                for (auto& clas : cache.asset_classes()) {
+                for (auto& clas : w.cache.asset_classes()) {
                     bool found = false;
 
                     for (auto& [class_id, alloc] : asset.classes) {
@@ -1034,7 +1022,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
             line.emplace_back("Total");
 
-            for (auto& clas : cache.asset_classes()) {
+            for (auto& clas : w.cache.asset_classes()) {
                 if (classes.count(clas.name)) {
                     line.emplace_back(budget::to_string(classes[clas.name]));
                 } else {
@@ -1055,7 +1043,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
             line.emplace_back("Distribution");
 
-            for (auto& clas : cache.asset_classes()) {
+            for (auto& clas : w.cache.asset_classes()) {
                 if (classes.count(clas.name)) {
                     auto amount = classes[clas.name];
                     line.emplace_back(budget::to_string_precision(100 * amount.dollars() / (double) assets_total.dollars(), 2));
@@ -1081,7 +1069,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             line2.emplace_back("Desired Total");
             line3.emplace_back("Difference (need)");
 
-            for (auto& clas : cache.asset_classes()) {
+            for (auto& clas : w.cache.asset_classes()) {
                 auto desired_alloc = get_asset_class_allocation(desired, clas);
 
                 line1.emplace_back(to_string(desired_alloc));
@@ -1108,13 +1096,13 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             contents.emplace_back(std::move(line3));
         }
 
-        auto liabilities = cache.liabilities();
+        auto liabilities = w.cache.liabilities();
 
         if (liabilities.size()) {
             contents.emplace_back(columns.size(), "");
 
             for (auto & liability : liabilities) {
-                auto amount = get_liability_value(liability, cache);
+                auto amount = get_liability_value(liability, w.cache);
 
                 if (amount) {
                     std::vector<std::string> line(columns.size(), "");
@@ -1179,8 +1167,8 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         budget::money total;
 
-        for(auto& asset : cache.liabilities()){
-            auto amount = get_liability_value(asset, cache);
+        for(auto& asset : w.cache.liabilities()){
+            auto amount = get_liability_value(asset, w.cache);
 
             if (amount) {
                 std::vector<std::string> line;

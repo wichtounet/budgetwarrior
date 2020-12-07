@@ -152,17 +152,15 @@ void budget::retirement_status(budget::writer& w) {
         }
     }
 
-    data_cache cache;
-
     auto currency       = get_default_currency();
     auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
     auto roi            = to_number<double>(internal_config_value("expected_roi"));
     auto years          = double(int(100.0 / wrate));
-    auto expenses       = running_expenses(cache);
-    auto savings_rate   = running_savings_rate(cache);
-    auto nw             = get_net_worth(cache);
+    auto expenses       = running_expenses(w.cache);
+    auto savings_rate   = running_savings_rate(w.cache);
+    auto nw             = get_net_worth(w.cache);
     auto missing        = years * expenses - nw;
-    auto income         = 12 * get_base_income(cache);
+    auto income         = 12 * get_base_income(w.cache);
     auto a_savings_rate = (income - expenses) / income;
 
     size_t base_months   = 0;

@@ -78,13 +78,12 @@ void budget::show_incomes(budget::writer& w) {
 
     w << title_begin << "Incomes " << set_button("incomes") << title_end;
 
-    data_cache cache;
-    w << p_begin << "Current income: " << get_base_income(cache) << " " << get_default_currency() << p_end;
+    w << p_begin << "Current income: " << get_base_income(w.cache) << " " << get_default_currency() << p_end;
 
     std::vector<std::string> columns = {"ID", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for (auto& income : cache.incomes()) {
+    for (auto& income : w.cache.incomes()) {
         contents.push_back({to_string(income.id), to_string(income.amount), to_string(income.since), to_string(income.until), "::edit::incomes::" + to_string(income.id)});
     }
 

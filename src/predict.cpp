@@ -84,10 +84,10 @@ void predict_overview(){
 
     console_writer w(std::cout);
 
-    display_local_balance(cache, w, today.year(), false, true);
-    display_balance(cache, w, today.year(), true);
-    display_expenses(cache, w, today.year(), false, true);
-    display_earnings(cache, w, today.year(), false, true);
+    display_local_balance(w, today.year(), false, true);
+    display_balance(w, today.year(), true);
+    display_expenses(w, today.year(), false, true);
+    display_earnings(w, today.year(), false, true);
 }
 
 } // end of anonymous namespace

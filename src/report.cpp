@@ -76,9 +76,7 @@ void budget::report_module::handle(const std::vector<std::string>& args) {
 void budget::report(budget::writer& w, budget::year year, bool filter, const std::string& filter_account) {
     auto today = budget::local_day();
 
-    data_cache cache;
-
-    auto sm = start_month(cache, year);
+    auto sm = start_month(w.cache, year);
 
     if (w.is_web()) {
         w << title_begin << "Monthly report of " + to_string(year) << title_end;
@@ -105,10 +103,10 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
             budget::money m_expenses;
             budget::money m_earnings;
 
-            for (auto& account : all_accounts(cache, year, month)) {
+            for (auto& account : all_accounts(w.cache, year, month)) {
                 if (!filter || account.name == filter_account) {
-                    auto expenses = accumulate_amount(all_expenses_month(cache, account.id, year, month));
-                    auto earnings = accumulate_amount(all_earnings_month(cache, account.id, year, month));
+                    auto expenses = accumulate_amount(all_expenses_month(w.cache, account.id, year, month));
+                    auto earnings = accumulate_amount(all_earnings_month(w.cache, account.id, year, month));
 
                     m_expenses += expenses;
                     m_earnings += earnings;
@@ -117,7 +115,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
             }
 
             if (!filter) {
-                m_balance = get_base_income(cache, budget::date(year, month, 1)) + m_earnings - m_expenses;
+                m_balance = get_base_income(w.cache, budget::date(year, month, 1)) + m_earnings - m_expenses;
             }
 
             series_values[0].push_back(static_cast<float>(m_expenses));
@@ -148,11 +146,11 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
         budget::money total_earnings;
         budget::money total_balance;
 
-        for (auto& account : all_accounts(cache, year, month)) {
+        for (auto& account : all_accounts(w.cache, year, month)) {
             if (!filter || account.name == filter_account) {
-                auto expenses = accumulate_amount_if(cache.expenses(),
+                auto expenses = accumulate_amount_if(w.cache.expenses(),
                                                      [year, month, account](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
-                auto earnings = accumulate_amount_if(cache.earnings(),
+                auto earnings = accumulate_amount_if(w.cache.earnings(),
                                                      [year, month, account](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
 
                 total_expenses += expenses;
@@ -167,7 +165,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
         }
 
         if (!filter) {
-            total_balance = get_base_income(cache, budget::date(year, month, 1)) + total_earnings - total_expenses;
+            total_balance = get_base_income(w.cache, budget::date(year, month, 1)) + total_earnings - total_expenses;
         }
 
         expenses[month - 1] = total_expenses.dollars();

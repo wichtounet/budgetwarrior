@@ -13,6 +13,7 @@
 
 #include "date.hpp"
 #include "money.hpp"
+#include "data_cache.hpp"
 
 namespace budget {
 
@@ -68,6 +69,8 @@ struct set_button {
 };
 
 struct writer {
+    data_cache cache;
+
     virtual writer& operator<<(const std::string& value) = 0;
     virtual writer& operator<<(const double& value) = 0;
 

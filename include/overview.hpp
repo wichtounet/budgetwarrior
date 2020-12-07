@@ -32,17 +32,17 @@ struct module_traits<overview_module> {
     static constexpr const std::array<std::pair<const char*, const char*>, 1> aliases = {{{"aggregate", "overview aggregate"}}};
 };
 
-void display_local_balance(data_cache & cache, budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
-void display_balance(data_cache & cache, budget::writer& , budget::year year, bool relaxed = false, bool last = false);
-void display_expenses(data_cache & cache, budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
-void display_earnings(data_cache & cache, budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_local_balance(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_balance(budget::writer& , budget::year year, bool relaxed = false, bool last = false);
+void display_expenses(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
+void display_earnings(budget::writer& , budget::year year, bool current = true, bool relaxed = false, bool last = false);
 
 void display_month_overview(budget::month month, budget::year year, budget::writer& );
 void display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& );
 void display_side_month_overview(budget::month month, budget::year year, budget::writer& );
 
-void display_year_overview_header(data_cache & cache, budget::year year, budget::writer& w);
-void display_year_overview(data_cache & cache, budget::year year, budget::writer& w);
+void display_year_overview_header(budget::year year, budget::writer& w);
+void display_year_overview(budget::year year, budget::writer& w);
 
 void aggregate_all_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator);
 void aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year);
