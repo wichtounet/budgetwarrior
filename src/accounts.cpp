@@ -441,9 +441,8 @@ std::vector<account> budget::all_accounts(){
     return accounts.data();
 }
 
-std::vector<budget::account> budget::current_accounts(){
+std::vector<budget::account> budget::current_accounts(data_cache & cache){
     auto today = budget::local_day();
-    data_cache cache;
     return all_accounts(cache, today.year(), today.month());
 }
 
@@ -472,7 +471,8 @@ void budget::set_accounts_next_id(size_t next_id){
 std::vector<std::string> budget::all_account_names(){
     std::vector<std::string> account_names;
 
-    for (auto& account : current_accounts()) {
+    data_cache cache;
+    for (auto& account : current_accounts(cache)) {
         account_names.push_back(account.name);
     }
 

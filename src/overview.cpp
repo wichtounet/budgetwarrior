@@ -308,7 +308,8 @@ std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, boo
         }
     }
 
-    for (auto& account : current_accounts()) {
+    data_cache cache;
+    for (auto& account : current_accounts(cache)) {
         auto it = acc_data.find(account.name);
 
         if (it == acc_data.end()) {
@@ -328,7 +329,7 @@ void aggregate_overview(const Data & data, budget::writer& w, bool full, bool di
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    for (auto& account : current_accounts()) {
+    for (auto& account : current_accounts(w.cache)) {
         auto& items = acc_data[account.name];
 
         auto column = columns.size();
@@ -367,7 +368,7 @@ void aggregate_overview(const Data & data, budget::writer& w, bool full, bool di
 
     contents.back()[i++] = "Total";
 
-    for(auto& account : current_accounts()){
+    for(auto& account : current_accounts(w.cache)){
         contents.back()[i] = to_string(totals[account.name]);
         contents.back()[i + 1] = to_string_precision(100.0 * (totals[account.name] / total), 2) + "%";
         i += 3;
@@ -392,7 +393,7 @@ void aggregate_overview_month(const Data & data, budget::writer& w, bool full, b
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    for (auto& account : current_accounts()) {
+    for (auto& account : current_accounts(w.cache)) {
         auto& items = acc_data[account.name];
 
         auto column = columns.size();
@@ -431,7 +432,7 @@ void aggregate_overview_month(const Data & data, budget::writer& w, bool full, b
 
     contents.back()[i++] = "Total";
 
-    for(auto& account : current_accounts()){
+    for(auto& account : current_accounts(w.cache)){
         contents.back()[i] = to_string(totals[account.name]);
         i += 3;
     }
@@ -459,7 +460,7 @@ void aggregate_overview_fv(const Data & data, budget::writer& w, bool full, bool
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    for (auto& account : current_accounts()) {
+    for (auto& account : current_accounts(w.cache)) {
         auto& items = acc_data[account.name];
 
         auto column = columns.size();
@@ -498,7 +499,7 @@ void aggregate_overview_fv(const Data & data, budget::writer& w, bool full, bool
 
     contents.back()[i++] = "Total";
 
-    for(auto& account : current_accounts()){
+    for(auto& account : current_accounts(w.cache)){
         contents.back()[i] = to_string(totals[account.name]);
         i += 3;
     }

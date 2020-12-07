@@ -221,9 +221,7 @@ bool no_asset_shares();
 budget::money get_portfolio_value();
 budget::money get_net_worth_cash();
 
-budget::money get_net_worth();
 budget::money get_net_worth(data_cache & cache);
-budget::money get_net_worth(budget::date d);
 budget::money get_net_worth(budget::date d, data_cache & cache);
 
 // The value of an asset in its own currency

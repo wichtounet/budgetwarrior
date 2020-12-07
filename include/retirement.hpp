@@ -31,7 +31,6 @@ struct module_traits<retirement_module> {
 
 struct asset_value;
 
-float fi_ratio(budget::date d);
 float fi_ratio(budget::date d, data_cache & cache);
 
 void retirement_status(budget::writer& w);

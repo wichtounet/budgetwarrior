@@ -34,7 +34,7 @@ void predict_overview(){
     auto expenses = cache.expenses();
     auto earnings = cache.earnings();
 
-    auto accounts = current_accounts();
+    auto accounts = current_accounts(cache);
 
     std::map<std::string, size_t> account_mappings;
 

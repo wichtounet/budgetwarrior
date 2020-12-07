@@ -123,12 +123,6 @@ void budget::retirement_module::handle(std::vector<std::string>& args) {
     }
 }
 
-float budget::fi_ratio(budget::date d) {
-    data_cache cache;
-
-    return fi_ratio(d, cache);
-}
-
 float budget::fi_ratio(budget::date d, data_cache & cache) {
     auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
     auto years          = double(int(100.0 / wrate));

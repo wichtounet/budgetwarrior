@@ -58,7 +58,7 @@ struct data_cache;
 
 std::vector<budget::account> all_accounts();
 std::vector<budget::account> all_accounts(data_cache & cache, year year, month month);
-std::vector<budget::account> current_accounts();
+std::vector<budget::account> current_accounts(data_cache & cache);
 
 budget::account get_account(size_t id);
 budget::account get_account(std::string name, year year, month month);

@@ -1239,18 +1239,8 @@ budget::money budget::get_portfolio_value(){
     return total;
 }
 
-budget::money budget::get_net_worth(){
-    return get_net_worth(budget::local_day());
-}
-
 budget::money budget::get_net_worth(data_cache & cache){
     return get_net_worth(budget::local_day(), cache);
-}
-
-budget::money budget::get_net_worth(budget::date d){
-    data_cache cache;
-
-    return get_net_worth(d, cache);
 }
 
 budget::money budget::get_net_worth(budget::date d, data_cache & cache) {
