@@ -211,6 +211,36 @@ bool budget::config_contains_and_true(const std::string& key) {
     return false;
 }
 
+std::string budget::user_config_value(const std::string& key, const std::string& def) {
+    // 1. Check for the global configuration
+    if (config_contains(key)) {
+        return config_value(key);
+    }
+
+    // 2. Check foir the internal configuration
+    if (internal_config_contains(key)) {
+        return internal_config_value(key);
+    }
+
+    // 3. Return the default value
+    return def;
+}
+
+bool budget::user_config_value_bool(const std::string& key, bool def) {
+    // 1. Check for the global configuration
+    if (config_contains(key)) {
+        return config_value(key) == "true";
+    }
+
+    // 2. Check foir the internal configuration
+    if (internal_config_contains(key)) {
+        return internal_config_value(key) == "true";
+    }
+
+    // 3. Return the default value
+    return def;
+}
+
 bool budget::internal_config_contains(const std::string& key){
     return internal.find(key) != internal.end();
 }

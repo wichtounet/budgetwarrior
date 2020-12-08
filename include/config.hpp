@@ -28,6 +28,9 @@ std::string config_value(const std::string& key);
 std::string config_value(const std::string& key, const std::string& def);
 bool config_contains_and_true(const std::string& key);
 
+std::string user_config_value(const std::string& key, const std::string& def);
+bool user_config_value_bool(const std::string& key, bool def);
+
 bool internal_config_contains(const std::string& key);
 std::string& internal_config_value(const std::string& key);
 void internal_config_remove(const std::string& key);
