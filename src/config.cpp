@@ -254,19 +254,11 @@ void budget::internal_config_remove(const std::string& key){
 }
 
 std::string budget::get_web_user(){
-    if (config_contains("web_user")) {
-        return config_value("web_user");
-    }
-
-    return "admin";
+    return user_config_value("web_user", "admin");
 }
 
 std::string budget::get_web_password(){
-    if (config_contains("web_password")) {
-        return config_value("web_password");
-    }
-
-    return "1234";
+    return user_config_value("web_password", "1234");
 }
 
 std::string budget::get_server_listen(){
