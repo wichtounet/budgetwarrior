@@ -1185,14 +1185,13 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     second_contents.emplace_back(std::vector<std::string>{"Total expenses", budget::to_string(total_all_expenses)});
 
     budget::money taxes;
-    if (config_contains("taxes_account")) {
-       auto taxes_account = config_value("taxes_account");
 
-       if (account_exists(taxes_account)) {
-           auto expenses_no_taxes = total_all_expenses - total_expenses[indexes[taxes_account]];
-           second_contents.emplace_back(std::vector<std::string>{"Expenses w/o taxes", budget::to_string(expenses_no_taxes)});
-           taxes = total_expenses[indexes[taxes_account]];
-       }
+    if (has_taxes_account()) {
+       auto taxes_account_name = taxes_account().name;
+
+       auto expenses_no_taxes = total_all_expenses - total_expenses[indexes[taxes_account_name]];
+       second_contents.emplace_back(std::vector<std::string>{"Expenses w/o taxes", budget::to_string(expenses_no_taxes)});
+       taxes = total_expenses[indexes[taxes_account_name]];
     }
 
     second_contents.emplace_back(std::vector<std::string>{"Avg expenses", budget::to_string(avg_status.expenses)});
@@ -1223,16 +1222,10 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(savings_rate) + "%"});
     second_contents.emplace_back(std::vector<std::string>{"Savings Rate After Tax", budget::to_string(savings_rate_after) + "%"});
 
-    if (config_contains("taxes_account")) {
-       auto taxes_account = config_value("taxes_account");
+    if (has_taxes_account()) {
+       double tax_rate = 100 * (taxes / income);
 
-       if (account_exists(taxes_account)) {
-           auto taxes = total_expenses[indexes[taxes_account]];
-
-            double tax_rate = 100 * (taxes / income);
-
-           second_contents.emplace_back(std::vector<std::string>{"Tax Rate", budget::to_string(tax_rate) + "%"});
-       }
+       second_contents.emplace_back(std::vector<std::string>{"Tax Rate", budget::to_string(tax_rate) + "%"});
     }
 
     budget::date month_start(year, month, 1);

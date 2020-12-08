@@ -41,14 +41,11 @@ budget::status budget::compute_year_status(data_cache & cache, year year, month 
     status.savings = status.income - status.expenses;
 
     status.taxes = 0;
-    if (config_contains("taxes_account")) {
-        auto taxes_account = config_value("taxes_account");
 
-        if (account_exists(taxes_account)) {
-            auto account_id = get_account(taxes_account, year, month).id;
+    if (has_taxes_account()) {
+        auto account_id = taxes_account().id;
 
-            status.taxes = accumulate_amount(all_expenses_between(cache, account_id, year, sm, month));
-        }
+        status.taxes = accumulate_amount(all_expenses_between(cache, account_id, year, sm, month));
     }
 
     return status;
@@ -76,14 +73,11 @@ budget::status budget::compute_month_status(data_cache & cache, year year, month
     status.savings     = status.income - status.expenses;
 
     status.taxes = 0;
-    if (config_contains("taxes_account")) {
-        auto taxes_account = config_value("taxes_account");
 
-        if (account_exists(taxes_account)) {
-            auto account_id = get_account(taxes_account, year, month).id;
+    if (has_taxes_account()) {
+        auto account_id = taxes_account().id;
 
-            status.taxes = accumulate_amount(all_expenses_month(cache, account_id, year, month));
-        }
+        status.taxes = accumulate_amount(all_expenses_month(cache, account_id, year, month));
     }
 
     return status;

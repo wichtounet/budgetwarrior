@@ -593,3 +593,30 @@ account budget::default_account() {
     auto today = local_day();
     return get_account(account_name, today.year(), today.month());
 }
+
+bool budget::has_taxes_account() {
+    auto account_name = user_config_value("taxes_account", "");
+
+    if (account_name.empty()) {
+        return false;
+    }
+
+    if (account_exists(account_name)) {
+        // TODO: We should check if it exists in the current archive version
+        return true;
+    }
+
+    return false;
+}
+
+account budget::taxes_account() {
+    if (!has_taxes_account()) {
+        throw budget_exception("No taxes account");
+    }
+
+    auto account_name = user_config_value("taxes_account", "");
+
+    // TODO: We should check if it exists in the current archive version
+    auto today = local_day();
+    return get_account(account_name, today.year(), today.month());
+}
