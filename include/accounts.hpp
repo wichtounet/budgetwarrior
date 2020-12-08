@@ -79,4 +79,7 @@ date find_new_since();
 
 void archive_accounts_impl(bool month);
 
+bool has_default_account();
+account default_account();
+
 } //end of namespace budget

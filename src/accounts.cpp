@@ -566,3 +566,30 @@ budget::date budget::find_new_since(){
 
     return date;
 }
+
+bool budget::has_default_account() {
+    auto account_name = user_config_value("default_account", "");
+
+    if (account_name.empty()) {
+        return false;
+    }
+
+    if (account_exists(account_name)) {
+        // TODO: We should check if it exists in the current archive version
+        return true;
+    }
+
+    return false;
+}
+
+account budget::default_account() {
+    if (!has_default_account()) {
+        throw budget_exception("No default account");
+    }
+
+    auto account_name = user_config_value("default_account", "");
+
+    // TODO: We should check if it exists in the current archive version
+    auto today = local_day();
+    return get_account(account_name, today.year(), today.month());
+}
