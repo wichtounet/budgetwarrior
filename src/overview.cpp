@@ -227,8 +227,14 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
 }
 
 template <typename T>
-void add_values_column(budget::month month, budget::year year, const std::string& title, std::vector<std::vector<std::string>>& contents,
-                       std::unordered_map<std::string, size_t>& indexes, size_t columns, const std::vector<T>& values, std::vector<budget::money>& total) {
+void add_values_column(budget::month                            month,
+                       budget::year                             year,
+                       const std::string&                       title,
+                       std::vector<std::vector<std::string>>&   contents,
+                       std::unordered_map<std::string, size_t>& indexes,
+                       size_t                                   columns,
+                       const std::vector<T>&                    values,
+                       std::vector<budget::money>&              total) {
     std::vector<size_t> current(columns, contents.size());
 
     std::vector<T> sorted_values = values;
@@ -1285,70 +1291,6 @@ void budget::display_month_account_overview(size_t account_id, budget::month mon
     writer.display_table(columns, contents, 3);
 }
 
-void budget::display_side_month_overview(budget::month month, budget::year year, budget::writer& writer){
-    auto accounts = all_accounts(writer.cache, year, month);
-
-    writer << title_begin << "Side Hustle Overview of " << month << " " << year << budget::year_month_selector{"side_hustle/overview", year, month} << title_end;
-
-    auto side_category = config_value("side_category");
-    auto side_prefix   = config_value("side_prefix");
-
-    std::vector<std::vector<std::string>> contents;
-    std::vector<money> total_expenses(1, budget::money());
-    std::vector<money> total_earnings(1, budget::money());
-
-    std::vector<std::string> columns = {side_category};
-    std::unordered_map<std::string, size_t> indexes = {{side_category, 0}};
-
-    std::vector<budget::expense> side_expenses;
-    std::vector<budget::earning> side_earnings;
-
-    for (auto& expense : writer.cache.expenses()) {
-        if (get_account(expense.account).name == side_category) {
-            if (expense.name.find(side_prefix) == 0) {
-                side_expenses.push_back(expense);
-            }
-        }
-    }
-
-    for (auto& earning : writer.cache.earnings()) {
-        if (get_account(earning.account).name == side_category) {
-            if (earning.name.find(side_prefix) == 0) {
-                side_earnings.push_back(earning);
-            }
-        }
-    }
-
-    //Expenses
-    add_values_column(month, year, "Expenses", contents, indexes, columns.size(), side_expenses, total_expenses);
-
-    //Earnings
-    contents.emplace_back(columns.size() * 3, "");
-    add_values_column(month, year, "Earnings", contents, indexes, columns.size(), side_earnings, total_earnings);
-
-    writer.display_table(columns, contents, 3);
-
-    auto income = total_earnings[0];
-    auto total_all_expenses = total_expenses[0];
-
-    budget::money savings = income - total_all_expenses;
-    double savings_rate = 0.0;
-
-    if (savings.value > 0) {
-        savings_rate = 100 * (savings / income);
-    }
-
-    std::vector<std::string> second_columns;
-    std::vector<std::vector<std::string>> second_contents;
-
-    second_contents.emplace_back(std::vector<std::string>{"Total expenses", budget::to_string(total_all_expenses)});
-    second_contents.emplace_back(std::vector<std::string>{"Total earnings", budget::to_string(income)});
-    second_contents.emplace_back(std::vector<std::string>{"Savings", budget::to_string(savings)});
-    second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(savings_rate) + "%"});
-
-    writer.display_table(second_columns, second_contents, 1, {}, accounts.size() * 9 + 1);
-}
-
 void budget::display_year_overview_header(budget::year year, budget::writer& w){
     if(invalid_accounts(year)){
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
@@ -1507,4 +1449,26 @@ void budget::aggregate_month_overview(budget::writer& w, bool full, bool disable
 
     w << p_begin << "Earnings" << p_end;
     aggregate_overview(all_earnings(), w, full, disable_groups, separator, [month,year](const budget::earning& earning){ return earning.date.month() == month && earning.date.year() == year; });
+}
+
+void budget::add_expenses_column(budget::month                            month,
+                                 budget::year                             year,
+                                 const std::string&                       title,
+                                 std::vector<std::vector<std::string>>&   contents,
+                                 std::unordered_map<std::string, size_t>& indexes,
+                                 size_t                                   columns,
+                                 const std::vector<expense>&              values,
+                                 std::vector<budget::money>&              total) {
+    add_values_column(month, year, title, contents, indexes, columns, values, total);
+}
+
+void budget::add_earnings_column(budget::month                            month,
+                                 budget::year                             year,
+                                 const std::string&                       title,
+                                 std::vector<std::vector<std::string>>&   contents,
+                                 std::unordered_map<std::string, size_t>& indexes,
+                                 size_t                                   columns,
+                                 const std::vector<earning>&              values,
+                                 std::vector<budget::money>&              total) {
+    add_values_column(month, year, title, contents, indexes, columns, values, total);
 }

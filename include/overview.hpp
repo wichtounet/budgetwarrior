@@ -39,7 +39,6 @@ void display_earnings(budget::writer& , budget::year year, bool current = true, 
 
 void display_month_overview(budget::month month, budget::year year, budget::writer& );
 void display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& );
-void display_side_month_overview(budget::month month, budget::year year, budget::writer& );
 
 void display_year_overview_header(budget::year year, budget::writer& w);
 void display_year_overview(budget::year year, budget::writer& w);
@@ -49,5 +48,25 @@ void aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, 
 void aggregate_year_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year);
 void aggregate_year_fv_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year);
 void aggregate_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::month month, budget::year year);
+
+// Utilities
+
+void add_expenses_column(budget::month                            month,
+                         budget::year                             year,
+                         const std::string&                       title,
+                         std::vector<std::vector<std::string>>&   contents,
+                         std::unordered_map<std::string, size_t>& indexes,
+                         size_t                                   columns,
+                         const std::vector<expense>&              values,
+                         std::vector<budget::money>&              total);
+
+void add_earnings_column(budget::month                            month,
+                         budget::year                             year,
+                         const std::string&                       title,
+                         std::vector<std::vector<std::string>>&   contents,
+                         std::unordered_map<std::string, size_t>& indexes,
+                         size_t                                   columns,
+                         const std::vector<earning>&              values,
+                         std::vector<budget::money>&              total);
 
 } //end of namespace budget
