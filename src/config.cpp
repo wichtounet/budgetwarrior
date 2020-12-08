@@ -311,11 +311,11 @@ bool budget::is_server_ssl(){
 }
 
 bool budget::is_fortune_disabled(){
-    return config_contains_and_true("disable_fortune");
+    return user_config_value_bool("disable_fortune", false);
 }
 
 bool budget::is_debts_disabled(){
-    return config_contains_and_true("disable_debts");
+    return user_config_value_bool("disable_debts", false);
 }
 
 bool budget::net_worth_over_fortune(){
