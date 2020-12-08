@@ -38,6 +38,14 @@ struct currency_cache_key {
     }
 };
 
+// We use a struct so that we can store values of 1 that can indicate either 
+// a valid value or an invalid one
+// Without that, we could not store values of 1 in the cache file
+struct currency_cache_value {
+    double value;
+    bool   valid;
+};
+
 } // end of anonymous namespace
 
 namespace std {
@@ -60,11 +68,11 @@ namespace {
 // We can take advantages from the low number of currency pair in the first layer
 // and then the quick hash from the high number of dates
 
-std::unordered_map<currency_cache_key, double> exchanges;
+std::unordered_map<currency_cache_key, currency_cache_value> exchanges;
 budget::server_lock exchanges_lock;
 
 // V2 is using api.exchangeratesapi.io
-double get_rate_v2(const std::string& from, const std::string& to, const std::string& date = "latest") {
+currency_cache_value get_rate_v2(const std::string& from, const std::string& to, const std::string& date = "latest") {
     httplib::SSLClient cli("api.exchangeratesapi.io", 443);
 
     std::string api_complete = "/" + date + "?symbols=" + to + "&base=" + from;
@@ -75,13 +83,13 @@ double get_rate_v2(const std::string& from, const std::string& to, const std::st
         std::cout << "ERROR: Currency(v2): No response, setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
         std::cout << "ERROR: Currency(v2): URL is " << api_complete << std::endl;
 
-        return  1.0;
+        return {1.0, false};
     } else if (res->status != 200) {
         std::cout << "ERROR: Currency(v2): Error response " << res->status << ", setting exchange between " << from << " to " << to << " to 1/1" << std::endl;
         std::cout << "ERROR: Currency(v2): URL is " << api_complete << std::endl;
         std::cout << "ERROR: Currency(v2): Response is " << res->body << std::endl;
 
-        return  1.0;
+        return {1.0, false};
     } else {
         auto& buffer = res->body;
         auto index   = "\"" + to + "\":";
@@ -91,11 +99,11 @@ double get_rate_v2(const std::string& from, const std::string& to, const std::st
             std::cout << "ERROR: Currency(v2): URL is " << api_complete << std::endl;
             std::cout << "ERROR: Currency(v2): Response is " << res->body << std::endl;
 
-            return  1.0;
+            return {1.0, false};
         } else {
             std::string ratio_result(buffer.begin() + buffer.find(index) + index.size(), buffer.begin() + buffer.find('}'));
 
-            return atof(ratio_result.c_str());
+            return {atof(ratio_result.c_str()), true};
         }
     }
 }
@@ -120,7 +128,7 @@ void budget::load_currency_cache(){
         auto parts = split(line, ':');
 
         currency_cache_key key(date_from_string(parts[0]), parts[1], parts[2]);
-        exchanges[key] = budget::to_number<double>(parts[3]);
+        exchanges[key] = {budget::to_number<double>(parts[3]), true};
     }
 
     if (budget::is_server_running()) {
@@ -142,8 +150,9 @@ void budget::save_currency_cache() {
         server_lock_guard l(exchanges_lock);
 
         for (auto & [key, value] : exchanges) {
-            if (value != 1.0) {
-                file << key.date << ':' << key.from << ':' << key.to << ':' << value << std::endl;
+            // We only write down valid values
+            if (value.valid) {
+                file << key.date << ':' << key.from << ':' << key.to << ':' << value.value << std::endl;
             }
         }
     }
@@ -155,7 +164,7 @@ void budget::save_currency_cache() {
 }
 
 void budget::refresh_currency_cache(){
-    std::unordered_map<currency_cache_key, double> copy;
+    std::unordered_map<currency_cache_key, currency_cache_value> copy;
 
     {
         server_lock_guard l(exchanges_lock);
@@ -164,9 +173,7 @@ void budget::refresh_currency_cache(){
     }
 
     // Refresh/Prefetch the current exchange rates
-    for (auto & pair : copy) {
-        auto& key = pair.first;
-
+    for (auto & [key, value] : copy) {
         exchange_rate(key.from, key.to);
     }
 
@@ -203,7 +210,7 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
             server_lock_guard l(exchanges_lock);
 
             if (exchanges.find(key) != exchanges.end()) {
-                return exchanges[key];
+                return exchanges[key].value;
             }
         }
 
@@ -213,7 +220,7 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
 
         if (budget::is_server_running()) {
             std::cout << "INFO: Currency: Rate (" << d << ")"
-                << " from " << from << " to " << to << " = " << rate << std::endl;
+                      << " from " << from << " to " << to << " = " << rate.value << "(valid:" << rate.valid << ")" << std::endl;
         }
 
         // Update the cache and the reverse cache with the lock
@@ -224,9 +231,9 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
             server_lock_guard l(exchanges_lock);
 
             exchanges[key]         = rate;
-            exchanges[reverse_key] = 1.0 / rate;
+            exchanges[reverse_key] = {1.0 / rate.value, rate.valid};
         }
 
-        return rate;
+        return rate.value;
     }
 }
