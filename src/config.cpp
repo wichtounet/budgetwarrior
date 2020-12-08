@@ -146,9 +146,11 @@ bool budget::load_config(){
     return true;
 }
 
-void budget::save_config(){
-    if(internal != internal_bak){
+void budget::save_config() {
+    if (internal != internal_bak) {
         save_configuration(path_to_budget_file("config"), internal);
+
+        internal_bak = internal;
     }
 }
 
@@ -288,7 +290,7 @@ bool budget::is_debts_disabled(){
 
 bool budget::net_worth_over_fortune(){
     // If the fortune module is disabled, use net worth
-    if (config_contains_and_true("disable_fortune")) {
+    if (is_fortune_disabled()) {
         return true;
     }
 
