@@ -151,6 +151,10 @@ void budget::save_config() {
         save_configuration(path_to_budget_file("config"), internal);
 
         internal_bak = internal;
+
+        if (is_server_running()) {
+            std::cout << "INFO: Save internal configuration" << std::endl;
+        }
     }
 }
 
