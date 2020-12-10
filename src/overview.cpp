@@ -1226,12 +1226,13 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
 
     second_contents.emplace_back(std::vector<std::string>{"Savings", budget::to_string(savings)});
     second_contents.emplace_back(std::vector<std::string>{"Savings Rate", budget::to_string(savings_rate) + "%"});
-    second_contents.emplace_back(std::vector<std::string>{"Savings Rate After Tax", budget::to_string(savings_rate_after) + "%"});
 
     if (has_taxes_account()) {
-       double tax_rate = 100 * (taxes / income);
+        second_contents.emplace_back(std::vector<std::string>{"Savings Rate After Tax", budget::to_string(savings_rate_after) + "%"});
 
-       second_contents.emplace_back(std::vector<std::string>{"Tax Rate", budget::to_string(tax_rate) + "%"});
+        double tax_rate = 100 * (taxes / income);
+
+        second_contents.emplace_back(std::vector<std::string>{"Tax Rate", budget::to_string(tax_rate) + "%"});
     }
 
     budget::date month_start(year, month, 1);
