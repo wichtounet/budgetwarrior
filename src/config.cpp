@@ -249,8 +249,12 @@ bool budget::internal_config_contains(const std::string& key){
     return internal.find(key) != internal.end();
 }
 
-std::string& budget::internal_config_value(const std::string& key){
+std::string budget::internal_config_value(const std::string& key){
     return internal[key];
+}
+
+void budget::internal_config_set(const std::string& key, const std::string & value){
+    internal[key] = value;
 }
 
 void budget::internal_config_remove(const std::string& key){

@@ -90,8 +90,8 @@ void retirement_set() {
     edit_double(roi, "Expected Annual Return (%)");
 
     // Save the configuration
-    internal_config_value("withdrawal_rate") = to_string(wrate);
-    internal_config_value("expected_roi") = to_string(roi);
+    internal_config_set("withdrawal_rate", to_string(wrate));
+    internal_config_set("expected_roi", to_string(roi));
 }
 
 } // end of anonymous namespace
