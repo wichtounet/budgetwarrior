@@ -23,6 +23,7 @@
 
 #include "assets.hpp"
 #include "fortune.hpp"
+#include "server_lock.hpp"
 
 using namespace budget;
 
@@ -31,6 +32,8 @@ using config_type = std::unordered_map<std::string, std::string>;
 namespace {
 
 bool server_running = false;
+
+budget::server_lock internal_config_lock;
 
 bool load_configuration(const std::string& path, config_type& configuration){
     if (file_exists(path)) {
@@ -148,6 +151,8 @@ bool budget::load_config(){
 
 void budget::save_config() {
     if (internal != internal_bak) {
+        server_lock_guard l(internal_config_lock);
+
         save_configuration(path_to_budget_file("config"), internal);
 
         internal_bak = internal;
@@ -246,18 +251,22 @@ bool budget::user_config_value_bool(const std::string& key, bool def) {
 }
 
 bool budget::internal_config_contains(const std::string& key){
+    server_lock_guard l(internal_config_lock);
     return internal.find(key) != internal.end();
 }
 
 std::string budget::internal_config_value(const std::string& key){
+    server_lock_guard l(internal_config_lock);
     return internal[key];
 }
 
 void budget::internal_config_set(const std::string& key, const std::string & value){
+    server_lock_guard l(internal_config_lock);
     internal[key] = value;
 }
 
 void budget::internal_config_remove(const std::string& key){
+    server_lock_guard l(internal_config_lock);
     internal.erase(key);
 }
 
