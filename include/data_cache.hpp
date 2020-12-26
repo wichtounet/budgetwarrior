@@ -30,7 +30,7 @@ struct data_cache {
     std::vector<fortune> & fortunes();
     std::vector<asset_value> & asset_values();
     std::vector<asset_value> & sorted_asset_values();
-    std::unordered_map<size_t, std::vector<asset_value>> & sorted_group_asset_values();
+    std::unordered_map<size_t, std::vector<asset_value>> & sorted_group_asset_values(bool liability);
     std::vector<liability> & liabilities();
     std::vector<recurring> & recurrings();
     std::vector<income> & incomes();
@@ -58,6 +58,7 @@ private:
     std::vector<asset_value> asset_values_;
     std::vector<asset_value> sorted_asset_values_;
     std::unordered_map<size_t, std::vector<asset_value>> sorted_group_asset_values_;
+    std::unordered_map<size_t, std::vector<asset_value>> sorted_group_asset_values_liabilities_;
     std::vector<liability> liabilities_;
     std::vector<recurring> recurrings_;
     std::vector<income> incomes_;

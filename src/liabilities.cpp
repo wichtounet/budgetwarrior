@@ -376,7 +376,7 @@ bool budget::no_liabilities() {
 budget::money budget::get_liability_value(budget::liability & liability, budget::date d, data_cache & cache) {
     budget::money asset_value_amount;
 
-    for (auto& asset_value : cache.sorted_group_asset_values()[liability.id]) {
+    for (auto& asset_value : cache.sorted_group_asset_values(true)[liability.id]) {
         if (asset_value.set_date <= d) {
             if (asset_value.liability) {
                 asset_value_amount = asset_value.amount;

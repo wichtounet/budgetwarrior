@@ -65,14 +65,28 @@ std::vector<asset_value> & data_cache::sorted_asset_values() {
     return sorted_asset_values_;
 }
 
-std::unordered_map<size_t, std::vector<asset_value>> & data_cache::sorted_group_asset_values() {
-    if (sorted_group_asset_values_.empty()) {
-        for (auto & asset_value : sorted_asset_values()) {
-            sorted_group_asset_values_[asset_value.asset_id].push_back(asset_value);
+std::unordered_map<size_t, std::vector<asset_value>> & data_cache::sorted_group_asset_values(bool liability) {
+    if (liability) {
+        if (sorted_group_asset_values_liabilities_.empty()) {
+            for (auto& asset_value : sorted_asset_values()) {
+                if (asset_value.liability) {
+                    sorted_group_asset_values_liabilities_[asset_value.asset_id].push_back(asset_value);
+                }
+            }
         }
-    }
 
-    return sorted_group_asset_values_;
+        return sorted_group_asset_values_liabilities_;
+    } else {
+        if (sorted_group_asset_values_.empty()) {
+            for (auto& asset_value : sorted_asset_values()) {
+                if (!asset_value.liability) {
+                    sorted_group_asset_values_[asset_value.asset_id].push_back(asset_value);
+                }
+            }
+        }
+
+        return sorted_group_asset_values_;
+    }
 }
 
 std::vector<liability> & data_cache::liabilities() {
