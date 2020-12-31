@@ -52,14 +52,14 @@ budget::api_response base_api_get(Cli& cli, const std::string& api) {
 
     if (!res) {
         LOG_F(ERROR, "Request from the API failed: No response from server");
-        LOG_F(ERROR, "API: %s:%s/%s", server.c_str(), server_port.c_str(), api_complete.c_str());
+        LOG_F(ERROR, "API: {}:{}/{}", server, server_port, api_complete);
 
         return {false, ""};
     } else if (res->status != 200) {
         LOG_F(ERROR, "Request from the API failed");
-        LOG_F(ERROR, "API: %s:%s/%s", server.c_str(), server_port.c_str(), api_complete.c_str());
-        LOG_F(ERROR, "Status: %d", res->status);
-        LOG_F(ERROR, "Content: %s", res->body.c_str());
+        LOG_F(ERROR, "API: {}:{}/{}", server, server_port, api_complete);
+        LOG_F(ERROR, "Status: {}", res->status);
+        LOG_F(ERROR, "Content: {}", res->body);
 
         return {false, ""};
     } else {
@@ -118,14 +118,14 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
 
     if (!res) {
         LOG_F(ERROR, "Request from the API failed: No response from server");
-        LOG_F(ERROR, "API: %s:%s/%s", server.c_str(), server_port.c_str(), api_complete.c_str());
+        LOG_F(ERROR, "API: {}:{}/{}", server, server_port, api_complete);
 
         return {false, ""};
     } else if (res->status != 200) {
         LOG_F(ERROR, "Request from the API failed");
-        LOG_F(ERROR, "API: %s:%s/%s", server.c_str(), server_port.c_str(), api_complete.c_str());
-        LOG_F(ERROR, "Status: %d", res->status);
-        LOG_F(ERROR, "Content: %s", res->body.c_str());
+        LOG_F(ERROR, "API: {}:{}/{}", server, server_port, api_complete);
+        LOG_F(ERROR, "Status: {}", res->status);
+        LOG_F(ERROR, "Content: {}", res->body);
 
         return {false, ""};
     } else {

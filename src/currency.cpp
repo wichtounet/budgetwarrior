@@ -81,14 +81,14 @@ currency_cache_value get_rate_v2(const std::string& from, const std::string& to,
     auto res = cli.Get(api_complete.c_str());
 
     if (!res) {
-        LOG_F(ERROR, "Currency(v2): No response, setting exchange between %s from %s to to 1/1", from.c_str(), to.c_str());
-        LOG_F(ERROR, "Currency(v2): URL is %s", api_complete.c_str());
+        LOG_F(ERROR, "Currency(v2): No response, setting exchange between {} from {} to to 1/1", from, to);
+        LOG_F(ERROR, "Currency(v2): URL is {}", api_complete);
 
         return {1.0, false};
     } else if (res->status != 200) {
-        LOG_F(ERROR, "Currency(v2): Error Response %d, setting exchange between %s to %s to 1/1", res->status, from.c_str(), to.c_str());
-        LOG_F(ERROR, "Currency(v2): URL is %s", api_complete.c_str());
-        LOG_F(ERROR, "Currency(v2): Response is %s", res->body.c_str());
+        LOG_F(ERROR, "Currency(v2): Error Response {}, setting exchange between {} to {} to 1/1", res->status, from, to);
+        LOG_F(ERROR, "Currency(v2): URL is {}", api_complete);
+        LOG_F(ERROR, "Currency(v2): Response is {}", res->body);
 
         return {1.0, false};
     } else {
@@ -96,9 +96,9 @@ currency_cache_value get_rate_v2(const std::string& from, const std::string& to,
         auto index   = "\"" + to + "\":";
 
         if (buffer.find(index) == std::string::npos || buffer.find('}') == std::string::npos) {
-            LOG_F(ERROR, "Currency(v2): Error parsing exchange rates, setting exchange between %s to %s to 1/1", from.c_str(), to.c_str());
-            LOG_F(ERROR, "Currency(v2): URL is %s", api_complete.c_str());
-            LOG_F(ERROR, "Currency(v2): Response is %s", res->body.c_str());
+            LOG_F(ERROR, "Currency(v2): Error parsing exchange rates, setting exchange between {} to {} to 1/1", from, to);
+            LOG_F(ERROR, "Currency(v2): URL is {}", api_complete);
+            LOG_F(ERROR, "Currency(v2): Response is {}", res->body);
 
             return {1.0, false};
         } else {
@@ -132,8 +132,8 @@ void budget::load_currency_cache(){
         exchanges[key] = {budget::to_number<double>(parts[3]), true};
     }
 
-    LOG_F(INFO, "Share Price Cache has been loaded from %s", file_path.c_str());
-    LOG_F(INFO, "Share Price Cache has %ld entries", exchanges.size());
+    LOG_F(INFO, "Share Price Cache has been loaded from {}", file_path);
+    LOG_F(INFO, "Share Price Cache has {} entries", exchanges.size());
 }
 
 void budget::save_currency_cache() {
@@ -156,8 +156,8 @@ void budget::save_currency_cache() {
         }
     }
 
-    LOG_F(INFO, "Share Price Cache has been loaded to %s", file_path.c_str());
-    LOG_F(INFO, "Share Price Cache has %ld entries", exchanges.size());
+    LOG_F(INFO, "Share Price Cache has been loaded to {}", file_path);
+    LOG_F(INFO, "Share Price Cache has {} entries", exchanges.size());
 }
 
 void budget::refresh_currency_cache(){
@@ -213,7 +213,7 @@ double budget::exchange_rate(const std::string& from, const std::string& to, bud
 
         auto rate = get_rate_v2(from, to, date_to_string(d));
 
-        LOG_F(INFO, "Price: Currency Rate (%s) from %s to %s = %s (valid: %d)", budget::to_string(d).c_str(), from.c_str(), to.c_str(), budget::to_string(rate.value).c_str(), rate.valid);
+        LOG_F(INFO, "Price: Currency Rate ({}) from {} to {} = {} (valid: {})", budget::to_string(d), from, to, budget::to_string(rate.value), rate.valid);
 
         // Update the cache and the reverse cache with the lock
 

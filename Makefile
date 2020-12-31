@@ -19,7 +19,7 @@ LD_FLAGS += -luuid -lssl -lcrypto -ldl
 CXX_FLAGS += -Icpp-httplib
 
 # Add test includes
-CXX_FLAGS += -Idoctest -Itest/include -Iloguru
+CXX_FLAGS += -Idoctest -Itest/include -Iloguru -Ifmt/include
 
 $(eval $(call auto_folder_compile,src))
 $(eval $(call auto_folder_compile,src/pages))

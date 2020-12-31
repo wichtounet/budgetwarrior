@@ -163,8 +163,8 @@ void budget::load_share_price_cache(){
         share_prices[key] = budget::money::from_double(value);
     }
 
-    LOG_F(INFO, "Share Price Cache has been loaded from %s", file_path.c_str());
-    LOG_F(INFO, "Share Price Cache has %ld entries", share_prices.size());
+    LOG_F(INFO, "Share Price Cache has been loaded from {}", file_path);
+    LOG_F(INFO, "Share Price Cache has {} entries", share_prices.size());
 }
 
 void budget::save_share_price_cache() {
@@ -190,8 +190,8 @@ void budget::save_share_price_cache() {
         }
     }
 
-    LOG_F(INFO, "Share Price Cache has been saved to %s", file_path.c_str());
-    LOG_F(INFO, "Share Price Cache has %ld entries", share_prices.size());
+    LOG_F(INFO, "Share Price Cache has been saved to {}", file_path);
+    LOG_F(INFO, "Share Price Cache has {} entries", share_prices.size());
 }
 
 void budget::prefetch_share_price_cache(){
@@ -212,7 +212,7 @@ void budget::prefetch_share_price_cache(){
     }
 
     LOG_F(INFO, "Share Price Cache has been prefetched");
-    LOG_F(INFO, "Share Price Cache has %ld entries", share_prices.size());
+    LOG_F(INFO, "Share Price Cache has {} entries", share_prices.size());
 }
 
 budget::money budget::share_price(const std::string& ticker){
@@ -242,7 +242,7 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
     // If the API did not find anything, it must mean that the ticker is
     // invalid
     if (quotes.empty()) {
-        LOG_F(INFO, "Price: Could not find quotes for %s", ticker.c_str());
+        LOG_F(INFO, "Price: Could not find quotes for {}", ticker);
 
         share_prices[key] = money(1);
         return money(1);
@@ -258,7 +258,7 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
         for (size_t i = 0; i < 4; ++i){
             auto next_date = get_valid_date(date - budget::days(1));
 
-            LOG_F(INFO, "Price: Possible holiday on %s, retrying on %s", budget::to_string(date).c_str(), budget::to_string(next_date).c_str());
+            LOG_F(INFO, "Price: Possible holiday on {}, retrying on {}", budget::to_string(date), budget::to_string(next_date));
 
             share_price_cache_key next_key(next_date, ticker);
             if (share_prices.count(next_key)) {
@@ -270,7 +270,7 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
 
     cpp_assert(share_prices.count(key), "Invalid state in share_price");
 
-    LOG_F(INFO, "Price: Share price (%s) ticker %s = %s", budget::to_string(date).c_str(), ticker.c_str(), budget::to_string(share_prices[key]).c_str());
+    LOG_F(INFO, "Price: Share price ({}) ticker {} = {}", budget::to_string(date), ticker, budget::to_string(share_prices[key]));
 
     return share_prices[key];
 }
