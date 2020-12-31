@@ -250,6 +250,7 @@ int main(int argc, const char* argv[]) {
     auto args = parse_args(argc, argv, collector.aliases);
 
     if (!load_config()) {
+        LOG_F(ERROR, "Unable to load the configuration");
         return 0;
     }
 

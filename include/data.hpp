@@ -14,6 +14,7 @@
 #include "cpp_utils/assert.hpp"
 
 #include "config.hpp"
+#include "logging.hpp"
 #include "utils.hpp"
 #include "api.hpp"
 #include "server_lock.hpp"
@@ -170,7 +171,7 @@ struct data_handler {
             auto res = budget::api_post(std::string("/") + get_module() + "/edit/", params);
 
             if (!res.success) {
-                std::cerr << "error: Failed to edit from " << get_module() << std::endl;
+                LOG_F(ERROR, "Failed to edit from %s", get_module());
 
                 return false;
             } else {
@@ -203,7 +204,7 @@ struct data_handler {
             auto res = budget::api_post(std::string("/") + get_module() + "/add/", params);
 
             if (!res.success) {
-                std::cerr << "error: Failed to add expense" << std::endl;
+                LOG_F(ERROR, "Failed to add data from module %s", get_module());
 
                 entry.id = 0;
             } else {
@@ -234,7 +235,7 @@ struct data_handler {
             auto res = budget::api_get(std::string("/") + get_module() + "/delete/?input_id=" + budget::to_string(id));
 
             if (!res.success) {
-                std::cerr << "error: Failed to delete from " << get_module() << std::endl;
+                LOG_F(ERROR, "Failed to delete data from module %s", get_module());
             }
 
             return res.success;
@@ -313,7 +314,7 @@ private:
         cpp_assert(!is_server_mode(), "force_save() should never be called in server mode");
 
         if (budget::config_contains("random")) {
-            std::cerr << "budget: error: Saving is disabled in random mode" << std::endl;
+            LOG_F(ERROR, "Saving is disabled in random mode");
             return;
         }
 

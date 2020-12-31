@@ -15,6 +15,7 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "http.hpp"
+#include "logging.hpp"
 
 namespace {
 
@@ -50,16 +51,15 @@ budget::api_response base_api_get(Cli& cli, const std::string& api) {
     }
 
     if (!res) {
-        std::cerr << "Request to the API failed!" << std::endl;
-        std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
-        std::cerr << "  No response from server" << std::endl;
+        LOG_F(ERROR, "Request from the API failed: No response from server");
+        LOG_F(ERROR, "API: %s:%s/%s", server.c_str(), server_port.c_str(), api_complete.c_str());
 
         return {false, ""};
     } else if (res->status != 200) {
-        std::cerr << "Request to the API failed!" << std::endl;
-        std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
-        std::cerr << "  status: " << res->status << std::endl;
-        std::cerr << "  content: " << res->body << std::endl;
+        LOG_F(ERROR, "Request from the API failed");
+        LOG_F(ERROR, "API: %s:%s/%s", server.c_str(), server_port.c_str(), api_complete.c_str());
+        LOG_F(ERROR, "Status: %d", res->status);
+        LOG_F(ERROR, "Content: %s", res->body.c_str());
 
         return {false, ""};
     } else {
@@ -117,16 +117,15 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
     }
 
     if (!res) {
-        std::cerr << "Request to the API failed!" << std::endl;
-        std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
-        std::cerr << "  No response from server" << std::endl;
+        LOG_F(ERROR, "Request from the API failed: No response from server");
+        LOG_F(ERROR, "API: %s:%s/%s", server.c_str(), server_port.c_str(), api_complete.c_str());
 
         return {false, ""};
     } else if (res->status != 200) {
-        std::cerr << "Request to the API failed!" << std::endl;
-        std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
-        std::cerr << "  status: " << res->status << std::endl;
-        std::cerr << "  content: " << res->body << std::endl;
+        LOG_F(ERROR, "Request from the API failed");
+        LOG_F(ERROR, "API: %s:%s/%s", server.c_str(), server_port.c_str(), api_complete.c_str());
+        LOG_F(ERROR, "Status: %d", res->status);
+        LOG_F(ERROR, "Content: %s", res->body.c_str());
 
         return {false, ""};
     } else {

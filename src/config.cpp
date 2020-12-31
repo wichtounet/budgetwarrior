@@ -20,6 +20,7 @@
 
 #include "config.hpp"
 #include "utils.hpp"
+#include "logging.hpp"
 
 #include "assets.hpp"
 #include "fortune.hpp"
@@ -39,9 +40,7 @@ bool load_configuration(const std::string& path, config_type& configuration){
     if (file_exists(path)) {
         std::ifstream file(path);
 
-        if (is_server_running()) {
-            std::cout << "INFO: Load configuration from " << path << std::endl;
-        }
+        LOG_F(INFO, "Load configuration from %s", path.c_str());
 
         if (file.is_open() && file.good()) {
             std::string line;
@@ -59,7 +58,7 @@ bool load_configuration(const std::string& path, config_type& configuration){
                 auto first = line.find('=');
 
                 if (first == std::string::npos || line.rfind('=') != first) {
-                    std::cout << "The configuration file " << path << " is invalid only supports entries in form of key=value" << std::endl;
+                    LOG_F(ERROR, "The configuration file file %s is invalid, only supports key=value entry", path.c_str());
 
                     return false;
                 }
@@ -70,7 +69,7 @@ bool load_configuration(const std::string& path, config_type& configuration){
                 configuration[key] = value;
             }
         } else {
-            std::cerr << "ERROR: Unable to open config file " << path << std::endl;
+            LOG_F(ERROR, "Unable to open config file %s", path.c_str());
         }
     }
 
@@ -88,11 +87,9 @@ void save_configuration(const std::string& path, const config_type& configuratio
 bool verify_folder(){
     auto folder_path = budget_folder();
 
-    if (is_server_running()) {
-        std::cout << "INFO: Using " << folder_path << " as data directory" << std::endl; 
-    }
+    LOG_F(INFO, "Using %s as data directory", folder_path.c_str());
 
-    if(!folder_exists(folder_path)){
+    if (!folder_exists(folder_path)) {
         std::cout << "The folder " << folder_path << " does not exist. Would like to create it [yes/no] ? ";
 
         std::string answer;
@@ -157,9 +154,7 @@ void budget::save_config() {
 
         internal_bak = internal;
 
-        if (is_server_running()) {
-            std::cout << "INFO: Save internal configuration" << std::endl;
-        }
+        LOG_F(INFO, "Save internal configuration");
     }
 }
 
