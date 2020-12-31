@@ -254,13 +254,13 @@ int main(int argc, const char* argv[]) {
     }
 
     if (is_server_mode() && (!config_contains("server_url") || !config_contains("server_port"))) {
-        std::cout << "error: server_mode=true needs a server_url value and a server_port value" << std::endl;
+        LOG_F(ERROR, "server_mode=true needs a server_url value and a server_port value");
 
         return 0;
     }
 
     if (!has_enough_colors()) {
-        std::cout << "WARNING: The terminal does not seem to have enough colors, some command may not work as intended" << std::endl;
+        LOG_F(WARNING, "The terminal does not seem to have enough colors, some command may not work as intended");
     }
 
     // Restore the caches
@@ -273,7 +273,7 @@ int main(int argc, const char* argv[]) {
         auto res = budget::api_get("/server/up/", false);
 
         if(!res.success || res.result != "yes"){
-            std::cout << "The server is not running, cannot run in server mode" << std::endl;
+            LOG_F(ERROR, "The server is not running, cannot run in server mode");
             return 0;
         }
 
@@ -283,28 +283,28 @@ int main(int argc, const char* argv[]) {
         auto version_res = budget::api_post("/server/version/support/", params);
 
         if(!version_res.success || version_res.result != "yes"){
-            std::cout << "The server does not support your version, cannot run in server mode" << std::endl;
-            std::cout << "You should either upgrade the server or your client" << std::endl;
+            LOG_F(ERROR, "The server does not support your version, cannot run in server mode");
+            LOG_F(ERROR, "You should either upgrade the server or your client");
             return 0;
         }
     } else {
         auto old_data_version = to_number<size_t>(internal_config_value("data_version"));
 
         if (old_data_version > DATA_VERSION) {
-            std::cout << "Unsupported database version, you should update budgetwarrior" << std::endl;
+            LOG_F(ERROR, "Unsupported database version, you should update budgetwarrior");
 
             return 0;
         }
 
         if (old_data_version < MIN_DATA_VERSION) {
-            std::cout << "Your database version is not supported anymore" << std::endl;
-            std::cout << "You can use an older version of budgetwarrior to migrate it" << std::endl;
+            LOG_F(ERROR, "Your database version is not supported anymore");
+            LOG_F(ERROR, "You can use an older version of budgetwarrior to migrate it");
 
             return 0;
         }
 
         if (old_data_version < DATA_VERSION) {
-            std::cout << "Migrate database..." << std::endl;
+            LOG_F(INFO, "Migrating database...");
 
             if (old_data_version <= 4 && DATA_VERSION >= 5) {
                 migrate_assets_4_to_5();
@@ -319,7 +319,7 @@ int main(int argc, const char* argv[]) {
             // We want to make sure the new data version is set in stone!
             save_config();
 
-            std::cout << "done" << std::endl;
+            LOG_F(INFO, "done");
         }
     }
 
@@ -336,6 +336,8 @@ int main(int argc, const char* argv[]) {
             code = 1;
         }
     } catch (const budget_exception& exception) {
+        // TODO We should be able to differentiate between real errors and
+        // command line errors
         std::cout << exception.message() << std::endl;
 
         code = 2;
