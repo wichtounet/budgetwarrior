@@ -175,7 +175,7 @@ void budget::refresh_currency_cache(){
     }
 
     LOG_F(INFO, "Currency Cache has been refreshed");
-    LOG_F(INFO, "Currency Cache has %ld entries", exchanges.size());
+    LOG_F(INFO, "Currency Cache has {} entries", exchanges.size());
 }
 
 double budget::exchange_rate(const std::string& from){

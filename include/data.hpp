@@ -171,7 +171,7 @@ struct data_handler {
             auto res = budget::api_post(std::string("/") + get_module() + "/edit/", params);
 
             if (!res.success) {
-                LOG_F(ERROR, "Failed to edit from %s", get_module());
+                LOG_F(ERROR, "Failed to edit from {}", get_module());
 
                 return false;
             } else {
@@ -204,7 +204,7 @@ struct data_handler {
             auto res = budget::api_post(std::string("/") + get_module() + "/add/", params);
 
             if (!res.success) {
-                LOG_F(ERROR, "Failed to add data from module %s", get_module());
+                LOG_F(ERROR, "Failed to add data from module {}", get_module());
 
                 entry.id = 0;
             } else {
@@ -235,7 +235,7 @@ struct data_handler {
             auto res = budget::api_get(std::string("/") + get_module() + "/delete/?input_id=" + budget::to_string(id));
 
             if (!res.success) {
-                LOG_F(ERROR, "Failed to delete data from module %s", get_module());
+                LOG_F(ERROR, "Failed to delete data from module {}", get_module());
             }
 
             return res.success;
