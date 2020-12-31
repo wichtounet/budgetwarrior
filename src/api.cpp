@@ -19,7 +19,7 @@
 namespace {
 
 template<typename Cli>
-budget::api_response base_api_get(Cli& cli, const std::string& api, bool silent) {
+budget::api_response base_api_get(Cli& cli, const std::string& api) {
     auto server      = budget::config_value("server_url");
     auto server_port = budget::config_value("server_port");
 
@@ -50,20 +50,16 @@ budget::api_response base_api_get(Cli& cli, const std::string& api, bool silent)
     }
 
     if (!res) {
-        if (!silent) {
-            std::cerr << "Request to the API failed!" << std::endl;
-            std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
-            std::cerr << "  No response from server" << std::endl;
-        }
+        std::cerr << "Request to the API failed!" << std::endl;
+        std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
+        std::cerr << "  No response from server" << std::endl;
 
         return {false, ""};
     } else if (res->status != 200) {
-        if (!silent) {
-            std::cerr << "Request to the API failed!" << std::endl;
-            std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
-            std::cerr << "  status: " << res->status << std::endl;
-            std::cerr << "  content: " << res->body << std::endl;
-        }
+        std::cerr << "Request to the API failed!" << std::endl;
+        std::cerr << "  API: " << server << ":" << server_port << "/" << api_complete << std::endl;
+        std::cerr << "  status: " << res->status << std::endl;
+        std::cerr << "  content: " << res->body << std::endl;
 
         return {false, ""};
     } else {
@@ -140,7 +136,7 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
 
 } // end of anonymous namespace
 
-budget::api_response budget::api_get(const std::string& api, bool silent) {
+budget::api_response budget::api_get(const std::string& api) {
     cpp_assert(is_server_mode(), "api_get() should only be called in server mode");
 
     auto server      = config_value("server_url");
@@ -149,11 +145,11 @@ budget::api_response budget::api_get(const std::string& api, bool silent) {
     if (is_server_ssl()) {
         httplib::SSLClient cli(server.c_str(), budget::to_number<size_t>(server_port));
 
-        return base_api_get(cli, api, silent);
+        return base_api_get(cli, api);
     } else {
         httplib::Client cli(server.c_str(), budget::to_number<size_t>(server_port));
 
-        return base_api_get(cli, api, silent);
+        return base_api_get(cli, api);
     }
 }
 

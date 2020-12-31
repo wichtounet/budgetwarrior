@@ -270,7 +270,7 @@ int main(int argc, const char* argv[]) {
     if (is_server_mode()) {
         // 1. Ensure that the server is running
 
-        auto res = budget::api_get("/server/up/", false);
+        auto res = budget::api_get("/server/up/");
 
         if(!res.success || res.result != "yes"){
             LOG_F(ERROR, "The server is not running, cannot run in server mode");
