@@ -17,6 +17,7 @@
 #include "api.hpp"
 #include "currency.hpp"
 #include "share.hpp"
+#include "logging.hpp"
 
 //The different modules
 #include "debts.hpp"
@@ -238,6 +239,8 @@ bool has_enough_colors(){
 int main(int argc, const char* argv[]) {
     std::locale global_locale("");
     std::locale::global(global_locale);
+
+    budget::init_logging(argc, const_cast<char**>(argv));
 
     //Collect all aliases
     aliases_collector collector;

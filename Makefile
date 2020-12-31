@@ -14,12 +14,12 @@ ifneq (,$(findstring clang,$(CXX)))
 	CXX_FLAGS += -stdlib=libc++
 endif
 
-LD_FLAGS += -luuid -lssl -lcrypto
+LD_FLAGS += -luuid -lssl -lcrypto -ldl
 
 CXX_FLAGS += -Icpp-httplib
 
 # Add test includes
-CXX_FLAGS += -Idoctest -Itest/include
+CXX_FLAGS += -Idoctest -Itest/include -Iloguru
 
 $(eval $(call auto_folder_compile,src))
 $(eval $(call auto_folder_compile,src/pages))
