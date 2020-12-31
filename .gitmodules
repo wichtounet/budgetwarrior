@@ -12,3 +12,6 @@
 [submodule "doctest"]
 	path = doctest
 	url = https://github.com/onqtam/doctest.git
+[submodule "loguru"]
+	path = loguru
+	url = git@github.com:emilk/loguru.git
