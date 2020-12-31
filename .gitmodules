@@ -15,3 +15,6 @@
 [submodule "loguru"]
 	path = loguru
 	url = git@github.com:emilk/loguru.git
+[submodule "fmt"]
+	path = fmt
+	url = git@github.com:fmtlib/fmt.git
