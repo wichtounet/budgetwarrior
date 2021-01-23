@@ -26,6 +26,9 @@
 #include "fortune.hpp"
 #include "server_lock.hpp"
 
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+
 using namespace budget;
 
 using config_type = std::unordered_map<std::string, std::string>;
@@ -123,7 +126,7 @@ static config_type configuration;
 static config_type internal;
 static config_type internal_bak;
 
-bool budget::load_config(){
+bool budget::load_config() {
     if(!load_configuration(path_to_home_file(".budgetrc"), configuration)){
         return false;
     }
@@ -158,7 +161,7 @@ void budget::save_config() {
     }
 }
 
-std::string budget::home_folder(){
+std::string budget::home_folder() {
 #ifdef _WIN32
     TCHAR path[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, path))) {
@@ -175,19 +178,28 @@ std::string budget::home_folder(){
 #endif
 }
 
-std::string budget::path_to_home_file(const std::string& file){
-    return home_folder() + "/" + file;
-}
-
-std::string budget::budget_folder(){
-    if(config_contains("directory")){
+std::string budget::budget_folder() {
+    if(config_contains("directory")) {
         return config_value("directory");
     }
 
-    return path_to_home_file(".budget");
+    auto old_home = path_to_home_file(".budget");
+    if(file_exists(old_home)) {
+        return old_home;
+    }
+
+    if(auto data_home = std::getenv("XDG_DATA_HOME")) {
+        return (fs::path{data_home} / "budget").string();
+    }
+
+    return home_folder() + "/.local/share/budget";
+}
+ 
+std::string budget::path_to_home_file(const std::string& file) {
+    return home_folder() + "/" + file;
 }
 
-std::string budget::path_to_budget_file(const std::string& file){
+std::string budget::path_to_budget_file(const std::string& file) {
     return budget_folder() + "/" + file;
 }
 
