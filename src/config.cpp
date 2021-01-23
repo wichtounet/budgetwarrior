@@ -131,6 +131,16 @@ bool budget::load_config() {
         return false;
     }
 
+    fs::path config_home;
+    if(auto xdg_config_home = std::getenv("XDG_CONFIG_HOME")) {
+        config_home = fs::path{xdg_config_home};
+    } else {
+        config_home = fs::path{home_folder()} / ".config";
+    }
+    if(!load_configuration((config_home / "budget" / "budgetrc").string(), configuration)) {
+        return false;
+    }
+
     if(!verify_folder()){
         return false;
     }
