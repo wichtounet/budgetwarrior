@@ -14,7 +14,7 @@ ifneq (,$(findstring clang,$(CXX)))
 	CXX_FLAGS += -stdlib=libc++
 endif
 
-LD_FLAGS += -luuid -lssl -lcrypto -ldl -lboost_filesystem
+LD_FLAGS += -luuid -lssl -lcrypto -ldl
 
 CXX_FLAGS += -Icpp-httplib
 

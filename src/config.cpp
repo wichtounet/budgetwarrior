@@ -26,8 +26,8 @@
 #include "fortune.hpp"
 #include "server_lock.hpp"
 
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
+#include <filesystem>
+namespace fs = std::filesystem;
 
 using namespace budget;
 
@@ -127,17 +127,7 @@ static config_type internal;
 static config_type internal_bak;
 
 bool budget::load_config() {
-    if(!load_configuration(path_to_home_file(".budgetrc"), configuration)){
-        return false;
-    }
-
-    fs::path config_home;
-    if(auto xdg_config_home = std::getenv("XDG_CONFIG_HOME")) {
-        config_home = fs::path{xdg_config_home};
-    } else {
-        config_home = fs::path{home_folder()} / ".config";
-    }
-    if(!load_configuration((config_home / "budget" / "budgetrc").string(), configuration)) {
+    if(!load_configuration(config_file(), configuration)){
         return false;
     }
 
@@ -169,6 +159,22 @@ void budget::save_config() {
 
         LOG_F(INFO, "Save internal configuration");
     }
+}
+
+std::string budget::config_file() {
+    auto old_config = path_to_home_file(".budgetrc");
+    if(file_exists(old_config)) {
+        return old_config;
+    }
+
+    fs::path config_home;
+    if(auto xdg_config_home = std::getenv("XDG_CONFIG_HOME")) {
+        config_home = fs::path{xdg_config_home};
+    } else {
+        config_home = fs::path{home_folder()} / ".config";
+    }
+
+    return (config_home / "budget" / "budgetrc").string();
 }
 
 std::string budget::home_folder() {
