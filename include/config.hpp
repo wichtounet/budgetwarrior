@@ -16,6 +16,7 @@ const size_t MIN_DATA_VERSION = 4;
 const size_t DATA_VERSION     = 6;
 
 std::string home_folder();
+std::string config_file();
 std::string budget_folder();
 std::string path_to_home_file(const std::string& file);
 std::string path_to_budget_file(const std::string& file);
