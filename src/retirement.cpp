@@ -74,6 +74,19 @@ double running_savings_rate(data_cache & cache, budget::date sd = budget::local_
     return savings_rate / running_limit;
 }
 
+budget::money running_income(data_cache & cache, budget::date sd = budget::local_day()){
+    budget::money income;
+
+    for(size_t i = 1; i <= running_limit; ++i){
+        auto d = sd - budget::months(i);
+
+        auto earnings = accumulate_amount(all_earnings_month(cache, d.year(), d.month()));
+        income += get_base_income(cache, d) + earnings;
+    }
+
+    return income;
+}
+
 void retirement_set() {
     double wrate = 4.0;
     double roi = 4.0;
@@ -154,26 +167,15 @@ void budget::retirement_status(budget::writer& w) {
     auto savings_rate   = running_savings_rate(w.cache);
     auto nw             = get_net_worth(w.cache);
     auto missing        = years * expenses - nw;
-    auto income         = 12 * get_base_income(w.cache);
-    auto a_savings_rate = (income - expenses) / income;
+    auto income         = running_income(w.cache);
 
     size_t base_months   = 0;
-    size_t a_base_months = 0;
-
     auto current_nw = nw;
     while (current_nw < years * expenses) {
         current_nw *= 1.0 + (roi / 100.0) / 12;
         current_nw += (savings_rate * income) / 12;
 
         ++base_months;
-    }
-
-    current_nw = nw;
-    while (current_nw < years * expenses) {
-        current_nw *= 1.0 + (roi / 100.0) / 12;
-        current_nw += (a_savings_rate * income) / 12;
-
-        ++a_base_months;
     }
 
     std::vector<std::string> columns = {};
@@ -195,7 +197,7 @@ void budget::retirement_status(budget::writer& w) {
     contents.push_back({""s, ""s});
     contents.push_back({"Current Net Worth"s, to_string(nw) + " " + currency});
     contents.push_back({"Missing Net Worth"s, to_string(missing) + " " + currency});
-    contents.push_back({"Yearly income"s, to_string(income) + " " + currency});
+    contents.push_back({"Running Income"s, to_string(income) + " " + currency});
     contents.push_back({"Running Savings Rate"s, to_string(100 * savings_rate) + "%"});
     contents.push_back({"Yearly savings"s, to_string(savings_rate * income) + " " + currency});
     contents.push_back({"FI Ratio"s, to_string(100 * (nw / missing)) + "%"});
@@ -214,14 +216,6 @@ void budget::retirement_status(budget::writer& w) {
     contents.push_back({""s, ""s});
     contents.push_back({"Current Yearly Allowance"s, to_string(nw * (wrate / 100.0))});
     contents.push_back({"Current Monthly Allowance"s, to_string((nw * (wrate / 100.0)) / 12)});
-
-    auto a_fi_date = budget::local_day() + budget::months(a_base_months);
-    contents.push_back({""s, ""s});
-    contents.push_back({"Adjusted Savings Rate"s, to_string(100 * a_savings_rate) + "%"});
-    contents.push_back({"Adjusted Yearly savings"s, to_string(a_savings_rate * income) + " " + currency});
-    contents.push_back({"Adjusted Months to FI"s, to_string(a_base_months)});
-    contents.push_back({"Adjusted Years to FI"s, to_string(a_base_months / 12.0)});
-    contents.push_back({"Adjusted Date to FI"s, to_string(a_fi_date)});
 
     w.display_table(columns, contents);
 
