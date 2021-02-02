@@ -14,7 +14,7 @@
 	url = https://github.com/onqtam/doctest.git
 [submodule "loguru"]
 	path = loguru
-	url = git@github.com:emilk/loguru.git
+	url = https://github.com/emilk/loguru.git
 [submodule "fmt"]
 	path = fmt
-	url = git@github.com:fmtlib/fmt.git
+	url = https://github.com/fmtlib/fmt.git
