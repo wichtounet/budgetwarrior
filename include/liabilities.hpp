@@ -23,6 +23,8 @@ struct data_reader;
 struct data_writer;
 struct data_cache;
 
+struct asset_class;
+
 struct liabilities_module {
     void load();
     void unload();
@@ -47,6 +49,16 @@ struct liability {
 
     void load(data_reader & reader);
     void save(data_writer & writer);
+
+    money total_allocation() const {
+        money total;
+
+        for (auto& [class_id, alloc] : classes) {
+            total += alloc;
+        }
+
+        return total;
+    }
 };
 
 void load_liabilities();
@@ -86,5 +98,9 @@ budget::money get_liability_value_conv(budget::liability & liability, budget::da
 // The value of a liability in a specific currency
 budget::money get_liability_value_conv(budget::liability & liability, const std::string& currency, data_cache & cache);
 budget::money get_liability_value_conv(budget::liability & liability, budget::date d, const std::string& currency, data_cache & cache);
+
+// Utilities for liabilities
+void update_asset_class_allocation(budget::liability& liability, budget::asset_class & clas, budget::money alloc);
+budget::money get_asset_class_allocation(const budget::liability& liability, const budget::asset_class & clas);
 
 } //end of namespace budget

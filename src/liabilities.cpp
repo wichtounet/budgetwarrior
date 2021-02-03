@@ -86,6 +86,20 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("A liability with this name already exists");
             }
 
+            auto asset_classes = all_asset_classes();
+
+            do {
+                for (auto & clas : asset_classes) {
+                    budget::money alloc = get_asset_class_allocation(liability, clas);
+                    edit_money(alloc, clas.name);
+                    update_asset_class_allocation(liability, clas, alloc);
+                }
+
+                if (liability.total_allocation() != money(100)) {
+                    std::cout << "The distribution must account to 100%" << std::endl;
+                }
+            } while (liability.total_allocation() != money(100));
+
             liability.currency = budget::get_default_currency();
             edit_string(liability.currency, "Currency", not_empty_checker());
 
@@ -145,6 +159,18 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
                     }
                 }
             }
+
+            do {
+                for (auto & clas : w.cache.asset_classes()) {
+                    budget::money alloc = get_asset_class_allocation(liability, clas);
+                    edit_money(alloc, clas.name);
+                    update_asset_class_allocation(liability, clas, alloc);
+                }
+
+                if (liability.total_allocation() != money(100)) {
+                    std::cout << "The distribution must account to 100%" << std::endl;
+                }
+            } while (liability.total_allocation() != money(100));
 
             edit_string(liability.currency, "Currency", not_empty_checker());
 
@@ -491,4 +517,25 @@ void budget::migrate_liabilities_6_to_7(){
 
     set_liabilities_changed();
     liabilities.save();
+}
+
+void budget::update_asset_class_allocation(budget::liability& liability, budget::asset_class & clas, budget::money alloc) {
+    for (auto & [class_id, class_alloc] : liability.classes) {
+        if (class_id == clas.id) {
+            class_alloc = alloc;
+            return;
+        }
+    }
+
+    liability.classes.emplace_back(clas.id, alloc);
+}
+
+budget::money budget::get_asset_class_allocation(const budget::liability& liability, const budget::asset_class & clas) {
+    for (auto & [class_id, class_alloc] : liability.classes) {
+        if (class_id == clas.id) {
+            return class_alloc;
+        }
+    }
+
+    return {};
 }
