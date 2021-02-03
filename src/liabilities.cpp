@@ -352,7 +352,15 @@ void budget::show_liabilities(budget::writer& w){
 
     w << title_begin << "Liabilities " << add_button("liabilities") << title_end;
 
-    std::vector<std::string> columns = {"ID", "Name", "Currency", "Edit"};
+    std::vector<std::string> columns = {"ID", "Name", "Currency"};
+
+    auto asset_classes = all_asset_classes();
+
+    for (auto & clas : asset_classes) {
+        columns.emplace_back(clas.name);
+    }
+
+    columns.emplace_back("Edit");
 
     std::vector<std::vector<std::string>> contents;
 
@@ -365,6 +373,23 @@ void budget::show_liabilities(budget::writer& w){
         line.emplace_back(liability.name);
 
         line.emplace_back(to_string(liability.currency));
+
+        for (auto& clas : asset_classes) {
+            bool found = false;
+
+            for (auto& [class_id, alloc] : liability.classes) {
+                if (class_id == clas.id) {
+                    line.emplace_back(to_string(alloc));
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                line.emplace_back("0.00");
+            }
+        }
+
         line.emplace_back("::edit::liabilities::" + budget::to_string(liability.id));
 
         contents.emplace_back(std::move(line));
