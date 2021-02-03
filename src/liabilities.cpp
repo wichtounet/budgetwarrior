@@ -56,11 +56,13 @@ std::map<std::string, std::string> budget::liability::get_params() const {
 
 void budget::liabilities_module::load(){
     load_liabilities();
+    load_asset_classes();
     load_asset_values();
 }
 
 void budget::liabilities_module::unload(){
     save_liabilities();
+    save_asset_classes();
     save_asset_values();
 }
 
@@ -251,6 +253,18 @@ void budget::liability::save(data_writer & writer){
     writer << guid;
     writer << name;
     writer << currency;
+
+    std::string classes_str;
+
+    for (auto& [clas_id, alloc] : classes) {
+        classes_str += budget::to_string(clas_id) + ";" + budget::to_string(alloc) + ";";
+    }
+
+    if (classes_str.empty()) {
+        classes_str = "EMPTY";
+    }
+
+    writer << classes_str;
 }
 
 void budget::liability::load(data_reader & reader){
@@ -258,6 +272,16 @@ void budget::liability::load(data_reader & reader){
     reader >> guid;
     reader >> name;
     reader >> currency;
+
+    std::string assets_parts_str;
+    reader >> assets_parts_str;
+
+    auto assets_parts = split(assets_parts_str, ';');
+    for (size_t i = 0; i + 1 < assets_parts.size(); i += 2) {
+        auto id    = to_number<size_t>(assets_parts[i]);
+        auto alloc = money_from_string(assets_parts[i + 1]);
+        classes.emplace_back(id, alloc);
+    }
 
     if (guid == "XXXXX") {
         guid = generate_guid();
@@ -419,4 +443,27 @@ budget::money budget::get_liability_value_conv(budget::liability & liability, bu
     } else {
         return amount;
     }
+}
+
+void budget::migrate_liabilities_6_to_7(){
+    load_asset_classes();
+
+    // Load liabilities with version 6
+    liabilities.load([&](data_reader & reader, liability& liability){
+        reader >> liability.id;
+        reader >> liability.guid;
+        reader >> liability.name;
+        reader >> liability.currency;
+
+        auto asset_classes = all_asset_classes();
+
+        for (auto & clas : asset_classes) {
+            liability.classes.emplace_back(clas.id, 0);
+        }
+
+        liability.classes.front().second = 100;
+    });
+
+    set_liabilities_changed();
+    liabilities.save();
 }

@@ -41,6 +41,7 @@ struct liability {
     std::string guid;
     std::string name;
     std::string currency;
+    std::vector<std::pair<size_t, money>> classes;
 
     std::map<std::string, std::string> get_params() const ;
 
@@ -71,6 +72,8 @@ bool liability_exists(size_t id);
 bool liability_exists(const std::string& name);
 void liability_delete(size_t id);
 bool no_liabilities();
+
+void migrate_liabilities_6_to_7();
 
 // The value of a liability in its own currency
 budget::money get_liability_value(budget::liability & liability, data_cache & cache);
