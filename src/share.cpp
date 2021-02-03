@@ -244,7 +244,7 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
     // If the API did not find anything, it must mean that the ticker is
     // invalid
     if (quotes.empty()) {
-        LOG_F(INFO,
+        LOG_F(ERROR,
               "Price: Could not find quotes for {} for date {} ({}-{})",
               ticker,
               budget::to_string(d),
@@ -275,7 +275,11 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
         }
     }
 
-    cpp_assert(share_prices.count(key), "Invalid state in share_price");
+    if (!share_prices.count(key)) {
+        LOG_F(ERROR, "Price: Unable to find data for {} on {}", ticker, budget::to_string(date));
+        share_prices[key] = money(1);
+        return money(1);
+    }
 
     LOG_F(INFO, "Price: Share price ({}) ticker {} = {}", budget::to_string(date), ticker, budget::to_string(share_prices[key]));
 
