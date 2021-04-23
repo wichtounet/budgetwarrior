@@ -74,9 +74,15 @@ budget::server_lock exchanges_lock;
 
 // V2 is using api.exchangeratesapi.io
 currency_cache_value get_rate_v2(const std::string& from, const std::string& to, const std::string& date = "latest") {
+    auto access_key = budget::user_config_value("exchangeratesapi_key", "");
+
+    if (access_key.empty()) {
+        return {1.0, false};
+    }
+
     httplib::SSLClient cli("api.exchangeratesapi.io", 443);
 
-    std::string api_complete = "/" + date + "?symbols=" + to + "&base=" + from;
+    std::string api_complete = "/" + date + "?symbols=" + to + "&base=" + from + "&access_key=" + access_key;
 
     auto res = cli.Get(api_complete.c_str());
 
