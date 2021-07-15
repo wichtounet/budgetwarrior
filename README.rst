@@ -106,7 +106,7 @@ Windows
 =======
 
 If there is some interest on using it on Windows, it
-should not take too much work to port it to Windows. Just le met me know (or
+should not take too much work to port it to Windows. Just let me know (or
 make a Pull Request with the changes ;) ). .
 
 Usage
@@ -124,7 +124,9 @@ Or::
 
     $ man budget
 
-if you have installed the man pages.
+if you have instal
+
+d the man pages.
 
 to see all the available commands.
 
