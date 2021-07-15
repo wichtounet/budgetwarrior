@@ -124,9 +124,7 @@ Or::
 
     $ man budget
 
-if you have instal
-
-d the man pages.
+if you have installed the man pages.
 
 to see all the available commands.
 
