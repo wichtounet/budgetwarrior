@@ -15,9 +15,11 @@
 #include "cpp_utils/string.hpp"
 
 #include "share.hpp"
+#include "assets.hpp"
 #include "config.hpp"
 #include "http.hpp"
 #include "data.hpp"
+#include "data_cache.hpp"
 #include "date.hpp"
 #include "money.hpp"
 #include "server_lock.hpp"
@@ -206,9 +208,13 @@ void budget::prefetch_share_price_cache(){
         }
     }
 
+    data_cache cache;
+
     // Prefetch the current prices
     for (auto & ticker : tickers) {
-        share_price(ticker);
+        if (is_ticker_active(cache, ticker)) {
+            share_price(ticker);
+        }
     }
 
     LOG_F(INFO, "Share Price Cache has been prefetched");

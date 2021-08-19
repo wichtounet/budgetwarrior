@@ -218,6 +218,8 @@ bool asset_share_exists(size_t id);
 void asset_share_delete(size_t id);
 bool no_asset_shares();
 
+bool is_ticker_active(data_cache & cache, const std::string & ticker);
+
 budget::money get_portfolio_value();
 budget::money get_net_worth_cash();
 

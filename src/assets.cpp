@@ -1271,6 +1271,26 @@ budget::money budget::get_net_worth_cash(){
     return total;
 }
 
+namespace {
+
+int get_shares(const budget::asset& asset, budget::date d, data_cache & cache) {
+    int64_t shares = 0;
+
+    for (auto& asset_share : cache.sorted_asset_shares()) {
+        if (asset_share.date <= d) {
+            if (asset_share.asset_id == asset.id) {
+                shares += asset_share.shares;
+            }
+        } else {
+            break;
+        }
+    }
+
+    return shares;
+}
+
+} // namespace
+
 // OPTIM get_asset_value is the current hotspot for almost all pages
 // 1) If the share_based part becomes a bottleneck, we can apply the same
 //    optimization than for the asset value part
@@ -1279,17 +1299,7 @@ budget::money budget::get_net_worth_cash(){
 
 budget::money budget::get_asset_value(const budget::asset & asset, budget::date d, data_cache & cache) {
     if (cpp_unlikely(asset.share_based)) {
-        int64_t shares = 0;
-
-        for (auto& asset_share : cache.sorted_asset_shares()) {
-            if (asset_share.date <= d) {
-                if (asset_share.asset_id == asset.id) {
-                    shares += asset_share.shares;
-                }
-            } else {
-                break;
-            }
-        }
+        int64_t shares = get_shares(asset, d, cache);
 
         if (shares > 0) {
             return static_cast<int>(shares) * share_price(asset.ticker, d);
@@ -1344,4 +1354,20 @@ budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::
     } else {
         return amount;
     }
+}
+
+bool budget::is_ticker_active(data_cache & cache, const std::string & ticker) {
+    for (auto & asset : cache.assets()) {
+        if (asset.share_based) {
+            if (asset.ticker == ticker) {
+                int64_t shares = get_shares(asset, local_day(), cache);
+
+                if (shares > 0) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
