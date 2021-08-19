@@ -36,6 +36,7 @@ struct data_cache {
     std::vector<income> & incomes();
     std::vector<account> & accounts();
     std::vector<asset_share> & asset_shares();
+    std::vector<asset_share> & sorted_asset_shares();
     std::vector<asset_class> & asset_classes();
     std::vector<objective> & objectives();
     std::vector<expense> & expenses();
@@ -64,6 +65,7 @@ private:
     std::vector<income> incomes_;
     std::vector<account> accounts_;
     std::vector<asset_share> asset_shares_;
+    std::vector<asset_share> sorted_asset_shares_;
     std::vector<asset_class> asset_classes_;
     std::vector<objective> objectives_;
     std::vector<expense> expenses_;

@@ -129,6 +129,18 @@ std::vector<asset_share> & data_cache::asset_shares() {
     return asset_shares_;
 }
 
+std::vector<asset_share> & data_cache::sorted_asset_shares() {
+    if (sorted_asset_shares_.empty()) {
+        sorted_asset_shares_ = asset_shares();
+
+        std::sort(sorted_asset_shares_.begin(), sorted_asset_shares_.end(), [](auto& lhs, auto& rhs) {
+            return lhs.date < rhs.date;
+        });
+    }
+
+    return sorted_asset_shares_;
+}
+
 std::vector<asset_class> & data_cache::asset_classes() {
     if (asset_classes_.empty()) {
         asset_classes_ = all_asset_classes();
@@ -155,7 +167,7 @@ std::vector<expense> & data_cache::expenses() {
 
 std::vector<expense> & data_cache::sorted_expenses() {
     if (sorted_expenses_.empty()) {
-        sorted_expenses_ = all_expenses();
+        sorted_expenses_ = expenses();
 
         std::sort(sorted_expenses_.begin(), sorted_expenses_.end(), [](auto& lhs, auto& rhs) {
             return lhs.date < rhs.date;

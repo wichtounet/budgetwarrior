@@ -1281,11 +1281,13 @@ budget::money budget::get_asset_value(const budget::asset & asset, budget::date 
     if (cpp_unlikely(asset.share_based)) {
         int64_t shares = 0;
 
-        for (auto& asset_share : cache.asset_shares()) {
-            if (asset_share.asset_id == asset.id) {
-                if (asset_share.date <= d) {
+        for (auto& asset_share : cache.sorted_asset_shares()) {
+            if (asset_share.date <= d) {
+                if (asset_share.asset_id == asset.id) {
                     shares += asset_share.shares;
                 }
+            } else {
+                break;
             }
         }
 
