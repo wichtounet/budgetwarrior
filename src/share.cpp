@@ -78,6 +78,31 @@ budget::date get_valid_date(budget::date d){
     return d;
 }
 
+// When we do not find a value for a ticker, we need to find an invalid value
+// In the worst case, we use a value of 1, but sometimes we can do better
+// We can try to find the closest date in the past for this ticker
+// This function must be called with a lock!
+share_cache_value get_invalid_value(share_price_cache_key key) {
+    auto next_key = key;
+    for (size_t i = 0; i < 5; ++i) {
+        next_key.date = next_key.date - budget::days(1);
+
+        if (share_prices.count(next_key)) {
+            LOG_F(INFO,
+                  "Price: Using invalid previous share price ({}->{}) for {} = {}",
+                  budget::to_string(key.date),
+                  budget::to_string(next_key.date),
+                  key.ticker,
+                  budget::to_string(share_prices[next_key].value));
+            return {share_prices[next_key].value, false};
+        }
+    }
+
+    LOG_F(INFO, "Price: Using invalid fixed share price ({}) for {} = 1", budget::to_string(key.date), key.ticker);
+
+    return {budget::money(1), false};
+}
+
 std::string exec_command(const std::string& command) {
     std::stringstream output;
 
@@ -267,8 +292,8 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
               budget::to_string(start_date),
               budget::to_string(end_date));
 
-        share_prices[key] = {money(1), false};
-        return money(1);
+        share_prices[key] = get_invalid_value(key);
+        return share_prices[key].value;
     }
 
     for (auto [new_key, new_value] : quotes) {
@@ -293,8 +318,8 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
 
     if (!share_prices.count(key)) {
         LOG_F(ERROR, "Price: Unable to find data for {} on {}", ticker, budget::to_string(date));
-        share_prices[key] = {money(1), false};
-        return money(1);
+        share_prices[key] = get_invalid_value(key);
+        return share_prices[key].value;
     }
 
     LOG_F(INFO, "Price: Share price ({}) ticker {} = {}", budget::to_string(date), ticker, budget::to_string(share_prices[key].value));
