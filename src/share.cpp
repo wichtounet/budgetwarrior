@@ -42,7 +42,15 @@ struct share_price_cache_key {
     }
 };
 
-std::map<share_price_cache_key, budget::money> share_prices;
+// We use a struct so that we can store values of 1 that can indicate either
+// a valid value or an invalid one
+// Without that, we could not store values of 1 in the cache file
+struct share_cache_value {
+    budget::money value;
+    bool   valid;
+};
+
+std::map<share_price_cache_key, share_cache_value> share_prices;
 budget::server_lock shares_lock;
 
 budget::date get_valid_date(budget::date d){
@@ -162,7 +170,7 @@ void budget::load_share_price_cache(){
         reader >> value;
 
         share_price_cache_key key(day, ticker);
-        share_prices[key] = budget::money::from_double(value);
+        share_prices[key] = {budget::money::from_double(value), true};
     }
 
     LOG_F(INFO, "Share Price Cache has been loaded from {}", file_path);
@@ -182,11 +190,11 @@ void budget::save_share_price_cache() {
         server_lock_guard l(shares_lock);
 
         for (auto& [key, value] : share_prices) {
-            if (value != budget::money(1)) {
+            if (value.valid) {
                 data_writer writer;
                 writer << key.date;
                 writer << key.ticker;
-                writer << value;
+                writer << value.value;
                 file << writer.to_string() << std::endl;
             }
         }
@@ -230,11 +238,13 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
 
     share_price_cache_key key(date, ticker);
 
+    // The first step is to get the data from the cache
+
     {
         server_lock_guard l(shares_lock);
 
         if (share_prices.count(key)) {
-            return share_prices[key];
+            return share_prices[key].value;
         }
     }
 
@@ -257,12 +267,12 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
               budget::to_string(start_date),
               budget::to_string(end_date));
 
-        share_prices[key] = money(1);
+        share_prices[key] = {money(1), false};
         return money(1);
     }
 
     for (auto [new_key, new_value] : quotes) {
-        share_prices[new_key] = new_value;
+        share_prices[new_key] = {new_value, true};
     }
 
     // If it has not been found, it may be a holiday, so we try to get
@@ -283,11 +293,11 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
 
     if (!share_prices.count(key)) {
         LOG_F(ERROR, "Price: Unable to find data for {} on {}", ticker, budget::to_string(date));
-        share_prices[key] = money(1);
+        share_prices[key] = {money(1), false};
         return money(1);
     }
 
-    LOG_F(INFO, "Price: Share price ({}) ticker {} = {}", budget::to_string(date), ticker, budget::to_string(share_prices[key]));
+    LOG_F(INFO, "Price: Share price ({}) ticker {} = {}", budget::to_string(date), ticker, budget::to_string(share_prices[key].value));
 
-    return share_prices[key];
+    return share_prices[key].value;
 }
