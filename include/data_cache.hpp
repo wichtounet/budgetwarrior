@@ -43,6 +43,7 @@ struct data_cache {
     std::vector<expense> & sorted_expenses();
     std::vector<asset> & assets();
     std::vector<asset> & user_assets();
+    std::vector<asset> & active_user_assets();
     std::vector<wish> & wishes();
 
     data_cache() = default;
@@ -72,6 +73,7 @@ private:
     std::vector<expense> sorted_expenses_;
     std::vector<asset> assets_;
     std::vector<asset> user_assets_;
+    std::vector<asset> active_user_assets_;
     std::vector<wish> wishes_;
 };
 

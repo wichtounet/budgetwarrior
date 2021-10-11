@@ -197,6 +197,18 @@ std::vector<asset> & data_cache::user_assets() {
     return user_assets_;
 }
 
+std::vector<asset> & data_cache::active_user_assets() {
+    if (active_user_assets_.empty()) {
+        for (auto & asset : assets()) {
+            if (asset.name != "DESIRED" && asset.active) {
+                active_user_assets_.push_back(asset);
+            }
+        }
+    }
+
+    return active_user_assets_;
+}
+
 std::vector<wish> & data_cache::wishes() {
     if (wishes_.empty()) {
         wishes_ = all_wishes();

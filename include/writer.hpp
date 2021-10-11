@@ -54,6 +54,14 @@ struct asset_selector {
             : page(page), current_asset(current_asset) {}
 };
 
+struct active_asset_selector {
+    std::string page;
+    std::size_t current_asset;
+
+    active_asset_selector(std::string page, std::size_t current_asset)
+            : page(page), current_asset(current_asset) {}
+};
+
 struct add_button {
     std::string module;
 
@@ -95,6 +103,10 @@ struct writer {
     }
 
     virtual writer& operator<<(const asset_selector&){
+        return *this;
+    }
+
+    virtual writer& operator<<(const active_asset_selector&){
         return *this;
     }
 
