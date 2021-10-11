@@ -61,6 +61,7 @@ struct asset {
     bool share_based;
     std::string ticker;
     std::vector<std::pair<size_t, money>> classes;
+    bool active;
 
     // Legacy fields, to be removed
     money int_stocks;
@@ -150,6 +151,7 @@ void save_assets();
 
 void migrate_assets_4_to_5();
 void migrate_assets_5_to_6();
+void migrate_assets_7_to_8();
 
 void show_asset_classes(budget::writer& w);
 

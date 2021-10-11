@@ -319,6 +319,10 @@ int main(int argc, const char* argv[]) {
                 migrate_liabilities_6_to_7();
             }
 
+            if (old_data_version <= 7 && DATA_VERSION >= 8) {
+                migrate_assets_7_to_8();
+            }
+
             internal_config_set("data_version", to_string(DATA_VERSION));
 
             // We want to make sure the new data version is set in stone!

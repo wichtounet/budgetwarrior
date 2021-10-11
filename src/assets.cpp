@@ -67,6 +67,7 @@ std::map<std::string, std::string> budget::asset::get_params() const {
     params["input_portfolio_alloc"] = budget::to_string(portfolio_alloc);
     params["input_shared_based"]    = share_based ? "true" : "false";
     params["input_ticker"]          = ticker;
+    params["input_active"]          = active ? "true" : "false";
 
     // The asset classes allocation
     for (auto & [clas_id, alloc] : classes) {
@@ -617,6 +618,40 @@ void budget::migrate_assets_5_to_6(){
     assets.save();
 }
 
+void budget::migrate_assets_7_to_8(){
+    assets.load([](data_reader & reader, asset& asset){
+        reader >> asset.id;
+        reader >> asset.guid;
+        reader >> asset.name;
+        reader >> asset.currency;
+        reader >> asset.portfolio;
+        reader >> asset.portfolio_alloc;
+        reader >> asset.share_based;
+        reader >> asset.ticker;
+
+        if (asset.ticker == "EMPTY") {
+            asset.ticker = "";
+        }
+
+        std::string assets_parts_str;
+        reader >> assets_parts_str;
+
+        auto assets_parts = split(assets_parts_str, ';');
+        for (size_t i = 0; i + 1 < assets_parts.size(); i += 2) {
+            auto id    = to_number<size_t>(assets_parts[i]);
+            auto alloc = money_from_string(assets_parts[i + 1]);
+            asset.classes.emplace_back(id, alloc);
+        }
+
+        // Version 8 added support for active
+        asset.active = true;
+    });
+
+    set_assets_changed();
+
+    assets.save();
+}
+
 void budget::asset::save(data_writer & writer){
     std::string classes_str;
 
@@ -637,6 +672,7 @@ void budget::asset::save(data_writer & writer){
     writer << share_based;
     writer << std::string(ticker.empty() ? "EMPTY" : ticker);
     writer << classes_str;
+    writer << active;
 }
 
 void budget::asset::load(data_reader & reader){
@@ -658,6 +694,8 @@ void budget::asset::load(data_reader & reader){
         auto alloc = money_from_string(assets_parts[i + 1]);
         classes.emplace_back(id, alloc);
     }
+
+    reader >> active;
 
     if (ticker == "EMPTY") {
         ticker = "";
