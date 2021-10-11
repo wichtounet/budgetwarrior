@@ -110,6 +110,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             }
 
             asset.portfolio       = false;
+            asset.active          = true;
             asset.portfolio_alloc = 0;
             asset.share_based     = false;
             asset.ticker          = "";
@@ -254,6 +255,11 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             } else {
                 asset.portfolio_alloc = 0;
             }
+
+            std::cout << "Is this asset active? [yes/no] ? ";
+
+            std::getline(std::cin, answer);
+            asset.active = answer == "yes" || answer == "y";
 
             if (assets.indirect_edit(asset)) {
                 std::cout << "Asset " << id << " has been modified" << std::endl;
