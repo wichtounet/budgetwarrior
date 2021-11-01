@@ -1301,6 +1301,40 @@ budget::money budget::get_net_worth(budget::date d, data_cache & cache) {
     return total;
 }
 
+budget::money budget::get_fi_net_worth(data_cache & cache){
+    return get_fi_net_worth(budget::local_day(), cache);
+}
+
+budget::money budget::get_fi_net_worth(budget::date d, data_cache & cache) {
+    budget::money total;
+
+    for (auto& asset : cache.user_assets()) {
+        if (asset.is_fi()) {
+            auto value = get_asset_value_conv(asset, d, cache);
+
+            for (auto& [class_id, alloc] : asset.classes) {
+                if (get_asset_class(class_id).fi) {
+                    total += value * (float(alloc) / float(100));
+                }
+            }
+        }
+    }
+
+    for (auto& asset : cache.liabilities()) {
+        if (asset.is_fi()) {
+            auto value = get_liability_value_conv(asset, d, cache);
+
+            for (auto& [class_id, alloc] : asset.classes) {
+                if (get_asset_class(class_id).fi) {
+                    total -= value * (float(alloc) / float(100));
+                }
+            }
+        }
+    }
+
+    return total;
+}
+
 budget::money budget::get_net_worth_cash(){
     budget::money total;
 

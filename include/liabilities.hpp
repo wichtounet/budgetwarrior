@@ -50,6 +50,8 @@ struct liability {
     void load(data_reader & reader);
     void save(data_writer & writer);
 
+    bool is_fi() const;
+
     money total_allocation() const {
         money total;
 

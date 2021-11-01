@@ -424,6 +424,16 @@ void budget::show_liabilities(budget::writer& w){
     w.display_table(columns, contents);
 }
 
+bool budget::liability::is_fi() const {
+    for (auto& [class_id, alloc] : classes) {
+        if (get_asset_class(class_id).fi) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool budget::liability_exists(size_t id){
     return liabilities.exists(id);
 }

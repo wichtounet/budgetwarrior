@@ -85,6 +85,16 @@ struct asset {
         return total;
     }
 
+    bool is_fi() const {
+        for (auto& [class_id, alloc] : classes) {
+            if (get_asset_class(class_id).fi) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool is_cash() const {
         for (auto& [class_id, alloc] : classes) {
             if (get_asset_class(class_id).name == "cash") {
@@ -229,6 +239,9 @@ budget::money get_net_worth_cash();
 
 budget::money get_net_worth(data_cache & cache);
 budget::money get_net_worth(budget::date d, data_cache & cache);
+
+budget::money get_fi_net_worth(data_cache & cache);
+budget::money get_fi_net_worth(budget::date d, data_cache & cache);
 
 // The value of an asset in its own currency
 budget::money get_asset_value(const budget::asset & asset, data_cache & cache);
