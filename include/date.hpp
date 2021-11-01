@@ -8,6 +8,7 @@
 #pragma once
 
 #include <ctime>
+#include <limits>
 
 #include "cpp_utils/assert.hpp"
 
