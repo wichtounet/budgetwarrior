@@ -57,12 +57,14 @@ void budget::asset_class::save(data_writer & writer){
     writer << id;
     writer << guid;
     writer << name;
+    writer << fi;
 }
 
 void budget::asset_class::load(data_reader & reader){
     reader >> id;
     reader >> guid;
     reader >> name;
+    reader >> fi;
 }
 
 bool budget::asset_class_exists(const std::string& name){
@@ -153,4 +155,19 @@ budget::money budget::get_asset_class_allocation(const budget::asset& asset, con
     }
 
     return {};
+}
+
+void budget::migrate_assets_8_to_9(){
+    asset_classes.load([](data_reader & reader, asset_class& asset_class){
+        reader >> asset_class.id;
+        reader >> asset_class.guid;
+        reader >> asset_class.name;
+
+        // Version 9 added support for FI Net Worth
+        asset_class.fi = true;
+    });
+
+    set_asset_classes_changed();
+
+    asset_classes.save();
 }

@@ -265,6 +265,10 @@ bool budget::migrate_database(size_t old_data_version) {
             migrate_assets_7_to_8();
         }
 
+        if (old_data_version <= 8 && DATA_VERSION >= 9) {
+            migrate_assets_8_to_9();
+        }
+
         internal_config_set("data_version", to_string(DATA_VERSION));
 
         // We want to make sure the new data version is set in stone!

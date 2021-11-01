@@ -37,9 +37,10 @@ struct module_traits<assets_module> {
 
 // An asset class
 struct asset_class {
-    size_t id;
+    size_t      id;
     std::string guid;
     std::string name;
+    bool        fi;
 
     std::map<std::string, std::string> get_params() const ;
 
@@ -152,6 +153,7 @@ void save_assets();
 void migrate_assets_4_to_5();
 void migrate_assets_5_to_6();
 void migrate_assets_7_to_8();
+void migrate_assets_8_to_9();
 
 void show_asset_classes(budget::writer& w);
 

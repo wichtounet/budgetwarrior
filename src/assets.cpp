@@ -581,10 +581,10 @@ void budget::migrate_assets_4_to_5(){
 }
 
 void budget::migrate_assets_5_to_6(){
-    asset_class class_int_stocks{0, generate_guid(), "Int. Stocks"};
-    asset_class class_dom_stocks{0, generate_guid(), "Dom. Stocks"};
-    asset_class class_bonds{0, generate_guid(), "Bonds"};
-    asset_class class_cash{0, generate_guid(), "Cash"};
+    asset_class class_int_stocks{0, generate_guid(), "Int. Stocks", true};
+    asset_class class_dom_stocks{0, generate_guid(), "Dom. Stocks", true};
+    asset_class class_bonds{0, generate_guid(), "Bonds", true};
+    asset_class class_cash{0, generate_guid(), "Cash", true};
 
     add_asset_class(class_int_stocks);
     add_asset_class(class_dom_stocks);
