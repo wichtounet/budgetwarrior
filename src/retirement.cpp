@@ -140,7 +140,7 @@ float budget::fi_ratio(budget::date d, data_cache & cache) {
     auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
     auto years          = double(int(100.0 / wrate));
     auto expenses       = running_expenses(cache, d);
-    auto nw             = get_net_worth(d, cache);
+    auto nw             = get_fi_net_worth(d, cache);
     auto missing        = years * expenses - nw;
 
     return nw / missing;
@@ -165,7 +165,7 @@ void budget::retirement_status(budget::writer& w) {
     auto years          = double(int(100.0 / wrate));
     auto expenses       = running_expenses(w.cache);
     auto savings_rate   = running_savings_rate(w.cache);
-    auto nw             = get_net_worth(w.cache);
+    auto nw             = get_fi_net_worth(w.cache);
     auto missing        = years * expenses - nw;
     auto income         = running_income(w.cache);
 
