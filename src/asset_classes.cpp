@@ -97,7 +97,7 @@ void budget::show_asset_classes(budget::writer& w){
 
     w << title_begin << "Asset Classes" << add_button("asset_classes") << title_end;
 
-    std::vector<std::string> columns = {"ID", "Name", "Edit"};
+    std::vector<std::string> columns = {"ID", "Name", "FI", "Edit"};
 
     std::vector<std::vector<std::string>> contents;
 
@@ -108,6 +108,7 @@ void budget::show_asset_classes(budget::writer& w){
 
         line.emplace_back(to_string(clas.id));
         line.emplace_back(clas.name);
+        line.emplace_back(clas.fi ? "yes" : "no");
         line.emplace_back("::edit::asset_classes::" + budget::to_string(clas.id));
 
         contents.emplace_back(std::move(line));
