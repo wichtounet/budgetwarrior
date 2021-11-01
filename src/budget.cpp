@@ -18,6 +18,7 @@
 #include "currency.hpp"
 #include "share.hpp"
 #include "logging.hpp"
+#include "data.hpp"
 
 //The different modules
 #include "debts.hpp"
@@ -291,44 +292,8 @@ int main(int argc, const char* argv[]) {
     } else {
         auto old_data_version = to_number<size_t>(internal_config_value("data_version"));
 
-        if (old_data_version > DATA_VERSION) {
-            LOG_F(ERROR, "Unsupported database version, you should update budgetwarrior");
-
+        if (!budget::migrate_database(old_data_version)) {
             return 0;
-        }
-
-        if (old_data_version < MIN_DATA_VERSION) {
-            LOG_F(ERROR, "Your database version is not supported anymore");
-            LOG_F(ERROR, "You can use an older version of budgetwarrior to migrate it");
-
-            return 0;
-        }
-
-        if (old_data_version < DATA_VERSION) {
-            LOG_F(INFO, "Migrating database...");
-
-            if (old_data_version <= 4 && DATA_VERSION >= 5) {
-                migrate_assets_4_to_5();
-            }
-
-            if (old_data_version <= 5 && DATA_VERSION >= 6) {
-                migrate_assets_5_to_6();
-            }
-
-            if (old_data_version <= 6 && DATA_VERSION >= 7) {
-                migrate_liabilities_6_to_7();
-            }
-
-            if (old_data_version <= 7 && DATA_VERSION >= 8) {
-                migrate_assets_7_to_8();
-            }
-
-            internal_config_set("data_version", to_string(DATA_VERSION));
-
-            // We want to make sure the new data version is set in stone!
-            save_config();
-
-            LOG_F(INFO, "done");
         }
     }
 

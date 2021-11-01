@@ -341,4 +341,6 @@ private:
     std::vector<T> data_;
 };
 
+bool migrate_database(size_t old_data_version);
+
 } //end of namespace budget

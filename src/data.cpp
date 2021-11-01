@@ -12,6 +12,10 @@
 #include "date.hpp"
 #include "money.hpp"
 
+// For database migration
+#include "assets.hpp"
+#include "liabilities.hpp"
+
 namespace {
 
 void parse_input(std::vector<std::string>& parts) {
@@ -226,4 +230,48 @@ budget::data_writer& budget::data_writer::operator<<(const budget::money& value)
 
 std::string budget::data_writer::to_string() const {
     return parse_output(parts);
+}
+
+bool budget::migrate_database(size_t old_data_version) {
+    if (old_data_version > DATA_VERSION) {
+        LOG_F(ERROR, "Unsupported database version ({}), you should update budgetwarrior", old_data_version);
+
+        return false;
+    }
+
+    if (old_data_version < MIN_DATA_VERSION) {
+        LOG_F(ERROR, "Your database version ({}) is not supported anymore", old_data_version);
+        LOG_F(ERROR, "You can use an older version of budgetwarrior to migrate it");
+
+        return false;
+    }
+
+    if (old_data_version < DATA_VERSION) {
+        LOG_F(INFO, "Migrating database to version {}...", DATA_VERSION);
+
+        if (old_data_version <= 4 && DATA_VERSION >= 5) {
+            migrate_assets_4_to_5();
+        }
+
+        if (old_data_version <= 5 && DATA_VERSION >= 6) {
+            migrate_assets_5_to_6();
+        }
+
+        if (old_data_version <= 6 && DATA_VERSION >= 7) {
+            migrate_liabilities_6_to_7();
+        }
+
+        if (old_data_version <= 7 && DATA_VERSION >= 8) {
+            migrate_assets_7_to_8();
+        }
+
+        internal_config_set("data_version", to_string(DATA_VERSION));
+
+        // We want to make sure the new data version is set in stone!
+        save_config();
+
+        LOG_F(INFO, "Migrated to database version {}...", DATA_VERSION);
+    }
+
+    return true;
 }
