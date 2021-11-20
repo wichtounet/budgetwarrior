@@ -4,7 +4,7 @@ budgetwarrior 1.1.0
 Simple command line utility to helps keeping track of your expenses and the
 state of your budget.
 
-.. image:: https://raw.githubusercontent.com/wichtounet/budgetwarrior/develop/screenshots/budget_report.png
+.. image:: https://github.com/wichtounet/budgetwarrior/blob/master/screenshots/budget_report.png?raw=true
    :align: center
 
 Personal accounting method
