@@ -6,6 +6,7 @@
 //=======================================================================
 
 #include <charconv>
+#include <array>
 
 #include "data.hpp"
 #include "utils.hpp"

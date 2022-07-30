@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <random>
 #include <charconv>
+#include <array>
 
 #include "money.hpp"
 #include "utils.hpp"

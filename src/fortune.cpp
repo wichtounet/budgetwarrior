@@ -99,9 +99,9 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
                     contents.push_back({"", to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", "", "::edit::fortunes::" + budget::to_string(fortune.id)});
                 }
             } else if (i == 1) {
-                auto diff = fortune.amount - previous;
-                auto d    = fortune.check_date - previous_date;
-                auto avg  = diff / d;
+                money diff = fortune.amount - previous;
+                long d     = fortune.check_date - previous_date;
+                money avg  = diff / d;
 
                 if (short_view) {
                     contents.push_back({to_string(previous_date), to_string(fortune.check_date), to_string(fortune.amount),
@@ -111,13 +111,13 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
                                         format_money(diff), to_string(d), to_string(avg), "", "", "::edit::fortunes::" + budget::to_string(fortune.id)});
                 }
             } else {
-                auto diff = fortune.amount - previous;
-                auto d    = fortune.check_date - previous_date;
-                auto avg  = diff / d;
+                money diff = fortune.amount - previous;
+                long d     = fortune.check_date - previous_date;
+                money avg  = diff / d;
 
-                auto tot_diff = fortune.amount - first;
-                auto tot_d    = fortune.check_date - first_date;
-                auto tot_avg  = tot_diff / tot_d;
+                money tot_diff = fortune.amount - first;
+                long  tot_d    = fortune.check_date - first_date;
+                money tot_avg  = tot_diff / tot_d;
 
                 if (short_view) {
                     contents.push_back({to_string(previous_date), to_string(fortune.check_date), to_string(fortune.amount),
