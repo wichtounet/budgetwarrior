@@ -8,6 +8,7 @@
 #include <tuple>
 #include <utility>
 #include <iostream>
+#include <unordered_map>
 
 #include "currency.hpp"
 #include "assets.hpp" // For get_default_currency
