@@ -6,8 +6,7 @@ file(GLOB API "api/*.cpp")
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-find_package(DL REQUIRED)
 
 add_executable(budget ${SOURCES} ${PAGES} ${API})
-target_link_libraries(budget OpenSSL::SSL Threads::Threads DL::DL)
+target_link_libraries(budget OpenSSL::SSL Threads::Threads ${CMAKE_DL_LIBS})
 install(TARGETS budget DESTINATION bin/)
