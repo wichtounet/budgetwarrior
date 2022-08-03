@@ -4,7 +4,10 @@ file(GLOB SOURCES "*.cpp")
 file(GLOB PAGES "pages/*.cpp")
 file(GLOB API "api/*.cpp")
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 add_executable(budget ${SOURCES} ${PAGES} ${API})
 target_link_libraries(budget OpenSSL::SSL)
+target_link_libraries(budget PRIVATE Threads::Threads)
 install(TARGETS budget DESTINATION bin/)
-
