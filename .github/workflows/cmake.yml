@@ -27,7 +27,7 @@ jobs:
             target: Linux
 
           - os: macos-latest
-            compiler: g++-10
+            compiler: clang
             target: Macos
     steps:
     - name: Checkout code
