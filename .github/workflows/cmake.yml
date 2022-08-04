@@ -22,7 +22,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         compiler: [g++-9, clang]
         exclude:
-          # Only default compiler on macos-latest and windows-latest
+          # Only default compiler on macos-latest and ubuntu-latest
           - os: macos-latest
             compiler: g++-9
           - os: ubuntu-latest
