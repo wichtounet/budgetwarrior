@@ -20,7 +20,6 @@
 #include "share.hpp"
 #include "logging.hpp"
 #include "data.hpp"
-#include "utils.hpp"
 
 //The different modules
 #include "debts.hpp"
