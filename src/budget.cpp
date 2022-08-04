@@ -93,7 +93,7 @@ struct need_preloading {
     static const bool value = has_preload<Module, void(Module::*)()>::value;
 };
 
-HAS_STATIC_FIELD(disable_preloading, has_disable_preloading_field)
+HAS_STATIC_FIELD(disable_preloading, has_disable_preloading_field);
 
 template<typename Module, typename Enable = void>
 struct disable_preloading {
@@ -105,7 +105,7 @@ struct disable_preloading<Module, std::enable_if_t<has_disable_preloading_field<
     static const bool value = module_traits<Module>::disable_preloading;
 };
 
-HAS_STATIC_FIELD(aliases, has_aliases_field)
+HAS_STATIC_FIELD(aliases, has_aliases_field);
 
 template<typename Module, typename Enable = void>
 struct has_aliases {
