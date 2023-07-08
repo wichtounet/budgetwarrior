@@ -36,4 +36,4 @@ default_currency=CHF
 
 ## Indicates which separator to use, default is '/'
 ## For example: Groceries/Costco and Groceries/CVS will be aggregated to Groceries
-# aggregate_separator= 
+# aggregate_separator=
