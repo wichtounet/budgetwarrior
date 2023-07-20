@@ -19,7 +19,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        # clang on macos-latest cannot compile ranges
+        os: [ubuntu-lates]
         compiler: [g++-13, clang]
         exclude:
           # Only default compiler on macos-latest and ubuntu-latest
