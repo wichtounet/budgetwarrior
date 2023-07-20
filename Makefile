@@ -12,7 +12,7 @@ CXX_FLAGS += -pthread
 
 LD_FLAGS += -luuid -lssl -lcrypto -ldl
 
-CXX_FLAGS += -Icpp-httplib
+CXX_FLAGS += -isystem cpp-httplib
 
 # Add test includes
 CXX_FLAGS += -Idoctest -Itest/include -Iloguru -Ifmt/include
