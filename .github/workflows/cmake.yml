@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         # clang on macos-latest cannot compile ranges
-        os: [ubuntu-lates]
+        os: [ubuntu-latest]
         compiler: [g++-13]
         exclude:
           # Only default compiler on ubuntu-latest
