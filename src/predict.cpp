@@ -54,13 +54,13 @@ void predict_overview(){
     }
 
     for(auto& expense : expenses){
-        if(account_mappings.count(get_account(expense.account).name)){
+        if(account_mappings.contains(get_account(expense.account).name)){
             expense.amount *= (expense_multipliers[account_mappings[get_account(expense.account).name]] / 100.0);
         }
     }
 
     for(auto& earning : earnings){
-        if(account_mappings.count(get_account(earning.account).name)){
+        if(account_mappings.contains(get_account(earning.account).name)){
             earning.amount *= (earning_multipliers[account_mappings[get_account(earning.account).name]] / 100.0);
         }
     }

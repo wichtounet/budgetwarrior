@@ -87,7 +87,7 @@ share_cache_value get_invalid_value(share_price_cache_key key) {
     for (size_t i = 0; i < 5; ++i) {
         next_key.date = next_key.date - budget::days(1);
 
-        if (share_prices.count(next_key)) {
+        if (share_prices.contains(next_key)) {
             LOG_F(INFO,
                   "Price: Using invalid previous share price ({}->{}) for {} = {}",
                   budget::to_string(key.date),
@@ -268,7 +268,7 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
     {
         server_lock_guard l(shares_lock);
 
-        if (share_prices.count(key)) {
+        if (share_prices.contains(key)) {
             return share_prices[key].value;
         }
     }
@@ -302,21 +302,21 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
 
     // If it has not been found, it may be a holiday, so we try to get
     // back in time to find a proper value
-    if (!share_prices.count(key)) {
+    if (!share_prices.contains(key)) {
         for (size_t i = 0; i < 4; ++i){
             auto next_date = get_valid_date(date - budget::days(1));
 
             LOG_F(INFO, "Price: Possible holiday on {}, retrying on {}", budget::to_string(date), budget::to_string(next_date));
 
             share_price_cache_key next_key(next_date, ticker);
-            if (share_prices.count(next_key)) {
+            if (share_prices.contains(next_key)) {
                 share_prices[key] = share_prices[next_key];
                 break;
             }
         }
     }
 
-    if (!share_prices.count(key)) {
+    if (!share_prices.contains(key)) {
         LOG_F(ERROR, "Price: Unable to find data for {} on {}", ticker, budget::to_string(date));
         share_prices[key] = get_invalid_value(key);
         return share_prices[key].value;

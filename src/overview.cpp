@@ -242,7 +242,7 @@ void add_values_column(budget::month                            month,
 
     for (auto& expense : sorted_values) {
         if (expense.date.year() == year && expense.date.month() == month) {
-            if (indexes.count(get_account(expense.account).name)) {
+            if (indexes.contains(get_account(expense.account).name)) {
                 size_t index = indexes[get_account(expense.account).name];
                 size_t& row  = current[index];
 

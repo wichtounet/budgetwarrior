@@ -1067,7 +1067,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             line.emplace_back("Total");
 
             for (auto& clas : w.cache.asset_classes()) {
-                if (classes.count(clas.name)) {
+                if (classes.contains(clas.name)) {
                     line.emplace_back(budget::to_string(classes[clas.name]));
                 } else {
                     line.emplace_back("0.00");
@@ -1088,7 +1088,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             line.emplace_back("Distribution");
 
             for (auto& clas : w.cache.asset_classes()) {
-                if (classes.count(clas.name)) {
+                if (classes.contains(clas.name)) {
                     auto amount = classes[clas.name];
                     line.emplace_back(budget::to_string_precision(100 * amount.dollars() / (double) assets_total.dollars(), 2));
                 } else {
@@ -1119,7 +1119,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
                 line1.emplace_back(to_string(desired_alloc));
                 line2.emplace_back(to_string(assets_total * (float(desired_alloc) / 100.0)));
 
-                if (classes.count(clas.name)) {
+                if (classes.contains(clas.name)) {
                     line3.emplace_back(to_string(assets_total * (float(desired_alloc) / 100.0) - classes[clas.name]));
                 } else {
                     line3.emplace_back(to_string(assets_total * (float(desired_alloc) / 100.0)));
