@@ -166,29 +166,7 @@ struct money {
         return m * factor;
     }
 
-    bool operator==(const budget::money& rhs) const {
-        return value == rhs.value;
-    }
-
-    bool operator!=(const budget::money& rhs) const {
-        return value != rhs.value;
-    }
-
-    bool operator<(const budget::money& rhs) const {
-        return value < rhs.value;
-    }
-
-    bool operator<=(const budget::money& rhs) const {
-        return value < rhs.value;
-    }
-
-    bool operator>(const budget::money& rhs) const {
-        return value > rhs.value;
-    }
-
-    bool operator>=(const budget::money& rhs) const {
-        return value >= rhs.value;
-    }
+    friend auto operator<=>(const budget::money & lhs, const budget::money & rhs) = default;
 
     int cents() const {
         return std::abs(value % SCALE);

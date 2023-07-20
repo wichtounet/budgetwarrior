@@ -451,49 +451,7 @@ struct date {
         return d;
     }
 
-    bool operator==(const date& rhs) const {
-        return _year == rhs._year && _month == rhs._month && _day == rhs._day;
-    }
-
-    bool operator!=(const date& rhs) const {
-        return !(*this == rhs);
-    }
-
-    bool operator<(const date& rhs) const {
-        if(_year < rhs._year){
-            return true;
-        } else if(_year == rhs._year){
-            if(_month < rhs._month){
-                return true;
-            } else if(_month == rhs._month){
-                return _day < rhs._day;
-            }
-        }
-
-        return false;
-    }
-
-    bool operator<=(const date& rhs) const {
-        return (*this == rhs) || (*this < rhs);
-    }
-
-    bool operator>(const date& rhs) const {
-        if(_year > rhs._year){
-            return true;
-        } else if(_year == rhs._year){
-            if(_month > rhs._month){
-                return true;
-            } else if(_month == rhs._month){
-                return _day > rhs._day;
-            }
-        }
-
-        return false;
-    }
-
-    bool operator>=(const date& rhs) const {
-        return (*this == rhs) || (*this > rhs);
-    }
+    friend auto operator<=>(const date & lhs, const date & rhs) = default;
 
     int64_t operator-(const date& rhs) const {
         if(*this == rhs){
