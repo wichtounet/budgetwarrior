@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #include "expenses.hpp"
 #include "args.hpp"
@@ -21,6 +22,8 @@
 #include "budget_exception.hpp"
 
 using namespace budget;
+
+namespace ranges = std::ranges;
 
 namespace {
 
@@ -281,11 +284,11 @@ void budget::search_expenses(const std::string& search, budget::writer& w){
     size_t count = 0;
 
     auto l_search = search;
-    std::transform(l_search.begin(), l_search.end(), l_search.begin(), ::tolower);
+    ranges::transform(l_search, l_search.begin(), ::tolower);
 
     for (auto& expense : expenses.data()) {
         auto l_name = expense.name;
-        std::transform(l_name.begin(), l_name.end(), l_name.begin(), ::tolower);
+        ranges::transform(l_name, l_name.begin(), ::tolower);
 
         if (l_name.find(l_search) != std::string::npos) {
             contents.push_back({to_string(expense.id),
