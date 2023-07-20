@@ -20,16 +20,16 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        compiler: [g++-9, clang]
+        compiler: [g++-13, clang]
         exclude:
           # Only default compiler on macos-latest and ubuntu-latest
           - os: macos-latest
-            compiler: g++-9
+            compiler: g++-13
           - os: ubuntu-latest
             compiler: clang
         include:
           - os: ubuntu-latest
-            compiler: g++-9
+            compiler: g++-13
           - os: macos-latest
             compiler: clang
 
