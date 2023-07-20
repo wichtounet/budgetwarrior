@@ -21,18 +21,14 @@ jobs:
       matrix:
         # clang on macos-latest cannot compile ranges
         os: [ubuntu-lates]
-        compiler: [g++-13, clang]
+        compiler: [g++-13]
         exclude:
-          # Only default compiler on macos-latest and ubuntu-latest
-          - os: macos-latest
-            compiler: g++-13
+          # Only default compiler on ubuntu-latest
           - os: ubuntu-latest
             compiler: clang
         include:
           - os: ubuntu-latest
             compiler: g++-13
-          - os: macos-latest
-            compiler: clang
 
     steps:
     
