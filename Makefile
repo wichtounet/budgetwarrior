@@ -5,14 +5,10 @@ default: release_debug
 include make-utils/flags.mk
 include make-utils/cpp-utils.mk
 
-# Use C++17
-$(eval $(call use_cpp17))
+# Use C++23
+$(eval $(call use_cpp23))
 
 CXX_FLAGS += -pthread
-
-ifneq (,$(findstring clang,$(CXX)))
-	CXX_FLAGS += -stdlib=libc++
-endif
 
 LD_FLAGS += -luuid -lssl -lcrypto -ldl
 

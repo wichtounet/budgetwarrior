@@ -7,6 +7,7 @@
 
 #include <cstdio>
 #include <fstream>
+#include <cstdint>
 
 #include <unistd.h>
 #ifdef _WIN32
