@@ -29,10 +29,10 @@ jobs:
         submodules: recursive
 
     - name: Build binaries
-      run: make release_debug
+      run: make -j5 release_debug
 
     - name: Build tests
-      run: make release_debug_test
+      run: make -j5 release_debug_test
 
     - name: Run tests
       run: make run_release_debug_test
