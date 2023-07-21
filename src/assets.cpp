@@ -35,7 +35,7 @@ static data_handler<asset> assets { "assets", "assets.data" };
 std::vector<std::string> get_asset_names(data_cache& cache) {
     std::vector<std::string> asset_names;
 
-    for (auto& asset : cache.user_assets()) {
+    for (const auto& asset : cache.user_assets()) {
         asset_names.push_back(asset.name);
     }
 
@@ -45,7 +45,7 @@ std::vector<std::string> get_asset_names(data_cache& cache) {
 std::vector<std::string> get_share_asset_names(data_cache& cache) {
     std::vector<std::string> asset_names;
 
-    for (auto& asset : cache.user_assets()) {
+    for (const auto& asset : cache.user_assets()) {
         if (asset.share_based) {
             asset_names.push_back(asset.name);
         }
@@ -210,7 +210,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             //Verify that there are no OTHER asset with this name
             //in the current set of assets (taking archiving into asset)
 
-            for (auto& other_asset : w.cache.user_assets()) {
+            for (const auto& other_asset : w.cache.user_assets()) {
                 if (other_asset.id != id) {
                     if (other_asset.name == asset.name) {
                         throw budget_exception("There is already an asset with the name " + asset.name);
@@ -763,7 +763,7 @@ budget::date budget::asset_start_date(data_cache & cache) {
 
     //TODO If necessary, avoid double loops
 
-    for (auto & asset : cache.user_assets()) {
+    for (const auto & asset : cache.user_assets()) {
         start = std::min(asset_start_date(cache, asset), start);
     }
 
@@ -873,13 +873,13 @@ void budget::show_asset_portfolio(budget::writer& w){
 
     budget::money total;
 
-    for (auto& asset : w.cache.user_assets()) {
+    for (const auto& asset : w.cache.user_assets()) {
         if (asset.portfolio) {
             total += get_asset_value_conv(asset, w.cache);
         }
     }
 
-    for(auto& asset : w.cache.user_assets()){
+    for(const auto& asset : w.cache.user_assets()){
         if (asset.portfolio) {
             auto amount = get_asset_value(asset, w.cache);
 
@@ -915,7 +915,7 @@ void budget::show_asset_rebalance(budget::writer& w, bool nocash){
 
     budget::money total;
 
-    for (auto& asset : w.cache.user_assets()) {
+    for (const auto& asset : w.cache.user_assets()) {
         if (asset.portfolio) {
             if (nocash && asset.is_cash()) {
                 continue;
@@ -927,7 +927,7 @@ void budget::show_asset_rebalance(budget::writer& w, bool nocash){
 
     budget::money total_rebalance;
 
-    for (auto& asset : w.cache.user_assets()) {
+    for (const auto& asset : w.cache.user_assets()) {
         if (asset.portfolio) {
             if (nocash && asset.is_cash()) {
                 continue;
@@ -981,7 +981,7 @@ void budget::small_show_asset_values(budget::writer& w){
 
     budget::money total;
 
-    for (auto& asset : w.cache.user_assets()) {
+    for (const auto& asset : w.cache.user_assets()) {
         auto amount = get_asset_value(asset, w.cache);
 
         if (amount) {
@@ -1024,7 +1024,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
         budget::money assets_total;
         budget::money liabilities_total;
 
-        for(auto& asset : w.cache.user_assets()){
+        for(const auto& asset : w.cache.user_assets()){
             auto amount = get_asset_value(asset, w.cache);
 
             if (amount) {
@@ -1274,7 +1274,7 @@ budget::money budget::get_portfolio_value(){
 
     data_cache cache;
 
-    for (auto & asset : cache.user_assets()) {
+    for (const auto & asset : cache.user_assets()) {
         if (asset.portfolio) {
             total += get_asset_value_conv(asset, cache);
         }
@@ -1290,7 +1290,7 @@ budget::money budget::get_net_worth(data_cache & cache){
 budget::money budget::get_net_worth(budget::date d, data_cache & cache) {
     budget::money total;
 
-    for (auto & asset : cache.user_assets()) {
+    for (const auto & asset : cache.user_assets()) {
         total += get_asset_value_conv(asset, d, cache);
     }
 
@@ -1308,7 +1308,7 @@ budget::money budget::get_fi_net_worth(data_cache & cache){
 budget::money budget::get_fi_net_worth(budget::date d, data_cache & cache) {
     budget::money total;
 
-    for (auto& asset : cache.user_assets()) {
+    for (const auto& asset : cache.user_assets()) {
         if (asset.is_fi()) {
             auto value = get_asset_value_conv(asset, d, cache);
 
@@ -1340,7 +1340,7 @@ budget::money budget::get_net_worth_cash(){
 
     data_cache cache;
 
-    for (auto & asset : cache.user_assets()) {
+    for (const auto & asset : cache.user_assets()) {
         if (asset.is_cash()) {
             total += get_asset_value_conv(asset, cache);
         }

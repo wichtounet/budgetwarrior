@@ -43,7 +43,7 @@ struct data_cache {
     std::vector<expense> & expenses();
     std::vector<expense> & sorted_expenses();
     std::vector<asset> & assets();
-    std::vector<asset> & user_assets();
+    const std::vector<asset> & user_assets();
     std::vector<asset> & active_user_assets();
     std::vector<wish> & wishes();
 

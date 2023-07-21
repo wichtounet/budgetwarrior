@@ -185,7 +185,7 @@ std::vector<asset> & data_cache::assets() {
     return assets_;
 }
 
-std::vector<asset> & data_cache::user_assets() {
+const std::vector<asset> & data_cache::user_assets() {
     if (user_assets_.empty()) {
         for (auto & asset : assets()) {
             if (asset.name != "DESIRED") {
