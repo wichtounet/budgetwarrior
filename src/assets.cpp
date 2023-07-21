@@ -164,16 +164,12 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("Cannot delete special asset " + args[2]);
             }
 
-            for (auto& value : all_asset_values()) {
-                if (!value.liability && value.asset_id == id) {
-                    throw budget_exception("There are still asset values linked to asset " + args[2]);
-                }
+            if (all_asset_values() | not_liability | filter_by_asset(id)) {
+                throw budget_exception("There are still asset values linked to asset " + args[2]);
             }
 
-            for (auto& share : all_asset_shares()) {
-                if (share.asset_id == id) {
-                    throw budget_exception("There are still asset shares linked to asset " + args[2]);
-                }
+            if (all_asset_shares() | filter_by_asset(id)) {
+                throw budget_exception("There are still asset shares linked to asset " + args[2]);
             }
 
             assets.remove(id);
@@ -200,12 +196,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             //Verify that there are no OTHER asset with this name
             //in the current set of assets (taking archiving into asset)
 
-            for (const auto& other_asset : w.cache.user_assets()) {
-                if (other_asset.id != id) {
-                    if (other_asset.name == asset.name) {
-                        throw budget_exception("There is already an asset with the name " + asset.name);
-                    }
-                }
+            if (w.cache.user_assets() | not_id(id) | filter_by_name(asset.name)) {
+                throw budget_exception("There is already an asset with the name " + asset.name);
             }
 
             do {

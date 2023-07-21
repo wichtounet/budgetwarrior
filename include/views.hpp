@@ -51,10 +51,29 @@ struct active_today_adaptor {
     }
 };
 
+struct not_liability_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, not_liability_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & asset) { return !asset.liability; });
+    }
+};
+
 } // namespace detail
 
+inline auto filter_by_id(size_t id) {
+    return std::views::filter([id] (const auto & element) { return element.id == id; });
+}
+
+inline auto not_id(size_t id) {
+    return std::views::filter([id] (const auto & element) { return element.id != id; });
+}
+
 inline auto filter_by_account(size_t id) {
-    return std::views::filter([&id] (const auto & expense) { return expense.account == id; });
+    return std::views::filter([id] (const auto & expense) { return expense.account == id; });
+}
+
+inline auto filter_by_asset(size_t id) {
+    return std::views::filter([id] (const auto & share) { return share.asset_id == id; });
 }
 
 inline auto filter_by_name(const std::string & name) {
@@ -74,6 +93,7 @@ inline constexpr detail::only_open_ended_adaptor only_open_ended;
 inline constexpr detail::not_open_ended_adaptor not_open_ended;
 inline constexpr detail::share_based_only_adaptor share_based_only;
 inline constexpr detail::to_name_adaptor to_name;
+inline constexpr detail::not_liability_adaptor not_liability;
 
 // TODO(C+23) In the future, we can simply ranges::to<std::vector> but it is not yet implemented with GCC
 

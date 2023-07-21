@@ -70,7 +70,7 @@ void budget::asset_class::load(data_reader & reader){
 }
 
 bool budget::asset_class_exists(const std::string& name){
-    return !ranges::empty(asset_classes.data() | filter_by_name(name));
+    return !!(asset_classes.data() | filter_by_name(name));
 }
 
 std::vector<asset_class> budget::all_asset_classes(){

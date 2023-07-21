@@ -175,11 +175,11 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                 id = get_account(name, today.year(), today.month()).id;
             }
 
-            if (!ranges::empty(all_expenses() | filter_by_account(id))) {
+            if (all_expenses() | filter_by_account(id)) {
                 throw budget_exception("There are still some expenses linked to this account, cannot delete it");
             }
 
-            if (!ranges::empty(all_earnings() | filter_by_account(id))) {
+            if (all_earnings() | filter_by_account(id)) {
                 throw budget_exception("There are still some earnings linked to this account, cannot delete it");
             }
 
@@ -209,10 +209,8 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             //Verify that there are no OTHER account with this name
             //in the current set of accounts (taking archiving into account)
 
-            for(auto& other_account : accounts.data() | active_today | filter_by_name(account.name)){
-                if(other_account.id != id) {
-                    throw budget_exception("There is already an account with the name " + account.name);
-                }
+            if (accounts.data() | not_id(id) | active_today | filter_by_name(account.name)) {
+                throw budget_exception("There is already an account with the name " + account.name);
             }
 
             edit_money(account.amount, "Amount", not_negative_checker());
@@ -406,7 +404,7 @@ void budget::account::load(data_reader & reader){
 }
 
 bool budget::account_exists(const std::string& name){
-    return !ranges::empty(accounts.data() | filter_by_name(name));
+    return !!(accounts.data() | filter_by_name(name));
 }
 
 std::vector<account> budget::all_accounts(){
