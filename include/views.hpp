@@ -76,6 +76,34 @@ struct is_desired_adaptor {
     }
 };
 
+struct is_portfolio_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, is_portfolio_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & element) { return element.portfolio; });
+    }
+};
+
+struct is_fi_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, is_fi_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & element) { return element.is_fi(); });
+    }
+};
+
+struct is_cash_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, is_cash_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & element) { return element.is_cash(); });
+    }
+};
+
+struct not_zero_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, not_zero_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & pair) { return !pair.second.zero(); });
+    }
+};
+
 } // namespace detail
 
 inline auto filter_by_id(size_t id) {
@@ -98,12 +126,60 @@ inline auto filter_by_name(const std::string & name) {
     return std::views::filter([&name] (const auto & account) { return account.name == name; });
 }
 
+inline auto filter_by_ticker(const std::string & ticker) {
+    return std::views::filter([&ticker] (const auto & account) { return account.ticker == ticker; });
+}
+
 inline auto active_at_date(budget::date date) {
     return std::views::filter([date] (const auto & account) { return account.since < date && account.until > date; });
 }
 
 inline auto since(budget::date since) {
     return std::views::filter([since] (const auto & expense) { return expense.date >= since; });
+}
+
+inline auto expand_value(data_cache& cache) {
+    return std::views::transform([&cache](auto& asset) {
+        if constexpr (std::is_same_v<std::remove_reference_t<std::remove_cv_t<decltype(asset)>>, budget::liability>) {
+            auto amount = get_liability_value(asset, cache);
+            return std::make_pair(asset, amount);
+        } else {
+            auto amount = get_asset_value(asset, cache);
+            return std::make_pair(asset, amount);
+        }
+    });
+}
+
+inline auto expand_value_conv(data_cache& cache, budget::date d = budget::local_day()) {
+    return std::views::transform([&cache, d](auto& asset) {
+        if constexpr (std::is_same_v<std::remove_reference_t<std::remove_cv_t<decltype(asset)>>, budget::liability>) {
+            auto amount = get_liability_value_conv(asset, d, cache);
+            return std::make_pair(asset, amount);
+        } else {
+            auto amount = get_asset_value_conv(asset, d, cache);
+            return std::make_pair(asset, amount);
+        }
+    });
+}
+
+inline auto to_value(data_cache& cache) {
+    return std::views::transform([&cache](auto& asset) {
+        if constexpr (std::is_same_v<std::remove_reference_t<std::remove_cv_t<decltype(asset)>>, budget::liability>) {
+            return get_liability_value(asset, cache);
+        } else {
+            return get_asset_value(asset, cache);
+        }
+    });
+}
+
+inline auto to_value_conv(data_cache& cache, budget::date d = budget::local_day()) {
+    return std::views::transform([&cache, d](auto& asset) {
+        if constexpr (std::is_same_v<std::remove_reference_t<std::remove_cv_t<decltype(asset)>>, budget::liability>) {
+            return get_liability_value_conv(asset, d, cache);
+        } else {
+            return get_asset_value_conv(asset, d, cache);
+        }
+    });
 }
 
 inline constexpr detail::active_today_adaptor active_today;
@@ -114,6 +190,10 @@ inline constexpr detail::to_name_adaptor to_name;
 inline constexpr detail::to_date_adaptor to_date;
 inline constexpr detail::not_liability_adaptor not_liability;
 inline constexpr detail::is_desired_adaptor is_desired;
+inline constexpr detail::is_portfolio_adaptor is_portfolio;
+inline constexpr detail::is_fi_adaptor is_fi;
+inline constexpr detail::is_cash_adaptor is_cash;
+inline constexpr detail::not_zero_adaptor not_zero;
 
 // TODO(C+23) In the future, we can simply ranges::to<std::vector> but it is not yet implemented with GCC
 

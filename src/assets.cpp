@@ -825,27 +825,15 @@ void budget::show_asset_portfolio(budget::writer& w){
 
     budget::money total;
 
-    for (const auto& asset : w.cache.user_assets()) {
-        if (asset.portfolio) {
-            total += get_asset_value_conv(asset, w.cache);
-        }
+    for (const auto& asset : w.cache.user_assets() | is_portfolio) {
+        total += get_asset_value_conv(asset, w.cache);
     }
 
-    for(const auto& asset : w.cache.user_assets()){
-        if (asset.portfolio) {
-            auto amount = get_asset_value(asset, w.cache);
+    for (const auto& [asset, amount] : w.cache.user_assets() | is_portfolio | expand_value(w.cache) | not_zero) {
+        auto conv_amount = amount * exchange_rate(asset.currency);
+        auto allocation  = 100.0 * (conv_amount / total);
 
-            if (amount) {
-                auto conv_amount  = amount * exchange_rate(asset.currency);
-                auto allocation   = 100.0 * (conv_amount / total);
-
-                contents.push_back({asset.name,
-                                    to_string(amount),
-                                    asset.currency,
-                                    to_string(conv_amount),
-                                    to_percent(allocation)});
-            }
-        }
+        contents.push_back({asset.name, to_string(amount), asset.currency, to_string(conv_amount), to_percent(allocation)});
     }
 
     contents.push_back({ "", "", "", "", ""});
@@ -867,49 +855,45 @@ void budget::show_asset_rebalance(budget::writer& w, bool nocash){
 
     budget::money total;
 
-    for (const auto& asset : w.cache.user_assets()) {
-        if (asset.portfolio) {
-            if (nocash && asset.is_cash()) {
-                continue;
-            }
-
-            total += get_asset_value_conv(asset, w.cache);
+    for (const auto& asset : w.cache.user_assets() | is_portfolio) {
+        if (nocash && asset.is_cash()) {
+            continue;
         }
+
+        total += get_asset_value_conv(asset, w.cache);
     }
 
     budget::money total_rebalance;
 
-    for (const auto& asset : w.cache.user_assets()) {
-        if (asset.portfolio) {
-            if (nocash && asset.is_cash()) {
-                continue;
-            }
+    for (const auto& asset : w.cache.user_assets() | is_portfolio) {
+        if (nocash && asset.is_cash()) {
+            continue;
+        }
 
-            auto amount = get_asset_value(asset, w.cache);
+        auto amount = get_asset_value(asset, w.cache);
 
-            if (amount.zero() && asset.portfolio_alloc.zero()) {
-                continue;
-            }
+        if (amount.zero() && asset.portfolio_alloc.zero()) {
+            continue;
+        }
 
-            auto conv_amount = amount * exchange_rate(asset.currency);
-            auto allocation  = 100.0 * (conv_amount / total);
-            auto desired     = total * (float(asset.portfolio_alloc) / 100.0);
-            auto difference  = desired - conv_amount;
+        auto conv_amount = amount * exchange_rate(asset.currency);
+        auto allocation  = 100.0 * (conv_amount / total);
+        auto desired     = total * (float(asset.portfolio_alloc) / 100.0);
+        auto difference  = desired - conv_amount;
 
-            total_rebalance += difference.abs();
+        total_rebalance += difference.abs();
 
-            if (amount || difference) {
-                contents.push_back({
-                    asset.name,
-                    to_string(amount),
-                    asset.currency,
-                    to_string(conv_amount),
-                    to_percent(allocation),
-                    to_string(asset.portfolio_alloc),
-                    to_string(desired),
-                    format_money(difference)
+        if (amount || difference) {
+            contents.push_back({
+                asset.name,
+                to_string(amount),
+                asset.currency,
+                to_string(conv_amount),
+                to_percent(allocation),
+                to_string(asset.portfolio_alloc),
+                to_string(desired),
+                format_money(difference)
                 });
-            }
         }
     }
 
@@ -933,14 +917,10 @@ void budget::small_show_asset_values(budget::writer& w){
 
     budget::money total;
 
-    for (const auto& asset : w.cache.user_assets()) {
-        auto amount = get_asset_value(asset, w.cache);
+    for (const auto& [asset, amount] : w.cache.user_assets() | expand_value(w.cache) | not_zero) {
+        contents.push_back({asset.name, to_string(amount), asset.currency});
 
-        if (amount) {
-            contents.push_back({asset.name, to_string(amount), asset.currency});
-
-            total += amount * exchange_rate(asset.currency);
-        }
+        total += amount * exchange_rate(asset.currency);
     }
 
     contents.push_back({"", "", ""});
@@ -976,39 +956,35 @@ void budget::show_asset_values(budget::writer& w, bool liability){
         budget::money assets_total;
         budget::money liabilities_total;
 
-        for(const auto& asset : w.cache.user_assets()){
-            auto amount = get_asset_value(asset, w.cache);
+        for (const auto& [asset, amount] : w.cache.user_assets() | expand_value(w.cache) | not_zero) {
+            std::vector<std::string> line;
 
-            if (amount) {
-                std::vector<std::string> line;
+            line.emplace_back(asset.name);
 
-                line.emplace_back(asset.name);
+            for (auto& clas : w.cache.asset_classes()) {
+                bool found = false;
 
-                for (auto& clas : w.cache.asset_classes()) {
-                    bool found = false;
-
-                    for (auto& [class_id, alloc] : asset.classes) {
-                        if (class_id == clas.id) {
-                            auto class_amount = amount  * (float(alloc) / 100.0);
-                            line.emplace_back(to_string(class_amount));
-                            classes[clas.name] += class_amount * exchange_rate(asset.currency);
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found) {
-                        line.emplace_back("0.00");
+                for (auto& [class_id, alloc] : asset.classes) {
+                    if (class_id == clas.id) {
+                        auto class_amount = amount * (float(alloc) / 100.0);
+                        line.emplace_back(to_string(class_amount));
+                        classes[clas.name] += class_amount * exchange_rate(asset.currency);
+                        found = true;
+                        break;
                     }
                 }
 
-                line.emplace_back(to_string(amount));
-                line.emplace_back(asset.currency);
-
-                contents.emplace_back(std::move(line));
-
-                assets_total += amount * exchange_rate(asset.currency);
+                if (!found) {
+                    line.emplace_back("0.00");
+                }
             }
+
+            line.emplace_back(to_string(amount));
+            line.emplace_back(asset.currency);
+
+            contents.emplace_back(std::move(line));
+
+            assets_total += amount * exchange_rate(asset.currency);
         }
 
         contents.emplace_back(columns.size(), "");
@@ -1097,18 +1073,14 @@ void budget::show_asset_values(budget::writer& w, bool liability){
         if (liabilities.size()) {
             contents.emplace_back(columns.size(), "");
 
-            for (auto & liability : liabilities) {
-                auto amount = get_liability_value(liability, w.cache);
+            for (const auto& [liability, amount] : liabilities | expand_value(w.cache) | not_zero) {
+                std::vector<std::string> line(columns.size(), "");
+                line[0] = liability.name;
+                line[line.size() - 2] = budget::to_string(amount);
+                line[line.size() - 1] = liability.currency;
+                contents.emplace_back(std::move(line));
 
-                if (amount) {
-                    std::vector<std::string> line(columns.size(), "");
-                    line[0] = liability.name;
-                    line[line.size() - 2] = budget::to_string(amount);
-                    line[line.size() - 1] = liability.currency;
-                    contents.emplace_back(std::move(line));
-
-                    liabilities_total += amount * exchange_rate(liability.currency);
-                }
+                liabilities_total += amount * exchange_rate(liability.currency);
             }
         }
 
@@ -1163,20 +1135,16 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         budget::money total;
 
-        for(auto& asset : w.cache.liabilities()){
-            auto amount = get_liability_value(asset, w.cache);
+        for (const auto& [asset, amount] : w.cache.liabilities() | expand_value(w.cache) | not_zero) {
+            std::vector<std::string> line;
 
-            if (amount) {
-                std::vector<std::string> line;
+            line.emplace_back(asset.name);
+            line.emplace_back(to_string(amount));
+            line.emplace_back(asset.currency);
 
-                line.emplace_back(asset.name);
-                line.emplace_back(to_string(amount));
-                line.emplace_back(asset.currency);
+            contents.emplace_back(std::move(line));
 
-                contents.emplace_back(std::move(line));
-
-                total += amount * exchange_rate(asset.currency);
-            }
+            total += amount * exchange_rate(asset.currency);
         }
 
         contents.emplace_back(columns.size(), "");
@@ -1226,10 +1194,8 @@ budget::money budget::get_portfolio_value(){
 
     data_cache cache;
 
-    for (const auto & asset : cache.user_assets()) {
-        if (asset.portfolio) {
-            total += get_asset_value_conv(asset, cache);
-        }
+    for (auto value : cache.user_assets() | is_portfolio | to_value_conv(cache)) {
+        total += value;
     }
 
     return total;
@@ -1242,12 +1208,12 @@ budget::money budget::get_net_worth(data_cache & cache){
 budget::money budget::get_net_worth(budget::date d, data_cache & cache) {
     budget::money total;
 
-    for (const auto & asset : cache.user_assets()) {
-        total += get_asset_value_conv(asset, d, cache);
+    for (auto value : cache.user_assets() | to_value_conv(cache, d)) {
+        total += value;
     }
 
-    for (auto & asset : cache.liabilities()) {
-        total -= get_liability_value_conv(asset, d, cache);
+    for (auto value : cache.liabilities() | to_value_conv(cache, d)) {
+        total -= value;
     }
 
     return total;
@@ -1260,26 +1226,18 @@ budget::money budget::get_fi_net_worth(data_cache & cache){
 budget::money budget::get_fi_net_worth(budget::date d, data_cache & cache) {
     budget::money total;
 
-    for (const auto& asset : cache.user_assets()) {
-        if (asset.is_fi()) {
-            auto value = get_asset_value_conv(asset, d, cache);
-
-            for (auto& [class_id, alloc] : asset.classes) {
-                if (get_asset_class(class_id).fi) {
-                    total += value * (float(alloc) / float(100));
-                }
+    for (const auto& [asset, value] : cache.user_assets() | is_fi | expand_value_conv(cache, d)) {
+        for (auto& [class_id, alloc] : asset.classes) {
+            if (get_asset_class(class_id).fi) {
+                total += value * (float(alloc) / float(100));
             }
         }
     }
 
-    for (auto& asset : cache.liabilities()) {
-        if (asset.is_fi()) {
-            auto value = get_liability_value_conv(asset, d, cache);
-
-            for (auto& [class_id, alloc] : asset.classes) {
-                if (get_asset_class(class_id).fi) {
-                    total -= value * (float(alloc) / float(100));
-                }
+    for (const auto& [asset, value] : cache.liabilities() | is_fi | expand_value_conv(cache, d)) {
+        for (auto& [class_id, alloc] : asset.classes) {
+            if (get_asset_class(class_id).fi) {
+                total -= value * (float(alloc) / float(100));
             }
         }
     }
@@ -1292,10 +1250,8 @@ budget::money budget::get_net_worth_cash(){
 
     data_cache cache;
 
-    for (const auto & asset : cache.user_assets()) {
-        if (asset.is_cash()) {
-            total += get_asset_value_conv(asset, cache);
-        }
+    for (auto value : cache.user_assets() | is_cash | to_value_conv(cache)) {
+        total += value;
     }
 
     return total;
@@ -1387,15 +1343,11 @@ budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::
 }
 
 bool budget::is_ticker_active(data_cache & cache, const std::string & ticker) {
-    for (auto & asset : cache.assets()) {
-        if (asset.share_based) {
-            if (asset.ticker == ticker) {
-                int64_t shares = get_shares(asset, local_day(), cache);
+    for (auto & asset : cache.assets() | share_based_only | filter_by_ticker(ticker)) {
+        int64_t shares = get_shares(asset, local_day(), cache);
 
-                if (shares > 0) {
-                    return true;
-                }
-            }
+        if (shares > 0) {
+            return true;
         }
     }
 
