@@ -279,10 +279,8 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
 
                     edit_string(clas.name, "Name", not_empty_checker());
 
-                    for (auto & other_class : all_asset_classes()) {
-                        if (other_class.id != id && other_class.name == clas.name) {
-                            throw budget_exception("This asset class already exists");
-                        }
+                    if (all_asset_classes() | not_id(id) | filter_by_name(clas.name)) {
+                        throw budget_exception("This asset class already exists");
                     }
 
                     if (edit_asset_class(clas)) {
@@ -509,20 +507,16 @@ budget::asset budget::get_asset(size_t id){
 }
 
 budget::asset budget::get_asset(std::string name){
-    for(auto& asset : assets.data()){
-        if(asset.name == name){
-            return asset;
-        }
+    for (auto& asset : assets.data() | filter_by_name(name)){
+        return asset;
     }
 
     cpp_unreachable("The asset does not exist");
 }
 
 budget::asset budget::get_desired_allocation(){
-    for (auto& asset : assets.data()) {
-        if (asset.name == "DESIRED" && asset.currency == "DESIRED") {
-            return asset;
-        }
+    for (auto& asset : assets.data() | is_desired) {
+        return asset;
     }
 
     asset asset;
@@ -697,47 +691,23 @@ void budget::asset::load(data_reader & reader){
 }
 
 bool budget::asset_exists(const std::string& name){
-    for (auto& asset : assets.data()) {
-        if (asset.name == name) {
-            return true;
-        }
-    }
-
-    return false;
+    return !!(assets.data() | filter_by_name(name));
 }
 
 bool budget::share_asset_exists(const std::string& name){
-    for (auto& asset : assets.data()) {
-        if (asset.name == name) {
-            return asset.share_based;
-        }
-    }
-
-    return false;
+    return !!(assets.data() | share_based_only | filter_by_name(name));
 }
 
 std::vector<asset> budget::all_assets(){
     return assets.data();
 }
 
-budget::date budget::asset_start_date(data_cache & cache, const budget::asset& asset) {
-    budget::date start = budget::local_day();
-
+budget::date budget::asset_start_date(data_cache& cache, const budget::asset& asset) {
     if (asset.share_based) {
-        for (auto & share : cache.asset_shares()) {
-            if (share.asset_id == asset.id) {
-                start = std::min(share.date, start);
-            }
-        }
-   } else {
-       for (auto & value : cache.asset_values()) {
-           if (!value.liability && value.asset_id == asset.id) {
-               start = std::min(value.set_date, start);
-           }
-       }
-   }
-
-    return start;
+        return ranges::min(cache.asset_shares() | filter_by_asset(asset.id) | to_date);
+    } else {
+        return ranges::min(cache.asset_values() | filter_by_asset(asset.id) | to_date);
+    }
 }
 
 budget::date budget::asset_start_date(data_cache & cache) {
