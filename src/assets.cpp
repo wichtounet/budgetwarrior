@@ -25,33 +25,23 @@
 #include "writer.hpp"
 #include "currency.hpp"
 #include "share.hpp"
+#include "views.hpp"
 
 using namespace budget;
+
+namespace ranges = std::ranges;
+namespace views = std::ranges::views;
 
 namespace {
 
 static data_handler<asset> assets { "assets", "assets.data" };
 
 std::vector<std::string> get_asset_names(data_cache& cache) {
-    std::vector<std::string> asset_names;
-
-    for (const auto& asset : cache.user_assets()) {
-        asset_names.push_back(asset.name);
-    }
-
-    return asset_names;
+    return to_vector(cache.user_assets() | to_name | views::as_rvalue);
 }
 
 std::vector<std::string> get_share_asset_names(data_cache& cache) {
-    std::vector<std::string> asset_names;
-
-    for (const auto& asset : cache.user_assets()) {
-        if (asset.share_based) {
-            asset_names.push_back(asset.name);
-        }
-    }
-
-    return asset_names;
+    return to_vector(cache.user_assets() | share_based_only | to_name | views::as_rvalue);
 }
 
 } //end of anonymous namespace

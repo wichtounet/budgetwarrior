@@ -12,8 +12,12 @@
 #include "data.hpp"
 #include "guid.hpp"
 #include "writer.hpp"
+#include "views.hpp"
 
 using namespace budget;
+
+namespace ranges = std::ranges;
+namespace views = std::ranges::views;
 
 namespace {
 
@@ -44,10 +48,8 @@ budget::asset_class budget::get_asset_class(size_t id){
 }
 
 budget::asset_class budget::get_asset_class(const std::string & name){
-    for (auto& c : asset_classes.data()) {
-        if (c.name == name) {
-            return c;
-        }
+    for (const auto& c : asset_classes.data() | filter_by_name(name)) {
+        return c;
     }
 
     cpp_unreachable("The asset class does not exist");
@@ -68,13 +70,7 @@ void budget::asset_class::load(data_reader & reader){
 }
 
 bool budget::asset_class_exists(const std::string& name){
-    for (auto& clas : asset_classes.data()) {
-        if (clas.name == name) {
-            return true;
-        }
-    }
-
-    return false;
+    return !ranges::empty(asset_classes.data() | filter_by_name(name));
 }
 
 std::vector<asset_class> budget::all_asset_classes(){

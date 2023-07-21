@@ -11,25 +11,54 @@
 
 namespace budget {
 
-inline auto filter_by_account(size_t account_id) {
-    return std::views::filter([&account_id] (const auto & expense) { return expense.account == account_id; });
+// We define views without parameters as an adaptor to avoid having to use ()
+
+namespace detail {
+
+struct share_based_only_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, share_based_only_adaptor) {
+        return std::forward<R>(r) | std::views::filter([](const auto& asset) { return asset.share_based; });
+    }
+};
+
+struct to_name_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, to_name_adaptor) {
+	    return std::forward<R>(r) | std::views::transform([](auto & element) { return element.name; });
+    }
+};
+
+struct only_open_ended_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, only_open_ended_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & account) { return account.until == budget::date(2099,12,31); });
+    }
+};
+
+struct not_open_ended_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, not_open_ended_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & account) { return account.until != budget::date(2099,12,31); });
+    }
+};
+
+struct active_today_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, active_today_adaptor) {
+        auto today = budget::local_day();
+        return std::forward<R>(r) | std::views::filter([today] (const auto & account) { return account.since < today && account.until > today; });
+    }
+};
+
+} // namespace detail
+
+inline auto filter_by_account(size_t id) {
+    return std::views::filter([&id] (const auto & expense) { return expense.account == id; });
 }
 
 inline auto filter_by_name(const std::string & name) {
     return std::views::filter([&name] (const auto & account) { return account.name == name; });
-}
-
-inline auto only_open_ended() {
-    return std::views::filter([] (const auto & account) { return account.until == budget::date(2099,12,31); });
-}
-
-inline auto not_open_ended() {
-    return std::views::filter([] (const auto & account) { return account.until != budget::date(2099,12,31); });
-}
-
-inline auto active_today() {
-    auto today = budget::local_day();
-    return std::views::filter([today] (const auto & account) { return account.since < today && account.until > today; });
 }
 
 inline auto active_at_date(budget::date date) {
@@ -39,6 +68,12 @@ inline auto active_at_date(budget::date date) {
 inline auto since(budget::date since) {
     return std::views::filter([since] (const auto & expense) { return expense.date >= since; });
 }
+
+inline constexpr detail::active_today_adaptor active_today;
+inline constexpr detail::only_open_ended_adaptor only_open_ended;
+inline constexpr detail::not_open_ended_adaptor not_open_ended;
+inline constexpr detail::share_based_only_adaptor share_based_only;
+inline constexpr detail::to_name_adaptor to_name;
 
 // TODO(C+23) In the future, we can simply ranges::to<std::vector> but it is not yet implemented with GCC
 
