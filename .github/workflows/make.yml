@@ -20,6 +20,9 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Install compiler
+      run: sudo apt install ${{ matrix.compiler }}
+
     - name: Build binaries
       env:
           CXX: ${{ matrix.compiler }}
