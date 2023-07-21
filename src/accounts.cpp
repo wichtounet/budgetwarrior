@@ -113,12 +113,14 @@ void budget::archive_accounts_impl(bool month){
     for (auto& expense : all_expenses() | since(since_date)) {
         if (mapping.contains(expense.account)) {
             expense.account = mapping[expense.account];
+            indirect_edit_expense(expense, false);
         }
     }
 
     for (auto& earning : all_earnings() | since(since_date)) {
         if (mapping.contains(earning.account)) {
             earning.account = mapping[earning.account];
+            indirect_edit_earning(earning, false);
         }
     }
 
