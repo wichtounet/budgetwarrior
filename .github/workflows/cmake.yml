@@ -9,7 +9,8 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-
+  CC: gcc-13
+  CXX: g++-13
 
 jobs:
   build:
@@ -31,7 +32,7 @@ jobs:
             compiler: g++-13
 
     steps:
-    
+
     - name: Install Dependencies (Linux)
       run: sudo apt-get install ninja-build
       if: matrix.os == 'ubuntu-latest'
@@ -39,7 +40,7 @@ jobs:
     - name: Install Dependencies (MacOS)
       run: brew install ninja
       if: matrix.os == 'macos-latest'
-      
+
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -48,7 +49,7 @@ jobs:
     - name: Configure 
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: OPENSSL_ROOT_DIR=/usr/local/opt/openssl cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_LIBRARIES=/usr/local/opt/openssl/lib -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -GNinja
+      run: CXX=${{env.CXX}} CC=${{env.CC}} OPENSSL_ROOT_DIR=/usr/local/opt/openssl cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_LIBRARIES=/usr/local/opt/openssl/lib -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -GNinja
 
     - name: Build
       # Build your program with the given configuration
@@ -59,4 +60,3 @@ jobs:
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
-      
