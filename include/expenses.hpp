@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <ranges>
 
 #include "module_traits.hpp"
 #include "money.hpp"
