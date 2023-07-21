@@ -6,14 +6,13 @@ on:
   pull_request:
     branches: [ "master" ]
 
-strategy:
-    matrix:
-        os: [ubuntu-latest]
-        compiler: [g++-13]
-
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    strategy:
+        matrix:
+            os: [ubuntu-latest]
+            compiler: [g++-13]
 
     steps:
     - name: Checkout code
