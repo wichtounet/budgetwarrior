@@ -6,21 +6,14 @@ on:
   pull_request:
     branches: [ "master" ]
 
+strategy:
+    matrix:
+        os: [ubuntu-latest]
+        compiler: [g++-13]
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        # clang on macos-latest cannot compile ranges
-        os: [ubuntu-latest]
-        compiler: [g++-13]
-        exclude:
-          # Only default compiler on ubuntu-latest
-          - os: ubuntu-latest
-            compiler: clang
-        include:
-          - os: ubuntu-latest
-            compiler: g++-13
 
     steps:
     - name: Checkout code
@@ -29,10 +22,14 @@ jobs:
         submodules: recursive
 
     - name: Build binaries
-      run: make -j5 release_debug CC=gcc-13 CXX=g++-13
+      env:
+          CXX: ${{ matrix.compiler }}
+      run: make -j5 release_debug
 
     - name: Build tests
-      run: make -j5 release_debug_test CC=gcc-13 CXX=g++-13
+      env:
+          CXX: ${{ matrix.compiler }}
+      run: make -j5 release_debug_test
 
     - name: Run tests
       run: make run_release_debug_test
