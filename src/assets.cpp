@@ -823,11 +823,7 @@ void budget::show_asset_portfolio(budget::writer& w){
     std::vector<std::string> columns = {"Name", "Total", "Currency", "Converted", "Allocation"};
     std::vector<std::vector<std::string>> contents;
 
-    budget::money total;
-
-    for (const auto& asset : w.cache.user_assets() | is_portfolio) {
-        total += get_asset_value_conv(asset, w.cache);
-    }
+    const auto total = ranges::fold_left(w.cache.user_assets() | is_portfolio | to_value_conv(w.cache), budget::money(), std::plus<budget::money>());
 
     for (const auto& [asset, amount] : w.cache.user_assets() | is_portfolio | expand_value(w.cache) | not_zero) {
         auto conv_amount = amount * exchange_rate(asset.currency);
@@ -1190,15 +1186,8 @@ bool budget::edit_asset(const budget::asset& asset){
 }
 
 budget::money budget::get_portfolio_value(){
-    budget::money total;
-
     data_cache cache;
-
-    for (auto value : cache.user_assets() | is_portfolio | to_value_conv(cache)) {
-        total += value;
-    }
-
-    return total;
+    return ranges::fold_left(cache.user_assets() | is_portfolio | to_value_conv(cache), budget::money{}, std::plus<budget::money>());
 }
 
 budget::money budget::get_net_worth(data_cache & cache){
@@ -1206,17 +1195,8 @@ budget::money budget::get_net_worth(data_cache & cache){
 }
 
 budget::money budget::get_net_worth(budget::date d, data_cache & cache) {
-    budget::money total;
-
-    for (auto value : cache.user_assets() | to_value_conv(cache, d)) {
-        total += value;
-    }
-
-    for (auto value : cache.liabilities() | to_value_conv(cache, d)) {
-        total -= value;
-    }
-
-    return total;
+    return ranges::fold_left(cache.user_assets() | to_value_conv(cache, d), budget::money{}, std::plus<budget::money>())
+           - ranges::fold_left(cache.liabilities() | to_value_conv(cache, d), budget::money{}, std::plus<budget::money>());
 }
 
 budget::money budget::get_fi_net_worth(data_cache & cache){
@@ -1246,15 +1226,8 @@ budget::money budget::get_fi_net_worth(budget::date d, data_cache & cache) {
 }
 
 budget::money budget::get_net_worth_cash(){
-    budget::money total;
-
     data_cache cache;
-
-    for (auto value : cache.user_assets() | is_cash | to_value_conv(cache)) {
-        total += value;
-    }
-
-    return total;
+    return ranges::fold_left(cache.user_assets() | is_cash | to_value_conv(cache), budget::money{}, std::plus<budget::money>());
 }
 
 namespace {
