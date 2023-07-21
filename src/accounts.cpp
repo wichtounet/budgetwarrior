@@ -33,7 +33,7 @@ namespace {
 static data_handler<account> accounts { "accounts", "accounts.data" };
 
 size_t get_account_id(std::string name, budget::year year, budget::month month){
-    for (auto& account : all_accounts() | filter_by_name(name) | active_at_date({year, month, 5})) {
+    for (auto& account : accounts.data() | filter_by_name(name) | active_at_date({year, month, 5})) {
         return account.id;
     }
 
@@ -85,7 +85,7 @@ void budget::archive_accounts_impl(bool month){
         until_date = since_date - days(1);
     }
 
-    for (auto& account : all_accounts() | only_open_ended()) {
+    for (auto& account : accounts.data() | only_open_ended()) {
         budget::account copy;
         copy.guid   = generate_guid();
         copy.name   = account.name;
@@ -207,7 +207,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             //Verify that there are no OTHER account with this name
             //in the current set of accounts (taking archiving into account)
 
-            for(auto& other_account : all_accounts() | active_today() | filter_by_name(account.name)){
+            for(auto& other_account : accounts.data() | active_today() | filter_by_name(account.name)){
                 if(other_account.id != id) {
                     throw budget_exception("There is already an account with the name " + account.name);
                 }
@@ -273,7 +273,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                     //Make sure that we find the destination for
                     //each source accounts
 
-                    for(auto& account : all_accounts() | filter_by_name(source_account_name)){
+                    for(auto& account : accounts.data() | filter_by_name(source_account_name)){
                         auto destination_id = get_account_id(destination_account_name, account.since.year(), account.since.month());
 
                         if(!destination_id){
@@ -288,7 +288,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
                     //Perform the migration
 
-                    for(auto& account : all_accounts() | filter_by_name(source_account_name)){
+                    for(auto& account : accounts.data() | filter_by_name(source_account_name)){
                         auto source_id = account.id;
                         auto destination_account = get_account(destination_account_name, account.since.year(), account.since.month());
                         auto destination_id = destination_account.id;
@@ -374,7 +374,7 @@ budget::account budget::get_account(size_t id){
 }
 
 budget::account budget::get_account(std::string name, budget::year year, budget::month month){
-    for (auto& account : all_accounts() | active_at_date({year, month, 5}) | filter_by_name(name)) {
+    for (auto& account : accounts.data() | active_at_date({year, month, 5}) | filter_by_name(name)) {
         return account;
     }
 
@@ -404,7 +404,7 @@ void budget::account::load(data_reader & reader){
 }
 
 bool budget::account_exists(const std::string& name){
-    return !ranges::empty(all_accounts() | filter_by_name(name));
+    return !ranges::empty(accounts.data() | filter_by_name(name));
 }
 
 std::vector<account> budget::all_accounts(){
@@ -429,7 +429,7 @@ void budget::set_accounts_next_id(size_t next_id){
 }
 
 std::vector<std::string> budget::all_account_names(){
-    return to_vector(all_accounts() | active_today() | views::transform([](auto & account) { return account.name; }) | views::as_rvalue);
+    return to_vector(accounts.data() | active_today() | views::transform([](auto & account) { return account.name; }) | views::as_rvalue);
 }
 
 void budget::show_accounts(budget::writer& w){
@@ -442,13 +442,13 @@ void budget::show_accounts(budget::writer& w){
 
     money total;
 
-    for(auto& account : all_accounts() | only_open_ended()){
+    for(auto& account : accounts.data() | only_open_ended()){
         total += account.amount;
     }
 
     // Display the accounts
 
-    for(auto& account : all_accounts() | only_open_ended()){
+    for(auto& account : accounts.data() | only_open_ended()){
         float part = 100.0 * (account.amount.value / float(total.value));
 
         char buffer[32];
@@ -471,7 +471,7 @@ void budget::show_all_accounts(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& account : all_accounts()){
+    for(auto& account : accounts.data()){
         contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until), "::edit::accounts::" + to_string(account.id)});
     }
 
@@ -505,7 +505,7 @@ bool budget::edit_account(const budget::account& account){
 budget::date budget::find_new_since(){
     budget::date date(1400,1,1);
 
-    for(auto& account : all_accounts() | not_open_ended()){
+    for(auto& account : accounts.data() | not_open_ended()){
         if(account.until - days(1) > date){
             date = account.until - days(1);
         }
