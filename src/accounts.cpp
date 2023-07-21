@@ -33,7 +33,7 @@ namespace {
 static data_handler<account> accounts { "accounts", "accounts.data" };
 
 size_t get_account_id(std::string name, budget::year year, budget::month month){
-    for (auto& account : accounts.data() | filter_by_name(name) | active_at_date({year, month, 5})) {
+    for (const auto& account : accounts.data() | filter_by_name(name) | active_at_date({year, month, 5})) {
         return account.id;
     }
 
@@ -275,7 +275,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
                     //Make sure that we find the destination for
                     //each source accounts
 
-                    for(auto& account : accounts.data() | filter_by_name(source_account_name)){
+                    for(const auto& account : accounts.data() | filter_by_name(source_account_name)){
                         auto destination_id = get_account_id(destination_account_name, account.since.year(), account.since.month());
 
                         if(!destination_id){
@@ -376,7 +376,7 @@ budget::account budget::get_account(size_t id){
 }
 
 budget::account budget::get_account(std::string name, budget::year year, budget::month month){
-    for (auto& account : accounts.data() | active_at_date({year, month, 5}) | filter_by_name(name)) {
+    for (const auto& account : accounts.data() | active_at_date({year, month, 5}) | filter_by_name(name)) {
         return account;
     }
 
@@ -444,13 +444,13 @@ void budget::show_accounts(budget::writer& w){
 
     money total;
 
-    for(auto& account : accounts.data() | only_open_ended()){
+    for(const auto& account : w.cache.accounts() | only_open_ended()){
         total += account.amount;
     }
 
     // Display the accounts
 
-    for(auto& account : accounts.data() | only_open_ended()){
+    for(const auto& account : w.cache.accounts() | only_open_ended()){
         float part = 100.0 * (account.amount.value / float(total.value));
 
         char buffer[32];
@@ -473,7 +473,7 @@ void budget::show_all_accounts(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for(auto& account : accounts.data()){
+    for(const auto& account : w.cache.accounts()){
         contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until), "::edit::accounts::" + to_string(account.id)});
     }
 
@@ -507,7 +507,7 @@ bool budget::edit_account(const budget::account& account){
 budget::date budget::find_new_since(){
     budget::date date(1400,1,1);
 
-    for(auto& account : accounts.data() | not_open_ended()){
+    for(const auto& account : accounts.data() | not_open_ended()){
         if(account.until - days(1) > date){
             date = account.until - days(1);
         }
