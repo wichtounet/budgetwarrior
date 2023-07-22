@@ -227,7 +227,7 @@ struct date {
 
         date r = *this;
 
-        if (cpp_unlikely(w == 1)) {
+        if (w == 1) [[unlikely]] {
             for (size_t i = 0; i < 8; ++i) {
                 r -= days(1);
 

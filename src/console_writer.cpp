@@ -149,8 +149,7 @@ budget::writer& budget::console_writer::operator<<(const budget::title_end_t&) {
     return *this;
 }
 
-void budget::console_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left, size_t foot) {
-    cpp_unused(foot);
+void budget::console_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left, [[maybe_unused]] size_t foot) {
     cpp_assert(groups > 0, "There must be at least 1 group");
     cpp_assert(contents.size() || columns.size(), "There must be at least some columns or contents");
 
@@ -322,11 +321,9 @@ bool budget::console_writer::is_web() {
     return false;
 }
 
-void budget::console_writer::display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values) {
-    cpp_unused(title);
-    cpp_unused(categories);
-    cpp_unused(series_names);
-    cpp_unused(series_values);
-
+void budget::console_writer::display_graph([[maybe_unused]] const std::string&               title,
+                                           [[maybe_unused]] std::vector<std::string>&        categories,
+                                           [[maybe_unused]] std::vector<std::string>         series_names,
+                                           [[maybe_unused]] std::vector<std::vector<float>>& series_values) {
     os << "TODO: unimplemented" << std::endl;
 }

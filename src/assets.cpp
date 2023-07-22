@@ -1257,7 +1257,7 @@ int get_shares(const budget::asset& asset, budget::date d, data_cache & cache) {
 //    possible date (in one pass of all asset values of an asset)
 
 budget::money budget::get_asset_value(const budget::asset & asset, budget::date d, data_cache & cache) {
-    if (cpp_unlikely(asset.share_based)) {
+    if (asset.share_based) [[unlikely]] {
         int64_t shares = get_shares(asset, d, cache);
 
         if (shares > 0) {
