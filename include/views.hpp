@@ -40,6 +40,13 @@ struct to_date_adaptor {
     }
 };
 
+struct to_month_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, to_month_adaptor) {
+        return std::forward<R>(r) | std::views::transform([](const auto & date) { return date.month(); });
+    }
+};
+
 struct only_open_ended_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, only_open_ended_adaptor) {
@@ -137,6 +144,10 @@ inline auto filter_by_ticker(const std::string & ticker) {
     return std::views::filter([&ticker] (const auto & account) { return account.ticker == ticker; });
 }
 
+inline auto filter_by_year(budget::year year) {
+    return std::views::filter([year] (const auto & date) { return date.year() == year; });
+}
+
 inline auto active_at_date(budget::date date) {
     return std::views::filter([date] (const auto & account) { return account.since < date && account.until > date; });
 }
@@ -195,6 +206,7 @@ inline constexpr detail::not_open_ended_adaptor not_open_ended;
 inline constexpr detail::share_based_only_adaptor share_based_only;
 inline constexpr detail::to_name_adaptor to_name;
 inline constexpr detail::to_date_adaptor to_date;
+inline constexpr detail::to_month_adaptor to_month;
 inline constexpr detail::liability_only_adaptor liability_only;
 inline constexpr detail::not_liability_adaptor not_liability;
 inline constexpr detail::is_desired_adaptor is_desired;
@@ -219,6 +231,15 @@ auto to_vector(R&& r) {
     }
 
     return v;
+}
+
+template <std::ranges::range R>
+auto min_with_default(R&& r, std::ranges::range_value_t<R> def) {
+    if (r) {
+        return std::ranges::min(r);
+    }
+
+    return def;
 }
 
 } //end of namespace budget

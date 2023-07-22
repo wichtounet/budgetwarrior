@@ -14,6 +14,9 @@
 #include "expenses.hpp"
 #include "earnings.hpp"
 #include "data_cache.hpp"
+#include "views.hpp"
+
+namespace ranges = std::ranges;
 
 budget::date budget::local_day(){
     auto tt = time( NULL );
@@ -76,36 +79,23 @@ std::string budget::date_to_string(budget::date date){
 }
 
 unsigned short budget::start_month(data_cache & cache, budget::year year){
-    budget::month m = 12;
-
-    for (auto& expense : cache.expenses()) {
-        if (expense.date.year() == year) {
-            m = std::min(expense.date.month(), m);
-        }
-    }
-
-    for (auto& earning : cache.earnings()) {
-        if (earning.date.year() == year) {
-            m = std::min(earning.date.month(), m);
-        }
-    }
-
-    return m;
+    budget::month m = min_with_default(cache.expenses() | to_date | filter_by_year(year) | to_month, 12);
+    return min_with_default(cache.earnings() | to_date | filter_by_year(year) | to_month, m);
 }
 
 unsigned short budget::start_year(data_cache & cache){
     auto today = budget::local_day();
     auto y = today.year();
 
-    for (auto& expense : cache.expenses()) {
-        if (expense.date != TEMPLATE_DATE) {
-            y = std::min(expense.date.year(), y);
+    for (const auto& date : cache.expenses() | to_date) {
+        if (date != TEMPLATE_DATE) {
+            y = std::min(date.year(), y);
         }
     }
 
-    for (auto& earning : cache.earnings()) {
-        if (earning.date != TEMPLATE_DATE) {
-            y = std::min(earning.date.year(), y);
+    for (const auto& date : cache.earnings() | to_date) {
+        if (date != TEMPLATE_DATE) {
+            y = std::min(date.year(), y);
         }
     }
 

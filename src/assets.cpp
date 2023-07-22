@@ -704,9 +704,9 @@ std::vector<asset> budget::all_assets(){
 
 budget::date budget::asset_start_date(data_cache& cache, const budget::asset& asset) {
     if (asset.share_based) {
-        return ranges::min(cache.asset_shares() | filter_by_asset(asset.id) | to_date);
+        return min_with_default(cache.asset_shares() | filter_by_asset(asset.id) | to_date, budget::local_day());
     } else {
-        return ranges::min(cache.asset_values() | filter_by_asset(asset.id) | to_date);
+        return min_with_default(cache.asset_values() | filter_by_asset(asset.id) | to_date, budget::local_day());
     }
 }
 
