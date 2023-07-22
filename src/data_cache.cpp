@@ -6,6 +6,7 @@
 //=======================================================================
 
 #include "data_cache.hpp"
+#include "views.hpp"
 
 using namespace budget;
 
@@ -68,20 +69,16 @@ std::vector<asset_value> & data_cache::sorted_asset_values() {
 std::unordered_map<size_t, std::vector<asset_value>> & data_cache::sorted_group_asset_values(bool liability) {
     if (liability) {
         if (sorted_group_asset_values_liabilities_.empty()) {
-            for (auto& asset_value : sorted_asset_values()) {
-                if (asset_value.liability) {
-                    sorted_group_asset_values_liabilities_[asset_value.asset_id].push_back(asset_value);
-                }
+            for (auto& asset_value : sorted_asset_values() | liability_only) {
+                sorted_group_asset_values_liabilities_[asset_value.asset_id].push_back(asset_value);
             }
         }
 
         return sorted_group_asset_values_liabilities_;
     } else {
         if (sorted_group_asset_values_.empty()) {
-            for (auto& asset_value : sorted_asset_values()) {
-                if (!asset_value.liability) {
-                    sorted_group_asset_values_[asset_value.asset_id].push_back(asset_value);
-                }
+            for (auto& asset_value : sorted_asset_values() | not_liability) {
+                sorted_group_asset_values_[asset_value.asset_id].push_back(asset_value);
             }
         }
 

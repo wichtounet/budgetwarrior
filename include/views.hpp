@@ -69,6 +69,13 @@ struct not_liability_adaptor {
     }
 };
 
+struct liability_only_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, liability_only_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & asset) { return asset.liability; });
+    }
+};
+
 struct is_desired_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, is_desired_adaptor) {
@@ -188,6 +195,7 @@ inline constexpr detail::not_open_ended_adaptor not_open_ended;
 inline constexpr detail::share_based_only_adaptor share_based_only;
 inline constexpr detail::to_name_adaptor to_name;
 inline constexpr detail::to_date_adaptor to_date;
+inline constexpr detail::liability_only_adaptor liability_only;
 inline constexpr detail::not_liability_adaptor not_liability;
 inline constexpr detail::is_desired_adaptor is_desired;
 inline constexpr detail::is_portfolio_adaptor is_portfolio;
