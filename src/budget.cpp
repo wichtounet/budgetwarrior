@@ -46,7 +46,7 @@ using namespace budget;
 
 namespace {
 
-typedef std::tuple<
+using modules_tuple = std::tuple<
             budget::debt_module,
             budget::expenses_module,
             budget::overview_module,
@@ -66,71 +66,49 @@ typedef std::tuple<
             budget::predict_module,
             budget::retirement_module,
             budget::help_module
-    > modules_tuple;
+    >;
 
-template<class T>
-struct Void {
-    typedef void type;
+template <typename Module>
+concept needs_loading = requires(Module module) {
+    module.load();
 };
 
-HAS_MEM_FUNC(load, has_load);
-HAS_MEM_FUNC(unload, has_unload);
-HAS_MEM_FUNC(preload, has_preload);
-
-template<typename Module>
-struct need_loading {
-    static const bool value = has_load<Module, void(Module::*)()>::value;
+template <typename Module>
+concept needs_unloading = requires(Module module) {
+    module.unload();
 };
 
-template<typename Module>
-struct need_unloading {
-    static const bool value = has_unload<Module, void(Module::*)()>::value;
+template <typename Module>
+concept needs_preloading = requires(Module module) {
+    module.preload();
 };
 
-template<typename Module>
-struct need_preloading {
-    static const bool value = has_preload<Module, void(Module::*)()>::value;
+template <typename Module>
+concept has_disable_preloading_field = requires(Module module) {
+    module_traits<Module>::disable_preloading;
 };
 
-HAS_STATIC_FIELD(disable_preloading, has_disable_preloading_field);
-
-template<typename Module, typename Enable = void>
-struct disable_preloading {
-    static const bool value = false;
+template <typename Module>
+concept has_aliases_field = requires {
+    module_traits<Module>::aliases;
 };
 
 template<typename Module>
-struct disable_preloading<Module, std::enable_if_t<has_disable_preloading_field<module_traits<Module>>::value>> {
-    static const bool value = module_traits<Module>::disable_preloading;
-};
-
-HAS_STATIC_FIELD(aliases, has_aliases_field);
-
-template<typename Module, typename Enable = void>
-struct has_aliases {
-    static const bool value = false;
-};
-
-template<typename Module>
-struct has_aliases<Module, std::enable_if_t<has_aliases_field<module_traits<Module>>::value>> {
-    static const bool value = true;
-};
+constexpr bool disable_preloading() {
+    if constexpr (has_disable_preloading_field<Module>) {
+        return module_traits<Module>::disable_preloading;
+    } else {
+        return false;
+    }
+}
 
 struct module_loader {
-    template<typename Module, cpp::enable_if_u<need_preloading<Module>::value> = cpp::detail::dummy>
-    inline void preload(){
-        Module module;
-        module.preload();
-    }
-
-    template<typename Module, cpp::disable_if_u<need_preloading<Module>::value> = cpp::detail::dummy>
-    inline void preload(){
-        //NOP
-    }
-
     template<typename Module>
     inline void operator()(){
-        preload<Module>();
+        if constexpr (needs_preloading<Module>) {
+            Module module;
+            module.preload();
+        }
     }
 };
 
@@ -142,41 +120,25 @@ struct module_runner {
         //Nothing to init
     }
 
-    template<typename Module, cpp::enable_if_u<need_loading<Module>::value> = cpp::detail::dummy>
-    inline void load(Module& module){
-       module.load();
-    }
-
-    template<typename Module, cpp::disable_if_u<need_loading<Module>::value> = cpp::detail::dummy>
-    inline void load(Module&){
-        //NOP
-    }
-
-    template<typename Module, cpp::enable_if_u<need_unloading<Module>::value> = cpp::detail::dummy>
-    inline void unload(Module& module){
-       module.unload();
-    }
-
-    template<typename Module, cpp::disable_if_u<need_unloading<Module>::value> = cpp::detail::dummy>
-    inline void unload(Module&){
-        //NOP
-    }
-
     template<typename Module>
     inline void handle_module(){
         //Preload each module that needs it
-        if(!disable_preloading<Module>::value){
+        if constexpr (!disable_preloading<Module>()) {
             module_loader loader;
             cpp::for_each_tuple_t<modules_tuple>(loader);
         }
 
         Module module;
 
-        load(module);
+        if constexpr (needs_loading<Module>) {
+            module.load();
+        }
 
         module.handle(args);
 
-        unload(module);
+        if constexpr (needs_unloading<Module>) {
+            module.unload();
+        }
 
         handled = true;
     }
@@ -188,7 +150,7 @@ struct module_runner {
         }
 
         if(args.empty()){
-            if(module_traits<Module>::is_default){
+            if constexpr (module_traits<Module>::is_default){
                 handle_module<Module>();
             }
         } else if(args[0] == module_traits<Module>::command){
@@ -200,16 +162,13 @@ struct module_runner {
 struct aliases_collector {
     std::vector<std::pair<const char*, const char*>> aliases;
 
-    template<typename Module, cpp::enable_if_u<has_aliases<Module>::value> = cpp::detail::dummy>
-    inline void operator()(){
-        for(auto& v : module_traits<Module>::aliases){
-            aliases.push_back(v);
+    template <typename Module>
+    inline void operator()() {
+        if constexpr (has_aliases_field<Module>) {
+            for (auto& v : module_traits<Module>::aliases) {
+                aliases.push_back(v);
+            }
         }
-    }
-
-    template<typename Module, cpp::disable_if_u<has_aliases<Module>::value> = cpp::detail::dummy>
-    inline void operator()(){
-        //NOP
     }
 };
 
