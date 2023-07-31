@@ -274,7 +274,7 @@ void budget::show_all_expenses(budget::writer& w){
     w.display_table(columns, contents);
 }
 
-void budget::search_expenses(const std::string& search, budget::writer& w){
+void budget::search_expenses(std::string_view search, budget::writer& w){
     w << title_begin << "Results" << title_end;
 
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
@@ -283,14 +283,11 @@ void budget::search_expenses(const std::string& search, budget::writer& w){
     money total;
     size_t count = 0;
 
-    auto l_search = search;
-    ranges::transform(l_search, l_search.begin(), ::tolower);
-
     for (auto& expense : expenses.data()) {
-        auto l_name = expense.name;
-        ranges::transform(l_name, l_name.begin(), ::tolower);
+        auto it = std::ranges::search(
+                expense.name, search, [](char a, char b) { return std::tolower(a) == std::tolower(b); });
 
-        if (l_name.find(l_search) != std::string::npos) {
+        if (it.begin() != expense.name.end()) {
             contents.push_back({to_string(expense.id),
                                 to_string(expense.date),
                                 get_account(expense.account).name,

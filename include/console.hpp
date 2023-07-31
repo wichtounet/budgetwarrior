@@ -90,7 +90,7 @@ void print_minimum_left(const T& value, size_t min_width){
  * \param args The command line arguments
  * \return true if the option was present, false otherwise.
  */
-bool option(const std::string& option, std::vector<std::string>& args);
+bool option(std::string_view option, std::vector<std::string>& args);
 
 /**
  * Return the value of the given option if present or the default value
@@ -99,7 +99,7 @@ bool option(const std::string& option, std::vector<std::string>& args);
  * \param args The command line arguments
  * \return The string value of the option or the default value is not present.
  */
-std::string option_value(const std::string& option, std::vector<std::string>& args, const std::string& value);
+std::string option_value(std::string_view option, std::vector<std::string>& args, const std::string& value);
 
 std::string format_code(int attr, int fg, int bg);
 std::string format_reset();
@@ -122,7 +122,7 @@ bool check(const T& value, CheckerA first, Checker... checkers){
 std::string get_string_complete(const std::vector<std::string>& choices);
 
 template<typename ...Checker>
-void edit_string_complete(std::string& ref, const std::string& title, const std::vector<std::string>& choices, Checker... checkers){
+void edit_string_complete(std::string& ref, std::string_view title, const std::vector<std::string>& choices, Checker... checkers){
     bool checked;
     do {
         std::cout << title << " [" << ref << "]: ";
@@ -138,7 +138,7 @@ void edit_string_complete(std::string& ref, const std::string& title, const std:
 }
 
 template<typename ...Checker>
-void edit_string(std::string& ref, const std::string& title, Checker... checkers){
+void edit_string(std::string& ref, std::string_view title, Checker... checkers){
     bool checked;
     do {
         std::string answer;
@@ -155,7 +155,7 @@ void edit_string(std::string& ref, const std::string& title, Checker... checkers
 }
 
 template<typename ...Checker>
-void edit_number(size_t& ref, const std::string& title, Checker... checkers){
+void edit_number(size_t& ref, std::string_view title, Checker... checkers){
     bool checked;
     do {
         std::string answer;
@@ -172,7 +172,7 @@ void edit_number(size_t& ref, const std::string& title, Checker... checkers){
 }
 
 template<typename ...Checker>
-void edit_number(int64_t& ref, const std::string& title, Checker... checkers){
+void edit_number(int64_t& ref, std::string_view title, Checker... checkers){
     bool checked;
     do {
         std::string answer;
@@ -189,7 +189,7 @@ void edit_number(int64_t& ref, const std::string& title, Checker... checkers){
 }
 
 template<typename ...Checker>
-void edit_double(double& ref, const std::string& title, Checker... checkers){
+void edit_double(double& ref, std::string_view title, Checker... checkers){
     bool checked;
     do {
         std::string answer;
@@ -206,7 +206,7 @@ void edit_double(double& ref, const std::string& title, Checker... checkers){
 }
 
 template<typename ...Checker>
-void edit_money(budget::money& ref, const std::string& title, Checker... checkers){
+void edit_money(budget::money& ref, std::string_view title, Checker... checkers){
     bool checked;
     do {
         std::string answer;
@@ -223,7 +223,7 @@ void edit_money(budget::money& ref, const std::string& title, Checker... checker
 }
 
 template<typename ...Checker>
-void edit_date(date& ref, const std::string& title, Checker... checkers){
+void edit_date(date& ref, std::string_view title, Checker... checkers){
     bool checked;
     do {
         try {

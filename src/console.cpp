@@ -80,21 +80,24 @@ size_t budget::rsize_after(const std::string& value) {
     return mbstowcs(buf, v.c_str(), 1024);
 }
 
-bool budget::option(const std::string& option, std::vector<std::string>& args) {
+bool budget::option(std::string_view option, std::vector<std::string>& args) {
     auto before = args.size();
     args.erase(std::remove(args.begin(), args.end(), option), args.end());
     return before != args.size();
 }
 
-std::string budget::option_value(const std::string& option, std::vector<std::string>& args, const std::string& default_value) {
+std::string budget::option_value(std::string_view option, std::vector<std::string>& args, const std::string& default_value) {
     auto it  = args.begin();
     auto end = args.end();
 
     auto value = default_value;
 
+    std::string search(option);
+    search += '=';
+
     while (it != end) {
-        if (it->find(option + "=") == 0) {
-            value = std::string(it->begin() + option.size() + 1, it->end());
+        if (it->find(search) == 0) {
+            value = std::string(it->begin() + search.size(), it->end());
 
             it  = args.erase(it);
             end = args.end();
