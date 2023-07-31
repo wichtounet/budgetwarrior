@@ -142,7 +142,7 @@ bool budget::load_config() {
     internal_bak = internal;
 
     //At the first start, the version is not set
-    if(internal.find("data_version") == internal.end()){
+    if(!internal.contains("data_version")) {
         internal["data_version"] = budget::to_string(budget::DATA_VERSION);
     }
 

@@ -316,9 +316,7 @@ std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, boo
 
     data_cache cache;
     for (auto& account : current_accounts(cache)) {
-        auto it = acc_data.find(account.name);
-
-        if (it == acc_data.end()) {
+        if (!acc_data.contains(account.name)) {
             acc_data[account.name];
         }
     }
