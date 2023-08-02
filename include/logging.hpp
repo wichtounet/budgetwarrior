@@ -5,8 +5,6 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#define FMT_HEADER_ONLY
-#define LOGURU_USE_FMTLIB 1
 #include "loguru.hpp"
 
 namespace budget {

@@ -12,7 +12,6 @@ find_package(OpenSSL REQUIRED)
 
 include_directories(include)
 include_directories(loguru)
-include_directories(fmt/include)
 include_directories(cpp-httplib)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
