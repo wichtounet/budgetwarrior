@@ -15,6 +15,3 @@
 [submodule "loguru"]
 	path = loguru
 	url = https://github.com/emilk/loguru.git
-[submodule "fmt"]
-	path = fmt
-	url = https://github.com/fmtlib/fmt.git
