@@ -9,6 +9,7 @@
 #include <utility>
 #include <iostream>
 #include <unordered_map>
+#include <format>
 
 #include "currency.hpp"
 #include "assets.hpp" // For get_default_currency
@@ -83,18 +84,18 @@ currency_cache_value get_rate_v2(const std::string& from, const std::string& to,
 
     httplib::SSLClient cli("api.exchangeratesapi.io", 443);
 
-    std::string api_complete = "/" + date + "?symbols=" + to + "&base=" + from + "&access_key=" + access_key;
+    auto url = std::format("/{}?symbols={}&base={}&access_key={}", date, to, from, access_key);
 
-    auto res = cli.Get(api_complete.c_str());
+    auto res = cli.Get(url.c_str());
 
     if (!res) {
         LOG_F(ERROR, "Currency(v2): No response, setting exchange between {} from {} to to 1/1", from, to);
-        LOG_F(ERROR, "Currency(v2): URL is {}", api_complete);
+        LOG_F(ERROR, "Currency(v2): URL is {}", url);
 
         return {1.0, false};
     } else if (res->status != 200) {
         LOG_F(ERROR, "Currency(v2): Error Response {}, setting exchange between {} to {} to 1/1", res->status, from, to);
-        LOG_F(ERROR, "Currency(v2): URL is {}", api_complete);
+        LOG_F(ERROR, "Currency(v2): URL is {}", url);
         LOG_F(ERROR, "Currency(v2): Response is {}", res->body);
 
         return {1.0, false};
@@ -104,7 +105,7 @@ currency_cache_value get_rate_v2(const std::string& from, const std::string& to,
 
         if (buffer.find(index) == std::string::npos || buffer.find('}') == std::string::npos) {
             LOG_F(ERROR, "Currency(v2): Error parsing exchange rates, setting exchange between {} to {} to 1/1", from, to);
-            LOG_F(ERROR, "Currency(v2): URL is {}", api_complete);
+            LOG_F(ERROR, "Currency(v2): URL is {}", url);
             LOG_F(ERROR, "Currency(v2): Response is {}", res->body);
 
             return {1.0, false};
