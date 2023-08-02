@@ -5,6 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#define LOGURU_USE_STD_FORMAT 1
 #include "loguru.hpp"
 
 namespace budget {
