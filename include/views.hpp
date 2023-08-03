@@ -189,6 +189,16 @@ inline auto filter_by_month(budget::month month) {
     });
 }
 
+inline auto filter_by_date(budget::year year, budget::month month) {
+    return std::views::filter([year, month] (const auto & element) -> bool {
+        if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+            return element.year() == year && element.month() == month;
+        } else {
+            return element.date.year() == year && element.date.month() == month;
+        }
+    });
+}
+
 inline auto between(budget::month sm, budget::month month) {
     return std::views::filter([sm, month] (const auto & element) -> bool {
         if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {

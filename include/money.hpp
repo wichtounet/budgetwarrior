@@ -226,38 +226,4 @@ inline std::string to_string(money amount){
     return stream.str();
 }
 
-template<typename InputIt, typename Functor>
-inline budget::money accumulate_amount_if(InputIt first, InputIt last, Functor f){
-    budget::money init;
-
-    for (; first != last; ++first) {
-        if(f(*first)){
-            init = init + first->amount;
-        }
-    }
-
-    return init;
-}
-
-template<typename Range, typename Functor>
-inline budget::money accumulate_amount_if(const Range& range, Functor f){
-    return accumulate_amount_if(range.begin(), range.end(), f);
-}
-
-template<typename InputIt>
-inline budget::money accumulate_amount(InputIt first, InputIt last){
-    budget::money init;
-
-    for (; first != last; ++first) {
-        init = init + first->amount;
-    }
-
-    return init;
-}
-
-template<typename Range>
-inline budget::money accumulate_amount(const Range& range){
-    return accumulate_amount(range.begin(), range.end());
-}
-
 } //end of namespace budget

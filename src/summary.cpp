@@ -235,8 +235,8 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
         budget::month m = i;
 
         for (auto& account : all_accounts(w.cache, year, m)) {
-            auto total_expenses = accumulate_amount_if(w.cache.expenses(), [account, year, m](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
-            auto total_earnings = accumulate_amount_if(w.cache.earnings(), [account, year, m](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == m; });
+            auto total_expenses = fold_left_auto(w.cache.expenses() | filter_by_account(account.id) | filter_by_date(year, m) | to_amount);
+            auto total_earnings = fold_left_auto(w.cache.earnings() | filter_by_account(account.id) | filter_by_date(year, m) | to_amount);
 
             auto balance       = account_previous[account.name] + account.amount - total_expenses + total_earnings;
             auto local_balance = account.amount - total_expenses + total_earnings;

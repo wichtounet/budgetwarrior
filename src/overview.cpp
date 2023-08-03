@@ -905,11 +905,12 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
             budget::money total_earnings;
 
             if(relaxed){
-                total_expenses = accumulate_amount_if(w.cache.expenses(), [account,year,m](const budget::expense& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
-                total_earnings = accumulate_amount_if(w.cache.earnings(), [account,year,m](const budget::earning& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+                auto relaxed_filter = [account](const auto & e){return get_account(e.account).name == account.name; };
+                total_expenses = fold_left_auto(w.cache.expenses() | filter_by_date(year, m) | std::views::filter(relaxed_filter) | to_amount);
+                total_earnings = fold_left_auto(w.cache.earnings() | filter_by_date(year, m) | std::views::filter(relaxed_filter) | to_amount);
             } else {
-                total_expenses = accumulate_amount_if(w.cache.expenses(), [account,year,m](const budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-                total_earnings = accumulate_amount_if(w.cache.earnings(), [account,year,m](const budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+                total_expenses = fold_left_auto(all_expenses_month(w.cache, account.id, year, m) | to_amount);
+                total_earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, m) | to_amount);
             }
 
             auto month_total = account.amount - total_expenses + total_earnings;
@@ -1088,11 +1089,12 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
             budget::money total_earnings;
 
             if(relaxed){
-                total_expenses = accumulate_amount_if(w.cache.expenses(), [account,year,m](const budget::expense& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
-                total_earnings = accumulate_amount_if(w.cache.earnings(), [account,year,m](const budget::earning& e){return get_account(e.account).name == account.name && e.date.year() == year && e.date.month() == m;});
+                auto relaxed_filter = [account](const auto & e){return get_account(e.account).name == account.name; };
+                total_expenses = fold_left_auto(w.cache.expenses() | filter_by_date(year, m) | std::views::filter(relaxed_filter) | to_amount);
+                total_earnings = fold_left_auto(w.cache.earnings() | filter_by_date(year, m) | std::views::filter(relaxed_filter) | to_amount);
             } else {
-                total_expenses = accumulate_amount_if(w.cache.expenses(), [account,year,m](const budget::expense& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
-                total_earnings = accumulate_amount_if(w.cache.earnings(), [account,year,m](const budget::earning& e){return e.account == account.id && e.date.year() == year && e.date.month() == m;});
+                total_expenses = fold_left_auto(all_expenses_month(w.cache, account.id, year, m) | to_amount);
+                total_earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, m) | to_amount);
             }
 
             auto month_total = account_previous[account.name][i - 1] + account.amount - total_expenses + total_earnings;

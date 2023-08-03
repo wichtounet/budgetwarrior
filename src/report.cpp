@@ -148,10 +148,8 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
         for (auto& account : all_accounts(w.cache, year, month)) {
             if (!filter || account.name == filter_account) {
-                auto expenses = accumulate_amount_if(w.cache.expenses(),
-                                                     [year, month, account](const budget::expense& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
-                auto earnings = accumulate_amount_if(w.cache.earnings(),
-                                                     [year, month, account](const budget::earning& e) { return e.account == account.id && e.date.year() == year && e.date.month() == month; });
+                auto expenses = fold_left_auto(all_expenses_month(w.cache, account.id, year, month) | to_amount);
+                auto earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, month) | to_amount);
 
                 total_expenses += expenses;
                 total_earnings += earnings;
