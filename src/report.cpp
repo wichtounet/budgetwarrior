@@ -106,7 +106,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
             for (auto& account : all_accounts(w.cache, year, month)) {
                 if (!filter || account.name == filter_account) {
                     auto expenses = accumulate_amount(all_expenses_month(w.cache, account.id, year, month));
-                    auto earnings = accumulate_amount(all_earnings_month(w.cache, account.id, year, month));
+                    auto earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, month) | to_amount);
 
                     m_expenses += expenses;
                     m_earnings += earnings;

@@ -9,6 +9,10 @@
 
 #include <ranges>
 
+#include "date.hpp"
+#include "assets.hpp"
+#include "liabilities.hpp"
+
 namespace budget {
 
 // We define views without parameters as an adaptor to avoid having to use ()
@@ -26,6 +30,13 @@ struct to_name_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, to_name_adaptor) {
 	    return std::forward<R>(r) | std::views::transform([](auto & element) { return element.name; });
+    }
+};
+
+struct to_amount_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, to_amount_adaptor) {
+	    return std::forward<R>(r) | std::views::transform([](auto & element) { return element.amount; });
     }
 };
 
@@ -178,6 +189,16 @@ inline auto filter_by_month(budget::month month) {
     });
 }
 
+inline auto between(budget::month sm, budget::month month) {
+    return std::views::filter([sm, month] (const auto & element) -> bool {
+        if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+            return element.month() >= sm && element.month() <= month;
+        } else {
+            return element.date.month() >= sm && element.date.month() <= month;
+        }
+    });
+}
+
 inline auto active_at_date(budget::date date) {
     return std::views::filter([date] (const auto & account) { return account.since < date && account.until > date; });
 }
@@ -236,6 +257,7 @@ inline constexpr detail::only_open_ended_adaptor only_open_ended;
 inline constexpr detail::not_open_ended_adaptor not_open_ended;
 inline constexpr detail::share_based_only_adaptor share_based_only;
 inline constexpr detail::to_name_adaptor to_name;
+inline constexpr detail::to_amount_adaptor to_amount;
 inline constexpr detail::to_date_adaptor to_date;
 inline constexpr detail::to_month_adaptor to_month;
 inline constexpr detail::liability_only_adaptor liability_only;
@@ -246,6 +268,13 @@ inline constexpr detail::is_portfolio_adaptor is_portfolio;
 inline constexpr detail::is_fi_adaptor is_fi;
 inline constexpr detail::is_cash_adaptor is_cash;
 inline constexpr detail::not_zero_adaptor not_zero;
+
+// Syntactic sugar around fold_left
+template <std::ranges::range R>
+auto fold_left_auto(R&& r) {
+    using type = std::ranges::range_value_t<R>;
+    return std::ranges::fold_left(std::forward<R>(r), type{}, std::plus<type>());
+}
 
 // TODO(C+23) In the future, we can simply ranges::to<std::vector> but it is not yet implemented with GCC
 

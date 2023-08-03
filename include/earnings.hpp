@@ -16,6 +16,7 @@
 #include "date.hpp"
 #include "writer_fwd.hpp"
 #include "filter_iterator.hpp"
+#include "views.hpp"
 
 namespace budget {
 
@@ -68,14 +69,5 @@ void show_earnings(budget::writer& w);
 void search_earnings(std::string_view search, budget::writer& w);
 
 bool indirect_edit_earning(const earning & earning, bool propagate = true);
-
-// Filter functions
-
-struct data_cache;
-
-filter_view<earning> all_earnings_year(data_cache & cache, budget::year year);
-filter_view<earning> all_earnings_month(data_cache & cache, budget::year year, budget::month month);
-filter_view<earning> all_earnings_month(data_cache & cache, size_t account_id, budget::year year, budget::month month);
-filter_view<earning> all_earnings_between(data_cache & cache, budget::year year, budget::month sm, budget::month month);
 
 } //end of namespace budget

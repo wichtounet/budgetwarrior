@@ -13,6 +13,7 @@
 #include "earnings.hpp"
 #include "accounts.hpp"
 #include "incomes.hpp"
+#include "data_cache.hpp"
 
 budget::status budget::compute_year_status(data_cache & cache) {
     auto today = budget::local_day();
@@ -29,7 +30,7 @@ budget::status budget::compute_year_status(data_cache & cache, year year, month 
     auto sm = start_month(cache, year);
 
     status.expenses = accumulate_amount(all_expenses_between(cache, year, sm, month));
-    status.earnings = accumulate_amount(all_earnings_between(cache, year, sm, month));
+    status.earnings = fold_left_auto(all_earnings_between(cache, year, sm, month) | to_amount);
 
     for (unsigned short i = sm; i <= month; ++i) {
         status.budget += accumulate_amount(all_accounts(cache, year, i));
@@ -65,7 +66,7 @@ budget::status budget::compute_month_status(data_cache & cache, year year, month
     budget::status status;
 
     status.expenses    = accumulate_amount(all_expenses_month(cache, year, month));
-    status.earnings    = accumulate_amount(all_earnings_month(cache, year, month));
+    status.earnings    = fold_left_auto(all_earnings_month(cache, year, month) | to_amount);
     status.budget      = accumulate_amount(all_accounts(cache, year, month));
     status.balance     = status.budget + status.earnings - status.expenses;
     status.base_income = get_base_income(cache, budget::date(year, month, 1));

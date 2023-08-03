@@ -58,7 +58,7 @@ double running_savings_rate(data_cache & cache, budget::date sd = budget::local_
         auto d = sd - budget::months(i);
 
         auto expenses = accumulate_amount(all_expenses_month(cache, d.year(), d.month()));
-        auto earnings = accumulate_amount(all_earnings_month(cache, d.year(), d.month()));
+        auto earnings = fold_left_auto(all_earnings_month(cache, d.year(), d.month()) | to_amount);
         auto income   = get_base_income(cache, d);
 
         auto balance = income + earnings - expenses;
@@ -80,7 +80,7 @@ budget::money running_income(data_cache & cache, budget::date sd = budget::local
     for(size_t i = 1; i <= running_limit; ++i){
         auto d = sd - budget::months(i);
 
-        auto earnings = accumulate_amount(all_earnings_month(cache, d.year(), d.month()));
+        auto earnings = fold_left_auto(all_earnings_month(cache, d.year(), d.month()) | to_amount);
         income += get_base_income(cache, d) + earnings;
     }
 
