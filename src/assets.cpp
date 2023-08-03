@@ -773,11 +773,7 @@ void budget::show_assets(budget::writer& w){
 
     // Display the assets
 
-    for(auto& asset : assets.data()){
-        if(asset.name == "DESIRED" && asset.currency == "DESIRED"){
-            continue;
-        }
-
+    for(auto& asset : assets.data() | is_user){
         std::vector<std::string> line;
 
         line.emplace_back(to_string(asset.id));

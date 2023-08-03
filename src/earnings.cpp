@@ -19,6 +19,7 @@
 #include "console.hpp"
 #include "writer.hpp"
 #include "budget_exception.hpp"
+#include "views.hpp"
 
 using namespace budget;
 
@@ -229,13 +230,11 @@ void budget::show_earnings(budget::month month, budget::year year, budget::write
     money total;
     size_t count = 0;
 
-    for(auto& earning : earnings.data()){
-        if(earning.date.year() == year && earning.date.month() == month){
-            contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount), "::edit::earnings::" + to_string(earning.id)});
+    for(auto& earning : earnings.data() | filter_by_year(year) | filter_by_month(month)){
+        contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount), "::edit::earnings::" + to_string(earning.id)});
 
-            total += earning.amount;
-            ++count;
-        }
+        total += earning.amount;
+        ++count;
     }
 
     if(count == 0){

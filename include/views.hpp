@@ -61,6 +61,13 @@ struct not_open_ended_adaptor {
     }
 };
 
+struct is_active_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, is_active_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & asset) { return asset.active; });
+    }
+};
+
 struct active_today_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, active_today_adaptor) {
@@ -80,6 +87,13 @@ struct liability_only_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, liability_only_adaptor) {
         return std::forward<R>(r) | std::views::filter([] (const auto & asset) { return asset.liability; });
+    }
+};
+
+struct is_user_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, is_user_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & asset) { return asset.name != "DESIRED" && asset.currency != "DESIRED"; });
     }
 };
 
@@ -145,7 +159,23 @@ inline auto filter_by_ticker(const std::string & ticker) {
 }
 
 inline auto filter_by_year(budget::year year) {
-    return std::views::filter([year] (const auto & date) { return date.year() == year; });
+    return std::views::filter([year] (const auto & element) -> bool {
+        if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+            return element.year() == year;
+        } else {
+            return element.date.year() == year;
+        }
+    });
+}
+
+inline auto filter_by_month(budget::month month) {
+    return std::views::filter([month] (const auto & element) -> bool {
+        if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+            return element.month() == month;
+        } else {
+            return element.date.month() == month;
+        }
+    });
 }
 
 inline auto active_at_date(budget::date date) {
@@ -158,7 +188,7 @@ inline auto since(budget::date since) {
 
 inline auto expand_value(data_cache& cache) {
     return std::views::transform([&cache](auto& asset) {
-        if constexpr (std::is_same_v<std::remove_reference_t<std::remove_cv_t<decltype(asset)>>, budget::liability>) {
+        if constexpr (std::is_same_v<std::decay_t<decltype(asset)>, budget::liability>) {
             auto amount = get_liability_value(asset, cache);
             return std::make_pair(asset, amount);
         } else {
@@ -170,7 +200,7 @@ inline auto expand_value(data_cache& cache) {
 
 inline auto expand_value_conv(data_cache& cache, budget::date d = budget::local_day()) {
     return std::views::transform([&cache, d](auto& asset) {
-        if constexpr (std::is_same_v<std::remove_reference_t<std::remove_cv_t<decltype(asset)>>, budget::liability>) {
+        if constexpr (std::is_same_v<std::decay_t<decltype(asset)>, budget::liability>) {
             auto amount = get_liability_value_conv(asset, d, cache);
             return std::make_pair(asset, amount);
         } else {
@@ -182,7 +212,7 @@ inline auto expand_value_conv(data_cache& cache, budget::date d = budget::local_
 
 inline auto to_value(data_cache& cache) {
     return std::views::transform([&cache](auto& asset) {
-        if constexpr (std::is_same_v<std::remove_reference_t<std::remove_cv_t<decltype(asset)>>, budget::liability>) {
+        if constexpr (std::is_same_v<std::decay_t<decltype(asset)>, budget::liability>) {
             return get_liability_value(asset, cache);
         } else {
             return get_asset_value(asset, cache);
@@ -192,7 +222,7 @@ inline auto to_value(data_cache& cache) {
 
 inline auto to_value_conv(data_cache& cache, budget::date d = budget::local_day()) {
     return std::views::transform([&cache, d](auto& asset) {
-        if constexpr (std::is_same_v<std::remove_reference_t<std::remove_cv_t<decltype(asset)>>, budget::liability>) {
+        if constexpr (std::is_same_v<std::decay_t<decltype(asset)>, budget::liability>) {
             return get_liability_value_conv(asset, d, cache);
         } else {
             return get_asset_value_conv(asset, d, cache);
@@ -200,6 +230,7 @@ inline auto to_value_conv(data_cache& cache, budget::date d = budget::local_day(
     });
 }
 
+inline constexpr detail::is_active_adaptor is_active;
 inline constexpr detail::active_today_adaptor active_today;
 inline constexpr detail::only_open_ended_adaptor only_open_ended;
 inline constexpr detail::not_open_ended_adaptor not_open_ended;
@@ -210,6 +241,7 @@ inline constexpr detail::to_month_adaptor to_month;
 inline constexpr detail::liability_only_adaptor liability_only;
 inline constexpr detail::not_liability_adaptor not_liability;
 inline constexpr detail::is_desired_adaptor is_desired;
+inline constexpr detail::is_user_adaptor is_user;
 inline constexpr detail::is_portfolio_adaptor is_portfolio;
 inline constexpr detail::is_fi_adaptor is_fi;
 inline constexpr detail::is_cash_adaptor is_cash;

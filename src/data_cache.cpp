@@ -22,7 +22,7 @@ std::vector<earning> & data_cache::sorted_earnings() {
     if (sorted_earnings_.empty()) {
         sorted_earnings_ = all_earnings();
 
-        std::sort(sorted_earnings_.begin(), sorted_earnings_.end(), [](auto& lhs, auto& rhs) {
+        std::ranges::sort(sorted_earnings_, [](auto& lhs, auto& rhs) {
             return lhs.date < rhs.date;
         });
     }
@@ -58,7 +58,7 @@ std::vector<asset_value> & data_cache::sorted_asset_values() {
     if (sorted_asset_values_.empty()) {
         sorted_asset_values_ = all_asset_values();
 
-        std::stable_sort(sorted_asset_values_.begin(), sorted_asset_values_.end(), [](auto& lhs, auto& rhs) {
+        std::ranges::stable_sort(sorted_asset_values_, [](auto& lhs, auto& rhs) {
             return lhs.set_date < rhs.set_date;
         });
     }
@@ -130,7 +130,7 @@ std::vector<asset_share> & data_cache::sorted_asset_shares() {
     if (sorted_asset_shares_.empty()) {
         sorted_asset_shares_ = asset_shares();
 
-        std::sort(sorted_asset_shares_.begin(), sorted_asset_shares_.end(), [](auto& lhs, auto& rhs) {
+        std::ranges::sort(sorted_asset_shares_, [](auto& lhs, auto& rhs) {
             return lhs.date < rhs.date;
         });
     }
@@ -166,7 +166,7 @@ std::vector<expense> & data_cache::sorted_expenses() {
     if (sorted_expenses_.empty()) {
         sorted_expenses_ = expenses();
 
-        std::sort(sorted_expenses_.begin(), sorted_expenses_.end(), [](auto& lhs, auto& rhs) {
+        std::ranges::sort(sorted_expenses_, [](auto& lhs, auto& rhs) {
             return lhs.date < rhs.date;
         });
     }
@@ -184,11 +184,7 @@ std::vector<asset> & data_cache::assets() {
 
 const std::vector<asset> & data_cache::user_assets() {
     if (user_assets_.empty()) {
-        for (auto & asset : assets()) {
-            if (asset.name != "DESIRED") {
-                user_assets_.push_back(asset);
-            }
-        }
+        std::ranges::copy(assets() | is_user, std::back_inserter(user_assets_));
     }
 
     return user_assets_;
@@ -196,11 +192,7 @@ const std::vector<asset> & data_cache::user_assets() {
 
 std::vector<asset> & data_cache::active_user_assets() {
     if (active_user_assets_.empty()) {
-        for (auto & asset : assets()) {
-            if (asset.name != "DESIRED" && asset.active) {
-                active_user_assets_.push_back(asset);
-            }
-        }
+        std::ranges::copy(assets() | is_user | is_active, std::back_inserter(user_assets_));
     }
 
     return active_user_assets_;
