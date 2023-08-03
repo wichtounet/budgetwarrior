@@ -154,7 +154,7 @@ budget::money compute_total_budget_account(budget::account & account, budget::mo
             for(auto& prev_account : all_accounts(cache, y, m)){
                 if (prev_account.name == account.name) {
                     total += prev_account.amount;
-                    total -= accumulate_amount(all_expenses_month(cache, prev_account.id, y, m));
+                    total -= fold_left_auto(all_expenses_month(cache, prev_account.id, y, m) | to_amount);
                     total += fold_left_auto(all_earnings_month(cache, prev_account.id, y, m) | to_amount);
 
                     break;
@@ -203,7 +203,7 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
 
             for(auto& account : all_accounts(cache, y, m)){
                 tmp[account.name] += account.amount;
-                tmp[account.name] -= accumulate_amount(all_expenses_month(cache, account.id, y, m));
+                tmp[account.name] -= fold_left_auto(all_expenses_month(cache, account.id, y, m) | to_amount);
                 tmp[account.name] += fold_left_auto(all_earnings_month(cache, account.id, y, m) | to_amount);
             }
 

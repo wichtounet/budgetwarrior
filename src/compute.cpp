@@ -29,11 +29,11 @@ budget::status budget::compute_year_status(data_cache & cache, year year, month 
 
     auto sm = start_month(cache, year);
 
-    status.expenses = accumulate_amount(all_expenses_between(cache, year, sm, month));
+    status.expenses = fold_left_auto(all_expenses_between(cache, year, sm, month) | to_amount);
     status.earnings = fold_left_auto(all_earnings_between(cache, year, sm, month) | to_amount);
 
     for (unsigned short i = sm; i <= month; ++i) {
-        status.budget += accumulate_amount(all_accounts(cache, year, i));
+        status.budget += fold_left_auto(all_accounts(cache, year, i) | to_amount);
         status.base_income += get_base_income(cache, budget::date(year, i, 1));
     }
 
@@ -46,7 +46,7 @@ budget::status budget::compute_year_status(data_cache & cache, year year, month 
     if (has_taxes_account()) {
         auto account_id = taxes_account().id;
 
-        status.taxes = accumulate_amount(all_expenses_between(cache, account_id, year, sm, month));
+        status.taxes = fold_left_auto(all_expenses_between(cache, account_id, year, sm, month) | to_amount);
     }
 
     return status;
@@ -65,9 +65,9 @@ budget::status budget::compute_month_status(data_cache & cache, month month) {
 budget::status budget::compute_month_status(data_cache & cache, year year, month month) {
     budget::status status;
 
-    status.expenses    = accumulate_amount(all_expenses_month(cache, year, month));
+    status.expenses    = fold_left_auto(all_expenses_month(cache, year, month) | to_amount);
     status.earnings    = fold_left_auto(all_earnings_month(cache, year, month) | to_amount);
-    status.budget      = accumulate_amount(all_accounts(cache, year, month));
+    status.budget      = fold_left_auto(all_accounts(cache, year, month) | to_amount);
     status.balance     = status.budget + status.earnings - status.expenses;
     status.base_income = get_base_income(cache, budget::date(year, month, 1));
     status.income      = status.base_income + status.earnings;
@@ -78,7 +78,7 @@ budget::status budget::compute_month_status(data_cache & cache, year year, month
     if (has_taxes_account()) {
         auto account_id = taxes_account().id;
 
-        status.taxes = accumulate_amount(all_expenses_month(cache, account_id, year, month));
+        status.taxes = fold_left_auto(all_expenses_month(cache, account_id, year, month) | to_amount);
     }
 
     return status;

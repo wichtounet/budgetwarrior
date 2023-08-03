@@ -96,4 +96,25 @@ inline auto all_earnings_between(data_cache & cache, budget::year year, budget::
     return cache.earnings() | filter_by_year(year) | between(sm, month);
 }
 
+inline auto all_expenses_year(data_cache & cache, budget::year year) {
+    return cache.expenses() | filter_by_year(year);
+}
+
+inline auto all_expenses_month(data_cache & cache, budget::year year, budget::month month){
+    return cache.expenses() | filter_by_year(year) | filter_by_month(month);
+}
+
+inline auto all_expenses_month(data_cache & cache, size_t account_id, budget::year year, budget::month month){
+    return cache.expenses() | filter_by_account(account_id) | filter_by_year(year) | filter_by_month(month);
+}
+
+inline auto all_expenses_between(data_cache & cache, budget::year year, budget::month sm, budget::month month){
+    return cache.expenses() | filter_by_year(year) | between(sm, month);
+}
+
+inline auto all_expenses_between(data_cache & cache, size_t account_id, budget::year year, budget::month sm, budget::month month){
+    return cache.expenses() | filter_by_account(account_id) | filter_by_year(year) | between(sm, month);
+}
+
+
 } //end of namespace budget
