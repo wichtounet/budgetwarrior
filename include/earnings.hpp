@@ -15,7 +15,6 @@
 #include "money.hpp"
 #include "date.hpp"
 #include "writer_fwd.hpp"
-#include "filter_iterator.hpp"
 #include "views.hpp"
 
 namespace budget {
