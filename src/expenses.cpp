@@ -320,18 +320,16 @@ void budget::show_expenses(budget::month month, budget::year year, budget::write
     money total;
     size_t count = 0;
 
-    for (auto& expense : expenses.data()) {
-        if (expense.date.year() == year && expense.date.month() == month) {
-            contents.push_back({to_string(expense.id),
-                                to_string(expense.date),
-                                get_account(expense.account).name,
-                                expense.name,
-                                to_string(expense.amount),
-                                "::edit::expenses::" + to_string(expense.id)});
+    for (auto& expense : expenses.data() | filter_by_date(year, month)) {
+        contents.push_back({to_string(expense.id),
+                            to_string(expense.date),
+                            get_account(expense.account).name,
+                            expense.name,
+                            to_string(expense.amount),
+                            "::edit::expenses::" + to_string(expense.id)});
 
-            total += expense.amount;
-            ++count;
-        }
+        total += expense.amount;
+        ++count;
     }
 
     if(count == 0){

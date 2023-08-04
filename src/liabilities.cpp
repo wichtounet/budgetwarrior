@@ -265,10 +265,8 @@ budget::liability budget::get_liability(size_t id){
 }
 
 budget::liability budget::get_liability(std::string name){
-    for(auto& liability : liabilities.data()){
-        if(liability.name == name){
-            return liability;
-        }
+    if (auto range = liabilities.data() | filter_by_name(name); range){
+        return *std::ranges::begin(range);
     }
 
     cpp_unreachable("The liability does not exist");
@@ -319,13 +317,7 @@ void budget::liability::load(data_reader & reader){
 }
 
 bool budget::liability_exists(const std::string& name){
-    for (auto& liability : all_liabilities()) {
-        if (liability.name == name) {
-            return true;
-        }
-    }
-
-    return false;
+    return !std::ranges::empty(all_liabilities() | filter_by_name(name));
 }
 
 std::vector<liability> budget::all_liabilities(){
@@ -333,15 +325,7 @@ std::vector<liability> budget::all_liabilities(){
 }
 
 budget::date budget::liability_start_date(data_cache& cache, const budget::liability& liability) {
-    budget::date start = budget::local_day();
-
-    for (auto & value : cache.asset_values()) {
-        if (value.liability && value.asset_id == liability.id) {
-            start = std::min(value.set_date, start);
-        }
-    }
-
-    return start;
+    return min_with_default(cache.asset_values() | liability_only | filter_by_asset(liability.id) | to_date, budget::local_day());
 }
 
 budget::date budget::liability_start_date(data_cache& cache) {
@@ -352,11 +336,7 @@ budget::date budget::liability_start_date(data_cache& cache) {
     auto asset_values = cache.asset_values();
 
     for (auto& liability : cache.liabilities()) {
-        for (auto& value : asset_values) {
-            if (value.liability && value.asset_id == liability.id) {
-                start = std::min(value.set_date, start);
-            }
-        }
+        start = std::min(start, min_with_default(asset_values | liability_only | filter_by_asset(liability.id) | to_date, start));
     }
 
     return start;
