@@ -80,10 +80,8 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
                 width = std::max(rsize(objective.name), width);
             }
         } else {
-            for (auto& objective : w.cache.objectives()) {
-                if (objective.type == "yearly") {
-                    width = std::max(rsize(objective.name), width);
-                }
+            for (auto& objective : w.cache.objectives() | filter_by_type("yearly")) {
+                width = std::max(rsize(objective.name), width);
             }
         }
 
@@ -93,10 +91,8 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
         std::vector<std::string> columns = {"Goal", "Status", "Progress"};
         std::vector<std::vector<std::string>> contents;
 
-        for (auto& objective : w.cache.objectives()) {
-            if (objective.type == "yearly") {
-                contents.push_back({objective.name, get_status(year_status, objective), get_success(year_status, objective)});
-            }
+        for (auto& objective : w.cache.objectives() | filter_by_type("yearly")) {
+            contents.push_back({objective.name, get_status(year_status, objective), get_success(year_status, objective)});
         }
 
         w.display_table(columns, contents);
@@ -111,22 +107,20 @@ void budget::monthly_objective_status(budget::writer& w){
     auto current_year  = today.year();
     auto sm            = start_month(w.cache, current_year);
 
-    for (auto& objective : w.cache.objectives()) {
-        if (objective.type == "monthly") {
-            std::vector<std::string> columns = {objective.name, "Status", "Progress"};
-            std::vector<std::vector<std::string>> contents;
+    for (auto& objective : w.cache.objectives() | filter_by_type("monthly")) {
+        std::vector<std::string>              columns = {objective.name, "Status", "Progress"};
+        std::vector<std::vector<std::string>> contents;
 
-            for (unsigned short i = sm; i <= current_month; ++i) {
-                budget::month month = i;
+        for (unsigned short i = sm; i <= current_month; ++i) {
+            budget::month month = i;
 
-                // Compute the month status
-                auto status = budget::compute_month_status(w.cache, current_year, month);
+            // Compute the month status
+            auto status = budget::compute_month_status(w.cache, current_year, month);
 
-                contents.push_back({to_string(month), get_status(status, objective), get_success(status, objective)});
-            }
-
-            w.display_table(columns, contents);
+            contents.push_back({to_string(month), get_status(status, objective), get_success(status, objective)});
         }
+
+        w.display_table(columns, contents);
     }
 }
 
@@ -155,10 +149,8 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
             width = std::max(rsize(objective.name), width);
         }
     } else {
-        for (auto& objective : w.cache.objectives()) {
-            if (objective.type == "monthly") {
-                width = std::max(rsize(objective.name), width);
-            }
+        for (auto& objective : w.cache.objectives() | filter_by_type("monthly")) {
+            width = std::max(rsize(objective.name), width);
         }
     }
 
@@ -168,10 +160,8 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
     // Compute the month status
     auto status = budget::compute_month_status(w.cache, today.year(), today.month());
 
-    for (auto& objective : w.cache.objectives()) {
-        if (objective.type == "monthly") {
-            contents.push_back({objective.name, get_status(status, objective), get_success(status, objective)});
-        }
+    for (auto& objective : w.cache.objectives() | filter_by_type("monthly")) {
+        contents.push_back({objective.name, get_status(status, objective), get_success(status, objective)});
     }
 
     w.display_table(columns, contents);
@@ -352,16 +342,8 @@ void budget::status_objectives(budget::writer& w){
             w << p_begin << "WARNING: It is early in the month, no one can know what may happen ;)" << p_end;
         }
 
-        size_t monthly = 0;
-        size_t yearly = 0;
-
-        for(auto& objective : objectives.data()){
-            if(objective.type == "yearly"){
-                ++yearly;
-            } else if(objective.type == "monthly"){
-                ++monthly;
-            }
-        }
+        const bool monthly = !std::ranges::empty(objectives.data() | filter_by_type("monthly"));
+        const bool yearly  = !std::ranges::empty(objectives.data() | filter_by_type("yearly"));
 
         if(yearly){
             budget::yearly_objective_status(w, true, false);

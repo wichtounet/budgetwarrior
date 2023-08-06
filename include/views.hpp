@@ -161,11 +161,15 @@ inline auto filter_by_asset(size_t id) {
     return std::views::filter([id] (const auto & share) { return share.asset_id == id; });
 }
 
-inline auto filter_by_name(const std::string & name) {
+inline auto filter_by_type(std::string_view type) {
+    return std::views::filter([&type] (const auto & element) { return element.type == type; });
+}
+
+inline auto filter_by_name(std::string_view name) {
     return std::views::filter([&name] (const auto & account) { return account.name == name; });
 }
 
-inline auto filter_by_ticker(const std::string & ticker) {
+inline auto filter_by_ticker(std::string_view ticker) {
     return std::views::filter([&ticker] (const auto & account) { return account.ticker == ticker; });
 }
 
