@@ -31,9 +31,29 @@ namespace fs = std::filesystem;
 
 using namespace budget;
 
-using config_type = std::unordered_map<std::string, std::string>;
-
 namespace {
+
+// This structures allows us to hash std::string and std::string_view in
+// a similar way. This allows to use the C++20 feature that allows searching
+// inside a container a std::string with a std::string view
+struct transparent_string_hash {
+    using hash_type      = std::hash<std::string_view>;
+    using is_transparent = void;
+
+    std::size_t operator()(const char* str) const {
+        return hash_type{}(str);
+    }
+
+    std::size_t operator()(std::string_view str) const {
+        return hash_type{}(str);
+    }
+
+    std::size_t operator()(std::string const& str) const {
+        return hash_type{}(str);
+    }
+};
+
+using config_type = std::unordered_map<std::string, std::string, transparent_string_hash, std::equal_to<>>;
 
 bool server_running = false;
 
@@ -142,7 +162,7 @@ bool budget::load_config() {
     internal_bak = internal;
 
     //At the first start, the version is not set
-    if(!internal.contains("data_version")) {
+    if(!internal_config_contains("data_version")) {
         internal["data_version"] = budget::to_string(budget::DATA_VERSION);
     }
 
@@ -195,8 +215,8 @@ std::string budget::home_folder() {
 }
 
 std::string budget::budget_folder() {
-    if(config_contains("directory")) {
-        return config_value("directory");
+    if (auto it = configuration.find("directory"); it != configuration.end()) {
+        return it->second;
     }
 
     auto old_home = path_to_home_file(".budget");
@@ -211,86 +231,97 @@ std::string budget::budget_folder() {
     return home_folder() + "/.local/share/budget";
 }
  
-std::string budget::path_to_home_file(const std::string& file) {
-    return home_folder() + "/" + file;
+std::string budget::path_to_home_file(std::string_view file) {
+    return (fs::path{home_folder()} / file).string();
 }
 
-std::string budget::path_to_budget_file(const std::string& file) {
-    return budget_folder() + "/" + file;
+std::string budget::path_to_budget_file(std::string_view file) {
+    return (fs::path{budget_folder()} / file).string();
 }
 
-bool budget::config_contains(const std::string& key){
+bool budget::config_contains(std::string_view key){
     return configuration.find(key) != configuration.end();
 }
 
-std::string budget::config_value(const std::string& key){
-    return configuration[key];
+std::string budget::config_value(std::string_view key){
+    auto it = configuration.find(key);
+    cpp_assert(it != configuration.end(), "Cannot call config_value without making sure it's contained first");
+    return it->second;
 }
 
-std::string budget::config_value(const std::string& key, const std::string& def){
-    if (config_contains(key)) {
-        return config_value(key);
+std::string budget::config_value(std::string_view key, std::string_view def){
+    if (auto it = configuration.find(key); it != configuration.end()) {
+        return it->second;
     }
 
-    return def;
+    return std::string{def};
 }
 
-bool budget::config_contains_and_true(const std::string& key) {
-    if (config_contains(key)) {
-        return config_value(key) == "true";
+bool budget::config_contains_and_true(std::string_view key) {
+    if (auto it = configuration.find(key); it != configuration.end()) {
+        return it->second == "true";
     }
 
     return false;
 }
 
-std::string budget::user_config_value(const std::string& key, const std::string& def) {
+std::string budget::user_config_value(std::string_view key, std::string_view def) {
     // 1. Check for the global configuration
-    if (config_contains(key)) {
-        return config_value(key);
+    if (auto it = configuration.find(key); it != configuration.end()) {
+        return it->second;
+    }
+
+    // 2. Check for the internal configuration
+    if (auto it = internal.find(key); it != internal.end()) {
+        return it->second;
+    }
+
+    // 3. Return the default value
+    return std::string{def};
+}
+
+bool budget::user_config_value_bool(std::string_view key, bool def) {
+    // 1. Check for the global configuration
+    if (auto it = configuration.find(key); it != configuration.end()) {
+        return it->second == "true";
     }
 
     // 2. Check foir the internal configuration
-    if (internal_config_contains(key)) {
-        return internal_config_value(key);
+    if (auto it = internal.find(key); it != internal.end()) {
+        return it->second == "true";
     }
 
     // 3. Return the default value
     return def;
 }
 
-bool budget::user_config_value_bool(const std::string& key, bool def) {
-    // 1. Check for the global configuration
-    if (config_contains(key)) {
-        return config_value(key) == "true";
-    }
-
-    // 2. Check foir the internal configuration
-    if (internal_config_contains(key)) {
-        return internal_config_value(key) == "true";
-    }
-
-    // 3. Return the default value
-    return def;
-}
-
-bool budget::internal_config_contains(const std::string& key){
+bool budget::internal_config_contains(std::string_view key){
     server_lock_guard l(internal_config_lock);
     return internal.find(key) != internal.end();
 }
 
-std::string budget::internal_config_value(const std::string& key){
-    server_lock_guard l(internal_config_lock);
-    return internal[key];
+std::string budget::internal_config_value(std::string_view key){
+    auto it = internal.find(key);
+    cpp_assert(it != internal.end(), "Cannot call internal_config_value without making sure it's contained first");
+    return it->second;
 }
 
-void budget::internal_config_set(const std::string& key, const std::string & value){
+void budget::internal_config_set(std::string_view key, std::string_view value){
     server_lock_guard l(internal_config_lock);
-    internal[key] = value;
+    auto              it = internal.find(key);
+    if (it != internal.end()) {
+        it->second = value;
+    } else {
+        internal.emplace(key, value);
+    }
 }
 
-void budget::internal_config_remove(const std::string& key){
+void budget::internal_config_remove(std::string_view key){
     server_lock_guard l(internal_config_lock);
-    internal.erase(key);
+    auto              it = internal.find(key);
+    if (it != internal.end()) {
+        internal.erase(it);
+    }
 }
 
 std::string budget::get_web_user(){
@@ -302,19 +333,11 @@ std::string budget::get_web_password(){
 }
 
 std::string budget::get_server_listen(){
-    if (config_contains("server_listen")) {
-        return config_value("server_listen");
-    }
-
-    return "localhost";
+    return config_value("server_listen", "localhost");
 }
 
 size_t budget::get_server_port(){
-    if (config_contains("server_port")) {
-        return to_number<size_t>(config_value("server_port"));
-    }
-
-    return 8080;
+    return to_number<size_t>(config_value("server_port", "8080"));
 }
 
 bool budget::is_server_mode(){
@@ -327,18 +350,10 @@ bool budget::is_server_mode(){
 }
 
 bool budget::is_secure(){
-    if (config_contains("server_secure")) {
-        return config_value("server_secure") != "false";
-    }
-
-    return true;
+    return config_contains_and_true("server_secure");
 }
 
 bool budget::is_server_ssl(){
-    if (config_contains("server_ssl")) {
-        return config_value("server_ssl") == "true";
-    }
-
     return config_contains_and_true("server_ssl");
 }
 

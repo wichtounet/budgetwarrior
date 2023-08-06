@@ -1311,7 +1311,7 @@ budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::
     }
 }
 
-bool budget::is_ticker_active(data_cache & cache, const std::string & ticker) {
+bool budget::is_ticker_active(data_cache & cache, std::string_view ticker) {
     for (auto & asset : cache.assets() | share_based_only | filter_by_ticker(ticker)) {
         int64_t shares = get_shares(asset, local_day(), cache);
 

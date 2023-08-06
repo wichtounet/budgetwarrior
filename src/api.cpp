@@ -22,7 +22,7 @@ namespace {
 template<typename Cli>
 budget::api_response base_api_get(Cli& cli, const std::string& api) {
     auto server      = budget::config_value("server_url");
-    auto server_port = budget::config_value("server_port");
+    auto server_port = budget::get_server_port();
 
     std::string api_complete = "/api" + api;
 
@@ -70,7 +70,7 @@ budget::api_response base_api_get(Cli& cli, const std::string& api) {
 template<typename Cli>
 budget::api_response base_api_post(Cli& cli, const std::string& api, const std::map<std::string, std::string>& params) {
     auto server      = budget::config_value("server_url");
-    auto server_port = budget::config_value("server_port");
+    auto server_port = budget::get_server_port();
 
     std::string api_complete = "/api" + api;
 
@@ -93,7 +93,7 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
     req.method = "POST";
     req.path = api_complete.c_str();
 
-    req.set_header("Host", (server + ":" + server_port).c_str());
+    req.set_header("Host", (server + ":" + std::to_string(server_port)).c_str());
     req.set_header("Accept", "*/*");
     req.set_header("User-Agent", "cpp-httplib/0.1");
 
@@ -139,14 +139,14 @@ budget::api_response budget::api_get(const std::string& api) {
     cpp_assert(is_server_mode(), "api_get() should only be called in server mode");
 
     auto server      = config_value("server_url");
-    auto server_port = config_value("server_port");
+    auto server_port = budget::get_server_port();
 
     if (is_server_ssl()) {
-        httplib::SSLClient cli(server.c_str(), budget::to_number<size_t>(server_port));
+        httplib::SSLClient cli(server.c_str(), server_port);
 
         return base_api_get(cli, api);
     } else {
-        httplib::Client cli(server.c_str(), budget::to_number<size_t>(server_port));
+        httplib::Client cli(server.c_str(), server_port);
 
         return base_api_get(cli, api);
     }
@@ -156,14 +156,14 @@ budget::api_response budget::api_post(const std::string& api, const std::map<std
     cpp_assert(is_server_mode(), "api_post() should only be called in server mode");
 
     auto server      = config_value("server_url");
-    auto server_port = config_value("server_port");
+    auto server_port = budget::get_server_port();
 
     if(is_server_ssl()){
-        httplib::SSLClient cli(server.c_str(), budget::to_number<size_t>(server_port));
+        httplib::SSLClient cli(server.c_str(), server_port);
 
         return base_api_post(cli, api, params);
     } else {
-        httplib::Client cli(server.c_str(), budget::to_number<size_t>(server_port));
+        httplib::Client cli(server.c_str(), server_port);
 
         return base_api_post(cli, api, params);
     }

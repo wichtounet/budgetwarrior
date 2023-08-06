@@ -134,7 +134,7 @@ budget::money compute_total_budget_account(budget::account & account, budget::mo
     auto start_year_report = year;
 
     // Using option, can change to the beginning of all time
-    if(budget::config_contains("multi_year_balance") && budget::config_value("multi_year_balance") == "true"){
+    if(budget::config_contains_and_true("multi_year_balance")){
         start_year_report = start_year(cache);
     }
 
@@ -189,7 +189,7 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
     auto start_year_report = year;
 
     // Using option, can change to the beginning of all time
-    if(budget::config_contains("multi_year_balance") && budget::config_value("multi_year_balance") == "true"){
+    if(budget::config_contains_and_true("multi_year_balance")){
         start_year_report = start_year(cache);
     }
 
@@ -742,28 +742,11 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
                 throw budget_exception("Too many arguments to overview month");
             }
         } else if (subcommand == "aggregate") {
-            //Default values
-            bool full             = false;
-            bool disable_groups   = false;
-            std::string separator = "/";
-
             //Get defaults from config
 
-            if (budget::config_contains("aggregate_full")) {
-                if (budget::config_value("aggregate_full") == "true") {
-                    full = true;
-                }
-            }
-
-            if (budget::config_contains("aggregate_no_group")) {
-                if (budget::config_value("aggregate_no_group") == "true") {
-                    disable_groups = true;
-                }
-            }
-
-            if (budget::config_contains("aggregate_separator")) {
-                separator = budget::config_value("aggregate_separator");
-            }
+            bool full = budget::config_contains_and_true("aggregate_full");
+            bool disable_groups = budget::config_contains_and_true("aggregate_no_group");
+            std::string separator = budget::config_value("aggregate_separator", "/");
 
             //Command-line  overrides config
 

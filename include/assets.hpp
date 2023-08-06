@@ -48,7 +48,7 @@ struct asset_class {
 };
 
 budget::asset_class get_asset_class(size_t id);
-budget::asset_class get_asset_class(const std::string & name);
+budget::asset_class get_asset_class(std::string_view name);
 
 // An asset
 struct asset {
@@ -231,7 +231,7 @@ bool asset_share_exists(size_t id);
 void asset_share_delete(size_t id);
 bool no_asset_shares();
 
-bool is_ticker_active(data_cache & cache, const std::string & ticker);
+bool is_ticker_active(data_cache & cache, std::string_view ticker);
 
 budget::money get_portfolio_value();
 budget::money get_net_worth_cash();

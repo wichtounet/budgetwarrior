@@ -47,7 +47,7 @@ budget::asset_class budget::get_asset_class(size_t id){
     return asset_classes[id];
 }
 
-budget::asset_class budget::get_asset_class(const std::string & name){
+budget::asset_class budget::get_asset_class(std::string_view name){
     for (const auto& c : asset_classes.data() | filter_by_name(name)) {
         return c;
     }
