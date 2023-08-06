@@ -17,11 +17,6 @@
 using namespace budget;
 
 money budget::money_from_string(std::string money_string){
-    // In order to read locale-dependent data (legacy), we need
-    // to allow , in the numbers
-    // TODO In the future, we can remove this code
-    money_string.erase(std::remove(money_string.begin(), money_string.end(), ','), money_string.end());
-
     int dollars = 0;
     int cents = 0;
 

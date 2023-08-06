@@ -45,8 +45,8 @@ TEST_CASE("money/money_from_string/1") {
     auto d = budget::money_from_string("100.06");
     auto e = budget::money_from_string("100.6");
     auto f = budget::money_from_string("10000.60");
-    auto g = budget::money_from_string("10,000.60");
-    auto h = budget::money_from_string("1,100,000.60");
+    auto g = budget::money_from_string("10000.60");
+    auto h = budget::money_from_string("1100000.60");
 
     FAST_CHECK_EQ(a, budget::money(100));
     FAST_CHECK_EQ(b, budget::money(100));

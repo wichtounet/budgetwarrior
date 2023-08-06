@@ -14,7 +14,7 @@ using namespace std::string_literals;
 
 TEST_CASE("data_reader/numbers/size_t") {
     budget::data_reader reader;
-    reader.parse("99:1,234,567,890:astring:999:-999:99.99:H");
+    reader.parse("99:1234567890:astring:999:-999:99.99:H");
 
     size_t a, b, c, d,e, f;
 
@@ -36,7 +36,7 @@ TEST_CASE("data_reader/numbers/size_t") {
 
 TEST_CASE("data_reader/numbers/int64_t") {
     budget::data_reader reader;
-    reader.parse("99:1,234,567,890:astring:999:-999:99.99:H");
+    reader.parse("99:1234567890:astring:999:-999:99.99:H");
 
     int64_t a, b, c, d, e, f;
 
@@ -58,7 +58,7 @@ TEST_CASE("data_reader/numbers/int64_t") {
 
 TEST_CASE("data_reader/numbers/int32_t") {
     budget::data_reader reader;
-    reader.parse("99:1,234,567,890:astring:999:-999:99.99:H");
+    reader.parse("99:1234567890:astring:999:-999:99.99:H");
 
     int32_t a, b, c, d, e, f;
 
