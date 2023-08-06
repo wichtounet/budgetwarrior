@@ -58,9 +58,6 @@ void one_of(const std::string& value, const std::string& message, std::vector<st
 unsigned short terminal_width();
 unsigned short terminal_height();
 
-bool file_exists(const std::string& name);
-bool folder_exists(const std::string& name);
-
 std::vector<std::string> split(const std::string &s, char delim);
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 

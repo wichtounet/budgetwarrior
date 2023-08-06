@@ -9,17 +9,18 @@
 
 #include <cstdlib>
 #include <string>
+#include <filesystem>
 
 namespace budget {
 
 const size_t MIN_DATA_VERSION = 4;
 const size_t DATA_VERSION     = 9;
 
-std::string home_folder();
-std::string config_file();
-std::string budget_folder();
-std::string path_to_home_file(std::string_view file);
-std::string path_to_budget_file(std::string_view file);
+std::filesystem::path home_folder();
+std::filesystem::path config_file();
+std::filesystem::path budget_folder();
+std::filesystem::path path_to_home_file(std::string_view file);
+std::filesystem::path path_to_budget_file(std::string_view file);
 
 bool load_config();
 void save_config();

@@ -51,22 +51,6 @@ unsigned short budget::terminal_height(){
 #endif
 }
 
-bool budget::file_exists(const std::string& name){
-    std::ifstream f(name.c_str());
-    if (f.good()) {
-        f.close();
-        return true;
-    } else {
-        f.close();
-        return false;
-    }
-}
-
-bool budget::folder_exists(const std::string& name){
-    struct stat sb;
-    return stat(name.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode);
-}
-
 std::vector<std::string>& budget::split(const std::string& s, char delim, std::vector<std::string>& elems) {
     std::stringstream ss(s);
     std::string item;

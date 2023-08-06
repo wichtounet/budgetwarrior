@@ -26,7 +26,6 @@
 #include "fortune.hpp"
 #include "server_lock.hpp"
 
-#include <filesystem>
 namespace fs = std::filesystem;
 
 using namespace budget;
@@ -59,11 +58,11 @@ bool server_running = false;
 
 budget::server_lock internal_config_lock;
 
-bool load_configuration(const std::string& path, config_type& configuration){
-    if (file_exists(path)) {
+bool load_configuration(const fs::path & path, config_type& configuration){
+    if (fs::exists(path)) {
         std::ifstream file(path);
 
-        LOG_F(INFO, "Load configuration from {}", path);
+        LOG_F(INFO, "Load configuration from {}", path.string());
 
         if (file.is_open() && file.good()) {
             std::string line;
@@ -81,7 +80,7 @@ bool load_configuration(const std::string& path, config_type& configuration){
                 auto first = line.find('=');
 
                 if (first == std::string::npos || line.rfind('=') != first) {
-                    LOG_F(ERROR, "The configuration file file {} is invalid, only supports key=value entry", path);
+                    LOG_F(ERROR, "The configuration file file {} is invalid, only supports key=value entry", path.string());
 
                     return false;
                 }
@@ -92,14 +91,14 @@ bool load_configuration(const std::string& path, config_type& configuration){
                 configuration[key] = value;
             }
         } else {
-            LOG_F(ERROR, "Unable to open config file {}", path);
+            LOG_F(ERROR, "Unable to open config file {}", path.string());
         }
     }
 
     return true;
 }
 
-void save_configuration(const std::string& path, const config_type& configuration){
+void save_configuration(const fs::path& path, const config_type& configuration){
     std::ofstream file(path);
 
     for(auto& [key, value] : configuration){
@@ -110,9 +109,9 @@ void save_configuration(const std::string& path, const config_type& configuratio
 bool verify_folder(){
     auto folder_path = budget_folder();
 
-    LOG_F(INFO, "Using {} as data directory", folder_path);
+    LOG_F(INFO, "Using {} as data directory", folder_path.string());
 
-    if (!folder_exists(folder_path)) {
+    if (!fs::is_directory(folder_path)) {
         std::cout << "The folder " << folder_path << " does not exist. Would like to create it [yes/no] ? ";
 
         std::string answer;
@@ -181,9 +180,8 @@ void budget::save_config() {
     }
 }
 
-std::string budget::config_file() {
-    auto old_config = path_to_home_file(".budgetrc");
-    if(file_exists(old_config)) {
+fs::path budget::config_file() {
+    if(auto old_config = path_to_home_file(".budgetrc"); fs::exists(old_config)) {
         return old_config;
     }
 
@@ -194,49 +192,48 @@ std::string budget::config_file() {
         config_home = fs::path{home_folder()} / ".config";
     }
 
-    return (config_home / "budget" / "budgetrc").string();
+    return config_home / "budget" / "budgetrc";
 }
 
-std::string budget::home_folder() {
+fs::path budget::home_folder() {
 #ifdef _WIN32
     TCHAR path[MAX_PATH];
     if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, path))) {
         std::wstring wpath(path);
         return std::string(wpath.begin(), wpath.end());
     }
-    return "c:\\";
+    return fs::path{"c:\\"};
 #else
     struct passwd *pw = getpwuid(getuid());
 
     const char* homedir = pw->pw_dir;
 
-    return std::string(homedir);
+    return fs::path{homedir};
 #endif
 }
 
-std::string budget::budget_folder() {
+fs::path budget::budget_folder() {
     if (auto it = configuration.find("directory"); it != configuration.end()) {
-        return it->second;
+        return fs::path{it->second};
     }
 
-    auto old_home = path_to_home_file(".budget");
-    if(file_exists(old_home)) {
+    if(auto old_home = path_to_home_file(".budget"); fs::exists(old_home)) {
         return old_home;
     }
 
     if(auto data_home = std::getenv("XDG_DATA_HOME")) {
-        return (fs::path{data_home} / "budget").string();
+        return fs::path{data_home} / "budget";
     }
 
-    return home_folder() + "/.local/share/budget";
+    return home_folder() / "/.local/share/budget";
 }
  
-std::string budget::path_to_home_file(std::string_view file) {
-    return (fs::path{home_folder()} / file).string();
+fs::path budget::path_to_home_file(std::string_view file) {
+    return home_folder() / file;
 }
 
-std::string budget::path_to_budget_file(std::string_view file) {
-    return (fs::path{budget_folder()} / file).string();
+fs::path budget::path_to_budget_file(std::string_view file) {
+    return budget_folder() / file;
 }
 
 bool budget::config_contains(std::string_view key){

@@ -124,7 +124,7 @@ struct data_handler {
         } else {
             auto file_path = path_to_budget_file(path);
 
-            if (!file_exists(file_path)) {
+            if (!std::filesystem::exists(file_path)) {
                 next_id = 1;
             } else {
                 std::ifstream file(file_path);
