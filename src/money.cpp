@@ -16,7 +16,7 @@
 
 using namespace budget;
 
-money budget::money_from_string(std::string money_string){
+money budget::money_from_string(std::string_view money_string){
     int dollars = 0;
     int cents = 0;
 
@@ -36,7 +36,7 @@ money budget::money_from_string(std::string money_string){
         }
     }
 
-    throw budget::budget_exception("\"" + money_string + "\" is not a valid amount of money");
+    throw budget::budget_exception("\"" + std::string(money_string) + "\" is not a valid amount of money");
 }
 
 std::string budget::money_to_string(const money& amount) {

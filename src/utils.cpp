@@ -51,22 +51,33 @@ unsigned short budget::terminal_height(){
 #endif
 }
 
-std::vector<std::string>& budget::split(const std::string& s, char delim, std::vector<std::string>& elems) {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
+std::vector<std::string>& budget::split(std::string_view s, char delim, std::vector<std::string>& elems) {
+    for (auto element : s | std::ranges::views::split(delim)) {
+        elems.emplace_back(std::string_view(element));
     }
     return elems;
 }
 
-std::vector<std::string> budget::split(const std::string& s, char delim) {
+std::vector<std::string> budget::split(std::string_view s, char delim) {
     std::vector<std::string> elems;
     split(s, delim, elems);
     return elems;
 }
 
-std::string budget::base64_decode(const std::string& in) {
+std::vector<std::string_view>& budget::splitv(std::string_view s, char delim, std::vector<std::string_view>& elems) {
+    for (auto element : s | std::ranges::views::split(delim)) {
+        elems.emplace_back(element);
+    }
+    return elems;
+}
+
+std::vector<std::string_view> budget::splitv(std::string_view s, char delim) {
+    std::vector<std::string_view> elems;
+    splitv(s, delim, elems);
+    return elems;
+}
+
+std::string budget::base64_decode(std::string_view in) {
     // table from '+' to 'z'
     const uint8_t lookup[] = {
         62, 255, 62, 255, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 255,
@@ -100,7 +111,7 @@ std::string budget::base64_decode(const std::string& in) {
     return out;
 }
 
-std::string budget::base64_encode(const std::string& in){
+std::string budget::base64_encode(std::string_view in){
     std::string out;
 
     std::string lookup = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -129,16 +140,16 @@ std::string budget::base64_encode(const std::string& in){
     return out;
 }
 
-std::string budget::html_base64_decode(const std::string& in) {
-    auto out = in;
+std::string budget::html_base64_decode(std::string_view in) {
+    std::string out(in);
 
     std::replace(out.begin(), out.end(), '_', '=');
 
     return base64_decode(out);
 }
 
-std::string budget::html_base64_encode(const std::string& in){
-    auto out = base64_encode(in);
+std::string budget::html_base64_encode(std::string_view in){
+    std::string out = base64_encode(in);
 
     std::replace(out.begin(), out.end(), '=', '_');
 

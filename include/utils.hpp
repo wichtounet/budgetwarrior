@@ -15,6 +15,9 @@
 #include <cctype>
 #include <locale>
 #include <iomanip>
+#include <charconv>
+
+#include "budget_exception.hpp"
 
 namespace budget {
 
@@ -24,11 +27,12 @@ namespace budget {
  * \return The converted text in the good type.
  */
 template <typename T>
-inline T to_number (const std::string& text) {
-    std::stringstream ss(text);
+inline T to_number(std::string_view text) {
     T result;
-    ss >> result;
-    return result;
+    if (auto [p, ec] = std::from_chars(text.data(), text.data() + text.size(), result); ec == std::errc()) {
+        return result;
+    }
+    throw budget::budget_exception("\"" + std::string(text) + "\" is not a valid number");
 }
 
 template<typename T>
@@ -58,13 +62,16 @@ void one_of(const std::string& value, const std::string& message, std::vector<st
 unsigned short terminal_width();
 unsigned short terminal_height();
 
-std::vector<std::string> split(const std::string &s, char delim);
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
+std::vector<std::string> split(std::string_view s, char delim);
+std::vector<std::string> &split(std::string_view s, char delim, std::vector<std::string> &elems);
 
-std::string base64_decode(const std::string& in);
-std::string base64_encode(const std::string& in);
+std::vector<std::string_view> splitv(std::string_view s, char delim);
+std::vector<std::string_view> &splitv(std::string_view s, char delim, std::vector<std::string_view> &elems);
 
-std::string html_base64_decode(const std::string& in);
-std::string html_base64_encode(const std::string& in);
+std::string base64_decode(std::string_view in);
+std::string base64_encode(std::string_view in);
+
+std::string html_base64_decode(std::string_view in);
+std::string html_base64_encode(std::string_view in);
 
 } //end of namespace budget

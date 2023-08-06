@@ -300,7 +300,7 @@ void budget::liability::load(data_reader & reader){
     std::string assets_parts_str;
     reader >> assets_parts_str;
 
-    auto assets_parts = split(assets_parts_str, ';');
+    auto assets_parts = splitv(assets_parts_str, ';');
     for (size_t i = 0; i + 1 < assets_parts.size(); i += 2) {
         auto id    = to_number<size_t>(assets_parts[i]);
         auto alloc = money_from_string(assets_parts[i + 1]);

@@ -26,7 +26,7 @@ struct currency_cache_key {
     std::string from;
     std::string to;
 
-    currency_cache_key(budget::date date, std::string from, std::string to) : date(date), from(from), to(to) {}
+    currency_cache_key(budget::date date, std::string_view from, std::string_view to) : date(date), from(from), to(to) {}
 
     friend bool operator<=>(const currency_cache_key & lhs, const currency_cache_key & rhs) = default;
 };
@@ -124,7 +124,7 @@ void budget::load_currency_cache(){
             continue;
         }
 
-        auto parts = split(line, ':');
+        auto parts = splitv(line, ':');
 
         currency_cache_key key(date_from_string(parts[0]), parts[1], parts[2]);
         exchanges[key] = {budget::to_number<double>(parts[3]), true};
