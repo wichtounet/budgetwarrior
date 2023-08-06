@@ -118,15 +118,7 @@ budget::data_reader& budget::data_reader::operator>>(int32_t& value) {
 budget::data_reader& budget::data_reader::operator>>(double& value) {
     auto part = pre_clean_number(parts.at(current));
 
-    // Note: Unfortunately, gcc is not c++17 complete for the library
-    // since from_chars double is not implemented, we need to use the old
-    // strtod here
-    char* start = part.data();
-    char* end   = start + part.size();
-
-    value = std::strtod(start, &end);
-
-    if (end != start + part.size()) {
+    if (auto [p, ec] = std::from_chars(part.data(), part.data() + part.size(), value); ec != std::errc() || p != part.data() + part.size()) {
         throw budget::budget_exception("\"" + parts.at(current) + "\" is not a valid double");
     }
 
