@@ -21,7 +21,7 @@ jobs:
         submodules: recursive
 
     - name: Install GCC compiler
-      run: sudo apt install g++-13 clang-16
+      run: sudo apt install g++-13
 
     - name: install LLVM compiler
       run: |
