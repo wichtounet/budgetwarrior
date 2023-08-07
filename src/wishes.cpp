@@ -421,31 +421,18 @@ void budget::estimate_wishes(budget::writer& w) {
             auto month_status = budget::compute_month_status(w.cache, day.year(), day.month());
             auto year_status  = budget::compute_year_status(w.cache, day.year(), day.month());
 
-            size_t monthly_breaks = 0;
-            size_t yearly_breaks  = 0;
-
             bool month_objective = true;
             bool year_objective  = true;
 
             for (auto& objective : w.cache.objectives()) {
                 if (objective.type == "monthly") {
-                    auto success_before = budget::compute_success(month_status, objective);
                     auto success_after  = budget::compute_success(month_status.add_expense(wish.amount), objective);
-
-                    if (success_before >= 100 && success_after < 100) {
-                        ++monthly_breaks;
-                    }
 
                     if (success_after < 100) {
                         month_objective = false;
                     }
                 } else if (objective.type == "yearly") {
-                    auto success_before = budget::compute_success(year_status, objective);
                     auto success_after  = budget::compute_success(year_status.add_expense(wish.amount), objective);
-
-                    if (success_before >= 100 && success_after < 100) {
-                        ++yearly_breaks;
-                    }
 
                     if (success_after < 100) {
                         year_objective = false;
@@ -491,17 +478,11 @@ void budget::estimate_wishes(budget::writer& w) {
             auto month_status = budget::compute_month_status(w.cache, day.year(), day.month());
             auto year_status  = budget::compute_year_status(w.cache, day.year(), day.month());
 
-            size_t monthly_breaks = 0;
             bool month_objective  = true;
 
             for (auto& objective : w.cache.objectives()) {
                 if (objective.type == "monthly") {
-                    auto success_before = budget::compute_success(month_status, objective);
                     auto success_after  = budget::compute_success(month_status.add_expense(wish.amount), objective);
-
-                    if (success_before >= 100 && success_after < 100) {
-                        ++monthly_breaks;
-                    }
 
                     if (success_after < 100) {
                         month_objective = false;
