@@ -53,7 +53,11 @@ unsigned short budget::terminal_height(){
 
 std::vector<std::string>& budget::split(std::string_view s, char delim, std::vector<std::string>& elems) {
     for (auto element : s | std::ranges::views::split(delim)) {
+#ifdef __clang__
+        elems.emplace_back(std::string_view(&*element.begin(), std::ranges::distance(element)));
+#else
         elems.emplace_back(std::string_view(element));
+#endif
     }
     return elems;
 }
@@ -66,7 +70,11 @@ std::vector<std::string> budget::split(std::string_view s, char delim) {
 
 std::vector<std::string_view>& budget::splitv(std::string_view s, char delim, std::vector<std::string_view>& elems) {
     for (auto element : s | std::ranges::views::split(delim)) {
+#ifdef __clang__
+        elems.emplace_back(&*element.begin(), std::ranges::distance(element));
+#else
         elems.emplace_back(element);
+#endif
     }
     return elems;
 }

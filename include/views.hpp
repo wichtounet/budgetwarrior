@@ -287,7 +287,16 @@ inline constexpr detail::not_zero_adaptor not_zero;
 template <std::ranges::range R>
 auto fold_left_auto(R&& r) {
     using type = std::ranges::range_value_t<R>;
+#ifdef __clang__
+    type value{};
+    for (const type & v : r) {
+        value += v;
+    }
+    return value;
+#else
+    // On GCC; we can simply use fold left
     return std::ranges::fold_left(std::forward<R>(r), type{}, std::plus<type>());
+#endif
 }
 
 // TODO(C+23) In the future, we can simply ranges::to<std::vector> but it is not yet implemented with GCC
