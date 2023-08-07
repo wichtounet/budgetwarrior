@@ -20,8 +20,15 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install compiler
+    - name: Install GCC compiler
       run: sudo apt install g++-13 clang-16
+
+    - name: install LLVM compiler
+      run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
+          sudo apt update
+          sudo apt install clang-16
 
     - name: Build binaries
       env:
