@@ -819,7 +819,7 @@ void budget::show_asset_portfolio(budget::writer& w){
     std::vector<std::string> columns = {"Name", "Total", "Currency", "Converted", "Allocation"};
     std::vector<std::vector<std::string>> contents;
 
-    const auto total = ranges::fold_left(w.cache.user_assets() | is_portfolio | to_value_conv(w.cache), budget::money(), std::plus<budget::money>());
+    const auto total = fold_left_auto(w.cache.user_assets() | is_portfolio | to_value_conv(w.cache));
 
     for (const auto& [asset, amount] : w.cache.user_assets() | is_portfolio | expand_value(w.cache) | not_zero) {
         auto conv_amount = amount * exchange_rate(asset.currency);
@@ -1183,7 +1183,7 @@ bool budget::edit_asset(const budget::asset& asset){
 
 budget::money budget::get_portfolio_value(){
     data_cache cache;
-    return ranges::fold_left(cache.user_assets() | is_portfolio | to_value_conv(cache), budget::money{}, std::plus<budget::money>());
+    return fold_left_auto(cache.user_assets() | is_portfolio | to_value_conv(cache));
 }
 
 budget::money budget::get_net_worth(data_cache & cache){
@@ -1191,8 +1191,8 @@ budget::money budget::get_net_worth(data_cache & cache){
 }
 
 budget::money budget::get_net_worth(budget::date d, data_cache & cache) {
-    return ranges::fold_left(cache.user_assets() | to_value_conv(cache, d), budget::money{}, std::plus<budget::money>())
-           - ranges::fold_left(cache.liabilities() | to_value_conv(cache, d), budget::money{}, std::plus<budget::money>());
+    return fold_left_auto(cache.user_assets() | to_value_conv(cache, d))
+           - fold_left_auto(cache.liabilities() | to_value_conv(cache, d));
 }
 
 budget::money budget::get_fi_net_worth(data_cache & cache){
@@ -1223,7 +1223,7 @@ budget::money budget::get_fi_net_worth(budget::date d, data_cache & cache) {
 
 budget::money budget::get_net_worth_cash(){
     data_cache cache;
-    return ranges::fold_left(cache.user_assets() | is_cash | to_value_conv(cache), budget::money{}, std::plus<budget::money>());
+    return fold_left_auto(cache.user_assets() | is_cash | to_value_conv(cache));
 }
 
 namespace {
