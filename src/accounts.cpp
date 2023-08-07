@@ -429,7 +429,7 @@ void budget::set_accounts_next_id(size_t next_id){
 }
 
 std::vector<std::string> budget::all_account_names(){
-    return to_vector(accounts.data() | active_today | to_name | views::as_rvalue);
+    return to_vector(accounts.data() | active_today | to_name);
 }
 
 void budget::show_accounts(budget::writer& w){

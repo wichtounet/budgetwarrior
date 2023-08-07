@@ -37,11 +37,11 @@ namespace {
 static data_handler<asset> assets { "assets", "assets.data" };
 
 std::vector<std::string> get_asset_names(data_cache& cache) {
-    return to_vector(cache.user_assets() | to_name | views::as_rvalue);
+    return to_vector(cache.user_assets() | to_name);
 }
 
 std::vector<std::string> get_share_asset_names(data_cache& cache) {
-    return to_vector(cache.user_assets() | share_based_only | to_name | views::as_rvalue);
+    return to_vector(cache.user_assets() | share_based_only | to_name);
 }
 
 } //end of anonymous namespace
