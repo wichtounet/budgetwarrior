@@ -12,7 +12,7 @@ jobs:
     strategy:
         matrix:
             os: [ubuntu-latest]
-            compiler: [g++-13]
+            compiler: [g++-13,clang++-16]
 
     steps:
     - name: Checkout code
@@ -21,7 +21,7 @@ jobs:
         submodules: recursive
 
     - name: Install compiler
-      run: sudo apt install ${{ matrix.compiler }}
+      run: sudo apt install g++-13 clang-16
 
     - name: Build binaries
       env:
