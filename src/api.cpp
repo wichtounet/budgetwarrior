@@ -28,7 +28,7 @@ budget::api_response base_api_get(Cli& cli, const std::string& api) {
 
     httplib::Request req;
     req.method = "GET";
-    req.path = api_complete.c_str();
+    req.path = api_complete;
 
     req.set_header("Accept", "*/*");
     req.set_header("User-Agent", "cpp-httplib/0.1");
@@ -37,7 +37,7 @@ budget::api_response base_api_get(Cli& cli, const std::string& api) {
         auto user = budget::get_web_user();
         auto password = budget::get_web_password();
 
-        std::string authorization = "Basic " + budget::base64_encode(user + ":" + password);
+        std::string const authorization = "Basic " + budget::base64_encode(user + ":" + password);
         req.set_header("Authorization", authorization.c_str());
     }
 
@@ -55,16 +55,16 @@ budget::api_response base_api_get(Cli& cli, const std::string& api) {
         LOG_F(ERROR, "API: {}:{}/{}", server, server_port, api_complete);
 
         return {false, ""};
-    } else if (res->status != 200) {
+    }
+    if (res->status != 200) {
         LOG_F(ERROR, "Request from the API failed");
         LOG_F(ERROR, "API: {}:{}/{}", server, server_port, api_complete);
         LOG_F(ERROR, "Status: {}", res->status);
         LOG_F(ERROR, "Content: {}", res->body);
 
         return {false, ""};
-    } else {
-        return {true, res->body};
     }
+    return {true, res->body};
 }
 
 template<typename Cli>
@@ -75,7 +75,7 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
     const std::string api_complete = "/api" + api;
 
     std::string query;
-    for (auto & [key, value] : params) {
+    for (const auto& [key, value] : params) {
         if (!query.empty()) {
             query += "&";
         }
@@ -91,7 +91,7 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
 
     httplib::Request req;
     req.method = "POST";
-    req.path = api_complete.c_str();
+    req.path = api_complete;
 
     req.set_header("Host", (server + ":" + std::to_string(server_port)).c_str());
     req.set_header("Accept", "*/*");
@@ -121,16 +121,18 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
         LOG_F(ERROR, "API: {}:{}/{}", server, server_port, api_complete);
 
         return {false, ""};
-    } else if (res->status != 200) {
+    }
+
+    if (res->status != 200) {
         LOG_F(ERROR, "Request from the API failed");
         LOG_F(ERROR, "API: {}:{}/{}", server, server_port, api_complete);
         LOG_F(ERROR, "Status: {}", res->status);
         LOG_F(ERROR, "Content: {}", res->body);
 
         return {false, ""};
-    } else {
-        return {true, res->body};
     }
+
+    return {true, res->body};
 }
 
 } // end of anonymous namespace
@@ -143,13 +145,11 @@ budget::api_response budget::api_get(const std::string& api) {
 
     if (is_server_ssl()) {
         httplib::SSLClient cli(server.c_str(), server_port);
-
-        return base_api_get(cli, api);
-    } else {
-        httplib::Client cli(server.c_str(), server_port);
-
         return base_api_get(cli, api);
     }
+
+    httplib::Client cli(server.c_str(), server_port);
+    return base_api_get(cli, api);
 }
 
 budget::api_response budget::api_post(const std::string& api, const std::map<std::string, std::string>& params) {
@@ -158,13 +158,11 @@ budget::api_response budget::api_post(const std::string& api, const std::map<std
     auto server      = config_value("server_url");
     auto server_port = budget::get_server_port();
 
-    if(is_server_ssl()){
+    if (is_server_ssl()) {
         httplib::SSLClient cli(server.c_str(), server_port);
-
-        return base_api_post(cli, api, params);
-    } else {
-        httplib::Client cli(server.c_str(), server_port);
-
         return base_api_post(cli, api, params);
     }
+
+    httplib::Client cli(server.c_str(), server_port);
+    return base_api_post(cli, api, params);
 }

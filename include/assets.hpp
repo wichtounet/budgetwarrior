@@ -44,7 +44,7 @@ struct asset_class {
     std::map<std::string, std::string> get_params() const ;
 
     void load(data_reader& reader);
-    void save(data_writer & writer);
+    void save(data_writer& writer) const;
 };
 
 budget::asset_class get_asset_class(size_t id);
@@ -121,7 +121,7 @@ struct asset_value {
     std::map<std::string, std::string> get_params() const ;
 
     void load(data_reader& reader);
-    void save(data_writer & writer);
+    void save(data_writer& writer) const;
 };
 
 // Used to indicate purchase of shares
@@ -136,7 +136,7 @@ struct asset_share {
     std::map<std::string, std::string> get_params() const ;
 
     void load(data_reader& reader);
-    void save(data_writer & writer);
+    void save(data_writer& writer) const;
 
     bool is_buy() const {
         return shares >= 0;

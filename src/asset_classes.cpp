@@ -16,12 +16,9 @@
 
 using namespace budget;
 
-namespace ranges = std::ranges;
-namespace views = std::ranges::views;
-
 namespace {
 
-static data_handler<asset_class> asset_classes { "asset_classes", "asset_classes.data" };
+data_handler<asset_class> asset_classes{"asset_classes", "asset_classes.data"};
 
 } //end of anonymous namespace
 
@@ -55,7 +52,7 @@ budget::asset_class budget::get_asset_class(std::string_view name){
     cpp_unreachable("The asset class does not exist");
 }
 
-void budget::asset_class::save(data_writer & writer){
+void budget::asset_class::save(data_writer& writer) const {
     writer << id;
     writer << guid;
     writer << name;
@@ -86,7 +83,7 @@ void budget::set_asset_class_next_id(size_t next_id){
 }
 
 void budget::show_asset_classes(budget::writer& w){
-    if (!asset_classes.size()) {
+    if (asset_classes.empty()) {
         w << "No asset classes" << end_of_line;
         return;
     }
@@ -145,7 +142,7 @@ void budget::update_asset_class_allocation(budget::asset& asset, budget::asset_c
 }
 
 budget::money budget::get_asset_class_allocation(const budget::asset& asset, const budget::asset_class & clas) {
-    for (auto & [class_id, class_alloc] : asset.classes) {
+    for (const auto& [class_id, class_alloc] : asset.classes) {
         if (class_id == clas.id) {
             return class_alloc;
         }

@@ -23,7 +23,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<asset_value> asset_values { "asset_values", "asset_values.data" };
+data_handler<asset_value> asset_values{"asset_values", "asset_values.data"};
 
 } //end of anonymous namespace
 
@@ -52,7 +52,7 @@ budget::asset_value budget::get_asset_value(size_t id){
     return asset_values[id];
 }
 
-void budget::asset_value::save(data_writer & writer){
+void budget::asset_value::save(data_writer& writer) const {
     writer << id;
     writer << guid;
     writer << asset_id;
@@ -120,7 +120,7 @@ bool budget::edit_asset_value(asset_value& asset_value) {
 }
 
 void budget::list_asset_values(budget::writer& w, bool liability){
-    if (!asset_values.size()) {
+    if (asset_values.empty()) {
         w << "No asset values" << end_of_line;
         return;
     }

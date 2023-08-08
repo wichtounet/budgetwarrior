@@ -16,12 +16,12 @@ std::vector<std::string> budget::parse_args(int argc, const char* argv[], const 
     std::vector<std::string> args;
 
     for(int i = 0; i < argc - 1; ++i){
-        std::string arg(argv[i+1]);
+        std::string const arg(argv[i + 1]);
 
         if(i == 0){
             bool found_alias = false;
 
-            for(auto& [alias_source, alias_target] : aliases){
+            for (const auto& [alias_source, alias_target] : aliases) {
                 if(alias_source == arg){
                     auto parts = split(alias_target, ' ');
 

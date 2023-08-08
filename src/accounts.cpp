@@ -25,14 +25,11 @@
 
 using namespace budget;
 
-namespace ranges = std::ranges;
-namespace views = std::ranges::views;
-
 namespace {
 
-static data_handler<account> accounts { "accounts", "accounts.data" };
+data_handler<account> accounts { "accounts", "accounts.data" };
 
-size_t get_account_id(std::string name, budget::year year, budget::month month){
+size_t get_account_id(std::string_view name, budget::year year, budget::month month){
     for (const auto& account : accounts.data() | filter_by_name(name) | active_at_date({year, month, 5})) {
         return account.id;
     }
@@ -135,7 +132,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_accounts(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "show"){
             show_accounts(w);
@@ -249,7 +246,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             earning.date = budget::local_day();
             earning.name = name;
             earning.amount = amount;
-            earning.account = get_account(to_name, expense.date.year(), expense.date.month()).id;
+            earning.account = get_account(to_name, earning.date.year(), earning.date.month()).id;
 
             add_earning(std::move(earning));
         } else if(subcommand == "migrate"){
@@ -332,7 +329,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             bool month = true;
 
             if(args.size() == 3){
-                auto& sub_sub_command = args[2];
+                const auto& sub_sub_command = args[2];
 
                 if(sub_sub_command == "month"){
                     month = true;
@@ -373,7 +370,7 @@ budget::account budget::get_account(size_t id){
     return accounts[id];
 }
 
-budget::account budget::get_account(std::string name, budget::year year, budget::month month){
+budget::account budget::get_account(std::string_view name, budget::year year, budget::month month) {
     for (const auto& account : accounts.data() | active_at_date({year, month, 5}) | filter_by_name(name)) {
         return account;
     }
@@ -381,7 +378,7 @@ budget::account budget::get_account(std::string name, budget::year year, budget:
     cpp_unreachable("The account does not exist");
 }
 
-void budget::account::save(data_writer & writer){
+void budget::account::save(data_writer& writer) const {
     writer << id;
     writer << guid;
     writer << name;
@@ -449,7 +446,7 @@ void budget::show_accounts(budget::writer& w){
     // Display the accounts
 
     for(const auto& account : w.cache.accounts() | only_open_ended){
-        float part = 100.0 * (account.amount.value / float(total.value));
+        const float part = 100.0 * (account.amount.value / float(total.value));
 
         char buffer[32];
         snprintf(buffer, 32, "%.2f%%", part);

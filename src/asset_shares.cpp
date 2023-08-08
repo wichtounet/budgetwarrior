@@ -18,7 +18,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<asset_share> asset_shares { "asset_shares", "asset_shares.data" };
+data_handler<asset_share> asset_shares{"asset_shares", "asset_shares.data"};
 
 } //end of anonymous namespace
 
@@ -47,7 +47,7 @@ budget::asset_share budget::get_asset_share(size_t id) {
     return asset_shares[id];
 }
 
-void budget::asset_share::save(data_writer & writer){
+void budget::asset_share::save(data_writer& writer) const {
     writer << id;
     writer << guid;
     writer << asset_id;
@@ -114,7 +114,7 @@ bool budget::edit_asset_share(asset_share& c) {
 }
 
 void budget::list_asset_shares(budget::writer& w){
-    if (!asset_shares.size()) {
+    if (asset_shares.empty()) {
         w << "No asset shares" << end_of_line;
         return;
     }

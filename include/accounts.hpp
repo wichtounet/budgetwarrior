@@ -44,7 +44,7 @@ struct account {
     std::map<std::string, std::string> get_params() const ;
 
     void load(data_reader & reader);
-    void save(data_writer & writer);
+    void save(data_writer& writer) const;
 };
 
 void load_accounts();
@@ -61,7 +61,7 @@ std::vector<budget::account> all_accounts(data_cache & cache, year year, month m
 std::vector<budget::account> current_accounts(data_cache & cache);
 
 budget::account get_account(size_t id);
-budget::account get_account(std::string name, year year, month month);
+budget::account get_account(std::string_view name, year year, month month);
 
 void set_accounts_changed();
 void set_accounts_next_id(size_t next_id);
