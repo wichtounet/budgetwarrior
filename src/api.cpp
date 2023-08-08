@@ -24,7 +24,7 @@ budget::api_response base_api_get(Cli& cli, const std::string& api) {
     auto server      = budget::config_value("server_url");
     auto server_port = budget::get_server_port();
 
-    std::string api_complete = "/api" + api;
+    const std::string api_complete = "/api" + api;
 
     httplib::Request req;
     req.method = "GET";
@@ -72,7 +72,7 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
     auto server      = budget::config_value("server_url");
     auto server_port = budget::get_server_port();
 
-    std::string api_complete = "/api" + api;
+    const std::string api_complete = "/api" + api;
 
     std::string query;
     for (auto & [key, value] : params) {
