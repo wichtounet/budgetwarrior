@@ -29,12 +29,9 @@
 
 using namespace budget;
 
-namespace ranges = std::ranges;
-namespace views = std::ranges::views;
-
 namespace {
 
-static data_handler<asset> assets { "assets", "assets.data" };
+data_handler<asset> assets{"assets", "assets.data"};
 
 std::vector<std::string> get_asset_names(data_cache& cache) {
     return to_vector(cache.user_assets() | to_name);
@@ -60,7 +57,7 @@ std::map<std::string, std::string> budget::asset::get_params() const {
     params["input_active"]          = active ? "true" : "false";
 
     // The asset classes allocation
-    for (auto & [clas_id, alloc] : classes) {
+    for (const auto& [clas_id, alloc] : classes) {
         params["input_class_" + to_string(clas_id)] = budget::to_string(alloc);
     }
 
@@ -81,7 +78,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_assets(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "show"){
             show_assets(w);
@@ -250,7 +247,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             if(args.size() == 2){
                 budget::show_asset_classes(w);
             } else {
-                auto& subsubcommand = args[2];
+                const auto& subsubcommand = args[2];
 
                 if(subsubcommand == "add"){
                     asset_class clas;
@@ -318,7 +315,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             if(args.size() == 2){
                 budget::show_asset_values(w);
             } else {
-                auto& subsubcommand = args[2];
+                const auto& subsubcommand = args[2];
 
                 if(subsubcommand == "set"){
                     asset_value asset_value;
@@ -372,7 +369,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 } else if (subsubcommand == "delete") {
                     enough_args(args, 4);
 
-                    size_t id = to_number<size_t>(args[3]);
+                    const auto id = to_number<size_t>(args[3]);
 
                     auto value = get_asset_value(id);
 
@@ -391,7 +388,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
             if (args.size() == 2) {
                 list_asset_shares(w);
             } else {
-                auto& subsubcommand = args[2];
+                const auto& subsubcommand = args[2];
 
                 if (subsubcommand == "add") {
                     if (get_share_asset_names(w.cache).empty()) {
@@ -421,13 +418,13 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 } else if (subsubcommand == "test") {
                     enough_args(args, 4);
 
-                    auto quote = args[3];
+                    const auto& quote = args[3];
 
                     std::cout << quote << ":" << budget::share_price(quote) << std::endl;
                 } else if(subsubcommand == "edit"){
                     enough_args(args, 4);
 
-                    size_t id = to_number<size_t>(args[3]);
+                    const auto id = to_number<size_t>(args[3]);
 
                     if (!asset_share_exists(id)) {
                         throw budget_exception("There are no asset share with id " + args[3]);
@@ -449,7 +446,7 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 } else if (subsubcommand == "delete") {
                     enough_args(args, 4);
 
-                    size_t id = to_number<size_t>(args[3]);
+                    const auto id = to_number<size_t>(args[3]);
 
                     if (!asset_share_exists(id)) {
                         throw budget_exception("There are no asset share with id " + args[3]);
@@ -506,7 +503,7 @@ budget::asset budget::get_asset(size_t id){
     return assets[id];
 }
 
-budget::asset budget::get_asset(std::string name){
+budget::asset budget::get_asset(std::string_view name) {
     for (auto& asset : assets.data() | filter_by_name(name)){
         return asset;
     }
@@ -705,9 +702,8 @@ std::vector<asset> budget::all_assets(){
 budget::date budget::asset_start_date(data_cache& cache, const budget::asset& asset) {
     if (asset.share_based) {
         return min_with_default(cache.asset_shares() | filter_by_asset(asset.id) | to_date, budget::local_day());
-    } else {
-        return min_with_default(cache.asset_values() | filter_by_asset(asset.id) | to_date, budget::local_day());
     }
+    return min_with_default(cache.asset_values() | filter_by_asset(asset.id) | to_date, budget::local_day());
 }
 
 budget::date budget::asset_start_date(data_cache & cache) {
@@ -747,7 +743,7 @@ std::string to_percent(double p){
 }
 
 void budget::show_assets(budget::writer& w){
-    if (!assets.size()) {
+    if (assets.empty()) {
         w << "No assets" << end_of_line;
         return;
     }
@@ -956,7 +952,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             for (auto& clas : w.cache.asset_classes()) {
                 bool found = false;
 
-                for (auto& [class_id, alloc] : asset.classes) {
+                for (const auto& [class_id, alloc] : asset.classes) {
                     if (class_id == clas.id) {
                         auto class_amount = amount * (float(alloc) / 100.0);
                         line.emplace_back(to_string(class_amount));
@@ -1062,7 +1058,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         auto liabilities = w.cache.liabilities();
 
-        if (liabilities.size()) {
+        if (!liabilities.empty()) {
             contents.emplace_back(columns.size(), "");
 
             for (const auto& [liability, amount] : liabilities | expand_value(w.cache) | not_zero) {
@@ -1098,7 +1094,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         }
 
-        budget::money net_worth = assets_total - liabilities_total;
+        budget::money const net_worth = assets_total - liabilities_total;
 
         {
             std::vector<std::string> line(columns.size(), "");
@@ -1123,7 +1119,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         std::vector<std::vector<std::string>> contents;
 
-        std::map<std::string, budget::money> classes;
+        const std::map<std::string, budget::money> classes;
 
         budget::money total;
 
@@ -1190,7 +1186,7 @@ budget::money budget::get_net_worth(data_cache & cache){
     return get_net_worth(budget::local_day(), cache);
 }
 
-budget::money budget::get_net_worth(budget::date d, data_cache & cache) {
+budget::money budget::get_net_worth(const budget::date& d, data_cache& cache) {
     return fold_left_auto(cache.user_assets() | to_value_conv(cache, d))
            - fold_left_auto(cache.liabilities() | to_value_conv(cache, d));
 }
@@ -1199,11 +1195,11 @@ budget::money budget::get_fi_net_worth(data_cache & cache){
     return get_fi_net_worth(budget::local_day(), cache);
 }
 
-budget::money budget::get_fi_net_worth(budget::date d, data_cache & cache) {
+budget::money budget::get_fi_net_worth(const budget::date& d, data_cache& cache) {
     budget::money total;
 
     for (const auto& [asset, value] : cache.user_assets() | is_fi | expand_value_conv(cache, d)) {
-        for (auto& [class_id, alloc] : asset.classes) {
+        for (const auto& [class_id, alloc] : asset.classes) {
             if (get_asset_class(class_id).fi) {
                 total += value * (float(alloc) / float(100));
             }
@@ -1211,7 +1207,7 @@ budget::money budget::get_fi_net_worth(budget::date d, data_cache & cache) {
     }
 
     for (const auto& [asset, value] : cache.liabilities() | is_fi | expand_value_conv(cache, d)) {
-        for (auto& [class_id, alloc] : asset.classes) {
+        for (const auto& [class_id, alloc] : asset.classes) {
             if (get_asset_class(class_id).fi) {
                 total -= value * (float(alloc) / float(100));
             }
@@ -1228,7 +1224,7 @@ budget::money budget::get_net_worth_cash(){
 
 namespace {
 
-int get_shares(const budget::asset& asset, budget::date d, data_cache & cache) {
+int get_shares(const budget::asset& asset, const budget::date& d, data_cache& cache) {
     int64_t shares = 0;
 
     for (auto& asset_share : cache.sorted_asset_shares()) {
@@ -1252,9 +1248,9 @@ int get_shares(const budget::asset& asset, budget::date d, data_cache & cache) {
 // 2) If this becomes too high, we can also store the value an asset id for each
 //    possible date (in one pass of all asset values of an asset)
 
-budget::money budget::get_asset_value(const budget::asset & asset, budget::date d, data_cache & cache) {
+budget::money budget::get_asset_value(const budget::asset& asset, const budget::date& d, data_cache& cache) {
     if (asset.share_based) [[unlikely]] {
-        int64_t shares = get_shares(asset, d, cache);
+        const int64_t shares = get_shares(asset, d, cache);
 
         if (shares > 0) {
             return static_cast<int>(shares) * share_price(asset.ticker, d);
@@ -1287,33 +1283,32 @@ budget::money budget::get_asset_value_conv(const budget::asset & asset, data_cac
     return get_asset_value_conv(asset, budget::local_day(), cache);
 }
 
-budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d, data_cache & cache) {
+budget::money budget::get_asset_value_conv(const budget::asset& asset, const budget::date& d, data_cache& cache) {
     auto amount = get_asset_value(asset, d, cache);
 
     if (amount) {
         return amount * exchange_rate(asset.currency, d);
-    } else {
-        return amount;
     }
+    return amount;
 }
 
 budget::money budget::get_asset_value_conv(const budget::asset & asset, const std::string& currency, data_cache & cache) {
     return get_asset_value_conv(asset, budget::local_day(), currency, cache);
 }
 
-budget::money budget::get_asset_value_conv(const budget::asset & asset, budget::date d, const std::string& currency, data_cache & cache) {
+budget::money budget::get_asset_value_conv(const budget::asset& asset, const budget::date& d,
+                                           const std::string& currency, data_cache& cache) {
     auto amount = get_asset_value(asset, d, cache);
 
     if (amount) {
         return amount * exchange_rate(asset.currency, currency, d);
-    } else {
-        return amount;
     }
+    return amount;
 }
 
 bool budget::is_ticker_active(data_cache & cache, std::string_view ticker) {
     for (auto & asset : cache.assets() | share_based_only | filter_by_ticker(ticker)) {
-        int64_t shares = get_shares(asset, local_day(), cache);
+        const int64_t shares = get_shares(asset, local_day(), cache);
 
         if (shares > 0) {
             return true;

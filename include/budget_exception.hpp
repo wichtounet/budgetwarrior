@@ -14,7 +14,7 @@ namespace budget {
 struct budget_exception : std::exception {
     budget_exception(std::string message, bool should_log = false);
 
-    ~budget_exception() throw();
+    ~budget_exception() noexcept = default;
 
     /*!
      * Return the error message.

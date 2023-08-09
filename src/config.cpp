@@ -47,7 +47,7 @@ struct transparent_string_hash {
         return hash_type{}(str);
     }
 
-    std::size_t operator()(std::string const& str) const {
+    std::size_t operator()(const std::string& str) const {
         return hash_type{}(str);
     }
 };
@@ -101,7 +101,7 @@ bool load_configuration(const fs::path & path, config_type& configuration){
 void save_configuration(const fs::path& path, const config_type& configuration){
     std::ofstream file(path);
 
-    for(auto& [key, value] : configuration){
+    for (const auto& [key, value] : configuration) {
         file << key << "=" << value << std::endl;
     }
 }
@@ -126,11 +126,11 @@ bool verify_folder(){
                 std::cout << "The folder " << folder_path << " was created. " << std::endl;
 
                 return true;
-            } else {
-                std::cout << "Impossible to create the folder " << folder_path << std::endl;
-
-                return false;
             }
+            std::cout << "Impossible to create the folder " << folder_path << std::endl;
+
+            return false;
+
         } else {
             return false;
         }
@@ -170,7 +170,7 @@ bool budget::load_config() {
 
 void budget::save_config() {
     if (internal != internal_bak) {
-        server_lock_guard l(internal_config_lock);
+        const server_lock_guard l(internal_config_lock);
 
         save_configuration(path_to_budget_file("config"), internal);
 
@@ -186,7 +186,7 @@ fs::path budget::config_file() {
     }
 
     fs::path config_home;
-    if(auto xdg_config_home = std::getenv("XDG_CONFIG_HOME")) {
+    if (auto* xdg_config_home = std::getenv("XDG_CONFIG_HOME")) {
         config_home = fs::path{xdg_config_home};
     } else {
         config_home = fs::path{home_folder()} / ".config";
@@ -221,7 +221,7 @@ fs::path budget::budget_folder() {
         return old_home;
     }
 
-    if(auto data_home = std::getenv("XDG_DATA_HOME")) {
+    if (auto* data_home = std::getenv("XDG_DATA_HOME")) {
         return fs::path{data_home} / "budget";
     }
 
@@ -293,7 +293,7 @@ bool budget::user_config_value_bool(std::string_view key, bool def) {
 }
 
 bool budget::internal_config_contains(std::string_view key){
-    server_lock_guard l(internal_config_lock);
+    const server_lock_guard l(internal_config_lock);
     return internal.find(key) != internal.end();
 }
 
@@ -304,7 +304,7 @@ std::string budget::internal_config_value(std::string_view key){
 }
 
 void budget::internal_config_set(std::string_view key, std::string_view value){
-    server_lock_guard l(internal_config_lock);
+    const server_lock_guard l(internal_config_lock);
     auto              it = internal.find(key);
     if (it != internal.end()) {
         it->second = value;
@@ -314,7 +314,7 @@ void budget::internal_config_set(std::string_view key, std::string_view value){
 }
 
 void budget::internal_config_remove(std::string_view key){
-    server_lock_guard l(internal_config_lock);
+    const server_lock_guard l(internal_config_lock);
     auto              it = internal.find(key);
     if (it != internal.end()) {
         internal.erase(it);

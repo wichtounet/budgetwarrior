@@ -116,7 +116,7 @@ struct module_runner {
     std::vector<std::string> args;
     bool handled = false;
 
-    module_runner(std::vector<std::string>&& args) : args(std::forward<std::vector<std::string>>(args)) {
+    explicit module_runner(std::vector<std::string>&& args) : args(std::forward<std::vector<std::string>>(args)) {
         //Nothing to init
     }
 
@@ -179,7 +179,7 @@ std::string exec_command(const std::string& command) {
 
     FILE* stream = popen(command.c_str(), "r");
 
-    while (fgets(buffer, 1024, stream) != NULL) {
+    while (fgets(buffer, 1024, stream) != nullptr) {
         output << buffer;
     }
 
@@ -198,7 +198,7 @@ bool has_enough_colors(){
 } //end of anonymous namespace
 
 int main(int argc, const char* argv[]) {
-    std::locale global_locale("");
+    const std::locale global_locale("");
     std::locale::global(global_locale);
 
     budget::init_logging(argc, const_cast<char**>(argv));

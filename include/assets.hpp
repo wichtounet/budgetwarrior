@@ -181,7 +181,7 @@ bool asset_exists(const std::string& asset);
 bool share_asset_exists(const std::string& asset);
 
 budget::asset get_asset(size_t id);
-budget::asset get_asset(std::string name);
+budget::asset get_asset(std::string_view name);
 
 budget::asset_value get_asset_value(size_t id);
 budget::asset_share get_asset_share(size_t id);
@@ -237,22 +237,23 @@ budget::money get_portfolio_value();
 budget::money get_net_worth_cash();
 
 budget::money get_net_worth(data_cache & cache);
-budget::money get_net_worth(budget::date d, data_cache & cache);
+budget::money get_net_worth(const budget::date& d, data_cache& cache);
 
 budget::money get_fi_net_worth(data_cache & cache);
-budget::money get_fi_net_worth(budget::date d, data_cache & cache);
+budget::money get_fi_net_worth(const budget::date& d, data_cache& cache);
 
 // The value of an asset in its own currency
 budget::money get_asset_value(const budget::asset & asset, data_cache & cache);
-budget::money get_asset_value(const budget::asset & asset, budget::date d, data_cache & cache);
+budget::money get_asset_value(const budget::asset& asset, const budget::date& d, data_cache& cache);
 
 // The value of an asset in the default currency
 budget::money get_asset_value_conv(const budget::asset & asset, data_cache & cache);
-budget::money get_asset_value_conv(const budget::asset & asset, budget::date d, data_cache & cache);
+budget::money get_asset_value_conv(const budget::asset& asset, const budget::date& d, data_cache& cache);
 
 // The value of an asset in a specific currency
 budget::money get_asset_value_conv(const budget::asset & asset, const std::string& currency, data_cache & cache);
-budget::money get_asset_value_conv(const budget::asset & asset, budget::date d, const std::string& currency, data_cache & cache);
+budget::money get_asset_value_conv(const budget::asset& asset, const budget::date& d, const std::string& currency,
+                                   data_cache& cache);
 
 // Utilities for assets
 void update_asset_class_allocation(budget::asset& asset, budget::asset_class & clas, budget::money alloc);
