@@ -17,10 +17,14 @@
 
 namespace budget {
 
+/* Ideally, this should be mostly rewritten in terms of std::chrono::year_month_day
+ * However, this would require many changes since each conversion must be explicit and many operators are missing
+ */
+
 using date_type = unsigned short;
 
 struct date_exception : std::exception {
-    date_exception(const std::string& message) : message_(message) {}
+    explicit date_exception(std::string  message) : message_(std::move(message)) {}
 
     /*!
      * Return the error message.
@@ -30,7 +34,7 @@ struct date_exception : std::exception {
         return message_;
     }
 
-    virtual const char* what() const throw() {
+    const char* what() const noexcept override {
         return message_.c_str();
     }
 
@@ -41,6 +45,7 @@ protected:
 struct day {
     date_type value;
     day(date_type value) : value(value) {}
+
     operator date_type() const { return value; }
 
     bool is_default() const {
@@ -50,7 +55,9 @@ struct day {
 
 struct month {
     date_type value;
+
     month(date_type value) : value(value) {}
+
     operator date_type() const { return value; }
 
     month& operator=(date_type value){
@@ -168,15 +175,15 @@ struct date {
     }
 
     budget::year year() const {
-        return _year;
+        return budget::year{_year};
     }
 
     budget::month month() const {
-        return _month;
+        return budget::month{_month};
     }
 
     budget::day day() const {
-        return _day;
+        return budget::day{_day};
     }
 
     // The number of days of this year until today
@@ -211,15 +218,15 @@ struct date {
 
     // ISO-8601 Week Number
     size_t iso_week() const {
-        int doy      = day_of_year();
-        int dow      = day_of_the_week() - 1;
-        int dowFirst = date(_year, 1, 1).day_of_the_week() - 1;
+        const int doy      = day_of_year();
+        const int dow      = day_of_the_week() - 1;
+        const int dowFirst = date(_year, 1, 1).day_of_the_week() - 1;
 
         if (dow < dowFirst) {
             return (doy + 6) / 7 + 1;
-        } else {
-            return (doy + 6) / 7;
         }
+
+        return (doy + 6) / 7;
     }
 
     date iso_start_of_week() const {
