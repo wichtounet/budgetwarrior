@@ -50,7 +50,7 @@ struct objective {
     std::map<std::string, std::string> get_params() const ;
 
     void load(data_reader & reader);
-    void save(data_writer & writer);
+    void save(data_writer& writer) const;
 };
 
 void yearly_objective_status(budget::writer& w, bool lines, bool full_align);

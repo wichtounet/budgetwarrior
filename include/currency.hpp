@@ -14,9 +14,9 @@ namespace budget {
 struct date;
 
 double exchange_rate(const std::string& from);
-double exchange_rate(const std::string& from, budget::date d);
+double exchange_rate(const std::string& from, const budget::date& d);
 double exchange_rate(const std::string& from, const std::string& to);
-double exchange_rate(const std::string& from, const std::string& to, budget::date d);
+double exchange_rate(const std::string& from, const std::string& to, const budget::date& d);
 
 void load_currency_cache();
 void save_currency_cache();

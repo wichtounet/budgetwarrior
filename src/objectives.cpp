@@ -27,7 +27,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<objective> objectives { "objectives", "objectives.data" };
+data_handler<objective> objectives{"objectives", "objectives.data"};
 
 void edit(budget::objective& objective){
     edit_string(objective.name, "Name", not_empty_checker());
@@ -112,7 +112,7 @@ void budget::monthly_objective_status(budget::writer& w){
         std::vector<std::vector<std::string>> contents;
 
         for (unsigned short i = sm; i <= current_month; ++i) {
-            budget::month month = i;
+            budget::month const month = i;
 
             // Compute the month status
             auto status = budget::compute_month_status(w.cache, current_year, month);
@@ -222,7 +222,7 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
         console_writer w(std::cout);
         status_objectives(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "list"){
             console_writer w(std::cout);
@@ -242,7 +242,7 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             if (objectives.remove(id)) {
                 std::cout << "Goal " << id << " has been deleted" << std::endl;
@@ -252,7 +252,7 @@ void budget::objectives_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             auto objective = objectives[id];
 
@@ -275,7 +275,7 @@ void budget::save_objectives(){
     objectives.save();
 }
 
-void budget::objective::save(data_writer & writer){
+void budget::objective::save(data_writer& writer) const {
     writer << id;
     writer << guid;
     writer << name;
@@ -316,7 +316,7 @@ void budget::set_objectives_next_id(size_t next_id){
 void budget::list_objectives(budget::writer& w){
     w << title_begin << "Goals " << add_button("objectives") << title_end;
 
-    if (objectives.size() == 0) {
+    if (objectives.empty()) {
         w << "No goals" << end_of_line;
     } else {
         std::vector<std::string> columns = {"ID", "Name", "Type", "Source", "Operator", "Amount", "Edit"};
@@ -333,7 +333,7 @@ void budget::list_objectives(budget::writer& w){
 void budget::status_objectives(budget::writer& w){
     w << title_begin << "Goals " << add_button("objectives") << title_end;
 
-    if(objectives.size() == 0){
+    if (objectives.empty()) {
         w << "No goals" << end_of_line;
     } else {
         auto today = budget::local_day();

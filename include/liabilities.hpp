@@ -68,7 +68,7 @@ void save_liabilities();
 void show_liabilities(budget::writer& w);
 
 budget::liability get_liability(size_t id);
-budget::liability get_liability(std::string name);
+budget::liability get_liability(const std::string& name);
 
 std::vector<budget::liability> all_liabilities();
 
@@ -90,15 +90,16 @@ void migrate_liabilities_6_to_7();
 
 // The value of a liability in its own currency
 budget::money get_liability_value(budget::liability & liability, data_cache & cache);
-budget::money get_liability_value(budget::liability & liability, budget::date d, data_cache & cache);
+budget::money get_liability_value(budget::liability& liability, const budget::date& d, data_cache& cache);
 
 // The value of a liability in the default currency
 budget::money get_liability_value_conv(budget::liability & liability, data_cache & cache);
-budget::money get_liability_value_conv(budget::liability & liability, budget::date d, data_cache & cache);
+budget::money get_liability_value_conv(budget::liability& liability, const budget::date& d, data_cache& cache);
 
 // The value of a liability in a specific currency
 budget::money get_liability_value_conv(budget::liability & liability, const std::string& currency, data_cache & cache);
-budget::money get_liability_value_conv(budget::liability & liability, budget::date d, const std::string& currency, data_cache & cache);
+budget::money get_liability_value_conv(budget::liability& liability, const budget::date& d, const std::string& currency,
+                                       data_cache& cache);
 
 // Utilities for liabilities
 void update_asset_class_allocation(budget::liability& liability, budget::asset_class & clas, budget::money alloc);

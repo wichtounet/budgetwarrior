@@ -23,11 +23,9 @@
 
 using namespace budget;
 
-namespace ranges = std::ranges;
-
 namespace {
 
-static data_handler<expense> expenses { "expenses", "expenses.data" };
+data_handler<expense> expenses{"expenses", "expenses.data"};
 
 void show_templates() {
     std::vector<std::string>              columns = {"ID", "Account", "Name", "Amount"};
@@ -80,7 +78,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_expenses(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "show"){
             if(args.size() == 2){
@@ -169,7 +167,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             if (expenses.remove(id)) {
                 std::cout << "Expense " << id << " has been deleted" << std::endl;
@@ -179,7 +177,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             auto expense = expenses[id];
 
@@ -222,7 +220,7 @@ bool budget::edit_expense(const expense& expense){
     return expenses.indirect_edit(expense);
 }
 
-void budget::expense::save(data_writer & writer){
+void budget::expense::save(data_writer& writer) const {
     writer << id;
     writer << guid;
     writer << account;

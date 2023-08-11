@@ -23,7 +23,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<debt> debts { "debts", "debts.data" };
+data_handler<debt> debts{"debts", "debts.data"};
 
 void edit_direction(bool& ref, const std::string& title){
     std::string answer;
@@ -32,10 +32,10 @@ void edit_direction(bool& ref, const std::string& title){
     std::getline(std::cin, answer);
 
     if(!answer.empty()){
-        auto direction = answer;
+        const auto& direction = answer;
 
         if(direction != "to" && direction != "from"){
-            throw budget_exception("Invalid direction, only \"to\" and \"from\" are valid");
+            throw budget_exception(R"(Invalid direction, only "to" and "from" are valid)");
         }
 
         ref = direction == "to" ? true : false;
@@ -80,7 +80,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         list_debts(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "list"){
             list_debts(w);
@@ -99,7 +99,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "paid"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             auto debt = debts[id];
             debt.state = 1;
@@ -110,7 +110,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             if (debts.remove(id)) {
                 std::cout << "Debt " << id << " has been deleted" << std::endl;
@@ -120,7 +120,7 @@ void budget::debt_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             auto debt = debts[id];
             edit(debt);
@@ -142,7 +142,7 @@ void budget::save_debts(){
     debts.save();
 }
 
-void budget::debt::save(data_writer & writer){
+void budget::debt::save(data_writer& writer) const {
     writer << id;
     writer << state;
     writer << guid;

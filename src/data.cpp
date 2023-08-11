@@ -35,7 +35,7 @@ std::string parse_output(const std::vector<std::string>& parts) {
 
     for (auto part : parts) {
         size_t start_pos = 0;
-        while ((start_pos = part.find(":", start_pos)) != std::string::npos) {
+        while ((start_pos = part.find(':', start_pos)) != std::string::npos) {
             part.replace(start_pos, 1, "\\x3A");
             start_pos += 4;
         }
@@ -62,7 +62,7 @@ void budget::data_reader::parse(const std::string& data) {
 budget::data_reader& budget::data_reader::operator>>(bool& value) {
     const auto & part = parts.at(current);
 
-    size_t temp;
+    size_t temp = 0;
     if (auto [p, ec] = std::from_chars(part.data(), part.data() + part.size(), temp); ec != std::errc() || p != part.data() + part.size()) {
         throw budget::budget_exception("\"" + parts.at(current) + "\" is not a valid bool");
     }
@@ -152,49 +152,45 @@ void budget::data_reader::skip() {
 // data_writer
 
 budget::data_writer& budget::data_writer::operator<<(const bool& value){
-    size_t temp = value;
+    const size_t temp = value;
 
-    std::array<char, 64> buffer;
+    std::array<char, 64> buffer{};
 
     if (auto [p, ec] = std::to_chars(buffer.begin(), buffer.end(), temp); ec == std::errc()) {
         parts.emplace_back(buffer.begin(), p);
         return *this;
-    } else {
-        throw budget::budget_exception("\"" + std::to_string(temp) + "\" cant' be converted to string");
     }
+    throw budget::budget_exception("\"" + std::to_string(temp) + "\" cant' be converted to string");
 }
 
 budget::data_writer& budget::data_writer::operator<<(const size_t& value){
-    std::array<char, 64> buffer;
+    std::array<char, 64> buffer{};
 
     if (auto [p, ec] = std::to_chars(buffer.begin(), buffer.end(), value); ec == std::errc()) {
         parts.emplace_back(buffer.begin(), p);
         return *this;
-    } else {
-        throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
     }
+    throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
 }
 
 budget::data_writer& budget::data_writer::operator<<(const int64_t& value){
-    std::array<char, 64> buffer;
+    std::array<char, 64> buffer{};
 
     if (auto [p, ec] = std::to_chars(buffer.begin(), buffer.end(), value); ec == std::errc()) {
         parts.emplace_back(buffer.begin(), p);
         return *this;
-    } else {
-        throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
     }
+    throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
 }
 
 budget::data_writer& budget::data_writer::operator<<(const int32_t& value){
-    std::array<char, 64> buffer;
+    std::array<char, 64> buffer{};
 
     if (auto [p, ec] = std::to_chars(buffer.begin(), buffer.end(), value); ec == std::errc()) {
         parts.emplace_back(buffer.begin(), p);
         return *this;
-    } else {
-        throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
     }
+    throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
 }
 
 budget::data_writer& budget::data_writer::operator<<(const std::string& value){

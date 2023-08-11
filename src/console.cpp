@@ -29,21 +29,25 @@ std::string budget::format_reset() {
 std::string budget::format_money(const budget::money& m) {
     if (m.positive()) {
         return "::green" + budget::to_string(m);
-    } else if (m.negative()) {
-        return "::red" + budget::to_string(m);
-    } else {
-        return budget::to_string(m);
     }
+
+    if (m.negative()) {
+        return "::red" + budget::to_string(m);
+    }
+
+    return budget::to_string(m);
 }
 
 std::string budget::format_money_reverse(const budget::money& m) {
     if (m.positive()) {
         return "::red" + budget::to_string(m);
-    } else if (m.negative()) {
-        return "::green" + budget::to_string(m);
-    } else {
-        return budget::to_string(m);
     }
+
+    if (m.negative()) {
+        return "::green" + budget::to_string(m);
+    }
+
+    return budget::to_string(m);
 }
 
 size_t budget::rsize(const std::string& value) {
@@ -113,7 +117,7 @@ namespace {
 
 char getch() {
     char buf = 0;
-    struct termios old;
+    struct termios old{};
     fflush(stdout);
 
     if (tcgetattr(0, &old) < 0) {
@@ -156,17 +160,14 @@ std::string budget::get_string_complete(const std::vector<std::string>& choices)
     size_t index = 0;
 
     while (true) {
-        char c = getch();
+        const char c = getch();
 
         if (+c == 127) {
             if (!answer.empty()) {
                 std::cout << "\b \b";
                 answer.pop_back();
             }
-        } else if (c == '\r') {
-            std::cout << std::endl;
-            return answer;
-        } else if (c == '\n') {
+        } else if (c == '\r' || c == '\n') {
             std::cout << std::endl;
             return answer;
         } else if (c == '\t') {
@@ -174,7 +175,7 @@ std::string budget::get_string_complete(const std::vector<std::string>& choices)
                 size_t count = 0;
                 std::string valid;
 
-                for (auto& choice : choices) {
+                for (const auto& choice : choices) {
                     if (choice.size() > answer.size()) {
                         if (choice.substr(0, answer.size()) == answer) {
                             ++count;
@@ -191,7 +192,7 @@ std::string budget::get_string_complete(const std::vector<std::string>& choices)
         } else if (c == '\033') {
             getch();
 
-            char cc = getch();
+            const char cc = getch();
 
             if (cc == 'A') {
                 for (size_t i = 0; i < answer.size(); ++i) {

@@ -23,7 +23,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<fortune> fortunes { "fortunes", "fortunes.data" };
+data_handler<fortune> fortunes{"fortunes", "fortunes.data"};
 
 } //end of anonymous namespace
 
@@ -60,8 +60,9 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
         return;
     }
 
-    std::vector<std::string> short_columns = {"From", "To", "Amount", "Diff.", "Avg/Day", "Avg/Day Tot."};
-    std::vector<std::string> long_columns = {"From", "To", "Amount", "Diff.", "Time", "Avg/Day", "Diff. Tot.", "Avg/Day Tot.", "Edit"};
+    const std::vector<std::string> short_columns = {"From", "To", "Amount", "Diff.", "Avg/Day", "Avg/Day Tot."};
+    const std::vector<std::string> long_columns = {"From",    "To",         "Amount",       "Diff.", "Time",
+                                                   "Avg/Day", "Diff. Tot.", "Avg/Day Tot.", "Edit"};
 
     auto columns = short_view ? short_columns : long_columns;
     std::vector<std::vector<std::string>> contents;
@@ -72,14 +73,14 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
         [](const budget::fortune& a, const budget::fortune& b){ return a.check_date < b.check_date; });
 
     budget::money previous;
-    budget::money first = sorted_values.front().amount;
+    budget::money const first = sorted_values.front().amount;
     budget::date previous_date;
-    budget::date first_date = sorted_values.front().check_date;
+    budget::date const first_date = sorted_values.front().check_date;
 
     for(std::size_t i = 0; i < sorted_values.size(); ++i){
         auto& fortune = sorted_values[i];
 
-        bool display;
+        bool display = false;
         if(!short_view){
             display = true;
         } else {
@@ -99,9 +100,9 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
                     contents.push_back({"", to_string(fortune.check_date), to_string(fortune.amount), "", "", "", "", "", "::edit::fortunes::" + budget::to_string(fortune.id)});
                 }
             } else if (i == 1) {
-                money diff = fortune.amount - previous;
-                long d     = fortune.check_date - previous_date;
-                money avg  = diff / d;
+                const money diff = fortune.amount - previous;
+                const long d = fortune.check_date - previous_date;
+                const money avg = diff / d;
 
                 if (short_view) {
                     contents.push_back({to_string(previous_date), to_string(fortune.check_date), to_string(fortune.amount),
@@ -111,13 +112,13 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
                                         format_money(diff), to_string(d), to_string(avg), "", "", "::edit::fortunes::" + budget::to_string(fortune.id)});
                 }
             } else {
-                money diff = fortune.amount - previous;
-                long d     = fortune.check_date - previous_date;
-                money avg  = diff / d;
+                const money diff = fortune.amount - previous;
+                const long d = fortune.check_date - previous_date;
+                const money avg = diff / d;
 
-                money tot_diff = fortune.amount - first;
-                long  tot_d    = fortune.check_date - first_date;
-                money tot_avg  = tot_diff / tot_d;
+                const money tot_diff = fortune.amount - first;
+                const long tot_d = fortune.check_date - first_date;
+                const money tot_avg = tot_diff / tot_d;
 
                 if (short_view) {
                     contents.push_back({to_string(previous_date), to_string(fortune.check_date), to_string(fortune.amount),
@@ -170,7 +171,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         status_fortunes(w, false);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "list"){
             list_fortunes(w);
@@ -194,7 +195,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             if(!fortunes.exists(id)){
                 throw budget_exception("There are no fortune with id " + args[2]);
@@ -206,7 +207,7 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             auto fortune = fortunes[id];
 
@@ -235,7 +236,7 @@ void budget::save_fortunes(){
     fortunes.save();
 }
 
-void budget::fortune::save(data_writer & writer){
+void budget::fortune::save(data_writer& writer) const {
     writer << id;
     writer << guid;
     writer << check_date;

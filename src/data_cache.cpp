@@ -75,15 +75,14 @@ std::unordered_map<size_t, std::vector<asset_value>> & data_cache::sorted_group_
         }
 
         return sorted_group_asset_values_liabilities_;
-    } else {
-        if (sorted_group_asset_values_.empty()) {
-            for (auto& asset_value : sorted_asset_values() | not_liability) {
-                sorted_group_asset_values_[asset_value.asset_id].push_back(asset_value);
-            }
-        }
-
-        return sorted_group_asset_values_;
     }
+    if (sorted_group_asset_values_.empty()) {
+        for (auto& asset_value : sorted_asset_values() | not_liability) {
+            sorted_group_asset_values_[asset_value.asset_id].push_back(asset_value);
+        }
+    }
+
+    return sorted_group_asset_values_;
 }
 
 std::vector<liability> & data_cache::liabilities() {

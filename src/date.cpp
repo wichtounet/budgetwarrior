@@ -16,11 +16,9 @@
 #include "data_cache.hpp"
 #include "views.hpp"
 
-namespace ranges = std::ranges;
-
 budget::date budget::local_day(){
-    auto tt = time( NULL );
-    auto timeval = localtime( &tt );
+    auto tt = time(nullptr);
+    auto* timeval = localtime(&tt);
 
     return {
         static_cast<date_type>(timeval->tm_year + 1900),
@@ -33,9 +31,9 @@ budget::date budget::date_from_string(std::string_view str){
         throw date_exception("Invalid size for date_from_string");
     }
 
-    date_type y;
-    date_type m;
-    date_type d;
+    date_type y = 0;
+    date_type m = 0;
+    date_type d = 0;
 
     if (auto [p, ec] = std::from_chars(str.data(), str.data() + 4, y); ec != std::errc() || p != str.data() + 4) {
         throw date_exception("Invalid year in date_from_string");
@@ -52,7 +50,7 @@ budget::date budget::date_from_string(std::string_view str){
     return {y, m, d};
 }
 
-std::string budget::date_to_string(budget::date date){
+std::string budget::date_to_string(const budget::date& date) {
     std::string str(10, '0');
 
     str[4] = '-';
@@ -64,13 +62,13 @@ std::string budget::date_to_string(budget::date date){
     }
 
     // Convert the month
-    auto month_ptr = date.month() < 10 ? str.data() + 6 : str.data() + 5;
+    auto* month_ptr = date.month() < 10 ? str.data() + 6 : str.data() + 5;
     if (auto [p, ec] = std::to_chars(month_ptr, str.data() + 7, static_cast<date_type>(date.month())); ec != std::errc() || p != str.data() + 7) {
         throw date_exception("Can't convert month to string");
     }
 
     // Convert the month
-    auto day_ptr = date.day() < 10 ? str.data() + 9 : str.data() + 8;
+    auto* day_ptr = date.day() < 10 ? str.data() + 9 : str.data() + 8;
     if (auto [p, ec] = std::to_chars(day_ptr, str.data() + 10, static_cast<date_type>(date.day())); ec != std::errc() || p != str.data() + 10) {
         throw date_exception("Can't convert day to string");
     }
@@ -79,7 +77,7 @@ std::string budget::date_to_string(budget::date date){
 }
 
 unsigned short budget::start_month(data_cache & cache, budget::year year){
-    budget::month m = min_with_default(cache.expenses() | to_date | filter_by_year(year) | to_month, 12);
+    budget::month const m = min_with_default(cache.expenses() | to_date | filter_by_year(year) | to_month, 12);
     return min_with_default(cache.earnings() | to_date | filter_by_year(year) | to_month, m);
 }
 

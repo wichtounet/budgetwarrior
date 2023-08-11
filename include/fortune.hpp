@@ -42,7 +42,7 @@ struct fortune {
     std::map<std::string, std::string> get_params() const ;
 
     void load(data_reader & reader);
-    void save(data_writer & writer);
+    void save(data_writer& writer) const;
 };
 
 budget::money current_fortune();

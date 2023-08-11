@@ -26,14 +26,13 @@
 #include "console.hpp"
 #include "budget_exception.hpp"
 #include "compute.hpp"
-#include "console.hpp"
 #include "writer.hpp"
 
 using namespace budget;
 
 namespace {
 
-static data_handler<wish> wishes { "wishes", "wishes.data" };
+data_handler<wish> wishes { "wishes", "wishes.data" };
 
 std::string wish_status(size_t v){
     switch(v){
@@ -79,9 +78,9 @@ void edit(budget::wish& wish){
 budget::money cash_for_wishes(){
     if(budget::net_worth_over_fortune()){
         return get_net_worth_cash();
-    } else {
-        return current_fortune();
     }
+
+    return current_fortune();
 }
 
 } //end of anonymous namespace
@@ -125,7 +124,7 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         status_wishes(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "list"){
             list_wishes(w);
@@ -147,7 +146,7 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             if (wishes.remove(id)) {
                 std::cout << "wish " << id << " has been deleted" << std::endl;
@@ -157,7 +156,7 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             auto wish = wishes[id];
 
@@ -169,7 +168,7 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "paid"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             auto wish = wishes[id];
 
@@ -194,7 +193,7 @@ void budget::save_wishes(){
     wishes.save();
 }
 
-void budget::wish::save(data_writer & writer){
+void budget::wish::save(data_writer & writer) const {
     writer << id;
     writer << guid;
     writer << name;
@@ -238,7 +237,7 @@ void budget::set_wishes_next_id(size_t next_id){
 void budget::list_wishes(budget::writer& w){
     w << title_begin << "Wishes " << add_button("wishes") << title_end;
 
-    if (wishes.size() == 0) {
+    if (wishes.empty()) {
         w << "No wishes" << end_of_line;
     } else {
         std::vector<std::string> columns = {"ID", "Name", "Importance", "Urgency", "Amount", "Paid", "Diff", "Accuracy", "Edit"};

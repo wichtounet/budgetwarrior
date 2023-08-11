@@ -30,7 +30,7 @@ std::string success_to_string(int success) {
     ss << "%\033[0m  ";
 
     success     = std::min(success, 109);
-    size_t good = success == 0 ? 0 : (success / 10) + 1;
+    const size_t good = success == 0 ? 0 : (success / 10) + 1;
 
     for (size_t i = 0; i < good; ++i) {
         ss << "\033[1;42m   \033[0m";
@@ -48,7 +48,8 @@ std::string format(const std::string& v) {
         auto value = v.substr(5);
 
         return "\033[0;31m" + value + budget::format_reset();
-    } else if (v.substr(0, 7) == "::green") {
+    }
+    if (v.substr(0, 7) == "::green") {
         auto value = v.substr(7);
 
         return "\033[0;32m" + value + budget::format_reset();
@@ -57,7 +58,7 @@ std::string format(const std::string& v) {
 
         return "\033[0;33m" + value + budget::format_reset();
     } else if (v.substr(0, 9) == "::success") {
-        auto value   = v.substr(9);
+        auto value = v.substr(9);
         auto success = budget::to_number<unsigned long>(value);
         return success_to_string(success);
     }
@@ -70,7 +71,8 @@ std::string underline_format(const std::string& v) {
         auto value = v.substr(5);
 
         return "\033[4;31m" + value + budget::format_reset();
-    } else if (v.substr(0, 7) == "::green") {
+    }
+    if (v.substr(0, 7) == "::green") {
         auto value = v.substr(7);
 
         return "\033[4;32m" + value + budget::format_reset();
@@ -79,7 +81,7 @@ std::string underline_format(const std::string& v) {
 
         return "\033[4;33m" + value + budget::format_reset();
     } else if (v.substr(0, 9) == "::success") {
-        auto value   = v.substr(9);
+        auto value = v.substr(9);
         auto success = budget::to_number<unsigned long>(value);
         return success_to_string(success);
     }
@@ -151,10 +153,10 @@ budget::writer& budget::console_writer::operator<<(const budget::title_end_t&) {
 
 void budget::console_writer::display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups, std::vector<size_t> lines, size_t left, [[maybe_unused]] size_t foot) {
     cpp_assert(groups > 0, "There must be at least 1 group");
-    cpp_assert(contents.size() || columns.size(), "There must be at least some columns or contents");
+    cpp_assert(!contents.empty() || !columns.empty(), "There must be at least some columns or contents");
 
     // Remove the Edit column, if necessary
-    if (columns.size() && columns.back() == "Edit") {
+    if (!columns.empty() && columns.back() == "Edit") {
         columns.pop_back();
 
         for (auto& row : contents) {
@@ -171,7 +173,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
     std::vector<size_t> widths;
     std::vector<size_t> header_widths;
 
-    if (!contents.size()) {
+    if (contents.empty()) {
         for (auto& column : columns) {
             widths.push_back(rsize(column));
         }
@@ -187,7 +189,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
         }
     }
 
-    cpp_assert(columns.size() == 0 || widths.size() == groups * columns.size(), "Widths incorrectly computed");
+    cpp_assert(columns.empty() || widths.size() == groups * columns.size(), "Widths incorrectly computed");
 
     // Display the header
 
@@ -241,7 +243,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 
         auto& row = contents[i];
 
-        bool underline = std::find(lines.begin(), lines.end(), i) != lines.end();
+        const bool underline = std::find(lines.begin(), lines.end(), i) != lines.end();
 
         for (size_t j = 0; j < row.size(); j += groups) {
             size_t acc_width = 0;
@@ -250,7 +252,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
             for (size_t k = 0; k < groups - 1; ++k) {
                 auto column = j + k;
 
-                std::string value = format(row[column]);
+                std::string const value = format(row[column]);
 
                 acc_width += widths[column];
 

@@ -22,7 +22,7 @@ std::string exec_command(const std::string& command) {
 
     FILE* stream = popen(command.c_str(), "r");
 
-    while (fgets(buffer, 1024, stream) != NULL) {
+    while (fgets(buffer, 1024, stream) != nullptr) {
         output << buffer;
     }
 
@@ -43,7 +43,7 @@ void budget::versioning_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         std::cout << "Missing subcommand" << std::endl;
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "save"){
             std::cout << exec_command("git -C " + budget_folder().string() + " commit -a -m Update" ) << std::endl;

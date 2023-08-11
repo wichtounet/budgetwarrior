@@ -29,7 +29,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<liability> liabilities { "liabilities", "liabilities.data" };
+data_handler<liability> liabilities{"liabilities", "liabilities.data"};
 
 std::vector<std::string> get_liabilities_names(){
     std::vector<std::string> names;
@@ -72,7 +72,7 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_liabilities(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "show"){
             show_liabilities(w);
@@ -181,7 +181,7 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
             if (args.size() == 2) {
                 budget::show_asset_values(w, true);
             } else {
-                auto& subsubcommand = args[2];
+                const auto& subsubcommand = args[2];
 
                 if (subsubcommand == "set") {
                     asset_value asset_value;
@@ -264,7 +264,7 @@ budget::liability budget::get_liability(size_t id){
     return liabilities[id];
 }
 
-budget::liability budget::get_liability(std::string name){
+budget::liability budget::get_liability(const std::string& name) {
     if (auto range = liabilities.data() | filter_by_name(name); range){
         return *std::ranges::begin(range);
     }
@@ -351,7 +351,7 @@ void budget::set_liabilities_next_id(size_t next_id){
 }
 
 void budget::show_liabilities(budget::writer& w){
-    if (!liabilities.size()) {
+    if (liabilities.empty()) {
         w << "No liabilities" << end_of_line;
         return;
     }
@@ -405,7 +405,7 @@ void budget::show_liabilities(budget::writer& w){
 }
 
 bool budget::liability::is_fi() const {
-    for (auto& [class_id, alloc] : classes) {
+    for (const auto& [class_id, alloc] : classes) {
         if (get_asset_class(class_id).fi) {
             return true;
         }
@@ -438,7 +438,7 @@ bool budget::no_liabilities() {
     return liabilities.empty();
 }
 
-budget::money budget::get_liability_value(budget::liability & liability, budget::date d, data_cache & cache) {
+budget::money budget::get_liability_value(budget::liability& liability, const budget::date& d, data_cache& cache) {
     budget::money asset_value_amount;
 
     for (auto& asset_value : cache.sorted_group_asset_values(true)[liability.id]) {
@@ -462,28 +462,27 @@ budget::money budget::get_liability_value_conv(budget::liability & liability, da
     return get_liability_value_conv(liability, budget::local_day(), cache);
 }
 
-budget::money budget::get_liability_value_conv(budget::liability & liability, budget::date d, data_cache & cache) {
+budget::money budget::get_liability_value_conv(budget::liability& liability, const budget::date& d, data_cache& cache) {
     auto amount = get_liability_value(liability, d, cache);
 
     if (amount) {
         return amount * exchange_rate(liability.currency, d);
-    } else {
-        return amount;
     }
+    return amount;
 }
 
 budget::money budget::get_liability_value_conv(budget::liability & liability, const std::string& currency, data_cache & cache) {
     return get_liability_value_conv(liability, budget::local_day(), currency, cache);
 }
 
-budget::money budget::get_liability_value_conv(budget::liability & liability, budget::date d, const std::string& currency, data_cache & cache) {
+budget::money budget::get_liability_value_conv(budget::liability& liability, const budget::date& d,
+                                               const std::string& currency, data_cache& cache) {
     auto amount = get_liability_value(liability, d, cache);
 
     if (amount) {
         return amount * exchange_rate(liability.currency, currency, d);
-    } else {
-        return amount;
     }
+    return amount;
 }
 
 void budget::migrate_liabilities_6_to_7(){
@@ -521,7 +520,7 @@ void budget::update_asset_class_allocation(budget::liability& liability, budget:
 }
 
 budget::money budget::get_asset_class_allocation(const budget::liability& liability, const budget::asset_class & clas) {
-    for (auto & [class_id, class_alloc] : liability.classes) {
+    for (const auto& [class_id, class_alloc] : liability.classes) {
         if (class_id == clas.id) {
             return class_alloc;
         }

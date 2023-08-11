@@ -43,7 +43,7 @@ struct income {
     std::map<std::string, std::string> get_params() const ;
 
     void load(data_reader & reader);
-    void save(data_writer & writer);
+    void save(data_writer& writer) const;
 };
 
 void load_incomes();
@@ -70,7 +70,7 @@ void show_incomes(budget::writer& w);
 struct data_cache;
 
 budget::money get_base_income(data_cache & cache);
-budget::money get_base_income(data_cache & cache, budget::date d);
+budget::money get_base_income(data_cache& cache, const budget::date& d);
 
 budget::income new_income(budget::money amount, bool print);
 

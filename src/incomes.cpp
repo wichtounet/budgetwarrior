@@ -24,7 +24,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<income> incomes { "incomes", "incomes.data" };
+data_handler<income> incomes{"incomes", "incomes.data"};
 
 } //end of anonymous namespace
 
@@ -54,7 +54,7 @@ void budget::incomes_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_incomes(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if (subcommand == "show") {
             show_incomes(w);
@@ -71,7 +71,7 @@ void budget::incomes_module::handle(const std::vector<std::string>& args){
 }
 
 void budget::show_incomes(budget::writer& w) {
-    if (!incomes.size()) {
+    if (incomes.empty()) {
         w << title_begin << "No income " << set_button("incomes") << title_end;
         return;
     }
@@ -98,7 +98,7 @@ void budget::save_incomes(){
     incomes.save();
 }
 
-void budget::income::save(data_writer& writer) {
+void budget::income::save(data_writer& writer) const {
     writer << id;
     writer << guid;
     writer << amount;
@@ -159,7 +159,7 @@ budget::money budget::get_base_income(data_cache & cache){
     return get_base_income(cache, today);
 }
 
-budget::money budget::get_base_income(data_cache & cache, budget::date d){
+budget::money budget::get_base_income(data_cache& cache, const budget::date& d) {
     // First, we try to get the base income from the incomes module
 
     for (auto & income : cache.incomes()) {
@@ -180,10 +180,10 @@ budget::money budget::get_base_income(data_cache & cache, budget::date d){
 }
 
 budget::income budget::new_income(budget::money amount, bool print){
-    budget::date d = budget::local_day();
+    budget::date const d = budget::local_day();
 
-    budget::date since(d.year(), d.month(), 1);
-    budget::date until = budget::date(2099,12,31);
+    budget::date const since(d.year(), d.month(), 1);
+    budget::date const until = budget::date(2099, 12, 31);
 
     budget::income new_income;
     new_income.guid  = generate_guid();
@@ -191,7 +191,7 @@ budget::income budget::new_income(budget::money amount, bool print){
     new_income.until = until;
     new_income.amount = amount;
 
-    if (incomes.size()) {
+    if (!incomes.empty()) {
         auto incomes_copy = all_incomes();
 
         // Try to edit the income from the same month

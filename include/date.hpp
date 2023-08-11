@@ -478,7 +478,7 @@ date local_day();
 
 date date_from_string(std::string_view str);
 
-std::string date_to_string(date date);
+std::string date_to_string(const date& date);
 
 template<>
 inline std::string to_string(budget::date date){

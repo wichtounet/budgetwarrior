@@ -23,7 +23,8 @@ money budget::money_from_string(std::string_view money_string){
     if (auto [p, ec] = std::from_chars(money_string.data(), money_string.data() + money_string.size(), dollars); ec == std::errc()) {
         if (p == money_string.data() + money_string.size()) {
             return {dollars, cents};
-        } else if(*p == '.') {
+        }
+        if (*p == '.') {
             ++p;
 
             if (auto [p2, ec] = std::from_chars(p, money_string.data() + money_string.size(), cents); ec == std::errc()) {
@@ -40,9 +41,9 @@ money budget::money_from_string(std::string_view money_string){
 }
 
 std::string budget::money_to_string(const money& amount) {
-    std::array<char, 128> buffer;
+    std::array<char, 128> buffer{};
 
-    auto p1 = buffer.begin();
+    auto* p1 = buffer.begin();
 
     if (amount.negative()){
         *p1++ = '-';
@@ -57,12 +58,12 @@ std::string budget::money_to_string(const money& amount) {
 
         if (auto [p3, ec] = std::to_chars(p2, buffer.end(), amount.cents()); ec == std::errc()) {
             return {buffer.begin(), p3};
-        } else {
-            throw budget::budget_exception("money cant' be converted to string");
         }
-    } else {
+
         throw budget::budget_exception("money cant' be converted to string");
     }
+
+    throw budget::budget_exception("money cant' be converted to string");
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const money& amount){
@@ -76,14 +77,14 @@ budget::money budget::random_money(size_t min, size_t max){
     std::uniform_int_distribution<int> dollars_dist(min, max);
     std::uniform_int_distribution<int> cents_dist(0, 99);
 
-    return budget::money(dollars_dist(engine), cents_dist(engine));
+    return {dollars_dist(engine), cents_dist(engine)};
 }
 
 std::string budget::random_name(size_t length){
     static std::random_device rd;
     static std::mt19937_64 engine(rd());
 
-    std::uniform_int_distribution<int> letters_dist(0, 25);
+    std::uniform_int_distribution<char> letters_dist(0, 25);
 
     std::string name;
 

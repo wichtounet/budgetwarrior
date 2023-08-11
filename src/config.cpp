@@ -131,9 +131,8 @@ bool verify_folder(){
 
             return false;
 
-        } else {
-            return false;
         }
+        return false;
     }
 
     return true;

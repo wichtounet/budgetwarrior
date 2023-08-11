@@ -25,7 +25,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<earning> earnings { "earnings", "earnings.data" };
+data_handler<earning> earnings{"earnings", "earnings.data"};
 
 } //end of anonymous namespace
 
@@ -57,7 +57,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
     if(args.size() == 1){
         show_earnings(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if(subcommand == "show"){
             if(args.size() == 2){
@@ -94,7 +94,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "delete"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             if (earnings.remove(id)) {
                 std::cout << "earning " << id << " has been deleted" << std::endl;
@@ -104,7 +104,7 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
         } else if(subcommand == "edit"){
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             auto earning = earnings[id];
 
@@ -134,7 +134,7 @@ void budget::save_earnings(){
     earnings.save();
 }
 
-void budget::earning::save(data_writer & writer){
+void budget::earning::save(data_writer& writer) const {
     writer << id;
     writer << guid;
     writer << account;
