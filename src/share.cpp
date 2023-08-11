@@ -53,7 +53,7 @@ struct share_cache_value {
 std::map<share_price_cache_key, share_cache_value> share_prices;
 budget::server_lock shares_lock;
 
-budget::date get_valid_date(budget::date d){
+budget::date get_valid_date(const budget::date & d){
     // We cannot get closing price in the future, so we use the day before date
     if (d >= budget::local_day()) {
         auto now = std::chrono::system_clock::now();

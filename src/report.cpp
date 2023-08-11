@@ -40,7 +40,6 @@ void write(graph_type& graph, int row, int col, const std::string& value) {
     }
 }
 
-
 } //end of anonymous namespace
 
 void budget::report_module::load() {
@@ -58,7 +57,7 @@ void budget::report_module::handle(const std::vector<std::string>& args) {
     if (args.size() == 1) {
         report(w, today.year(), false, "");
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if (subcommand == "monthly") {
             report(w, today.year(), false, "");
@@ -85,16 +84,16 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
         std::vector<std::string> series_names;
         std::vector<std::vector<float>> series_values;
 
-        series_names.push_back("Expenses");
-        series_names.push_back("Earnings");
-        series_names.push_back("Balance");
+        series_names.emplace_back("Expenses");
+        series_names.emplace_back("Earnings");
+        series_names.emplace_back("Balance");
 
         series_values.emplace_back();
         series_values.emplace_back();
         series_values.emplace_back();
 
         for (auto i = sm; i <= today.month(); ++i) {
-            budget::month month = i;
+            const budget::month month = i;
 
             //Display month legend
             categories.push_back(month.as_short_string());
@@ -140,7 +139,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
     std::vector<int> balances(12);
 
     for (auto i = sm; i <= today.month(); ++i) {
-        budget::month month = i;
+        const budget::month month = i;
 
         budget::money total_expenses;
         budget::money total_earnings;
@@ -183,10 +182,10 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
                                    std::max(std::abs(max_balance.dollars()), std::abs(min_expenses.dollars()))),
                                std::max(std::abs(min_balance.dollars()), std::abs(min_earnings.dollars())));
 
-    size_t height = terminal_height() - 9;
-    size_t width  = terminal_width() - 6;
+    const size_t height = terminal_height() - 9;
+    const size_t width  = terminal_width() - 6;
 
-    size_t scale_width = 5;
+    const size_t scale_width = 5;
 
     // Compute the scale based on the data
     size_t scale = 1;
@@ -229,10 +228,10 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
     unsigned int max = std::max(max_earnings, std::max(max_expenses, max_balance)).dollars();
     max              = ((max / scale) + 1) * scale;
 
-    unsigned int levels = max / scale + std::abs(min) / scale;
+    const unsigned int levels = max / scale + std::abs(min) / scale;
 
-    unsigned int step_height = height / levels;
-    unsigned int precision   = scale / step_height;
+    const unsigned int step_height = height / levels;
+    const unsigned int precision   = scale / step_height;
 
     auto graph_height = 9 + step_height * levels;
     auto graph_width  = graph_width_func(col_width);
@@ -246,20 +245,20 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
     //Display scale
 
     for (size_t i = 0; i <= levels; ++i) {
-        int level = min + i * scale;
+        const int level = min + i * scale;
 
         write(graph, 4 + step_height * i, 1, to_string(level));
     }
 
     //Display bar
 
-    unsigned int min_index  = 3;
-    unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
+    const unsigned int min_index  = 3;
+    const unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
 
     const auto first_bar = scale_width + 2;
 
     for (auto i = sm; i <= today.month(); ++i) {
-        budget::month month = i;
+        const budget::month month = i;
 
         auto col_start = first_bar + (3 * col_width + 4) * (i - sm);
 
@@ -300,7 +299,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
     //Display legend
 
-    int start_legend = first_bar + (3 * col_width + 4) * (today.month() - sm + 1) + 4;
+    const int start_legend = first_bar + (3 * col_width + 4) * (today.month() - sm + 1) + 4;
 
     graph[4][start_legend - 2] = "|";
     graph[3][start_legend - 2] = "|";

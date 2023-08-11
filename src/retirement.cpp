@@ -26,7 +26,7 @@ namespace {
 
 constexpr size_t running_limit = 12;
 
-money running_expenses(data_cache & cache, budget::date d = budget::local_day()){
+money running_expenses(data_cache & cache, const budget::date & d = budget::local_day()){
     budget::date end = d - budget::days(d.day() - 1);
     budget::date start = end - budget::months(running_limit);
 
@@ -51,7 +51,7 @@ money running_expenses(data_cache & cache, budget::date d = budget::local_day())
     return total;
 }
 
-double running_savings_rate(data_cache & cache, budget::date sd = budget::local_day()){
+double running_savings_rate(data_cache & cache, const budget::date & sd = budget::local_day()){
     double savings_rate = 0.0;
 
     for(size_t i = 1; i <= running_limit; ++i){
@@ -74,7 +74,7 @@ double running_savings_rate(data_cache & cache, budget::date sd = budget::local_
     return savings_rate / running_limit;
 }
 
-budget::money running_income(data_cache & cache, budget::date sd = budget::local_day()){
+budget::money running_income(data_cache & cache, const budget::date & sd = budget::local_day()){
     budget::money income;
 
     for(size_t i = 1; i <= running_limit; ++i){
@@ -136,11 +136,11 @@ void budget::retirement_module::handle(std::vector<std::string>& args) {
     }
 }
 
-float budget::fi_ratio(budget::date d, data_cache& cache) {
+float budget::fi_ratio(const budget::date & d, data_cache& cache) {
     return fixed_fi_ratio(d, cache, running_expenses(cache, d));
 }
 
-float budget::fixed_fi_ratio(budget::date d, data_cache& cache, const money& expenses) {
+float budget::fixed_fi_ratio(const budget::date & d, data_cache& cache, const money& expenses) {
     auto wrate   = to_number<double>(internal_config_value("withdrawal_rate"));
     auto years   = double(100.0 / wrate);
     auto nw      = get_fi_net_worth(d, cache);
@@ -222,7 +222,7 @@ void budget::retirement_status(budget::writer& w) {
 
     w.display_table(columns, contents);
 
-    std::array<int, 5> rate_decs{1, 2, 5, 10, 20};
+    const std::array<int, 5> rate_decs{1, 2, 5, 10, 20};
 
     // Note: this not totally correct since we ignore the
     // correlation between the savings rate and the expenses
@@ -243,7 +243,7 @@ void budget::retirement_status(budget::writer& w) {
         w << p_begin << "Increasing Savings Rate by " << dec << "% would save " << (base_months - months) / 12.0 << " years (in " << months / 12.0 << " years)" << p_end;
     }
 
-    std::array<int, 5> exp_decs{10, 50, 100, 200, 500};
+    const std::array<int, 5> exp_decs{10, 50, 100, 200, 500};
 
     for (auto dec : exp_decs) {
         auto current_nw = nw;

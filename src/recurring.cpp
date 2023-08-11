@@ -26,7 +26,7 @@ using namespace budget;
 
 namespace {
 
-static data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
+data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
 
 budget::date last_date(const budget::recurring& recurring) {
     budget::date last(1400, 1, 1);
@@ -58,7 +58,7 @@ bool recurring_not_triggered(const budget::recurring & recurring ) {
     return last_date(recurring).year() == 1400;
 }
 
-void generate_recurring(budget::date date, const recurring & recurring) {
+void generate_recurring(const budget::date & date, const recurring & recurring) {
     if (recurring.type == "expense") {
         budget::expense recurring_expense;
 
@@ -270,7 +270,7 @@ void budget::save_recurrings() {
     recurrings.save();
 }
 
-void budget::recurring::save(data_writer & writer) {
+void budget::recurring::save(data_writer & writer) const {
     writer << id;
     writer << guid;
     writer << account;

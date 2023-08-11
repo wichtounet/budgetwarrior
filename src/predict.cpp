@@ -65,19 +65,15 @@ void predict_overview(){
         }
     }
 
-    if(today.month() < 12){
+    if (today.month() < 12) {
         auto prev_year = today.year() - 1;
-        for(budget::month m = today.month() + 1; m <= 12; m = m + 1){
-            for(auto& expense : expenses){
-                if(expense.date.month() == m && expense.date.year() == prev_year){
-                    expense.date = {today.year(), expense.date.month(), expense.date.day()};
-                }
+        for (budget::month m = today.month() + 1; m <= 12; m = m + 1) {
+            for (auto& expense : expenses | filter_by_date(prev_year, m)) {
+                expense.date = {today.year(), expense.date.month(), expense.date.day()};
             }
 
-            for(auto& earning : earnings){
-                if(earning.date.month() == m && earning.date.year() == prev_year){
-                    earning.date = {today.year(), earning.date.month(), earning.date.day()};
-                }
+            for (auto& earning : earnings | filter_by_date(prev_year, m)) {
+                earning.date = {today.year(), earning.date.month(), earning.date.day()};
             }
         }
     }
