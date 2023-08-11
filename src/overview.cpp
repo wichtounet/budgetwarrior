@@ -688,8 +688,6 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
 
 } // end of anonymous namespace
 
-constexpr const std::array<std::pair<const char*, const char*>, 1> budget::module_traits<budget::overview_module>::aliases;
-
 void budget::overview_module::load(){
     load_accounts();
     load_incomes();
@@ -1329,11 +1327,11 @@ void budget::display_year_overview_header(budget::year year, budget::writer& w){
                             format_double_reverse(100.0 * (status.tax_rate() / prev_status.tax_rate() - 1.0)) + "%"});
     }
 
-    budget::date  year_start(year, 1, 1);
-    budget::money year_increase = get_net_worth(year_start.end_of_year(), w.cache) - get_net_worth(year_start, w.cache);
+    const budget::date  year_start(year, 1, 1);
+    const budget::money year_increase = get_net_worth(year_start.end_of_year(), w.cache) - get_net_worth(year_start, w.cache);
 
-    budget::date  prev_year_start(prev_year, 1, 1);
-    budget::money prev_year_increase = get_net_worth(prev_year_start.end_of_year(), w.cache) - get_net_worth(prev_year_start, w.cache);
+    const budget::date  prev_year_start(prev_year, 1, 1);
+    const budget::money prev_year_increase = get_net_worth(prev_year_start.end_of_year(), w.cache) - get_net_worth(prev_year_start, w.cache);
 
     contents.push_back({"Net Worth Increase",
                         to_string(year_increase),
