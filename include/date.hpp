@@ -9,6 +9,7 @@
 
 #include <ctime>
 #include <limits>
+#include <chrono>
 
 #include "cpp_utils/assert.hpp"
 
@@ -128,10 +129,12 @@ struct months {
     }
 };
 
+//using years = std::chrono::years;
+
 struct years {
     date_type value;
     explicit years(date_type value) : value(value) {}
-    operator date_type() const { return value; }
+    explicit operator date_type() const { return value; }
 };
 
 struct date;
@@ -144,9 +147,9 @@ struct date {
     date_type _month;
     date_type _day;
 
-    explicit date(){}
+    explicit date() = default;
 
-    date(date_type year, date_type month, date_type day) : _year(year), _month(month), _day(day){
+    date(date_type year, date_type month, date_type day) : _year(year), _month(month), _day(day) {
         if(year < 1400){
             throw date_exception("Year not in the valid range: " + std::to_string(year));
         }
@@ -158,20 +161,6 @@ struct date {
         if(day == 0 || day > days_month(year, month)){
             throw date_exception("Invalid day: " + std::to_string(day));
         }
-    }
-
-    date(const date& d) : _year(d._year), _month(d._month), _day(d._day) {
-        //Nothing else
-    }
-
-    date& operator=(const date& rhs) {
-        if (this != &rhs) {
-            _year  = rhs._year;
-            _month = rhs._month;
-            _day   = rhs._day;
-        }
-
-        return *this;
     }
 
     budget::year year() const {
@@ -230,7 +219,7 @@ struct date {
     }
 
     date iso_start_of_week() const {
-        size_t w = iso_week();
+        const size_t w = iso_week();
 
         date r = *this;
 
@@ -243,19 +232,19 @@ struct date {
                 }
             }
 
-            date r1 = r.iso_start_of_week();
+            const date r1 = r.iso_start_of_week();
             if (*this - r1 >= 7) {
                 return r + days(1);
-            } else {
-                return r1;
             }
-        } else {
-            for (size_t i = 0; i < 8; ++i) {
-                r -= days(1);
 
-                if (r.iso_week() < w) {
-                    return r + days(1);
-                }
+            return r1;
+        }
+
+        for (size_t i = 0; i < 8; ++i) {
+            r -= days(1);
+
+            if (r.iso_week() < w) {
+                return r + days(1);
             }
         }
 
@@ -267,8 +256,8 @@ struct date {
 
         // Thanks to leap years, this has to be complicated!
 
-        date_type y = _year - (_month < 3);
-        date_type dow = (y + y / 4 - y / 100 + y / 400 + t[_month - 1] + _day) % 7;
+        const date_type y = _year - (_month < 3);
+        const date_type dow = (y + y / 4 - y / 100 + y / 400 + t[_month - 1] + _day) % 7;
         return dow ? dow : 7;
     }
 
@@ -277,9 +266,9 @@ struct date {
 
         if(month == 2){
             return is_leap(year) ? 29 : 28;
-        } else {
-            return month_days[month - 1];
         }
+
+        return month_days[month - 1];
     }
 
     static bool is_leap(date_type year){
@@ -309,11 +298,11 @@ struct date {
     }
 
     date& operator+=(years years){
-        if(years >= std::numeric_limits<date_type>::max() - _year){
+        if(static_cast<date_type>(years) >= std::numeric_limits<date_type>::max() - _year){
             throw date_exception("Year too high (will overflow)");
         }
 
-        _year += years;
+        _year += static_cast<date_type>(years);
 
         return *this;
     }
@@ -366,11 +355,11 @@ struct date {
     }
 
     date& operator-=(years years){
-        if(_year < years){
+        if(_year < static_cast<date_type>(years)){
             throw date_exception("Year too low");
         }
 
-        _year -= years;
+        _year -= static_cast<date_type>(years);
 
         return *this;
     }
@@ -504,7 +493,7 @@ namespace std {
 template <>
 struct hash<budget::day> {
     std::size_t operator()(budget::day d) const noexcept {
-        std::hash<budget::date_type> hasher;
+        const std::hash<budget::date_type> hasher;
         return hasher(d.value);
     }
 };
@@ -512,7 +501,7 @@ struct hash<budget::day> {
 template <>
 struct hash<budget::month> {
     std::size_t operator()(budget::month d) const noexcept {
-        std::hash<budget::date_type> hasher;
+        const std::hash<budget::date_type> hasher;
         return hasher(d.value);
     }
 };
@@ -520,7 +509,7 @@ struct hash<budget::month> {
 template <>
 struct hash<budget::year> {
     std::size_t operator()(budget::year d) const noexcept {
-        std::hash<budget::date_type> hasher;
+        const std::hash<budget::date_type> hasher;
         return hasher(d.value);
     }
 };
@@ -528,7 +517,7 @@ struct hash<budget::year> {
 template <>
 struct hash<budget::date> {
     std::size_t operator()(budget::date d) const noexcept {
-        std::hash<budget::date_type> hasher;
+        const std::hash<budget::date_type> hasher;
         auto seed = hasher(d._day);
         seed ^= hasher(d._month) + 0x9e3779b9 + (seed<<6) + (seed>>2);
         seed ^= hasher(d._year) + 0x9e3779b9 + (seed<<6) + (seed>>2);
