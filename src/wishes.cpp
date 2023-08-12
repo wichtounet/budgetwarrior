@@ -298,11 +298,7 @@ void budget::status_wishes(budget::writer& w){
 
     budget::money total_amount;
 
-    for(auto& wish : w.cache.wishes()){
-        if(wish.paid){
-            continue;
-        }
-
+    for(auto& wish : w.cache.wishes() | not_paid){
         total_amount += wish.amount;
 
         size_t monthly_breaks = 0;
@@ -405,11 +401,7 @@ void budget::estimate_wishes(budget::writer& w) {
     auto fortune_amount = cash_for_wishes();
     auto today          = budget::local_day();
 
-    for (auto& wish : w.cache.wishes()) {
-        if (wish.paid) {
-            continue;
-        }
-
+    for (auto& wish : w.cache.wishes() | not_paid) {
         bool ok = false;
 
         std::string status;
@@ -463,11 +455,7 @@ void budget::estimate_wishes(budget::writer& w) {
         year_contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), status, "::edit::wishes::" + to_string(wish.id)});
     }
 
-    for (auto& wish : w.cache.wishes()) {
-        if (wish.paid) {
-            continue;
-        }
-
+    for (auto& wish : w.cache.wishes() | not_paid) {
         bool ok = false;
 
         std::string status;
@@ -479,13 +467,11 @@ void budget::estimate_wishes(budget::writer& w) {
 
             bool month_objective  = true;
 
-            for (auto& objective : w.cache.objectives()) {
-                if (objective.type == "monthly") {
-                    auto success_after  = budget::compute_success(month_status.add_expense(wish.amount), objective);
+            for (auto& objective : w.cache.objectives() | filter_by_type("monthly")) {
+                auto success_after = budget::compute_success(month_status.add_expense(wish.amount), objective);
 
-                    if (success_after < 100) {
-                        month_objective = false;
-                    }
+                if (success_after < 100) {
+                    month_objective = false;
                 }
             }
 

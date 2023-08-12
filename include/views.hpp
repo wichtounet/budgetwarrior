@@ -143,6 +143,20 @@ struct not_zero_adaptor {
     }
 };
 
+struct not_paid_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, not_paid_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & element) { return !element.paid; });
+    }
+};
+
+struct paid_only_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, paid_only_adaptor) {
+        return std::forward<R>(r) | std::views::filter([] (const auto & element) { return element.paid; });
+    }
+};
+
 } // namespace detail
 
 inline auto filter_by_id(size_t id) {
@@ -167,6 +181,10 @@ inline auto filter_by_type(std::string_view type) {
 
 inline auto filter_by_name(std::string_view name) {
     return std::views::filter([name] (const auto & account) { return account.name == name; });
+}
+
+inline auto filter_by_type(std::string_view type) {
+    return std::views::filter([type] (const auto & element) { return account.type == type; });
 }
 
 inline auto filter_by_ticker(std::string_view ticker) {
@@ -282,6 +300,8 @@ inline constexpr detail::is_portfolio_adaptor is_portfolio;
 inline constexpr detail::is_fi_adaptor is_fi;
 inline constexpr detail::is_cash_adaptor is_cash;
 inline constexpr detail::not_zero_adaptor not_zero;
+inline constexpr detail::paid_only_adaptor paid_only;
+inline constexpr detail::not_paid_adaptor not_paid;
 
 // Syntactic sugar around fold_left
 template <std::ranges::range R>

@@ -115,7 +115,8 @@ currency_cache_value get_rate_v2(const std::string& from, const std::string& to,
 } // end of anonymous namespace
 
 void budget::load_currency_cache(){
-    std::string const file_path = budget::path_to_budget_file("currency.cache");
+    const auto file_path = budget::path_to_budget_file("currency.cache");
+
     std::ifstream file(file_path);
 
     if (!file.is_open() || !file.good()){
@@ -140,7 +141,8 @@ void budget::load_currency_cache(){
 }
 
 void budget::save_currency_cache() {
-    std::string const file_path = budget::path_to_budget_file("currency.cache");
+    const auto file_path = budget::path_to_budget_file("currency.cache");
+
     std::ofstream file(file_path);
 
     if (!file.is_open() || !file.good()){

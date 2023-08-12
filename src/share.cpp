@@ -64,9 +64,9 @@ budget::date get_valid_date(const budget::date & d){
         // TODO This should be done by getting the current time in the U.S.
         if (tm.tm_hour > 15) {
             return get_valid_date(budget::local_day() - budget::days(1));
-        } else {
-            return get_valid_date(budget::local_day() - budget::days(2));
         }
+
+        return get_valid_date(budget::local_day() - budget::days(2));
     }
 
     auto dow = d.day_of_the_week();
@@ -82,7 +82,7 @@ budget::date get_valid_date(const budget::date & d){
 // In the worst case, we use a value of 1, but sometimes we can do better
 // We can try to find the closest date in the past for this ticker
 // This function must be called with a lock!
-share_cache_value get_invalid_value(share_price_cache_key key) {
+share_cache_value get_invalid_value(const share_price_cache_key & key) {
     auto next_key = key;
     for (size_t i = 0; i < 5; ++i) {
         next_key.date = next_key.date - budget::days(1);
@@ -110,7 +110,7 @@ std::string exec_command(const std::string& command) {
 
     FILE* stream = popen(command.c_str(), "r");
 
-    while (fgets(buffer, 1024, stream) != NULL) {
+    while (fgets(buffer, 1024, stream) != nullptr) {
         output << buffer;
     }
 
@@ -164,7 +164,8 @@ std::map<share_price_cache_key, budget::money> get_share_price_v3(const std::str
 } // end of anonymous namespace
 
 void budget::load_share_price_cache(){
-    std::string file_path = budget::path_to_budget_file("share_price.cache");
+    const auto file_path = budget::path_to_budget_file("share_price.cache");
+
     std::ifstream file(file_path);
 
     if (!file.is_open() || !file.good()){
@@ -203,7 +204,8 @@ void budget::load_share_price_cache(){
 }
 
 void budget::save_share_price_cache() {
-    std::string file_path = budget::path_to_budget_file("share_price.cache");
+    const auto file_path = budget::path_to_budget_file("share_price.cache");
+
     std::ofstream file(file_path);
 
     if (!file.is_open() || !file.good()){
@@ -212,7 +214,7 @@ void budget::save_share_price_cache() {
     }
 
     {
-        server_lock_guard l(shares_lock);
+        const server_lock_guard l(shares_lock);
 
         for (auto& [key, value] : share_prices) {
             if (value.valid) {
@@ -233,7 +235,7 @@ void budget::prefetch_share_price_cache(){
     std::set<std::string> tickers;
 
     {
-        server_lock_guard l(shares_lock);
+        const server_lock_guard l(shares_lock);
 
         // Collect all the tickers
         for (auto& [key, value] : share_prices) {
@@ -244,7 +246,7 @@ void budget::prefetch_share_price_cache(){
     data_cache cache;
 
     // Prefetch the current prices
-    for (auto & ticker : tickers) {
+    for (const auto & ticker : tickers) {
         if (is_ticker_active(cache, ticker)) {
             share_price(ticker);
         }
@@ -261,12 +263,12 @@ budget::money budget::share_price(const std::string& ticker){
 budget::money budget::share_price(const std::string& ticker, budget::date d){
     auto date = get_valid_date(d);
 
-    share_price_cache_key key(date, ticker);
+    const share_price_cache_key key(date, ticker);
 
     // The first step is to get the data from the cache
 
     {
-        server_lock_guard l(shares_lock);
+        const server_lock_guard l(shares_lock);
 
         if (share_prices.contains(key)) {
             return share_prices[key].value;
@@ -280,7 +282,7 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
     auto end_date   = d + budget::days(10);
     auto quotes     = get_share_price_v3(ticker, start_date, end_date);
 
-    server_lock_guard l(shares_lock);
+    const server_lock_guard l(shares_lock);
 
     // If the API did not find anything, it must mean that the ticker is
     // invalid
@@ -308,7 +310,7 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
 
             LOG_F(INFO, "Price: Possible holiday on {}, retrying on {}", budget::to_string(date), budget::to_string(next_date));
 
-            share_price_cache_key next_key(next_date, ticker);
+            const share_price_cache_key next_key(next_date, ticker);
             if (share_prices.contains(next_key)) {
                 share_prices[key] = share_prices[next_key];
                 break;

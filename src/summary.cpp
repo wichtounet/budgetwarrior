@@ -26,8 +26,9 @@ namespace {
 
 void print_columns(const std::vector<std::string>& columns){
     std::vector<std::vector<std::string>> split_columns;
+    split_columns.reserve(columns.size());
 
-    for(auto& column : columns){
+    for(const auto& column : columns){
         split_columns.push_back(budget::split(column, '\n'));
     }
 
@@ -38,10 +39,10 @@ void print_columns(const std::vector<std::string>& columns){
     size_t total_max_width = composed_columns.size() * 2;
     size_t max_length = 0;
 
-    for(auto& column : split_columns){
+    for(const auto& column : split_columns){
         size_t max_width = 0;
 
-        for(auto& row : column){
+        for(const auto& row : column){
             max_width = std::max(max_width, rsize_after(row));
         }
 
@@ -53,15 +54,15 @@ void print_columns(const std::vector<std::string>& columns){
     if (terminal_width() > total_max_width + 3) {
         // By default, print the columns side by side
 
-        for (auto& column : split_columns) {
+        for (const auto& column : split_columns) {
             size_t max_width = 0;
 
-            for (auto& row : column) {
+            for (const auto& row : column) {
                 max_width = std::max(max_width, rsize_after(row));
             }
 
             for (size_t i = 0; i < column.size(); ++i) {
-                auto& row = column[i];
+                const auto& row = column[i];
 
                 if (i >= composed_columns.size()) {
                     composed_columns.emplace_back();
@@ -97,8 +98,8 @@ void print_columns(const std::vector<std::string>& columns){
         // If the columns cannot be printed side by side
         // print them one after another
 
-        for (auto& column : split_columns) {
-            for(auto& row : column){
+        for (const auto& column : split_columns) {
+            for(const auto& row : column){
                 std::cout << row << std::endl;
             }
 
@@ -112,13 +113,13 @@ void month_overview(budget::month month, budget::year year) {
     std::stringstream summary_ss;
     console_writer summary_w(summary_ss);
     budget::account_summary(summary_w, month, year);
-    std::string m_summary = summary_ss.str();
+    const std::string m_summary = summary_ss.str();
 
     // Second display a summary of the objectives
     std::stringstream objectives_ss;
     console_writer objectives_w(objectives_ss);
     budget::objectives_summary(objectives_w);
-    std::string m_objectives_summary = objectives_ss.str();
+    const std::string m_objectives_summary = objectives_ss.str();
 
     // Third display a summary of the fortune
 
@@ -144,8 +145,6 @@ void month_overview() {
 }
 
 } // end of anonymous namespace
-
-constexpr const std::array<std::pair<const char*, const char*>, 1> budget::module_traits<budget::summary_module>::aliases;
 
 void budget::summary_module::load() {
     load_accounts();
@@ -204,11 +203,11 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
 
-    columns.push_back("Account");
-    columns.push_back("Expenses");
-    columns.push_back("Earnings");
-    columns.push_back("Balance");
-    columns.push_back("Local");
+    columns.emplace_back("Account");
+    columns.emplace_back("Expenses");
+    columns.emplace_back("Earnings");
+    columns.emplace_back("Balance");
+    columns.emplace_back("Local");
 
     std::unordered_map<std::string, budget::money> account_previous;
 
@@ -232,7 +231,7 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
     auto sm = start_month(w.cache, year);
 
     for (unsigned short i = sm; i <= month; ++i) {
-        budget::month m = i;
+        const budget::month m = i;
 
         for (auto& account : all_accounts(w.cache, year, m)) {
             auto total_expenses = fold_left_auto(w.cache.expenses() | filter_by_account(account.id) | filter_by_date(year, m) | to_amount);

@@ -95,7 +95,8 @@ std::string budget::base64_decode(std::string_view in) {
         36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51};
 
     std::string out;
-    int val = 0, valb = -8;
+    int val = 0;
+    int valb = -8;
     for (uint8_t c : in) {
         if (c < '+' || c > 'z') {
             break;
