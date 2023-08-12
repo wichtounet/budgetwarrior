@@ -202,7 +202,7 @@ void budget::search_earnings(std::string_view search, budget::writer& w){
         auto it = std::ranges::search(
                 earning.name, search, [](char a, char b) { return std::tolower(a) == std::tolower(b); });
 
-        if (it.begin() != earning.name.end()) {
+        if (it) {
             contents.push_back({to_string(earning.id), to_string(earning.date), get_account(earning.account).name, earning.name, to_string(earning.amount), "::edit::earnings::" + to_string(earning.id)});
 
             total += earning.amount;

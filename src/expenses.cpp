@@ -285,7 +285,7 @@ void budget::search_expenses(std::string_view search, budget::writer& w){
         auto it = std::ranges::search(
                 expense.name, search, [](char a, char b) { return std::tolower(a) == std::tolower(b); });
 
-        if (it.begin() != expense.name.end()) {
+        if (it) {
             contents.push_back({to_string(expense.id),
                                 to_string(expense.date),
                                 get_account(expense.account).name,

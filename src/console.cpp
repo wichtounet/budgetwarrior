@@ -92,19 +92,17 @@ bool budget::option(std::string_view option, std::vector<std::string>& args) {
 
 std::string budget::option_value(std::string_view option, std::vector<std::string>& args, const std::string& default_value) {
     auto it  = args.begin();
-    auto end = args.end();
 
     auto value = default_value;
 
     std::string search(option);
     search += '=';
 
-    while (it != end) {
+    while (it != args.end()) {
         if (it->find(search) == 0) {
             value = std::string(it->begin() + search.size(), it->end());
 
             it  = args.erase(it);
-            end = args.end();
         } else {
             ++it;
         }
