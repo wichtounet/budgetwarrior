@@ -70,8 +70,8 @@ void budget::archive_accounts_impl(bool month){
 
     auto today = budget::local_day();
 
-    budget::date until_date;
-    budget::date since_date;
+    budget::date until_date{};
+    budget::date since_date{};
 
     if (month) {
         auto tmp   = budget::local_day() - months(1);

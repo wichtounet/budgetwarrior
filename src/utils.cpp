@@ -32,7 +32,7 @@ unsigned short budget::terminal_width(){
     SHORT columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
     return static_cast<unsigned short>(columns);
 #else
-    struct winsize w;
+    struct winsize w {};
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     return w.ws_col;
 #endif
@@ -45,7 +45,7 @@ unsigned short budget::terminal_height(){
     SHORT rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
     return static_cast<unsigned short>(rows);
 #else
-    struct winsize w;
+    struct winsize w {};
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     return w.ws_row;
 #endif
@@ -128,7 +128,7 @@ std::string budget::base64_encode(std::string_view in){
     int val =0;
     int valb = -6;
 
-    for(char c : in){
+    for (const char c : in) {
         val = (val << 8) + c;
         valb += 8;
 

@@ -816,11 +816,11 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
                     if (args.size() == 3) {
                         display_month_account_overview(ask_for_account(), today.month(), today.year(),w);
                     } else if (args.size() == 4) {
-                        budget::month m(to_number<unsigned short>(args[3]));
+                        budget::month const m(to_number<unsigned short>(args[3]));
                         display_month_account_overview(ask_for_account(m), m, today.year(), w);
                     } else if (args.size() == 5) {
-                        budget::month m(to_number<unsigned short>(args[3]));
-                        budget::year y(to_number<unsigned short>(args[4]));
+                        budget::month const m(to_number<unsigned short>(args[3]));
+                        budget::year const y(to_number<unsigned short>(args[4]));
 
                         display_month_account_overview(ask_for_account(m, y), m, y, w);
                     } else {
@@ -997,7 +997,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         double current_total_savings_rate = 0.0;
 
         for (unsigned short i = sm; i < 13; ++i) {
-            budget::month m = i;
+            budget::month const m = i;
 
             auto status = compute_month_status(w.cache, year - 1, m);
 
@@ -1359,7 +1359,7 @@ void budget::display_year_overview(budget::year year, budget::writer& w){
     }
 
     auto today = budget::local_day();
-    bool current = year == today.year() && today.month() != 12;
+    const bool current = year == today.year() && today.month() != 12;
 
     display_local_balance(w, year, current, false, true);
     display_balance(w, year, false, true);

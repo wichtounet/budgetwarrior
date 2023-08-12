@@ -5,25 +5,27 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
-#include <tuple>
-#include <utility>
+#include "share.hpp"
+
+#include <math.h>
+
 #include <iostream>
-#include <sstream>
 #include <map>
 #include <set>
+#include <sstream>
+#include <tuple>
+#include <utility>
 
-#include "cpp_utils/string.hpp"
-
-#include "share.hpp"
 #include "assets.hpp"
 #include "config.hpp"
-#include "http.hpp"
+#include "cpp_utils/string.hpp"
 #include "data.hpp"
 #include "data_cache.hpp"
 #include "date.hpp"
+#include "http.hpp"
+#include "logging.hpp"
 #include "money.hpp"
 #include "server_lock.hpp"
-#include "logging.hpp"
 
 namespace {
 
@@ -31,7 +33,7 @@ struct share_price_cache_key {
     budget::date date;
     std::string ticker;
 
-    share_price_cache_key(budget::date date, std::string ticker) : date(date), ticker(ticker) {}
+    share_price_cache_key(budget::date date, std::string ticker) : date(date), ticker(std::move(std::move(ticker))) {}
 
     friend bool operator<(const share_price_cache_key & lhs, const share_price_cache_key & rhs){
         return std::tie(lhs.date, lhs.ticker) < std::tie(rhs.date, rhs.ticker);
@@ -47,7 +49,7 @@ struct share_price_cache_key {
 // Without that, we could not store values of 1 in the cache file
 struct share_cache_value {
     budget::money value;
-    bool   valid;
+    bool valid{};
 };
 
 std::map<share_price_cache_key, share_cache_value> share_prices;
@@ -123,7 +125,8 @@ std::string exec_command(const std::string& command) {
 // Starting from this version, the get_share_price function must be thread
 // safe. This means, it cannot touch the cache itself
 std::map<share_price_cache_key, budget::money> get_share_price_v3(const std::string & ticker, budget::date start_date, budget::date end_date) {
-    std::string command = "yfinance_quote.py " + ticker + " " + date_to_string(start_date) + " " + date_to_string(end_date);
+    std::string const command =
+        "yfinance_quote.py " + ticker + " " + date_to_string(start_date) + " " + date_to_string(end_date);
 
     auto result = exec_command(command);
 
@@ -143,13 +146,13 @@ std::map<share_price_cache_key, budget::money> get_share_price_v3(const std::str
             budget::data_reader reader;
             reader.parse(line);
 
-            budget::date  d;
+            budget::date d{};
             budget::money m;
 
             reader >> d;
             reader >> m;
 
-            share_price_cache_key key(d, ticker);
+            const share_price_cache_key key(d, ticker);
             quotes[key] = m;
         }
     } catch (const budget::date_exception& e) {
@@ -184,9 +187,9 @@ void budget::load_share_price_cache(){
         // However, this will be able to go away since they are written down
         // with budget::money now
 
-        budget::date day;
+        budget::date day{};
         std::string  ticker;
-        double       value;
+        double value = NAN;
 
         data_reader reader;
         reader.parse(line);
@@ -195,11 +198,11 @@ void budget::load_share_price_cache(){
         reader >> ticker;
         reader >> value;
 
-        share_price_cache_key key(day, ticker);
+        const share_price_cache_key key(day, ticker);
         share_prices[key] = {budget::money::from_double(value), true};
     }
 
-    LOG_F(INFO, "Share Price Cache has been loaded from {}", file_path);
+    LOG_F(INFO, "Share Price Cache has been loaded from {}", file_path.string());
     LOG_F(INFO, "Share Price Cache has {} entries", share_prices.size());
 }
 
@@ -227,7 +230,7 @@ void budget::save_share_price_cache() {
         }
     }
 
-    LOG_F(INFO, "Share Price Cache has been saved to {}", file_path);
+    LOG_F(INFO, "Share Price Cache has been saved to {}", file_path.string());
     LOG_F(INFO, "Share Price Cache has {} entries", share_prices.size());
 }
 

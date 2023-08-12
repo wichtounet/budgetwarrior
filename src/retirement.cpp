@@ -27,8 +27,8 @@ namespace {
 constexpr size_t running_limit = 12;
 
 money running_expenses(data_cache & cache, const budget::date & d = budget::local_day()){
-    budget::date end = d - budget::days(d.day() - 1);
-    budget::date start = end - budget::months(running_limit);
+    budget::date const end = d - budget::days(d.day() - 1);
+    budget::date const start = end - budget::months(running_limit);
 
     budget::money total;
 

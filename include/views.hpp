@@ -183,10 +183,6 @@ inline auto filter_by_name(std::string_view name) {
     return std::views::filter([name] (const auto & account) { return account.name == name; });
 }
 
-inline auto filter_by_type(std::string_view type) {
-    return std::views::filter([type] (const auto & element) { return account.type == type; });
-}
-
 inline auto filter_by_ticker(std::string_view ticker) {
     return std::views::filter([ticker] (const auto & account) { return account.ticker == ticker; });
 }

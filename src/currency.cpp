@@ -85,6 +85,7 @@ currency_cache_value get_rate_v2(const std::string& from, const std::string& to,
 
         return {1.0, false};
     }
+
     if (res->status != 200) {
         LOG_F(ERROR, "Currency(v2): Error Response {}, setting exchange between {} to {} to 1/1", res->status, from,
               to);
@@ -92,24 +93,20 @@ currency_cache_value get_rate_v2(const std::string& from, const std::string& to,
         LOG_F(ERROR, "Currency(v2): Response is {}", res->body);
 
         return {1.0, false};
-    } else {
-        auto& buffer = res->body;
-        auto index = "\"" + to + "\":";
-
-        if (buffer.find(index) == std::string::npos || buffer.find('}') == std::string::npos) {
-            LOG_F(ERROR, "Currency(v2): Error parsing exchange rates, setting exchange between {} to {} to 1/1", from,
-                  to);
-            LOG_F(ERROR, "Currency(v2): URL is {}", url);
-            LOG_F(ERROR, "Currency(v2): Response is {}", res->body);
-
-            return {1.0, false};
-        } else {
-            std::string ratio_result(buffer.begin() + buffer.find(index) + index.size(),
-                                     buffer.begin() + buffer.find('}'));
-
-            return {atof(ratio_result.c_str()), true};
-        }
     }
+
+    auto& buffer = res->body;
+    auto index = "\"" + to + "\":";
+
+    if (buffer.find(index) == std::string::npos || buffer.find('}') == std::string::npos) {
+        LOG_F(ERROR, "Currency(v2): Error parsing exchange rates, setting exchange between {} to {} to 1/1", from, to);
+        LOG_F(ERROR, "Currency(v2): URL is {}", url);
+        LOG_F(ERROR, "Currency(v2): Response is {}", res->body);
+
+        return {1.0, false};
+    }          std::string ratio_result(buffer.begin() + buffer.find(index) + index.size(), buffer.begin() + buffer.find('}'));
+
+    return {atof(ratio_result.c_str()), true};
 }
 
 } // end of anonymous namespace
@@ -136,7 +133,7 @@ void budget::load_currency_cache(){
         exchanges[key] = {budget::to_number<double>(parts[3]), true};
     }
 
-    LOG_F(INFO, "Share Price Cache has been loaded from {}", file_path);
+    LOG_F(INFO, "Share Price Cache has been loaded from {}", file_path.string());
     LOG_F(INFO, "Share Price Cache has {} entries", exchanges.size());
 }
 
@@ -161,7 +158,7 @@ void budget::save_currency_cache() {
         }
     }
 
-    LOG_F(INFO, "Share Price Cache has been loaded to {}", file_path);
+    LOG_F(INFO, "Share Price Cache has been loaded to {}", file_path.string());
     LOG_F(INFO, "Share Price Cache has {} entries", exchanges.size());
 }
 
@@ -203,36 +200,35 @@ double budget::exchange_rate(const std::string& from, const std::string& to, con
     }
     if (d > budget::local_day()) {
         return exchange_rate(from, to, budget::local_day());
-    } else {
-        currency_cache_key key(d, from, to);
-
-        // Return directly if we already have the data in cache
-        {
-            server_lock_guard l(exchanges_lock);
-
-            if (exchanges.find(key) != exchanges.end()) {
-                return exchanges[key].value;
-            }
-        }
-
-        // Otherwise, make the API call without the lock
-
-        auto rate = get_rate_v2(from, to, date_to_string(d));
-
-        LOG_F(INFO, "Price: Currency Rate ({}) from {} to {} = {} (valid: {})", budget::to_string(d), from, to,
-              budget::to_string(rate.value), rate.valid);
-
-        // Update the cache and the reverse cache with the lock
-
-        currency_cache_key reverse_key(d, to, from);
-
-        {
-            server_lock_guard l(exchanges_lock);
-
-            exchanges[key] = rate;
-            exchanges[reverse_key] = {1.0 / rate.value, rate.valid};
-        }
-
-        return rate.value;
     }
+    currency_cache_key key(d, from, to);
+
+    // Return directly if we already have the data in cache
+    {
+        server_lock_guard l(exchanges_lock);
+
+        if (exchanges.find(key) != exchanges.end()) {
+            return exchanges[key].value;
+        }
+    }
+
+    // Otherwise, make the API call without the lock
+
+    auto rate = get_rate_v2(from, to, date_to_string(d));
+
+    LOG_F(INFO, "Price: Currency Rate ({}) from {} to {} = {} (valid: {})", budget::to_string(d), from, to,
+          budget::to_string(rate.value), rate.valid);
+
+    // Update the cache and the reverse cache with the lock
+
+    currency_cache_key reverse_key(d, to, from);
+
+    {
+        server_lock_guard l(exchanges_lock);
+
+        exchanges[key] = rate;
+        exchanges[reverse_key] = {1.0 / rate.value, rate.valid};
+    }
+
+    return rate.value;
 }

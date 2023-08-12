@@ -213,7 +213,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
     if (args.size() == 1) {
         show_recurrings(w);
     } else {
-        auto& subcommand = args[1];
+        const auto& subcommand = args[1];
 
         if (subcommand == "show") {
             show_recurrings(w);
@@ -232,7 +232,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
         } else if (subcommand == "delete") {
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             if (recurrings.remove(id)) {
                 std::cout << "Recurring operation " << id << " has been deleted" << std::endl;
@@ -243,7 +243,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
         } else if (subcommand == "edit") {
             enough_args(args, 3);
 
-            size_t id = to_number<size_t>(args[2]);
+            const auto id = to_number<size_t>(args[2]);
 
             auto recurring          = recurrings[id];
             auto previous_recurring = recurring; // Temporary Copy

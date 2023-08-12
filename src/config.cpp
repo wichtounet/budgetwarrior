@@ -138,11 +138,11 @@ bool verify_folder(){
     return true;
 }
 
-} //end of anonymous namespace
+config_type configuration;
+config_type internal;
+config_type internal_bak;
 
-static config_type configuration;
-static config_type internal;
-static config_type internal_bak;
+} //end of anonymous namespace
 
 bool budget::load_config() {
     if(!load_configuration(config_file(), configuration)){

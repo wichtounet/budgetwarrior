@@ -74,7 +74,7 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
 
     budget::money previous;
     budget::money const first = sorted_values.front().amount;
-    budget::date previous_date;
+    budget::date previous_date{};
     budget::date const first_date = sorted_values.front().check_date;
 
     for(std::size_t i = 0; i < sorted_values.size(); ++i){
