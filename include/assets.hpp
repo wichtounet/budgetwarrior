@@ -77,7 +77,7 @@ struct asset {
     money total_allocation() const {
         money total;
 
-        for (auto& [class_id, alloc] : classes) {
+        for (const auto& [class_id, alloc] : classes) {
             total += alloc;
         }
 
@@ -85,17 +85,11 @@ struct asset {
     }
 
     bool is_fi() const {
-        for (auto& [class_id, alloc] : classes) {
-            if (get_asset_class(class_id).fi) {
-                return true;
-            }
-        }
-
-        return false;
+        return std::ranges::any_of(classes, [] (const auto & v) { return get_asset_class(v.first).fi; });
     }
 
     bool is_cash() const {
-        for (auto& [class_id, alloc] : classes) {
+        for (const auto& [class_id, alloc] : classes) {
             if (get_asset_class(class_id).name == "cash") {
                 return alloc == budget::money(100);
             }

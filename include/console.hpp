@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 #include "money.hpp"
 #include "date.hpp"
@@ -123,7 +124,7 @@ std::string get_string_complete(const std::vector<std::string>& choices);
 
 template<typename ...Checker>
 void edit_string_complete(std::string& ref, std::string_view title, const std::vector<std::string>& choices, Checker... checkers){
-    bool checked;
+    bool checked = false;
     do {
         std::cout << title << " [" << ref << "]: ";
 
@@ -139,7 +140,7 @@ void edit_string_complete(std::string& ref, std::string_view title, const std::v
 
 template<typename ...Checker>
 void edit_string(std::string& ref, std::string_view title, Checker... checkers){
-    bool checked;
+    bool checked = false;
     do {
         std::string answer;
 
@@ -156,7 +157,7 @@ void edit_string(std::string& ref, std::string_view title, Checker... checkers){
 
 template<typename ...Checker>
 void edit_number(size_t& ref, std::string_view title, Checker... checkers){
-    bool checked;
+    bool checked = false;
     do {
         std::string answer;
 
@@ -173,7 +174,7 @@ void edit_number(size_t& ref, std::string_view title, Checker... checkers){
 
 template<typename ...Checker>
 void edit_number(int64_t& ref, std::string_view title, Checker... checkers){
-    bool checked;
+    bool checked = false;
     do {
         std::string answer;
 
@@ -190,7 +191,7 @@ void edit_number(int64_t& ref, std::string_view title, Checker... checkers){
 
 template<typename ...Checker>
 void edit_double(double& ref, std::string_view title, Checker... checkers){
-    bool checked;
+    bool checked = false;
     do {
         std::string answer;
 
@@ -207,7 +208,7 @@ void edit_double(double& ref, std::string_view title, Checker... checkers){
 
 template<typename ...Checker>
 void edit_money(budget::money& ref, std::string_view title, Checker... checkers){
-    bool checked;
+    bool checked = false;
     do {
         std::string answer;
 
@@ -224,7 +225,7 @@ void edit_money(budget::money& ref, std::string_view title, Checker... checkers)
 
 template<typename ...Checker>
 void edit_date(date& ref, std::string_view title, Checker... checkers){
-    bool checked;
+    bool checked = false;
     do {
         try {
             std::string answer;
@@ -235,7 +236,7 @@ void edit_date(date& ref, std::string_view title, Checker... checkers){
             if(!answer.empty()){
                 bool math = false;
                 if(answer[0] == '+'){
-                    std::string str(std::next(answer.begin()), std::prev(answer.end()));
+                    std::string const str(std::next(answer.begin()), std::prev(answer.end()));
                     if(answer.back() == 'd'){
                         ref += days(std::stoi(str));
                         math = true;
@@ -247,7 +248,7 @@ void edit_date(date& ref, std::string_view title, Checker... checkers){
                         math = true;
                     }
                 } else if(answer[0] == '-'){
-                    std::string str(std::next(answer.begin()), std::prev(answer.end()));
+                    std::string const str(std::next(answer.begin()), std::prev(answer.end()));
                     if(answer.back() == 'd'){
                         ref -= days(std::stoi(str));
                         math = true;
@@ -308,18 +309,12 @@ struct account_checker {
     budget::date date;
 
     account_checker() : date(budget::local_day()) {}
-    account_checker(budget::date date) : date(date) {}
+    explicit account_checker(budget::date date) : date(date) {}
 
-    bool operator()(const std::string& value) {
+    bool operator()(const std::string& value) const {
         data_cache cache;
 
-        for (auto& account : all_accounts(cache, date.year(), date.month())) {
-            if (account.name == value) {
-                return true;
-            }
-        }
-
-        return false;
+        return !std::ranges::empty(all_accounts(cache, date.year(), date.month()) | filter_by_name(value));
     }
 
     std::string message(){
@@ -375,23 +370,17 @@ struct range_checker {
 
 struct one_of_checker {
     std::vector<std::string> values;
-    one_of_checker(std::vector<std::string> values) : values(values){
+    explicit one_of_checker(std::vector<std::string> values) : values(std::move(std::move(values))) {
         //Nothing to init
     }
 
     bool operator()(const std::string& value){
-        for(auto& v : values){
-            if(value == v){
-                return true;
-            }
-        }
-
-        return false;
+        return std::ranges::find(values, value) != std::ranges::begin(values);
     }
 
     std::string message(){
         std::string value = "This value can only be one of these values [";
-        std::string comma = "";
+        std::string comma;
 
         for(auto& v : values){
             value += comma;

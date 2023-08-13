@@ -65,8 +65,6 @@ bool income_exists(size_t id);
 void income_delete(size_t id);
 income income_get(size_t id);
 
-void show_incomes(budget::writer& w);
-
 struct data_cache;
 
 budget::money get_base_income(data_cache & cache);

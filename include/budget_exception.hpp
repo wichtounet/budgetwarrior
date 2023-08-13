@@ -12,9 +12,9 @@
 namespace budget {
 
 struct budget_exception : std::exception {
-    budget_exception(std::string message, bool should_log = false);
+    explicit budget_exception(std::string message, bool should_log = false);
 
-    ~budget_exception() noexcept = default;
+    ~budget_exception() noexcept override = default;
 
     /*!
      * Return the error message.
@@ -22,7 +22,7 @@ struct budget_exception : std::exception {
      */
     const std::string& message() const;
 
-    virtual const char* what() const throw();
+    const char* what() const noexcept override;
 
     bool should_log() const;
 
@@ -31,4 +31,4 @@ protected:
     bool        should_log_;
 };
 
-} //end of budget
+} //namespace budget

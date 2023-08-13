@@ -1197,11 +1197,11 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     double savings_rate       = 0.0;
     double savings_rate_after = 0.0;
 
-    if (savings.value > 0) {
+    if (savings.positive()) {
         savings_rate = 100 * (savings / income);
     }
 
-    if (savings_no_taxes > 0) {
+    if (savings_no_taxes.positive()) {
         savings_rate_after = 100 * (savings_no_taxes / income_no_taxes);
     }
 

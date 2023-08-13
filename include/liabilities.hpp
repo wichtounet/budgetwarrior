@@ -54,7 +54,7 @@ struct liability {
     money total_allocation() const {
         money total;
 
-        for (auto& [class_id, alloc] : classes) {
+        for (const auto& [class_id, alloc] : classes) {
             total += alloc;
         }
 

@@ -51,9 +51,8 @@ struct status {
     double savings_rate() const {
         if (savings.dollars() > 0) {
             return 100.0 * (savings / income);
-        } else {
-            return 0.0;
         }
+        return 0.0;
     }
 
     double savings_rate_after_tax() const {
@@ -63,9 +62,8 @@ struct status {
 
         if (savings_after_tax.dollars() > 0) {
             return 100.0 * (savings_after_tax / income_after_tax);
-        } else {
-            return 0.0;
         }
+        return 0.0;
     }
 };
 

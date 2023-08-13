@@ -12,4 +12,4 @@ namespace budget {
 
 void init_logging(int& argc, char** argv);
 
-} // end of budget namespace
+}  // namespace budget

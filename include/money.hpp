@@ -36,7 +36,7 @@ struct money {
     }
 
     static money from_double(double dollars) {
-        long dollars_long = static_cast<long>(dollars);
+        const long dollars_long = static_cast<long>(dollars);
         return {dollars_long, static_cast<int>((dollars - dollars_long) * SCALE)};
     }
 
@@ -188,9 +188,7 @@ struct money {
         return value == 0;
     }
 
-    operator bool() const {
-        return value;
-    }
+    explicit operator bool() const { return value; }
 
     explicit operator float() const {
         return value / float(SCALE);

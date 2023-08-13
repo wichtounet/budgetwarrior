@@ -41,7 +41,7 @@ struct debt {
     bool direction;
     std::string name;
     money amount;
-    std::string title = "";
+    std::string title;
 
     std::map<std::string, std::string> get_params() const ;
 

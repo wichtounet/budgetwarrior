@@ -63,7 +63,7 @@ private:
 
 template<typename T>
 struct data_handler {
-    size_t next_id; // Note: No need to protect this since this is only accessed by GC (not run from server)
+    size_t next_id{};  // Note: No need to protect this since this is only accessed by GC (not run from server)
 
     data_handler(const char* module, const char* path) : module(module), path(path) {
         // Nothing else to init
@@ -174,24 +174,23 @@ struct data_handler {
                 LOG_F(ERROR, "Failed to edit from {}", get_module());
 
                 return false;
-            } else {
+            }
+            return true;
+
+        }
+        for (auto& v : data_) {
+            if (v.id == value.id) {
+                v = value;
+
+                if (propagate) {
+                    set_changed_internal();
+                }
+
                 return true;
             }
-        } else {
-            for (auto& v : data_) {
-                if (v.id == value.id) {
-                    v = value;
-
-                    if (propagate) {
-                        set_changed_internal();
-                    }
-
-                    return true;
-                }
-            }
-
-            return false;
         }
+
+        return false;
     }
 
     template <typename TT>
@@ -239,11 +238,10 @@ struct data_handler {
             }
 
             return res.success;
-        } else {
-            set_changed_internal();
-
-            return data_.size() < before;
         }
+        set_changed_internal();
+
+        return data_.size() < before;
     }
 
     bool exists(size_t id) {

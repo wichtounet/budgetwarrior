@@ -8,12 +8,13 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include <string>
+#include <utility>
+#include <vector>
 
+#include "data_cache.hpp"
 #include "date.hpp"
 #include "money.hpp"
-#include "data_cache.hpp"
 
 namespace budget {
 
@@ -35,7 +36,7 @@ struct year_month_selector {
     budget::month current_month;
 
     year_month_selector(std::string page, budget::year current_year, budget::month current_month)
-            : page(page), current_year(current_year), current_month(current_month) {}
+        : page(std::move(std::move(page))), current_year(current_year), current_month(current_month) {}
 };
 
 struct year_selector {
@@ -43,7 +44,7 @@ struct year_selector {
     budget::year current_year;
 
     year_selector(std::string page, budget::year current_year)
-            : page(page), current_year(current_year) {}
+        : page(std::move(std::move(page))), current_year(current_year) {}
 };
 
 struct asset_selector {
@@ -51,7 +52,7 @@ struct asset_selector {
     std::size_t current_asset;
 
     asset_selector(std::string page, std::size_t current_asset)
-            : page(page), current_asset(current_asset) {}
+        : page(std::move(std::move(page))), current_asset(current_asset) {}
 };
 
 struct active_asset_selector {
@@ -59,21 +60,19 @@ struct active_asset_selector {
     std::size_t current_asset;
 
     active_asset_selector(std::string page, std::size_t current_asset)
-            : page(page), current_asset(current_asset) {}
+        : page(std::move(std::move(page))), current_asset(current_asset) {}
 };
 
 struct add_button {
     std::string module;
 
-    add_button(std::string module)
-            : module(module) {}
+    explicit add_button(std::string module) : module(std::move(std::move(module))) {}
 };
 
 struct set_button {
     std::string module;
 
-    set_button(std::string module)
-            : module(module) {}
+    explicit set_button(std::string module) : module(std::move(std::move(module))) {}
 };
 
 struct writer {
@@ -125,25 +124,27 @@ struct writer {
 struct console_writer : writer {
     std::ostream& os;
 
-    console_writer(std::ostream& os);
+    explicit console_writer(std::ostream& os);
 
-    virtual writer& operator<<(const std::string& value) override;
-    virtual writer& operator<<(const double& value) override;
+    writer& operator<<(const std::string& value) override;
+    writer& operator<<(const double& value) override;
 
-    virtual writer& operator<<(const budget::money& m) override;
-    virtual writer& operator<<(const budget::month& m) override;
-    virtual writer& operator<<(const budget::year& m) override;
+    writer& operator<<(const budget::money& m) override;
+    writer& operator<<(const budget::month& m) override;
+    writer& operator<<(const budget::year& m) override;
 
-    virtual writer& operator<<(const end_of_line_t& m) override;
-    virtual writer& operator<<(const p_begin_t& m) override;
-    virtual writer& operator<<(const p_end_t& m) override;
-    virtual writer& operator<<(const title_begin_t& m) override;
-    virtual writer& operator<<(const title_end_t& m) override;
+    writer& operator<<(const end_of_line_t& m) override;
+    writer& operator<<(const p_begin_t& m) override;
+    writer& operator<<(const p_end_t& m) override;
+    writer& operator<<(const title_begin_t& m) override;
+    writer& operator<<(const title_end_t& m) override;
 
-    virtual bool is_web() override;
+    bool is_web() override;
 
-    virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0, size_t foot = 0) override;
-    virtual void display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values) override;
+    void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents,
+                       size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0, size_t foot = 0) override;
+    void display_graph(const std::string& title, std::vector<std::string>& categories,
+                       std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values) override;
 };
 
 } //end of namespace budget
