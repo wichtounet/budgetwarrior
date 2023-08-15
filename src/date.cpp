@@ -77,14 +77,14 @@ std::string budget::date_to_string(const budget::date& date) {
 }
 
 unsigned short budget::start_month(data_cache & cache, budget::year year){
-    const budget::month m = min_with_default(cache.expenses() | to_date | filter_by_year(year) | to_month, 12);
-    return min_with_default(cache.earnings() | to_date | filter_by_year(year) | to_month, m);
+    const budget::month m = min_with_default(cache.expenses() | filter_by_year(year) | to_month, 12);
+    return min_with_default(cache.earnings() | filter_by_year(year) | to_month, m);
 }
 
 unsigned short budget::start_year(data_cache & cache){
     auto today = budget::local_day();
-    const budget::year y = min_with_default(cache.expenses() | to_date | not_template | to_year, today.year());
-    return min_with_default(cache.earnings() | to_date | not_template | to_year, y);
+    const budget::year y = min_with_default(cache.expenses() | not_template | to_year, today.year());
+    return min_with_default(cache.earnings() | not_template | to_year, y);
 }
 
 std::ostream& budget::operator<<(std::ostream& stream, const date& date){

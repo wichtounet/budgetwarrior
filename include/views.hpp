@@ -55,14 +55,22 @@ struct to_date_adaptor {
 struct to_month_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, to_month_adaptor) {
-        return std::forward<R>(r) | std::views::transform([](const auto & date) { return date.month(); });
+        if constexpr (std::is_same_v<std::remove_cv_t<std::ranges::range_value_t<R>>, budget::date>) {
+            return std::forward<R>(r) | std::views::transform([](const auto & date) { return date.month(); });
+        } else {
+            return std::forward<R>(r) | std::views::transform([](const auto & element) { return element.date.month(); });
+        }
     }
 };
 
 struct to_year_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, to_year_adaptor) {
-        return std::forward<R>(r) | std::views::transform([](const auto & date) { return date.year(); });
+        if constexpr (std::is_same_v<std::remove_cv_t<std::ranges::range_value_t<R>>, budget::date>) {
+            return std::forward<R>(r) | std::views::transform([](const auto & date) { return date.year(); });
+        } else {
+            return std::forward<R>(r) | std::views::transform([](const auto & element) { return element.date.year(); });
+        }
     }
 };
 
