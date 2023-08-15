@@ -438,7 +438,7 @@ bool budget::no_liabilities() {
     return liabilities.empty();
 }
 
-budget::money budget::get_liability_value(budget::liability& liability, const budget::date& d, data_cache& cache) {
+budget::money budget::get_liability_value(const budget::liability& liability, const budget::date& d, data_cache& cache) {
     budget::money asset_value_amount;
 
     for (auto& asset_value : cache.sorted_group_asset_values(true)[liability.id]) {
@@ -454,15 +454,15 @@ budget::money budget::get_liability_value(budget::liability& liability, const bu
     return asset_value_amount;
 }
 
-budget::money budget::get_liability_value(budget::liability & liability, data_cache & cache) {
+budget::money budget::get_liability_value(const budget::liability & liability, data_cache & cache) {
     return get_liability_value(liability, budget::local_day(), cache);
 }
 
-budget::money budget::get_liability_value_conv(budget::liability & liability, data_cache & cache) {
+budget::money budget::get_liability_value_conv(const budget::liability & liability, data_cache & cache) {
     return get_liability_value_conv(liability, budget::local_day(), cache);
 }
 
-budget::money budget::get_liability_value_conv(budget::liability& liability, const budget::date& d, data_cache& cache) {
+budget::money budget::get_liability_value_conv(const budget::liability& liability, const budget::date& d, data_cache& cache) {
     auto amount = get_liability_value(liability, d, cache);
 
     if (amount) {
@@ -471,11 +471,11 @@ budget::money budget::get_liability_value_conv(budget::liability& liability, con
     return amount;
 }
 
-budget::money budget::get_liability_value_conv(budget::liability & liability, const std::string& currency, data_cache & cache) {
+budget::money budget::get_liability_value_conv(const budget::liability & liability, const std::string& currency, data_cache & cache) {
     return get_liability_value_conv(liability, budget::local_day(), currency, cache);
 }
 
-budget::money budget::get_liability_value_conv(budget::liability& liability, const budget::date& d,
+budget::money budget::get_liability_value_conv(const budget::liability& liability, const budget::date& d,
                                                const std::string& currency, data_cache& cache) {
     auto amount = get_liability_value(liability, d, cache);
 
