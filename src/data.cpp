@@ -48,6 +48,15 @@ std::string parse_output(const std::vector<std::string>& parts) {
     return output;
 }
 
+// Note: This function is necessary because writing numbers used to be
+// locale-dependent. To read older database, we need to handle , in numbers
+// and spaces as practical utility
+std::string pre_clean_number(std::string str) {
+    str.erase(std::remove(str.begin(), str.end(), ','), str.end());
+    str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
+    return str;
+}
+
 } // namespace
 
 // data_reader
@@ -60,7 +69,7 @@ void budget::data_reader::parse(const std::string& data) {
 }
 
 budget::data_reader& budget::data_reader::operator>>(bool& value) {
-    const auto & part = parts.at(current);
+    auto part = pre_clean_number(parts.at(current));
 
     size_t temp = 0;
     if (auto [p, ec] = std::from_chars(part.data(), part.data() + part.size(), temp); ec != std::errc() || p != part.data() + part.size()) {
@@ -74,7 +83,7 @@ budget::data_reader& budget::data_reader::operator>>(bool& value) {
 }
 
 budget::data_reader& budget::data_reader::operator>>(size_t& value) {
-    const auto & part = parts.at(current);
+    auto part = pre_clean_number(parts.at(current));
 
     if (auto [p, ec] = std::from_chars(part.data(), part.data() + part.size(), value); ec != std::errc() || p != part.data() + part.size()) {
         throw budget::budget_exception("\"" + parts.at(current) + "\" is not a valid size_t");
@@ -85,7 +94,7 @@ budget::data_reader& budget::data_reader::operator>>(size_t& value) {
 }
 
 budget::data_reader& budget::data_reader::operator>>(int64_t& value) {
-    const auto & part = parts.at(current);
+    auto part = pre_clean_number(parts.at(current));
 
     if (auto [p, ec] = std::from_chars(part.data(), part.data() + part.size(), value); ec != std::errc() || p != part.data() + part.size()) {
         throw budget::budget_exception("\"" + parts.at(current) + "\" is not a valid int64_t");
@@ -96,7 +105,7 @@ budget::data_reader& budget::data_reader::operator>>(int64_t& value) {
 }
 
 budget::data_reader& budget::data_reader::operator>>(int32_t& value) {
-    const auto & part = parts.at(current);
+    auto part = pre_clean_number(parts.at(current));
 
     if (auto [p, ec] = std::from_chars(part.data(), part.data() + part.size(), value); ec != std::errc() || p != part.data() + part.size()) {
         throw budget::budget_exception("\"" + parts.at(current) + "\" is not a valid int32_t");
@@ -107,7 +116,7 @@ budget::data_reader& budget::data_reader::operator>>(int32_t& value) {
 }
 
 budget::data_reader& budget::data_reader::operator>>(double& value) {
-    const auto & part = parts.at(current);
+    auto part = pre_clean_number(parts.at(current));
 
     if (auto [p, ec] = std::from_chars(part.data(), part.data() + part.size(), value); ec != std::errc() || p != part.data() + part.size()) {
         throw budget::budget_exception("\"" + parts.at(current) + "\" is not a valid double");

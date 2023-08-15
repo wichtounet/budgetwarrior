@@ -16,7 +16,15 @@
 
 using namespace budget;
 
-money budget::money_from_string(std::string_view money_string){
+money budget::money_from_string(std::string_view money_sv){
+    // TODO Remove that code entirely
+    std::string money_string(money_sv);
+
+    // In order to read locale-dependent data (legacy), we need
+    // to allow , in the numbers
+    // TODO In the future, we can remove this code
+    money_string.erase(std::remove(money_string.begin(), money_string.end(), ','), money_string.end());
+
     int dollars = 0;
     int cents = 0;
 
