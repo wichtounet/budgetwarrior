@@ -168,8 +168,8 @@ struct paid_only_adaptor {
 struct not_template_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, not_template_adaptor) {
-        return std::forward<R>(r) | std::views::filter([](const auto& element) {
-                   if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+        return std::forward<R>(r) | std::views::filter([] <typename T> (const T& element) {
+                   if constexpr (std::is_same_v<T, budget::date>) {
                        return element != TEMPLATE_DATE;
                    } else {
                        return element.date != TEMPLATE_DATE;
@@ -181,8 +181,8 @@ struct not_template_adaptor {
 struct template_only_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, template_only_adaptor) {
-        return std::forward<R>(r) | std::views::filter([](const auto& element) {
-                   if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+        return std::forward<R>(r) | std::views::filter([] <typename T>(const T& element) {
+                   if constexpr (std::is_same_v<T, budget::date>) {
                        return element == TEMPLATE_DATE;
                    } else {
                        return element.date == TEMPLATE_DATE;
@@ -222,8 +222,8 @@ inline auto filter_by_ticker(std::string_view ticker) {
 }
 
 inline auto filter_by_year(budget::year year) {
-    return std::views::filter([year] (const auto & element) -> bool {
-        if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+    return std::views::filter([year] <typename T> (const T & element) -> bool {
+        if constexpr (std::is_same_v<T, budget::date>) {
             return element.year() == year;
         } else {
             return element.date.year() == year;
@@ -232,8 +232,8 @@ inline auto filter_by_year(budget::year year) {
 }
 
 inline auto filter_by_month(budget::month month) {
-    return std::views::filter([month] (const auto & element) -> bool {
-        if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+    return std::views::filter([month] <typename T> (const T & element) -> bool {
+        if constexpr (std::is_same_v<T, budget::date>) {
             return element.month() == month;
         } else {
             return element.date.month() == month;
@@ -242,8 +242,8 @@ inline auto filter_by_month(budget::month month) {
 }
 
 inline auto filter_by_date(budget::year year, budget::month month) {
-    return std::views::filter([year, month] (const auto & element) -> bool {
-        if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+    return std::views::filter([year, month] <typename T> (const T & element) -> bool {
+        if constexpr (std::is_same_v<T, budget::date>) {
             return element.year() == year && element.month() == month;
         } else {
             return element.date.year() == year && element.date.month() == month;
@@ -252,8 +252,8 @@ inline auto filter_by_date(budget::year year, budget::month month) {
 }
 
 inline auto between(budget::month sm, budget::month month) {
-    return std::views::filter([sm, month] (const auto & element) -> bool {
-        if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+    return std::views::filter([sm, month] <typename T> (const T & element) -> bool {
+        if constexpr (std::is_same_v<T, budget::date>) {
             return element.month() >= sm && element.month() <= month;
         } else {
             return element.date.month() >= sm && element.date.month() <= month;
@@ -270,8 +270,8 @@ inline auto since(budget::date since) {
 }
 
 inline auto expand_value(data_cache& cache) {
-    return std::views::transform([&cache](auto& asset) {
-        if constexpr (std::is_same_v<std::decay_t<decltype(asset)>, budget::liability>) {
+    return std::views::transform([&cache]<typename T> (const T& asset) {
+        if constexpr (std::is_same_v<T, budget::liability>) {
             auto amount = get_liability_value(asset, cache);
             return std::make_pair(asset, amount);
         } else {
@@ -282,8 +282,8 @@ inline auto expand_value(data_cache& cache) {
 }
 
 inline auto expand_value_conv(data_cache& cache, budget::date d = budget::local_day()) {
-    return std::views::transform([&cache, d](auto& asset) {
-        if constexpr (std::is_same_v<std::decay_t<decltype(asset)>, budget::liability>) {
+    return std::views::transform([&cache, d]<typename T> (const T& asset) {
+        if constexpr (std::is_same_v<T, budget::liability>) {
             auto amount = get_liability_value_conv(asset, d, cache);
             return std::make_pair(asset, amount);
         } else {
@@ -294,8 +294,8 @@ inline auto expand_value_conv(data_cache& cache, budget::date d = budget::local_
 }
 
 inline auto to_value(data_cache& cache) {
-    return std::views::transform([&cache](auto& asset) {
-        if constexpr (std::is_same_v<std::decay_t<decltype(asset)>, budget::liability>) {
+    return std::views::transform([&cache]<typename T> (const T& asset) {
+        if constexpr (std::is_same_v<T, budget::liability>) {
             return get_liability_value(asset, cache);
         } else {
             return get_asset_value(asset, cache);
@@ -304,8 +304,8 @@ inline auto to_value(data_cache& cache) {
 }
 
 inline auto to_value_conv(data_cache& cache, budget::date d = budget::local_day()) {
-    return std::views::transform([&cache, d](auto& asset) {
-        if constexpr (std::is_same_v<std::decay_t<decltype(asset)>, budget::liability>) {
+    return std::views::transform([&cache, d]<typename T> (const T& asset) {
+        if constexpr (std::is_same_v<T, budget::liability>) {
             return get_liability_value_conv(asset, d, cache);
         } else {
             return get_asset_value_conv(asset, d, cache);
