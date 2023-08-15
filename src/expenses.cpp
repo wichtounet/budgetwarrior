@@ -18,6 +18,7 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "console.hpp"
+#include "views.hpp"
 #include "writer.hpp"
 #include "budget_exception.hpp"
 
@@ -33,11 +34,9 @@ void show_templates() {
 
     size_t count = 0;
 
-    for (auto& expense : expenses.data()) {
-        if (expense.date == TEMPLATE_DATE) {
-            contents.push_back({to_string(expense.id), get_account(expense.account).name, expense.name, to_string(expense.amount)});
-            ++count;
-        }
+    for (const auto& expense : expenses.data() | template_only) {
+        contents.push_back({to_string(expense.id), get_account(expense.account).name, expense.name, to_string(expense.amount)});
+        ++count;
     }
 
     if (count == 0) {
@@ -109,21 +108,19 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
                 bool template_found = false;
 
-                for (auto& template_expense : all_expenses()) {
-                    if (template_expense.date == TEMPLATE_DATE && template_expense.name == template_name) {
-                        expense expense;
-                        expense.guid    = generate_guid();
-                        expense.date    = budget::local_day();
-                        expense.name    = template_expense.name;
-                        expense.amount  = template_expense.amount;
-                        expense.account = template_expense.account;
+                for (auto& template_expense : all_expenses() | template_only | filter_by_name(template_name)) {
+                    expense expense;
+                    expense.guid    = generate_guid();
+                    expense.date    = budget::local_day();
+                    expense.name    = template_expense.name;
+                    expense.amount  = template_expense.amount;
+                    expense.account = template_expense.account;
 
-                        auto id = expenses.add(std::move(expense));
-                        std::cout << "Expense " << id << " has been created" << std::endl;
+                    auto id = expenses.add(std::move(expense));
+                    std::cout << "Expense " << id << " has been created" << std::endl;
 
-                        template_found = true;
-                        break;
-                    }
+                    template_found = true;
+                    break;
                 }
 
                 if (!template_found) {

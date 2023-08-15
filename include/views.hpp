@@ -11,6 +11,7 @@
 
 #include "date.hpp"
 #include "assets.hpp"
+#include "expenses.hpp"
 #include "liabilities.hpp"
 
 namespace budget {
@@ -55,6 +56,13 @@ struct to_month_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, to_month_adaptor) {
         return std::forward<R>(r) | std::views::transform([](const auto & date) { return date.month(); });
+    }
+};
+
+struct to_year_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, to_year_adaptor) {
+        return std::forward<R>(r) | std::views::transform([](const auto & date) { return date.year(); });
     }
 };
 
@@ -154,6 +162,32 @@ struct paid_only_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, paid_only_adaptor) {
         return std::forward<R>(r) | std::views::filter([] (const auto & element) { return element.paid; });
+    }
+};
+
+struct not_template_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, not_template_adaptor) {
+        return std::forward<R>(r) | std::views::filter([](const auto& element) {
+                   if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+                       return element != TEMPLATE_DATE;
+                   } else {
+                       return element.date != TEMPLATE_DATE;
+                   }
+               });
+    }
+};
+
+struct template_only_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, template_only_adaptor) {
+        return std::forward<R>(r) | std::views::filter([](const auto& element) {
+                   if constexpr (std::is_same_v<std::decay_t<decltype(element)>, budget::date>) {
+                       return element == TEMPLATE_DATE;
+                   } else {
+                       return element.date == TEMPLATE_DATE;
+                   }
+               });
     }
 };
 
@@ -288,6 +322,7 @@ inline constexpr detail::to_name_adaptor to_name;
 inline constexpr detail::to_amount_adaptor to_amount;
 inline constexpr detail::to_date_adaptor to_date;
 inline constexpr detail::to_month_adaptor to_month;
+inline constexpr detail::to_year_adaptor to_year;
 inline constexpr detail::liability_only_adaptor liability_only;
 inline constexpr detail::not_liability_adaptor not_liability;
 inline constexpr detail::is_desired_adaptor is_desired;
@@ -298,6 +333,8 @@ inline constexpr detail::is_cash_adaptor is_cash;
 inline constexpr detail::not_zero_adaptor not_zero;
 inline constexpr detail::paid_only_adaptor paid_only;
 inline constexpr detail::not_paid_adaptor not_paid;
+inline constexpr detail::template_only_adaptor template_only;
+inline constexpr detail::not_template_adaptor not_template;
 
 // Syntactic sugar around fold_left
 template <std::ranges::range R>
