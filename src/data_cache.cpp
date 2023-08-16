@@ -191,7 +191,7 @@ const std::vector<asset> & data_cache::user_assets() {
 
 std::vector<asset> & data_cache::active_user_assets() {
     if (active_user_assets_.empty()) {
-        std::ranges::copy(assets() | is_user | is_active, std::back_inserter(user_assets_));
+        std::ranges::copy(assets() | is_user | is_active, std::back_inserter(active_user_assets_));
     }
 
     return active_user_assets_;
