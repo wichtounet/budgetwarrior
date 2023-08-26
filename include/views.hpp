@@ -228,6 +228,10 @@ inline auto filter_by_type(std::string_view type) {
     return std::views::filter([type] (const auto & element) { return element.type == type; });
 }
 
+inline auto filter_by_currency(std::string_view currency) {
+    return std::views::filter([currency] (const auto & element) { return element.currency == currency; });
+}
+
 inline auto filter_by_name(std::string_view name) {
     return std::views::filter([name] (const auto & account) { return account.name == name; });
 }
