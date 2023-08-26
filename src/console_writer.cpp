@@ -43,22 +43,22 @@ std::string success_to_string(int success) {
     return ss.str();
 }
 
-std::string format(const std::string& v) {
+std::string format(std::string_view v) {
     if (v.substr(0, 5) == "::red") {
         auto value = v.substr(5);
 
-        return "\033[0;31m" + value + budget::format_reset();
+        return "\033[0;31m" + std::string(value) + budget::format_reset();
     }
     if (v.substr(0, 7) == "::green") {
         auto value = v.substr(7);
 
-        return "\033[0;32m" + value + budget::format_reset();
+        return "\033[0;32m" + std::string(value) + budget::format_reset();
     }
 
     if (v.substr(0, 6) == "::blue") {
         auto value = v.substr(6);
 
-        return "\033[0;33m" + value + budget::format_reset();
+        return "\033[0;33m" + std::string(value) + budget::format_reset();
     }
 
     if (v.substr(0, 9) == "::success") {
@@ -67,26 +67,26 @@ std::string format(const std::string& v) {
         return success_to_string(success);
     }
 
-    return v;
+    return std::string(v);
 }
 
-std::string underline_format(const std::string& v) {
+std::string underline_format(std::string_view v) {
     if (v.substr(0, 5) == "::red") {
         auto value = v.substr(5);
 
-        return "\033[4;31m" + value + budget::format_reset();
+        return "\033[4;31m" + std::string(value) + budget::format_reset();
     }
 
     if (v.substr(0, 7) == "::green") {
         auto value = v.substr(7);
 
-        return "\033[4;32m" + value + budget::format_reset();
+        return "\033[4;32m" + std::string(value) + budget::format_reset();
     }
 
     if (v.substr(0, 6) == "::blue") {
         auto value = v.substr(6);
 
-        return "\033[4;33m" + value + budget::format_reset();
+        return "\033[4;33m" + std::string(value) + budget::format_reset();
     }
 
     if (v.substr(0, 9) == "::success") {
@@ -95,7 +95,7 @@ std::string underline_format(const std::string& v) {
         return success_to_string(success);
     }
 
-    return v;
+    return std::string(v);
 }
 
 } // end of anonymous namespace
@@ -103,13 +103,13 @@ std::string underline_format(const std::string& v) {
 budget::console_writer::console_writer(std::ostream& os)
         : os(os) {}
 
-budget::writer& budget::console_writer::operator<<(const std::string& value) {
-    os << format(value);
+budget::writer& budget::console_writer::operator<<(std::string_view value) {
+    os << ::format(value);
 
     return *this;
 }
 
-budget::writer& budget::console_writer::operator<<(const double& value) {
+budget::writer& budget::console_writer::operator<<(double value) {
     os << value;
 
     return *this;

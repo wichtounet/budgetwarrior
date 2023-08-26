@@ -78,8 +78,8 @@ struct set_button {
 struct writer {
     data_cache cache;
 
-    virtual writer& operator<<(const std::string& value) = 0;
-    virtual writer& operator<<(const double& value) = 0;
+    virtual writer& operator<<(std::string_view value) = 0;
+    virtual writer& operator<<(double value) = 0;
 
     virtual writer& operator<<(const budget::money& m) = 0;
     virtual writer& operator<<(const budget::month& m) = 0;
@@ -126,8 +126,8 @@ struct console_writer : writer {
 
     explicit console_writer(std::ostream& os);
 
-    writer& operator<<(const std::string& value) override;
-    writer& operator<<(const double& value) override;
+    writer& operator<<(std::string_view value) override;
+    writer& operator<<(double value) override;
 
     writer& operator<<(const budget::money& m) override;
     writer& operator<<(const budget::month& m) override;
