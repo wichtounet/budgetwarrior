@@ -491,8 +491,8 @@ bool budget::no_accounts() {
     return accounts.empty();
 }
 
-void budget::add_account(budget::account&& account){
-    accounts.add(std::forward<budget::account>(account));
+size_t budget::add_account(budget::account&& account){
+    return accounts.add(std::forward<budget::account>(account));
 }
 
 bool budget::edit_account(const budget::account& account){

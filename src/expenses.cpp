@@ -209,8 +209,8 @@ void budget::save_expenses(){
     expenses.save();
 }
 
-void budget::add_expense(budget::expense&& expense){
-    expenses.add(std::forward<budget::expense>(expense));
+size_t budget::add_expense(budget::expense&& expense){
+    return expenses.add(std::forward<budget::expense>(expense));
 }
 
 bool budget::edit_expense(const expense& expense){

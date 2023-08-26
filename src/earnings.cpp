@@ -172,8 +172,8 @@ void budget::set_earnings_changed(){
     earnings.set_changed();
 }
 
-void budget::add_earning(budget::earning&& earning){
-    earnings.add(std::forward<budget::earning>(earning));
+size_t budget::add_earning(budget::earning&& earning){
+    return earnings.add(std::forward<budget::earning>(earning));
 }
 
 void budget::show_all_earnings(budget::writer& w){

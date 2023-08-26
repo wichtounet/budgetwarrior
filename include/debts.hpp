@@ -60,7 +60,7 @@ void set_debts_next_id(size_t next_id);
 void display_all_debts(budget::writer& w);
 void list_debts(budget::writer& w);
 
-void add_debt(debt&& debt);
+size_t add_debt(debt&& debt);
 void edit_debt(const debt& debt);
 bool debt_exists(size_t id);
 void debt_delete(size_t id);

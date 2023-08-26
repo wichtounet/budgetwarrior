@@ -52,7 +52,7 @@ void load_earnings();
 void save_earnings();
 
 std::vector<earning> all_earnings();
-void add_earning(earning&& earning);
+size_t add_earning(earning&& earning);
 bool edit_earning(const earning& earning);
 
 void set_earnings_changed();

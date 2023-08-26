@@ -69,7 +69,7 @@ void set_accounts_next_id(size_t next_id);
 void show_all_accounts(budget::writer& w);
 void show_accounts(budget::writer& w);
 
-void add_account(account&& account);
+size_t add_account(account&& account);
 bool edit_account(const account& account);
 bool account_exists(size_t id);
 void account_delete(size_t id);

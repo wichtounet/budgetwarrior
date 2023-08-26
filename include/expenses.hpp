@@ -54,7 +54,7 @@ void load_expenses();
 void save_expenses();
 
 std::vector<expense> all_expenses();
-void add_expense(expense&& expense);
+size_t add_expense(expense&& expense);
 bool edit_expense(const expense& expense);
 
 void set_expenses_changed();
