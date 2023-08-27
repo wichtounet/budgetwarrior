@@ -426,8 +426,8 @@ void budget::liability_delete(size_t id) {
     liabilities.remove(id);
 }
 
-void budget::add_liability(budget::liability& liability){
-    liabilities.add(liability);
+size_t budget::add_liability(budget::liability& liability){
+    return liabilities.add(liability);
 }
 
 void budget::edit_liability(const budget::liability& liability){

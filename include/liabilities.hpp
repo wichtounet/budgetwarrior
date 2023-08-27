@@ -79,7 +79,7 @@ void set_liabilities_next_id(size_t next_id);
 
 void set_liabilities_changed();
 
-void add_liability(liability& liability);
+size_t add_liability(liability& liability);
 void edit_liability(const liability& liability);
 bool liability_exists(size_t id);
 bool liability_exists(const std::string& name);

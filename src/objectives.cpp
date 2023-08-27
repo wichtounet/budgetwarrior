@@ -379,8 +379,8 @@ void budget::edit_objective(const budget::objective& objective){
     objectives.indirect_edit(objective);
 }
 
-void budget::add_objective(budget::objective&& objective){
-    objectives.add(std::forward<budget::objective>(objective));
+size_t budget::add_objective(budget::objective&& objective){
+    return objectives.add(std::forward<budget::objective>(objective));
 }
 
 std::string budget::get_status(const budget::status& status, const budget::objective& objective){

@@ -522,8 +522,8 @@ wish budget::wish_get(size_t id) {
     return wishes[id];
 }
 
-void budget::add_wish(budget::wish&& wish){
-    wishes.add(std::forward<budget::wish>(wish));
+size_t budget::add_wish(budget::wish&& wish){
+    return wishes.add(std::forward<budget::wish>(wish));
 }
 
 bool budget::edit_wish(const budget::wish& wish){

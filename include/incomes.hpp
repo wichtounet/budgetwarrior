@@ -59,7 +59,7 @@ void set_incomes_next_id(size_t next_id);
 void show_all_incomes(budget::writer& w);
 void show_incomes(budget::writer& w);
 
-void add_income(income&& income);
+size_t add_income(income&& income);
 bool edit_income(const income& income);
 bool income_exists(size_t id);
 void income_delete(size_t id);

@@ -70,7 +70,7 @@ int compute_success(const budget::status& status, const objective& objective);
 void list_objectives(budget::writer& w);
 void status_objectives(budget::writer& w);
 
-void add_objective(objective&& objective);
+size_t add_objective(objective&& objective);
 void edit_objective(const objective& objective);
 bool objective_exists(size_t id);
 void objective_delete(size_t id);

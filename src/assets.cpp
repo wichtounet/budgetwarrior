@@ -1169,8 +1169,8 @@ bool budget::no_assets() {
     return assets.empty();
 }
 
-void budget::add_asset(budget::asset& asset){
-    assets.add(asset);
+size_t budget::add_asset(budget::asset& asset){
+    return assets.add(asset);
 }
 
 bool budget::edit_asset(const budget::asset& asset){
