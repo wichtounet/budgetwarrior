@@ -118,7 +118,7 @@ struct writer {
     }
 
     virtual void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents, size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0, size_t foot = 0) = 0;
-    virtual void display_graph(const std::string& title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values) = 0;
+    virtual void display_graph(std::string_view title, std::vector<std::string>& categories, std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values) = 0;
 };
 
 struct console_writer : writer {
@@ -143,7 +143,7 @@ struct console_writer : writer {
 
     void display_table(std::vector<std::string>& columns, std::vector<std::vector<std::string>>& contents,
                        size_t groups = 1, std::vector<size_t> lines = {}, size_t left = 0, size_t foot = 0) override;
-    void display_graph(const std::string& title, std::vector<std::string>& categories,
+    void display_graph(std::string_view title, std::vector<std::string>& categories,
                        std::vector<std::string> series_names, std::vector<std::vector<float>>& series_values) override;
 };
 

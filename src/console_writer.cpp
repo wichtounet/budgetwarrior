@@ -332,7 +332,7 @@ bool budget::console_writer::is_web() {
     return false;
 }
 
-void budget::console_writer::display_graph([[maybe_unused]] const std::string&               title,
+void budget::console_writer::display_graph([[maybe_unused]] std::string_view                 title,
                                            [[maybe_unused]] std::vector<std::string>&        categories,
                                            [[maybe_unused]] std::vector<std::string>         series_names,
                                            [[maybe_unused]] std::vector<std::vector<float>>& series_values) {
