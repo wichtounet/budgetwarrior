@@ -58,7 +58,7 @@ For other systems, you'll have to install from sources.
 Build from source
 -----------------
 
-A modern compiler is necessary. I am working with GCC 9.3. You need to set the
+A modern compiler is necessary. I am working with GCC 13 and clang 16. You need to set the
 $CXX variable before executing make.
 
 Linux
@@ -146,8 +146,6 @@ Contribute
 The project is open for any kind of contribution : ideas, new features, bug fixes, tests, ...
 
 If you want to contribute to this project, you can contact me by `email <baptiste.wicht@gmail.com>`_ or via my `website  <http://baptiste-wicht.com/>`_. You can also directly fork the project and make a pull request.
-
-If you want to support the development of this project, you can `donate via Pledgie <http://pledgie.com/campaigns/21113>`_. Thank you !
 
 Troubleshooting
 ---------------
