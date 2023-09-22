@@ -22,7 +22,7 @@ struct status {
     budget::money income;
     budget::money savings;
 
-    status add_expense(budget::money expense){
+    status add_expense(budget::money expense) const {
         auto new_status = *this;
 
         new_status.expenses += expense;
@@ -31,7 +31,7 @@ struct status {
         return new_status;
     }
 
-    status add_earning(budget::money earning){
+    status add_earning(budget::money earning) const {
         auto new_status = *this;
 
         new_status.earnings += earning;
