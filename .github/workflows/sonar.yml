@@ -13,9 +13,11 @@ jobs:
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          submodules: recursive
       - name: Install GCC compiler
         run: sudo apt install g++-13
       - name: Install sonar-scanner and build-wrapper
