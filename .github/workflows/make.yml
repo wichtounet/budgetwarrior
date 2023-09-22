@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Compile and test on Linux
     runs-on: ${{ matrix.os }}
     strategy:
         matrix:
