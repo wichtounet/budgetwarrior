@@ -151,15 +151,15 @@ struct date {
 
     date(date_type year, date_type month, date_type day) : _year(year), _month(month), _day(day) {
         if(year < 1400){
-            throw date_exception("Year not in the valid range: " + std::to_string(year));
+            throw date_exception(std::format("Year not in the valid range: {}", year));
         }
 
         if(month == 0 || month > 12){
-            throw date_exception("Invalid month: " + std::to_string(month));
+            throw date_exception(std::format("Invalid month: {}", month));
         }
 
         if(day == 0 || day > days_month(year, month)){
-            throw date_exception("Invalid day: " + std::to_string(day));
+            throw date_exception(std::format("Invalid day: {}", day));
         }
     }
 

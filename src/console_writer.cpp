@@ -44,24 +44,24 @@ std::string success_to_string(int success) {
 }
 
 std::string format(std::string_view v) {
-    if (v.substr(0, 5) == "::red") {
+    if (v.starts_with("::red")) {
         auto value = v.substr(5);
 
         return "\033[0;31m" + std::string(value) + budget::format_reset();
     }
-    if (v.substr(0, 7) == "::green") {
+    if (v.starts_with("::green")) {
         auto value = v.substr(7);
 
         return "\033[0;32m" + std::string(value) + budget::format_reset();
     }
 
-    if (v.substr(0, 6) == "::blue") {
+    if (v.starts_with("::blue")) {
         auto value = v.substr(6);
 
         return "\033[0;33m" + std::string(value) + budget::format_reset();
     }
 
-    if (v.substr(0, 9) == "::success") {
+    if (v.starts_with("::success")) {
         auto value = v.substr(9);
         auto success = budget::to_number<unsigned long>(value);
         return success_to_string(success);
@@ -71,25 +71,25 @@ std::string format(std::string_view v) {
 }
 
 std::string underline_format(std::string_view v) {
-    if (v.substr(0, 5) == "::red") {
+    if (v.starts_with("::red")) {
         auto value = v.substr(5);
 
         return "\033[4;31m" + std::string(value) + budget::format_reset();
     }
 
-    if (v.substr(0, 7) == "::green") {
+    if (v.starts_with("::green")) {
         auto value = v.substr(7);
 
         return "\033[4;32m" + std::string(value) + budget::format_reset();
     }
 
-    if (v.substr(0, 6) == "::blue") {
+    if (v.starts_with("::blue")) {
         auto value = v.substr(6);
 
         return "\033[4;33m" + std::string(value) + budget::format_reset();
     }
 
-    if (v.substr(0, 9) == "::success") {
+    if (v.starts_with("::success")) {
         auto value = v.substr(9);
         auto success = budget::to_number<unsigned long>(value);
         return success_to_string(success);

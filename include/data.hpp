@@ -230,7 +230,7 @@ struct data_handler {
         std::erase_if(data_, [id](const T& entry) { return entry.id == id; });
 
         if (is_server_mode()) {
-            auto res = budget::api_get(std::string("/") + get_module() + "/delete/?input_id=" + budget::to_string(id));
+            auto res = budget::api_get(std::format("/{}/delete/?input_id={}", get_module(), id));
 
             if (!res.success) {
                 LOG_F(ERROR, "Failed to delete data from module {}", get_module());
@@ -264,7 +264,7 @@ struct data_handler {
             }
         }
 
-        throw budget_exception("There is no data with id " + std::to_string(id) + " in " + module);
+        throw budget_exception(std::format("There is no data with id {} in {}", id, module));
     }
 
     size_t size() const {
