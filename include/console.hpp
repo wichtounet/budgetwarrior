@@ -226,44 +226,47 @@ void edit_money(budget::money& ref, std::string_view title, Checker... checkers)
 template<typename ...Checker>
 void edit_date(date& ref, std::string_view title, Checker... checkers){
     bool checked = false;
-    do {
+    while(!checked) {
         try {
             std::string answer;
 
             std::cout << title << " [" << ref << "]: ";
             std::getline(std::cin, answer);
 
-            if(!answer.empty()){
-                bool math = false;
-                if(answer[0] == '+'){
-                    std::string const str(std::next(answer.begin()), std::prev(answer.end()));
-                    if(answer.back() == 'd'){
-                        ref += days(static_cast<date_type>(std::stoul(str)));
-                        math = true;
-                    } else if(answer.back() == 'm'){
-                        ref += months(static_cast<date_type>(std::stoul(str)));
-                        math = true;
-                    } else if(answer.back() == 'y'){
-                        ref += years(static_cast<date_type>(std::stoul(str)));
-                        math = true;
-                    }
-                } else if(answer[0] == '-'){
-                    std::string const str(std::next(answer.begin()), std::prev(answer.end()));
-                    if(answer.back() == 'd'){
-                        ref -= days(static_cast<date_type>(std::stoul(str)));
-                        math = true;
-                    } else if(answer.back() == 'm'){
-                        ref -= months(static_cast<date_type>(std::stoul(str)));
-                        math = true;
-                    } else if(answer.back() == 'y'){
-                        ref -= years(static_cast<date_type>(std::stoul(str)));
-                        math = true;
-                    }
-                }
+            if (answer.empty()) {
+                checked = check(ref, checkers...);
+                continue;
+            }
 
-                if(!math) {
-                    ref = date_from_string(answer);
+            bool math = false;
+            if (answer[0] == '+') {
+                std::string const str(std::next(answer.begin()), std::prev(answer.end()));
+                if (answer.back() == 'd') {
+                    ref += days(static_cast<date_type>(std::stoul(str)));
+                    math = true;
+                } else if (answer.back() == 'm') {
+                    ref += months(static_cast<date_type>(std::stoul(str)));
+                    math = true;
+                } else if (answer.back() == 'y') {
+                    ref += years(static_cast<date_type>(std::stoul(str)));
+                    math = true;
                 }
+            } else if (answer[0] == '-') {
+                std::string const str(std::next(answer.begin()), std::prev(answer.end()));
+                if (answer.back() == 'd') {
+                    ref -= days(static_cast<date_type>(std::stoul(str)));
+                    math = true;
+                } else if (answer.back() == 'm') {
+                    ref -= months(static_cast<date_type>(std::stoul(str)));
+                    math = true;
+                } else if (answer.back() == 'y') {
+                    ref -= years(static_cast<date_type>(std::stoul(str)));
+                    math = true;
+                }
+            }
+
+            if (!math) {
+                ref = date_from_string(answer);
             }
 
             checked = check(ref, checkers...);
@@ -271,8 +274,7 @@ void edit_date(date& ref, std::string_view title, Checker... checkers){
             std::cout << e.message() << std::endl;
             checked = false;
         }
-
-    } while(!checked);
+    }
 }
 
 struct not_empty_checker {
