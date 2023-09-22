@@ -9,6 +9,10 @@ budgetwarrior 1.1.0
    :target: https://github.com/wichtounet/budgetwarrior/actions/workflows/cmake.yml
    :alt: Mac OS Build
 
+.. image:: https://img.shields.io/badge/License-MIT-yellow.svg
+   :target: https://opensource.org/licenses/MIT
+   :alt: MIT License
+
 Simple command line utility to helps keeping track of your expenses and the
 state of your budget.
 
