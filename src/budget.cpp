@@ -116,7 +116,7 @@ struct module_runner {
     std::vector<std::string> args;
     bool handled = false;
 
-    explicit module_runner(std::vector<std::string> && args) : args(std::move(args)) {
+    explicit module_runner(std::vector<std::string> && argsp) : args(std::move(argsp)) {
         //Nothing to init
     }
 
