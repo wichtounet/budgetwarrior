@@ -36,7 +36,7 @@ void predict_overview(){
 
     auto accounts = current_accounts(cache);
 
-    std::map<std::string, size_t> account_mappings;
+    std::map<std::string, size_t, std::less<>> account_mappings;
 
     std::vector<double> expense_multipliers(accounts.size(), 100.0);
     std::vector<double> earning_multipliers(accounts.size(), 100.0);

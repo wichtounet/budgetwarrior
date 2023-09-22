@@ -52,7 +52,7 @@ struct share_cache_value {
     bool valid{};
 };
 
-std::map<share_price_cache_key, share_cache_value> share_prices;
+std::map<share_price_cache_key, share_cache_value, std::less<>> share_prices;
 budget::server_lock shares_lock;
 
 budget::date get_valid_date(const budget::date & d){
@@ -124,7 +124,7 @@ std::string exec_command(const std::string& command) {
 // V3 is using Yahoo Finance
 // Starting from this version, the get_share_price function must be thread
 // safe. This means, it cannot touch the cache itself
-std::map<share_price_cache_key, budget::money> get_share_price_v3(const std::string & ticker, budget::date start_date, budget::date end_date) {
+std::map<share_price_cache_key, budget::money, std::less<>> get_share_price_v3(const std::string & ticker, budget::date start_date, budget::date end_date) {
     std::string const command =
         "yfinance_quote.py " + ticker + " " + date_to_string(start_date) + " " + date_to_string(end_date);
 
@@ -136,7 +136,7 @@ std::map<share_price_cache_key, budget::money> get_share_price_v3(const std::str
         return {};
     }
 
-    std::map<share_price_cache_key, budget::money> quotes;
+    std::map<share_price_cache_key, budget::money, std::less<>> quotes;
 
     std::stringstream ss(result);
 
@@ -235,7 +235,7 @@ void budget::save_share_price_cache() {
 }
 
 void budget::prefetch_share_price_cache(){
-    std::set<std::string> tickers;
+    std::set<std::string, std::less<>> tickers;
 
     {
         const server_lock_guard l(shares_lock);

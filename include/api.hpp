@@ -19,6 +19,6 @@ struct api_response {
 };
 
 api_response api_get(const std::string& api);
-api_response api_post(const std::string& api, const std::map<std::string, std::string>& params);
+api_response api_post(const std::string& api, const std::map<std::string, std::string, std::less<>>& params);
 
 } //end of namespace budget

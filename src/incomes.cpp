@@ -28,8 +28,8 @@ data_handler<income> incomes{"incomes", "incomes.data"};
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::income::get_params() const {
-    std::map<std::string, std::string> params;
+std::map<std::string, std::string, std::less<>> budget::income::get_params() const {
+    std::map<std::string, std::string, std::less<>> params;
 
     params["input_id"]     = budget::to_string(id);
     params["input_guid"]   = guid;

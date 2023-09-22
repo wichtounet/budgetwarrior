@@ -43,8 +43,8 @@ std::vector<std::string> get_share_asset_names(data_cache& cache) {
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::asset::get_params() const {
-    std::map<std::string, std::string> params;
+std::map<std::string, std::string, std::less<>> budget::asset::get_params() const {
+    std::map<std::string, std::string, std::less<>> params;
 
     params["input_id"]              = budget::to_string(id);
     params["input_guid"]            = guid;
@@ -938,7 +938,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
 
         std::vector<std::vector<std::string>> contents;
 
-        std::map<std::string, budget::money> classes;
+        std::map<std::string, budget::money, std::less<>> classes;
 
         budget::money assets_total;
         budget::money liabilities_total;
@@ -1117,8 +1117,6 @@ void budget::show_asset_values(budget::writer& w, bool liability){
         std::vector<std::string> columns = {"Name", "Total", "Currency"};
 
         std::vector<std::vector<std::string>> contents;
-
-        const std::map<std::string, budget::money> classes;
 
         budget::money total;
 

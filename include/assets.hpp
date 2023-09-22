@@ -41,7 +41,7 @@ struct asset_class {
     std::string name;
     bool        fi;
 
-    std::map<std::string, std::string> get_params() const ;
+    std::map<std::string, std::string, std::less<>> get_params() const ;
 
     void load(data_reader& reader);
     void save(data_writer& writer) const;
@@ -69,7 +69,7 @@ struct asset {
     money bonds;
     money cash;
 
-    std::map<std::string, std::string> get_params() const ;
+    std::map<std::string, std::string, std::less<>> get_params() const ;
 
     void load(data_reader& reader);
     void save(data_writer & writer);
@@ -112,7 +112,7 @@ struct asset_value {
     budget::date set_date;
     bool liability;
 
-    std::map<std::string, std::string> get_params() const ;
+    std::map<std::string, std::string, std::less<>> get_params() const ;
 
     void load(data_reader& reader);
     void save(data_writer& writer) const;
@@ -127,7 +127,7 @@ struct asset_share {
     budget::money price; // The purchase price
     budget::date date;   // The purchase date
 
-    std::map<std::string, std::string> get_params() const ;
+    std::map<std::string, std::string, std::less<>> get_params() const ;
 
     void load(data_reader& reader);
     void save(data_writer& writer) const;

@@ -68,7 +68,7 @@ budget::api_response base_api_get(Cli& cli, const std::string& api) {
 }
 
 template<typename Cli>
-budget::api_response base_api_post(Cli& cli, const std::string& api, const std::map<std::string, std::string>& params) {
+budget::api_response base_api_post(Cli& cli, const std::string& api, const std::map<std::string, std::string, std::less<>>& params) {
     auto server      = budget::config_value("server_url");
     auto server_port = budget::get_server_port();
 
@@ -152,7 +152,7 @@ budget::api_response budget::api_get(const std::string& api) {
     return base_api_get(cli, api);
 }
 
-budget::api_response budget::api_post(const std::string& api, const std::map<std::string, std::string>& params) {
+budget::api_response budget::api_post(const std::string& api, const std::map<std::string, std::string, std::less<>>& params) {
     cpp_assert(is_server_mode(), "api_post() should only be called in server mode");
 
     auto server      = config_value("server_url");

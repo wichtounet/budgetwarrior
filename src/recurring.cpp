@@ -86,8 +86,8 @@ void generate_recurring(const budget::date & date, const recurring & recurring) 
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::recurring::get_params()  const {
-    std::map<std::string, std::string> params;
+std::map<std::string, std::string, std::less<>> budget::recurring::get_params()  const {
+    std::map<std::string, std::string, std::less<>> params;
 
     params["input_id"]      = budget::to_string(id);
     params["input_guid"]    = guid;

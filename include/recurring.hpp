@@ -43,7 +43,7 @@ struct recurring {
     std::string account;
     std::string type;
 
-    std::map<std::string, std::string> get_params() const ;
+    std::map<std::string, std::string, std::less<>> get_params() const ;
 
     void load(data_reader & reader);
     void save(data_writer & writer) const;

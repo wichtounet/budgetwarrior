@@ -51,8 +51,8 @@ void edit(budget::debt& debt){
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::debt::get_params() const {
-    std::map<std::string, std::string> params;
+std::map<std::string, std::string, std::less<>> budget::debt::get_params() const {
+    std::map<std::string, std::string, std::less<>> params;
 
     params["input_id"]            = budget::to_string(id);
     params["input_guid"]          = guid;

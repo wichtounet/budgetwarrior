@@ -239,7 +239,7 @@ int main(int argc, const char* argv[]) {
             return 0;
         }
 
-        std::map<std::string, std::string> params;
+        std::map<std::string, std::string, std::less<>> params;
         params["version"] = get_version_short();
 
         auto version_res = budget::api_post("/server/version/support/", params);

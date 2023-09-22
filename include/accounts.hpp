@@ -41,7 +41,7 @@ struct account {
     date since;
     date until;
 
-    std::map<std::string, std::string> get_params() const ;
+    std::map<std::string, std::string, std::less<>> get_params() const ;
 
     void load(data_reader & reader);
     void save(data_writer& writer) const;

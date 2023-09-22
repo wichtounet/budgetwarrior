@@ -85,8 +85,8 @@ budget::money cash_for_wishes(){
 
 } //end of anonymous namespace
 
-std::map<std::string, std::string> budget::wish::get_params() const {
-    std::map<std::string, std::string> params;
+std::map<std::string, std::string, std::less<>> budget::wish::get_params() const {
+    std::map<std::string, std::string, std::less<>> params;
 
     params["input_id"]          = budget::to_string(id);
     params["input_guid"]        = guid;
