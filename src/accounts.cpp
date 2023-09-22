@@ -131,230 +131,232 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
 
     if(args.size() == 1){
         show_accounts(w);
-    } else {
-        const auto& subcommand = args[1];
+        return;
+    }
 
-        if(subcommand == "show"){
-            show_accounts(w);
-        } else if(subcommand == "all"){
-            show_all_accounts(w);
-        } else if(subcommand == "add"){
-            account account;
-            account.guid = generate_guid();
-            account.since = find_new_since();
-            account.until = budget::date(2099,12,31);
+    const auto& subcommand = args[1];
 
-            edit_string(account.name, "Name", not_empty_checker());
-            edit_money(account.amount, "Amount", not_negative_checker());
+    if (subcommand == "show") {
+        show_accounts(w);
+    } else if (subcommand == "all") {
+        show_all_accounts(w);
+    } else if (subcommand == "add") {
+        account account;
+        account.guid  = generate_guid();
+        account.since = find_new_since();
+        account.until = budget::date(2099, 12, 31);
 
-            if(account_exists(account.name)){
-                throw budget_exception("An account with this name already exists");
-            }
+        edit_string(account.name, "Name", not_empty_checker());
+        edit_money(account.amount, "Amount", not_negative_checker());
 
-            auto id = accounts.add(std::move(account));
-            std::cout << "Account " << id << " has been created" << std::endl;
-        } else if(subcommand == "delete"){
-            size_t id = 0;
+        if (account_exists(account.name)) {
+            throw budget_exception("An account with this name already exists");
+        }
 
-            if(args.size() >= 3){
-                enough_args(args, 3);
+        auto id = accounts.add(std::move(account));
+        std::cout << "Account " << id << " has been created" << std::endl;
+    } else if (subcommand == "delete") {
+        size_t id = 0;
 
-                id = to_number<size_t>(args[2]);
+        if (args.size() >= 3) {
+            enough_args(args, 3);
 
-                if(!accounts.exists(id)){
-                    throw budget_exception("There are no account with id " + args[2]);
-                }
-            } else {
-                std::string name;
-                edit_string_complete(name, "Account", all_account_names(), not_empty_checker(), account_checker());
+            id = to_number<size_t>(args[2]);
 
-                auto today = budget::local_day();
-                id = get_account(name, today.year(), today.month()).id;
-            }
-
-            if (all_expenses() | filter_by_account(id)) {
-                throw budget_exception("There are still some expenses linked to this account, cannot delete it");
-            }
-
-            if (all_earnings() | filter_by_account(id)) {
-                throw budget_exception("There are still some earnings linked to this account, cannot delete it");
-            }
-
-            accounts.remove(id);
-
-            std::cout << "Account " << id << " has been deleted" << std::endl;
-        } else if(subcommand == "edit"){
-            size_t id = 0;
-
-            auto today = budget::local_day();
-
-            if(args.size() >= 3){
-                enough_args(args, 3);
-
-                id = to_number<size_t>(args[2]);
-            } else {
-                std::string name;
-                edit_string_complete(name, "Account", all_account_names(), not_empty_checker(), account_checker());
-
-                id = get_account(name, today.year(), today.month()).id;
-            }
-
-            auto account = accounts[id];
-
-            edit_string(account.name, "Name", not_empty_checker());
-
-            //Verify that there are no OTHER account with this name
-            //in the current set of accounts (taking archiving into account)
-
-            if (accounts.data() | not_id(id) | active_today | filter_by_name(account.name)) {
-                throw budget_exception("There is already an account with the name " + account.name);
-            }
-
-            edit_money(account.amount, "Amount", not_negative_checker());
-
-            if (accounts.indirect_edit(account)) {
-                std::cout << "Account " << id << " has been modified" << std::endl;
-            }
-        } else if(subcommand == "transfer"){
-            std::string from_name;
-            edit_string_complete(from_name, "Transfer from", all_account_names(), not_empty_checker(), account_checker());
-
-            std::string to_name;
-            edit_string_complete(to_name, "Transfer to", all_account_names(), not_empty_checker(), account_checker());
-
-            if(from_name == to_name){
-                throw budget_exception("Cannot transfer to an from the same account");
-            }
-
-            std::string name = "Transfer";
-            edit_string(name, "Transfer Name", not_empty_checker());
-
-            money amount;
-            edit_money(amount, "Amount", not_negative_checker(), not_zero_checker());
-
-            expense expense;
-            expense.guid = generate_guid();
-            expense.date = budget::local_day();
-            expense.name = name;
-            expense.amount = amount;
-            expense.account = get_account(from_name, expense.date.year(), expense.date.month()).id;
-
-            add_expense(std::move(expense));
-
-            earning earning;
-            earning.guid = generate_guid();
-            earning.date = budget::local_day();
-            earning.name = name;
-            earning.amount = amount;
-            earning.account = get_account(to_name, earning.date.year(), earning.date.month()).id;
-
-            add_earning(std::move(earning));
-        } else if(subcommand == "migrate"){
-            std::string source_account_name;
-            edit_string_complete(source_account_name, "Source Account", all_account_names(), not_empty_checker(), account_checker());
-
-            std::string destination_account_name;
-            edit_string_complete(destination_account_name, "Destination Account", all_account_names(), not_empty_checker(), account_checker());
-
-            std::cout << "This command will move all expenses and earnings from \"" << source_account_name
-                << "\" to \"" << destination_account_name <<"\" and delete \"" << source_account_name
-                << "\". Are you sure you want to proceed ? [yes/no] ? ";
-
-            std::string answer;
-            std::getline(std::cin, answer);
-
-            if(answer == "yes" || answer == "y"){
-                if(source_account_name == destination_account_name){
-                    std::cout << "Migrating an account to itself has no effect" << std::endl;
-                } else {
-                    //Make sure that we find the destination for
-                    //each source accounts
-
-                    for(const auto& account : accounts.data() | filter_by_name(source_account_name)){
-                        auto destination_id = get_account_id(destination_account_name, account.since.year(), account.since.month());
-
-                        if(!destination_id){
-                            std::cout << "Impossible to find the corresponding account for account " << account.id
-                                << ". This may come from a migration issue. Open an issue on Github if you think that this is a bug" << std::endl;
-
-                            return;
-                        }
-                    }
-
-                    std::vector<size_t> deleted;
-
-                    //Perform the migration
-
-                    for(auto& account : accounts.data() | filter_by_name(source_account_name)){
-                        auto source_id = account.id;
-                        auto destination_account = get_account(destination_account_name, account.since.year(), account.since.month());
-                        auto destination_id = destination_account.id;
-
-                        std::cout << "Migrate account " << source_id << " to account " << destination_id << std::endl;
-
-                        destination_account.amount += account.amount;
-
-                        for (auto& expense : all_expenses() | filter_by_account(source_id)) {
-                            expense.account = destination_id;
-                            indirect_edit_expense(expense, false);
-                        }
-
-                        for (auto& earning : all_earnings() | filter_by_account(source_id)) {
-                            earning.account = destination_id;
-                            indirect_edit_earning(earning, false);
-                        }
-
-                        accounts.indirect_edit(destination_account);
-
-                        deleted.push_back(source_id);
-                    }
-
-                    set_expenses_changed();
-                    set_earnings_changed();
-
-                    //Delete the source accounts
-
-                    for(auto& id : deleted){
-                        std::cout << "Delete account " << id << std::endl;
-
-                        accounts.remove(id);
-                    }
-
-                    set_accounts_changed();
-
-                    std::cout << "Migration done" << std::endl;
-                }
-            }
-        } else if(subcommand == "archive"){
-            bool month = true;
-
-            if(args.size() == 3){
-                const auto& sub_sub_command = args[2];
-
-                if(sub_sub_command == "month"){
-                    month = true;
-                } else if(sub_sub_command == "year"){
-                    month = false;
-                } else {
-                    throw budget_exception("Invalid subcommand \"" + subcommand + + " " + sub_sub_command + "\"");
-                }
-            }
-
-            if (month) {
-                std::cout << "This command will create new accounts that will be used starting from the beginning of the current month. Are you sure you want to proceed ? [yes/no] ? ";
-            } else {
-                std::cout << "This command will create new accounts that will be used starting from the beginning of the current year. Are you sure you want to proceed ? [yes/no] ? ";
-            }
-
-            std::string answer;
-            std::cin >> answer;
-
-            if(answer == "yes" || answer == "y"){
-                archive_accounts_impl(month);
+            if (!accounts.exists(id)) {
+                throw budget_exception("There are no account with id " + args[2]);
             }
         } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+            std::string name;
+            edit_string_complete(name, "Account", all_account_names(), not_empty_checker(), account_checker());
+
+            auto today = budget::local_day();
+            id         = get_account(name, today.year(), today.month()).id;
         }
+
+        if (all_expenses() | filter_by_account(id)) {
+            throw budget_exception("There are still some expenses linked to this account, cannot delete it");
+        }
+
+        if (all_earnings() | filter_by_account(id)) {
+            throw budget_exception("There are still some earnings linked to this account, cannot delete it");
+        }
+
+        accounts.remove(id);
+
+        std::cout << "Account " << id << " has been deleted" << std::endl;
+    } else if (subcommand == "edit") {
+        size_t id = 0;
+
+        auto today = budget::local_day();
+
+        if (args.size() >= 3) {
+            enough_args(args, 3);
+
+            id = to_number<size_t>(args[2]);
+        } else {
+            std::string name;
+            edit_string_complete(name, "Account", all_account_names(), not_empty_checker(), account_checker());
+
+            id = get_account(name, today.year(), today.month()).id;
+        }
+
+        auto account = accounts[id];
+
+        edit_string(account.name, "Name", not_empty_checker());
+
+        // Verify that there are no OTHER account with this name
+        // in the current set of accounts (taking archiving into account)
+
+        if (accounts.data() | not_id(id) | active_today | filter_by_name(account.name)) {
+            throw budget_exception("There is already an account with the name " + account.name);
+        }
+
+        edit_money(account.amount, "Amount", not_negative_checker());
+
+        if (accounts.indirect_edit(account)) {
+            std::cout << "Account " << id << " has been modified" << std::endl;
+        }
+    } else if (subcommand == "transfer") {
+        std::string from_name;
+        edit_string_complete(from_name, "Transfer from", all_account_names(), not_empty_checker(), account_checker());
+
+        std::string to_name;
+        edit_string_complete(to_name, "Transfer to", all_account_names(), not_empty_checker(), account_checker());
+
+        if (from_name == to_name) {
+            throw budget_exception("Cannot transfer to an from the same account");
+        }
+
+        std::string name = "Transfer";
+        edit_string(name, "Transfer Name", not_empty_checker());
+
+        money amount;
+        edit_money(amount, "Amount", not_negative_checker(), not_zero_checker());
+
+        expense expense;
+        expense.guid    = generate_guid();
+        expense.date    = budget::local_day();
+        expense.name    = name;
+        expense.amount  = amount;
+        expense.account = get_account(from_name, expense.date.year(), expense.date.month()).id;
+
+        add_expense(std::move(expense));
+
+        earning earning;
+        earning.guid    = generate_guid();
+        earning.date    = budget::local_day();
+        earning.name    = name;
+        earning.amount  = amount;
+        earning.account = get_account(to_name, earning.date.year(), earning.date.month()).id;
+
+        add_earning(std::move(earning));
+    } else if (subcommand == "migrate") {
+        std::string source_account_name;
+        edit_string_complete(source_account_name, "Source Account", all_account_names(), not_empty_checker(), account_checker());
+
+        std::string destination_account_name;
+        edit_string_complete(destination_account_name, "Destination Account", all_account_names(), not_empty_checker(), account_checker());
+
+        std::cout << "This command will move all expenses and earnings from \"" << source_account_name << "\" to \"" << destination_account_name
+                  << "\" and delete \"" << source_account_name << "\". Are you sure you want to proceed ? [yes/no] ? ";
+
+        std::string answer;
+        std::getline(std::cin, answer);
+
+        if (answer == "yes" || answer == "y") {
+            if (source_account_name == destination_account_name) {
+                std::cout << "Migrating an account to itself has no effect" << std::endl;
+            } else {
+                // Make sure that we find the destination for
+                // each source accounts
+
+                for (const auto& account : accounts.data() | filter_by_name(source_account_name)) {
+                    auto destination_id = get_account_id(destination_account_name, account.since.year(), account.since.month());
+
+                    if (!destination_id) {
+                        std::cout << "Impossible to find the corresponding account for account " << account.id
+                                  << ". This may come from a migration issue. Open an issue on Github if you think that this is a bug" << std::endl;
+
+                        return;
+                    }
+                }
+
+                std::vector<size_t> deleted;
+
+                // Perform the migration
+
+                for (auto& account : accounts.data() | filter_by_name(source_account_name)) {
+                    auto source_id           = account.id;
+                    auto destination_account = get_account(destination_account_name, account.since.year(), account.since.month());
+                    auto destination_id      = destination_account.id;
+
+                    std::cout << "Migrate account " << source_id << " to account " << destination_id << std::endl;
+
+                    destination_account.amount += account.amount;
+
+                    for (auto& expense : all_expenses() | filter_by_account(source_id)) {
+                        expense.account = destination_id;
+                        indirect_edit_expense(expense, false);
+                    }
+
+                    for (auto& earning : all_earnings() | filter_by_account(source_id)) {
+                        earning.account = destination_id;
+                        indirect_edit_earning(earning, false);
+                    }
+
+                    accounts.indirect_edit(destination_account);
+
+                    deleted.push_back(source_id);
+                }
+
+                set_expenses_changed();
+                set_earnings_changed();
+
+                // Delete the source accounts
+
+                for (auto& id : deleted) {
+                    std::cout << "Delete account " << id << std::endl;
+
+                    accounts.remove(id);
+                }
+
+                set_accounts_changed();
+
+                std::cout << "Migration done" << std::endl;
+            }
+        }
+    } else if (subcommand == "archive") {
+        bool month = true;
+
+        if (args.size() == 3) {
+            const auto& sub_sub_command = args[2];
+
+            if (sub_sub_command == "month") {
+                month = true;
+            } else if (sub_sub_command == "year") {
+                month = false;
+            } else {
+                throw budget_exception("Invalid subcommand \"" + subcommand + +" " + sub_sub_command + "\"");
+            }
+        }
+
+        if (month) {
+            std::cout
+                    << "This command will create new accounts that will be used starting from the beginning of the current month. Are you sure you want to proceed ? [yes/no] ? ";
+        } else {
+            std::cout
+                    << "This command will create new accounts that will be used starting from the beginning of the current year. Are you sure you want to proceed ? [yes/no] ? ";
+        }
+
+        std::string answer;
+        std::cin >> answer;
+
+        if (answer == "yes" || answer == "y") {
+            archive_accounts_impl(month);
+        }
+    } else {
+        throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
     }
 }
 
