@@ -53,9 +53,9 @@ std::string budget::format_money_reverse(const budget::money& m) {
 size_t budget::rsize(const std::string& value) {
     auto v = value;
 
-    if (v.substr(0, 5) == "::red") {
+    if (v.starts_with("::red")) {
         v = v.substr(5);
-    } else if (v.substr(0, 7) == "::green") {
+    } else if (v.starts_with("::green")) {
         v = v.substr(7);
     }
 
