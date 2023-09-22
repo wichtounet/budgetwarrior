@@ -367,7 +367,7 @@ size_t budget::add_recurring(budget::recurring&& recurring) {
     save_expenses();
     save_earnings();
 
-    return recurrings.add(std::forward<budget::recurring>(recurring));
+    return recurrings.add(std::move(recurring));
 }
 
 bool budget::edit_recurring(const budget::recurring& recurring, const budget::recurring & previous_recurring) {

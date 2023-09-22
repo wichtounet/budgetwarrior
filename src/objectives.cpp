@@ -380,7 +380,7 @@ void budget::edit_objective(const budget::objective& objective){
 }
 
 size_t budget::add_objective(budget::objective&& objective){
-    return objectives.add(std::forward<budget::objective>(objective));
+    return objectives.add(std::move(objective));
 }
 
 std::string budget::get_status(const budget::status& status, const budget::objective& objective){

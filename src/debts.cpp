@@ -254,5 +254,5 @@ void budget::edit_debt(const budget::debt& debt){
 }
 
 size_t budget::add_debt(budget::debt&& debt){
-    return debts.add(std::forward<budget::debt>(debt));
+    return debts.add(std::move(debt));
 }

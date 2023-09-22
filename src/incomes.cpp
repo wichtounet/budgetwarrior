@@ -147,7 +147,7 @@ income budget::income_get(size_t id) {
 }
 
 size_t budget::add_income(budget::income&& income){
-    return incomes.add(std::forward<budget::income>(income));
+    return incomes.add(std::move(income));
 }
 
 bool budget::edit_income(const budget::income& income){

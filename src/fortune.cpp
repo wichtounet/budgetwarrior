@@ -287,5 +287,5 @@ void budget::edit_fortune(const budget::fortune& fortune){
 }
 
 size_t budget::add_fortune(budget::fortune&& fortune){
-    return fortunes.add(std::forward<budget::fortune>(fortune));
+    return fortunes.add(std::move(fortune));
 }
