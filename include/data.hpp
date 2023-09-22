@@ -226,9 +226,8 @@ struct data_handler {
         server_lock_guard l(lock);
 
         auto before = data_.size();
-        data_.erase(std::remove_if(data_.begin(), data_.end(),
-                                  [id](const T& entry) { return entry.id == id; }),
-                   data_.end());
+
+        std::erase_if(data_, [id](const T& entry) { return entry.id == id; });
 
         if (is_server_mode()) {
             auto res = budget::api_get(std::string("/") + get_module() + "/delete/?input_id=" + budget::to_string(id));

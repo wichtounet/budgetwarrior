@@ -85,9 +85,7 @@ size_t budget::rsize_after(const std::string& value) {
 }
 
 bool budget::option(std::string_view option, std::vector<std::string>& args) {
-    auto before = args.size();
-    args.erase(std::remove(args.begin(), args.end(), option), args.end());
-    return before != args.size();
+    return std::erase(args, option);
 }
 
 std::string budget::option_value(std::string_view option, std::vector<std::string>& args, const std::string& default_value) {

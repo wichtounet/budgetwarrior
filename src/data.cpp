@@ -52,8 +52,8 @@ std::string parse_output(const std::vector<std::string>& parts) {
 // locale-dependent. To read older database, we need to handle , in numbers
 // and spaces as practical utility
 std::string pre_clean_number(std::string str) {
-    str.erase(std::remove(str.begin(), str.end(), ','), str.end());
-    str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
+    std::erase(str, ',');
+    std::erase(str, ' ');
     return str;
 }
 
