@@ -287,7 +287,7 @@ struct data_handler {
 
         {
             server_lock_guard l(lock);
-            std::copy(data_.begin(), data_.end(), std::back_inserter(copy));
+            std::ranges::copy(data_, std::back_inserter(copy));
         }
 
         return copy;
