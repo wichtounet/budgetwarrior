@@ -122,70 +122,70 @@ void budget::wishes_module::handle(const std::vector<std::string>& args){
     console_writer w(std::cout);
 
     if(args.size() == 1){
+        return status_wishes(w);
+    }
+
+    const auto& subcommand = args[1];
+
+    if (subcommand == "list") {
+        list_wishes(w);
+    } else if (subcommand == "status") {
         status_wishes(w);
-    } else {
-        const auto& subcommand = args[1];
+    } else if (subcommand == "estimate") {
+        estimate_wishes(w);
+    } else if (subcommand == "add") {
+        wish wish;
+        wish.guid       = generate_guid();
+        wish.date       = budget::local_day();
+        wish.importance = 2;
+        wish.urgency    = 2;
 
-        if(subcommand == "list"){
-            list_wishes(w);
-        } else if(subcommand == "status"){
-            status_wishes(w);
-        } else if(subcommand == "estimate"){
-            estimate_wishes(w);
-        } else if(subcommand == "add"){
-            wish wish;
-            wish.guid = generate_guid();
-            wish.date = budget::local_day();
-            wish.importance = 2;
-            wish.urgency = 2;
+        edit(wish);
 
-            edit(wish);
+        auto id = wishes.add(std::move(wish));
+        std::cout << "Wish " << id << " has been created" << std::endl;
+    } else if (subcommand == "delete") {
+        enough_args(args, 3);
 
-            auto id = wishes.add(std::move(wish));
-            std::cout << "Wish " << id << " has been created" << std::endl;
-        } else if(subcommand == "delete"){
-            enough_args(args, 3);
+        const auto id = to_number<size_t>(args[2]);
 
-            const auto id = to_number<size_t>(args[2]);
-
-            if (wishes.remove(id)) {
-                std::cout << "wish " << id << " has been deleted" << std::endl;
-            } else {
-                throw budget_exception("There are no wish with id " + args[2]);
-            }
-        } else if(subcommand == "edit"){
-            enough_args(args, 3);
-
-            const auto id = to_number<size_t>(args[2]);
-
-            auto wish = wishes[id];
-
-            edit(wish);
-
-            if (wishes.indirect_edit(wish)) {
-                std::cout << "Wish " << id << " has been modified" << std::endl;
-            }
-        } else if(subcommand == "paid"){
-            enough_args(args, 3);
-
-            const auto id = to_number<size_t>(args[2]);
-
-            auto wish = wishes[id];
-
-            edit_money(wish.paid_amount, "Paid Amount", not_negative_checker(), not_zero_checker());
-
-            wish.paid = true;
-
-            if (wishes.indirect_edit(wish)) {
-                std::cout << "Wish " << id << " has been marked as paid" << std::endl;
-            }
+        if (wishes.remove(id)) {
+            std::cout << "wish " << id << " has been deleted" << std::endl;
         } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+            throw budget_exception("There are no wish with id " + args[2]);
         }
+    } else if (subcommand == "edit") {
+        enough_args(args, 3);
+
+        const auto id = to_number<size_t>(args[2]);
+
+        auto wish = wishes[id];
+
+        edit(wish);
+
+        if (wishes.indirect_edit(wish)) {
+            std::cout << "Wish " << id << " has been modified" << std::endl;
+        }
+    } else if (subcommand == "paid") {
+        enough_args(args, 3);
+
+        const auto id = to_number<size_t>(args[2]);
+
+        auto wish = wishes[id];
+
+        edit_money(wish.paid_amount, "Paid Amount", not_negative_checker(), not_zero_checker());
+
+        wish.paid = true;
+
+        if (wishes.indirect_edit(wish)) {
+            std::cout << "Wish " << id << " has been marked as paid" << std::endl;
+        }
+    } else {
+        throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
     }
 }
 
-void budget::load_wishes(){
+void budget::load_wishes() {
     wishes.load();
 }
 

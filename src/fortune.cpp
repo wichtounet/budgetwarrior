@@ -169,58 +169,58 @@ void budget::fortune_module::handle(const std::vector<std::string>& args){
     console_writer w(std::cout);
 
     if(args.size() == 1){
+        return status_fortunes(w, false);
+    }
+
+    const auto& subcommand = args[1];
+
+    if (subcommand == "list") {
+        list_fortunes(w);
+    } else if (subcommand == "status") {
         status_fortunes(w, false);
-    } else {
-        const auto& subcommand = args[1];
+    } else if (subcommand == "check") {
+        fortune fortune;
+        fortune.guid       = generate_guid();
+        fortune.check_date = budget::local_day();
 
-        if(subcommand == "list"){
-            list_fortunes(w);
-        } else if(subcommand == "status"){
-            status_fortunes(w, false);
-        } else if(subcommand == "check"){
-            fortune fortune;
-            fortune.guid = generate_guid();
-            fortune.check_date = budget::local_day();
-
-            if(args.size() == 2){
-                edit_date(fortune.check_date, "Date");
-
-                edit_money(fortune.amount, "Amount");
-            } else {
-                throw budget_exception("Too many arguments to fortune check");
-            }
-
-            auto id = fortunes.add(std::move(fortune));
-            std::cout << "Fortune check " << id << " has been created" << std::endl;
-        } else if(subcommand == "delete"){
-            enough_args(args, 3);
-
-            const auto id = to_number<size_t>(args[2]);
-
-            if(!fortunes.exists(id)){
-                throw budget_exception("There are no fortune with id " + args[2]);
-            }
-
-            fortunes.remove(id);
-
-            std::cout << "Fortune check " << id << " has been deleted" << std::endl;
-        } else if(subcommand == "edit"){
-            enough_args(args, 3);
-
-            const auto id = to_number<size_t>(args[2]);
-
-            auto fortune = fortunes[id];
-
+        if (args.size() == 2) {
             edit_date(fortune.check_date, "Date");
 
             edit_money(fortune.amount, "Amount");
-
-            if (fortunes.indirect_edit(fortune)) {
-                std::cout << "Fortune check " << id << " has been modified" << std::endl;
-            }
         } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+            throw budget_exception("Too many arguments to fortune check");
         }
+
+        auto id = fortunes.add(std::move(fortune));
+        std::cout << "Fortune check " << id << " has been created" << std::endl;
+    } else if (subcommand == "delete") {
+        enough_args(args, 3);
+
+        const auto id = to_number<size_t>(args[2]);
+
+        if (!fortunes.exists(id)) {
+            throw budget_exception("There are no fortune with id " + args[2]);
+        }
+
+        fortunes.remove(id);
+
+        std::cout << "Fortune check " << id << " has been deleted" << std::endl;
+    } else if (subcommand == "edit") {
+        enough_args(args, 3);
+
+        const auto id = to_number<size_t>(args[2]);
+
+        auto fortune = fortunes[id];
+
+        edit_date(fortune.check_date, "Date");
+
+        edit_money(fortune.amount, "Amount");
+
+        if (fortunes.indirect_edit(fortune)) {
+            std::cout << "Fortune check " << id << " has been modified" << std::endl;
+        }
+    } else {
+        throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
     }
 }
 

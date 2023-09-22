@@ -55,78 +55,74 @@ void budget::earnings_module::handle(const std::vector<std::string>& args){
     console_writer w(std::cout);
 
     if(args.size() == 1){
-        show_earnings(w);
-    } else {
-        const auto& subcommand = args[1];
+        return show_earnings(w);
+    }
 
-        if(subcommand == "show"){
-            if(args.size() == 2){
-                show_earnings(w);
-            } else if(args.size() == 3){
-                show_earnings(budget::month(to_number<unsigned short>(args[2])),
-                    w);
-            } else if(args.size() == 4){
-                show_earnings(
-                    budget::month(to_number<unsigned short>(args[2])),
-                    budget::year(to_number<unsigned short>(args[3])),
-                    w);
-            } else {
-                throw budget_exception("Too many arguments to earning show");
-            }
-        } else if(subcommand == "all"){
-            show_all_earnings(w);
-        } else if(subcommand == "add"){
-            earning earning;
-            earning.guid = generate_guid();
-            earning.date = budget::local_day();
+    const auto& subcommand = args[1];
 
-            edit_date(earning.date, "Date");
-
-            std::string account_name;
-            edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker(earning.date));
-            earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
-
-            edit_string(earning.name, "Name", not_empty_checker());
-            edit_money(earning.amount, "Amount", not_negative_checker());
-
-            auto id = earnings.add(std::move(earning));
-            std::cout << "earning " << id << " has been created" << std::endl;
-        } else if(subcommand == "delete"){
-            enough_args(args, 3);
-
-            const auto id = to_number<size_t>(args[2]);
-
-            if (earnings.remove(id)) {
-                std::cout << "earning " << id << " has been deleted" << std::endl;
-            } else {
-                throw budget_exception("There are no earning with id ");
-            }
-        } else if(subcommand == "edit"){
-            enough_args(args, 3);
-
-            const auto id = to_number<size_t>(args[2]);
-
-            auto earning = earnings[id];
-
-            edit_date(earning.date, "Date");
-
-            auto account_name = get_account(earning.account).name;
-            edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker(earning.date));
-            earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
-
-            edit_string(earning.name, "Name", not_empty_checker());
-            edit_money(earning.amount, "Amount", not_negative_checker());
-
-            if (earnings.indirect_edit(earning)) {
-                std::cout << "Earning " << id << " has been modified" << std::endl;
-            }
+    if (subcommand == "show") {
+        if (args.size() == 2) {
+            show_earnings(w);
+        } else if (args.size() == 3) {
+            show_earnings(budget::month(to_number<unsigned short>(args[2])), w);
+        } else if (args.size() == 4) {
+            show_earnings(budget::month(to_number<unsigned short>(args[2])), budget::year(to_number<unsigned short>(args[3])), w);
         } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+            throw budget_exception("Too many arguments to earning show");
         }
+    } else if (subcommand == "all") {
+        show_all_earnings(w);
+    } else if (subcommand == "add") {
+        earning earning;
+        earning.guid = generate_guid();
+        earning.date = budget::local_day();
+
+        edit_date(earning.date, "Date");
+
+        std::string account_name;
+        edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker(earning.date));
+        earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
+
+        edit_string(earning.name, "Name", not_empty_checker());
+        edit_money(earning.amount, "Amount", not_negative_checker());
+
+        auto id = earnings.add(std::move(earning));
+        std::cout << "earning " << id << " has been created" << std::endl;
+    } else if (subcommand == "delete") {
+        enough_args(args, 3);
+
+        const auto id = to_number<size_t>(args[2]);
+
+        if (earnings.remove(id)) {
+            std::cout << "earning " << id << " has been deleted" << std::endl;
+        } else {
+            throw budget_exception("There are no earning with id ");
+        }
+    } else if (subcommand == "edit") {
+        enough_args(args, 3);
+
+        const auto id = to_number<size_t>(args[2]);
+
+        auto earning = earnings[id];
+
+        edit_date(earning.date, "Date");
+
+        auto account_name = get_account(earning.account).name;
+        edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker(earning.date));
+        earning.account = get_account(account_name, earning.date.year(), earning.date.month()).id;
+
+        edit_string(earning.name, "Name", not_empty_checker());
+        edit_money(earning.amount, "Amount", not_negative_checker());
+
+        if (earnings.indirect_edit(earning)) {
+            std::cout << "Earning " << id << " has been modified" << std::endl;
+        }
+    } else {
+        throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
     }
 }
 
-void budget::load_earnings(){
+void budget::load_earnings() {
     earnings.load();
 }
 

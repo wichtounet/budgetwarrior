@@ -130,8 +130,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
     console_writer w(std::cout);
 
     if(args.size() == 1){
-        show_accounts(w);
-        return;
+        return show_accounts(w);
     }
 
     const auto& subcommand = args[1];

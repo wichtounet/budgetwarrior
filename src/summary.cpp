@@ -160,42 +160,42 @@ void budget::summary_module::handle(std::vector<std::string>& args) {
     }
 
     if (args.empty() || args.size() == 1) {
-        month_overview();
-    } else {
-        auto& subcommand = args[1];
+        return month_overview();
+    }
 
-        if (subcommand == "month") {
-            auto today = local_day();
+    auto& subcommand = args[1];
 
-            if (args.size() == 2) {
-                month_overview();
-            } else if (args.size() == 3) {
-                auto m = budget::month(to_number<unsigned short>(args[2]));
+    if (subcommand == "month") {
+        auto today = local_day();
 
-                if (m > today.month()) {
-                    throw budget_exception("Cannot compute the summary of the future");
-                }
+        if (args.size() == 2) {
+            month_overview();
+        } else if (args.size() == 3) {
+            auto m = budget::month(to_number<unsigned short>(args[2]));
 
-                month_overview(m);
-            } else if (args.size() == 4) {
-                auto m = budget::month(to_number<unsigned short>(args[2]));
-                auto y = budget::year(to_number<unsigned short>(args[3]));
-
-                if (y > today.year()) {
-                    throw budget_exception("Cannot compute the summary of the future");
-                }
-
-                if (y == today.year() && m > today.month()) {
-                    throw budget_exception("Cannot compute the summary of the future");
-                }
-
-                month_overview(m, y);
-            } else {
-                throw budget_exception("Too many arguments to overview month");
+            if (m > today.month()) {
+                throw budget_exception("Cannot compute the summary of the future");
             }
+
+            month_overview(m);
+        } else if (args.size() == 4) {
+            auto m = budget::month(to_number<unsigned short>(args[2]));
+            auto y = budget::year(to_number<unsigned short>(args[3]));
+
+            if (y > today.year()) {
+                throw budget_exception("Cannot compute the summary of the future");
+            }
+
+            if (y == today.year() && m > today.month()) {
+                throw budget_exception("Cannot compute the summary of the future");
+            }
+
+            month_overview(m, y);
         } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+            throw budget_exception("Too many arguments to overview month");
         }
+    } else {
+        throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
     }
 }
 

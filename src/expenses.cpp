@@ -75,8 +75,7 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
     console_writer w(std::cout);
 
     if(args.size() == 1){
-        show_expenses(w);
-        return;
+        return show_expenses(w);
     }
 
     const auto& subcommand = args[1];
