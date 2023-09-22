@@ -76,123 +76,120 @@ void budget::expenses_module::handle(const std::vector<std::string>& args){
 
     if(args.size() == 1){
         show_expenses(w);
-    } else {
-        const auto& subcommand = args[1];
+        return;
+    }
 
-        if(subcommand == "show"){
-            if(args.size() == 2){
-                show_expenses(w);
-            } else if(args.size() == 3){
-                show_expenses(budget::month(to_number<unsigned short>(args[2])), w);
-            } else if(args.size() == 4){
-                show_expenses(
-                    budget::month(to_number<unsigned short>(args[2])),
-                    budget::year(to_number<unsigned short>(args[3])), w);
-            } else {
-                throw budget_exception("Too many arguments to expense show");
-            }
-        } else if(subcommand == "all"){
-            show_all_expenses(w);
-        } else if(subcommand == "template"){
-            show_templates();
-        } else if(subcommand == "add"){
-            if(args.size() > 2){
-                std::string template_name;
-                std::string space;
+    const auto& subcommand = args[1];
 
-                for(size_t i = 2; i < args.size(); ++i){
-                    template_name += space;
-                    template_name += args[i];
-                    space = " ";
-                }
+    if (subcommand == "show") {
+        if (args.size() == 2) {
+            show_expenses(w);
+        } else if (args.size() == 3) {
+            show_expenses(budget::month(to_number<unsigned short>(args[2])), w);
+        } else if (args.size() == 4) {
+            show_expenses(budget::month(to_number<unsigned short>(args[2])), budget::year(to_number<unsigned short>(args[3])), w);
+        } else {
+            throw budget_exception("Too many arguments to expense show");
+        }
+    } else if (subcommand == "all") {
+        show_all_expenses(w);
+    } else if (subcommand == "template") {
+        show_templates();
+    } else if (subcommand == "add" && args.size() > 2) {
+        std::string template_name;
+        std::string space;
 
-                if (auto range = all_expenses() | template_only | filter_by_name(template_name); range) {
-                    auto & template_expense = *std::ranges::begin(range);
+        for (size_t i = 2; i < args.size(); ++i) {
+            template_name += space;
+            template_name += args[i];
+            space = " ";
+        }
 
-                    expense expense;
-                    expense.guid    = generate_guid();
-                    expense.date    = budget::local_day();
-                    expense.name    = template_expense.name;
-                    expense.amount  = template_expense.amount;
-                    expense.account = template_expense.account;
+        if (auto range = all_expenses() | template_only | filter_by_name(template_name); range) {
+            auto& template_expense = *std::ranges::begin(range);
 
-                    auto id = expenses.add(std::move(expense));
-                    std::cout << "Expense " << id << " has been created" << std::endl;
-                } else {
-                    std::cout << "Template \"" << template_name << "\" not found, creating a new template" << std::endl;
+            expense expense;
+            expense.guid    = generate_guid();
+            expense.date    = budget::local_day();
+            expense.name    = template_expense.name;
+            expense.amount  = template_expense.amount;
+            expense.account = template_expense.account;
 
-                    expense expense;
-                    expense.guid = generate_guid();
-                    expense.date = TEMPLATE_DATE;
-                    expense.name = template_name;
+            auto id = expenses.add(std::move(expense));
+            std::cout << "Expense " << id << " has been created" << std::endl;
+        } else {
+            std::cout << "Template \"" << template_name << "\" not found, creating a new template" << std::endl;
 
-                    std::string account_name;
-                    edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
-                    expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
+            expense expense;
+            expense.guid = generate_guid();
+            expense.date = TEMPLATE_DATE;
+            expense.name = template_name;
 
-                    edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
-
-                    auto id = expenses.add(std::move(expense));
-                    std::cout << "Template " << id << " has been created" << std::endl;
-                }
-            } else {
-                expense expense;
-                expense.guid = generate_guid();
-                expense.date = budget::local_day();
-
-                std::string account_name;
-                if (has_default_account()) {
-                    account_name = default_account().name;
-                }
-
-                edit_date(expense.date, "Date");
-
-                edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker(expense.date));
-                expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
-
-                edit_string(expense.name, "Name", not_empty_checker());
-                edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
-
-                auto id = expenses.add(std::move(expense));
-                std::cout << "Expense " << id << " has been created" << std::endl;
-            }
-        } else if(subcommand == "delete"){
-            enough_args(args, 3);
-
-            const auto id = to_number<size_t>(args[2]);
-
-            if (expenses.remove(id)) {
-                std::cout << "Expense " << id << " has been deleted" << std::endl;
-            } else {
-                throw budget_exception("There are no expense with id ");
-            }
-        } else if(subcommand == "edit"){
-            enough_args(args, 3);
-
-            const auto id = to_number<size_t>(args[2]);
-
-            auto expense = expenses[id];
-
-            edit_date(expense.date, "Date");
-
-            auto account_name = get_account(expense.account).name;
-            edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker(expense.date));
+            std::string account_name;
+            edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker());
             expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
 
-            edit_string(expense.name, "Name", not_empty_checker());
             edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
 
-            if (expenses.indirect_edit(expense)) {
-                std::cout << "Expense " << id << " has been modified" << std::endl;
-            }
-        } else if (subcommand == "search") {
-            std::string search;
-            edit_string(search, "Search", not_empty_checker());
-
-            search_expenses(search, w);
-        } else {
-            throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
+            auto id = expenses.add(std::move(expense));
+            std::cout << "Template " << id << " has been created" << std::endl;
         }
+    } else if (subcommand == "add") {
+        expense expense;
+        expense.guid = generate_guid();
+        expense.date = budget::local_day();
+
+        std::string account_name;
+        if (has_default_account()) {
+            account_name = default_account().name;
+        }
+
+        edit_date(expense.date, "Date");
+
+        edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker(expense.date));
+        expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
+
+        edit_string(expense.name, "Name", not_empty_checker());
+        edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
+
+        auto id = expenses.add(std::move(expense));
+        std::cout << "Expense " << id << " has been created" << std::endl;
+    } else if (subcommand == "delete") {
+        enough_args(args, 3);
+
+        const auto id = to_number<size_t>(args[2]);
+
+        if (expenses.remove(id)) {
+            std::cout << "Expense " << id << " has been deleted" << std::endl;
+        } else {
+            throw budget_exception("There are no expense with id ");
+        }
+    } else if (subcommand == "edit") {
+        enough_args(args, 3);
+
+        const auto id = to_number<size_t>(args[2]);
+
+        auto expense = expenses[id];
+
+        edit_date(expense.date, "Date");
+
+        auto account_name = get_account(expense.account).name;
+        edit_string_complete(account_name, "Account", all_account_names(), not_empty_checker(), account_checker(expense.date));
+        expense.account = get_account(account_name, expense.date.year(), expense.date.month()).id;
+
+        edit_string(expense.name, "Name", not_empty_checker());
+        edit_money(expense.amount, "Amount", not_negative_checker(), not_zero_checker());
+
+        if (expenses.indirect_edit(expense)) {
+            std::cout << "Expense " << id << " has been modified" << std::endl;
+        }
+    } else if (subcommand == "search") {
+        std::string search;
+        edit_string(search, "Search", not_empty_checker());
+
+        search_expenses(search, w);
+    } else {
+        throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
     }
 }
 
