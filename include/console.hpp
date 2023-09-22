@@ -238,25 +238,25 @@ void edit_date(date& ref, std::string_view title, Checker... checkers){
                 if(answer[0] == '+'){
                     std::string const str(std::next(answer.begin()), std::prev(answer.end()));
                     if(answer.back() == 'd'){
-                        ref += days(std::stoul(str));
+                        ref += days(static_cast<date_type>(std::stoul(str)));
                         math = true;
                     } else if(answer.back() == 'm'){
-                        ref += months(std::stoul(str));
+                        ref += months(static_cast<date_type>(std::stoul(str)));
                         math = true;
                     } else if(answer.back() == 'y'){
-                        ref += years(std::stoul(str));
+                        ref += years(static_cast<date_type>(std::stoul(str)));
                         math = true;
                     }
                 } else if(answer[0] == '-'){
                     std::string const str(std::next(answer.begin()), std::prev(answer.end()));
                     if(answer.back() == 'd'){
-                        ref -= days(std::stoul(str));
+                        ref -= days(static_cast<date_type>(std::stoul(str)));
                         math = true;
                     } else if(answer.back() == 'm'){
-                        ref -= months(std::stoul(str));
+                        ref -= months(static_cast<date_type>(std::stoul(str)));
                         math = true;
                     } else if(answer.back() == 'y'){
-                        ref -= years(std::stoul(str));
+                        ref -= years(static_cast<date_type>(std::stoul(str)));
                         math = true;
                     }
                 }
