@@ -276,31 +276,31 @@ void edit_date(date& ref, std::string_view title, Checker... checkers){
 }
 
 struct not_empty_checker {
-    bool operator()(const std::string& value){
+    bool operator()(const std::string& value) const {
         return !value.empty();
     }
 
-    std::string message(){
+    std::string message() const {
         return "This value cannot be empty";
     }
 };
 
 struct not_negative_checker {
-    bool operator()(const budget::money& amount){
+    bool operator()(const budget::money& amount) const {
         return !(amount.dollars() < 0 || amount.cents() < 0);
     }
 
-    std::string message(){
+    std::string message() const {
         return "The amount cannot be negative";
     }
 };
 
 struct not_zero_checker {
-    bool operator()(const budget::money& amount){
+    bool operator()(const budget::money& amount) const {
         return amount.dollars() > 0 || amount.cents() > 0;
     }
 
-    std::string message(){
+    std::string message() const {
         return "The amount cannot be negative";
     }
 };
@@ -317,48 +317,48 @@ struct account_checker {
         return !std::ranges::empty(all_accounts(cache, date.year(), date.month()) | filter_by_name(value));
     }
 
-    std::string message(){
+    std::string message() const {
         return "The account does not exist";
     }
 };
 
 struct asset_checker {
-    bool operator()(const std::string& value){
+    bool operator()(const std::string& value) const {
         return asset_exists(value);
     }
 
-    std::string message(){
+    std::string message() const {
         return "The asset does not exist";
     }
 };
 
 struct liability_checker {
-    bool operator()(const std::string& value){
+    bool operator()(const std::string& value) const {
         return liability_exists(value);
     }
 
-    std::string message(){
+    std::string message() const {
         return "The liability does not exist";
     }
 };
 
 struct share_asset_checker {
-    bool operator()(const std::string& value){
+    bool operator()(const std::string& value) const {
         return share_asset_exists(value);
     }
 
-    std::string message(){
+    std::string message() const {
         return "The asset does not exist or is not share based";
     }
 };
 
 template<size_t First, size_t Last>
 struct range_checker {
-    bool operator()(const size_t& value){
+    bool operator()(const size_t& value) const {
         return value >= First && value <= Last;
     }
 
-    std::string message(){
+    std::string message() const {
         std::string m = "Value must in the range [";
         m += to_string(First);
         m += ", ";
@@ -374,11 +374,11 @@ struct one_of_checker {
         //Nothing to init
     }
 
-    bool operator()(const std::string& value){
+    bool operator()(const std::string& value) const {
         return std::ranges::find(values, value) != std::ranges::begin(values);
     }
 
-    std::string message(){
+    std::string message() const {
         std::string value = "This value can only be one of these values [";
         std::string comma;
 
