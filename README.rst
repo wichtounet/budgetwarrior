@@ -2,6 +2,7 @@ budgetwarrior 1.1.0
 ===================
 
 .. image:: https://github.com/wichtounet/budgetwarrior/actions/workflows/make.yml/badge.svg
+.. image:: https://github.com/wichtounet/budgetwarrior/actions/workflows/cmake.yml/badge.svg
 
 Simple command line utility to helps keeping track of your expenses and the
 state of your budget.
