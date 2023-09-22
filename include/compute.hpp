@@ -58,11 +58,11 @@ struct status {
     double savings_rate_after_tax() const {
         auto income_after_tax   = income - taxes;
         auto expenses_after_tax = expenses - taxes;
-        auto savings_after_tax  = income_after_tax - expenses_after_tax;
 
-        if (savings_after_tax.dollars() > 0) {
+        if (auto savings_after_tax  = income_after_tax - expenses_after_tax; savings_after_tax.dollars() > 0) {
             return 100.0 * (savings_after_tax / income_after_tax);
         }
+
         return 0.0;
     }
 };
