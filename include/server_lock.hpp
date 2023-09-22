@@ -30,6 +30,6 @@ private:
     std::mutex mutex_lock;
 };
 
-using server_lock_guard = std::lock_guard<server_lock>;
+using server_lock_guard = std::scoped_lock<server_lock>;
 
 } //end of namespace budget
