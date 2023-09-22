@@ -236,7 +236,7 @@ fs::path budget::path_to_budget_file(std::string_view file) {
 }
 
 bool budget::config_contains(std::string_view key){
-    return configuration.find(key) != configuration.end();
+    return configuration.contains(key);
 }
 
 std::string budget::config_value(std::string_view key){
@@ -293,7 +293,7 @@ bool budget::user_config_value_bool(std::string_view key, bool def) {
 
 bool budget::internal_config_contains(std::string_view key){
     const server_lock_guard l(internal_config_lock);
-    return internal.find(key) != internal.end();
+    return internal.contains(key);
 }
 
 std::string budget::internal_config_value(std::string_view key){
