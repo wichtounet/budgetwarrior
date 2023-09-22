@@ -68,14 +68,14 @@ struct month {
     }
 
     std::string as_short_string() const {
-        static constexpr const char* months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        static constexpr const std::array months{"Jan", "Feb", "Mar", "Apr", "May", "Jun",
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
         return months[value-1];
     }
 
     std::string as_long_string() const {
-        static constexpr const char* months[12] = {"January", "February", "March", "April", "May", "June",
+        static constexpr const std::array months{"January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"};
 
         return months[value-1];
@@ -252,7 +252,7 @@ struct date {
     }
 
     date_type day_of_the_week() const {
-        static constexpr const date_type t[12] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+        static constexpr const std::array<date_type, 12> t{0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
 
         // Thanks to leap years, this has to be complicated!
 
@@ -262,7 +262,7 @@ struct date {
     }
 
     static date_type days_month(date_type year, date_type month){
-        static constexpr const date_type month_days[12] = {31,0,31,30,31,30,31,31,30,31,30,31};
+        static constexpr const std::array<date_type, 12> month_days{31,0,31,30,31,30,31,31,30,31,30,31};
 
         if(month == 2){
             return is_leap(year) ? 29 : 28;
