@@ -30,8 +30,8 @@ namespace {
 data_handler<account> accounts { "accounts", "accounts.data" };
 
 size_t get_account_id(std::string_view name, budget::year year, budget::month month){
-    for (const auto& account : accounts.data() | filter_by_name(name) | active_at_date({year, month, 5})) {
-        return account.id;
+    if (auto range = accounts.data() | filter_by_name(name) | active_at_date({year, month, 5}); range) {
+        return std::ranges::begin(range)->id;
     }
 
     return 0;
@@ -371,8 +371,8 @@ budget::account budget::get_account(size_t id){
 }
 
 budget::account budget::get_account(std::string_view name, budget::year year, budget::month month) {
-    for (const auto& account : accounts.data() | active_at_date({year, month, 5}) | filter_by_name(name)) {
-        return account;
+    if (auto range = accounts.data() | active_at_date({year, month, 5}) | filter_by_name(name); range) {
+        return *std::ranges::begin(range);
     }
 
     cpp_unreachable("The account does not exist");

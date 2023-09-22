@@ -45,8 +45,8 @@ budget::asset_class budget::get_asset_class(size_t id){
 }
 
 budget::asset_class budget::get_asset_class(std::string_view name){
-    for (const auto& c : asset_classes.data() | filter_by_name(name)) {
-        return c;
+    if (auto range = asset_classes.data() | filter_by_name(name); range) {
+        return *std::ranges::begin(range);
     }
 
     cpp_unreachable("The asset class does not exist");

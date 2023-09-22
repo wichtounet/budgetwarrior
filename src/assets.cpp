@@ -504,16 +504,15 @@ budget::asset budget::get_asset(size_t id){
 }
 
 budget::asset budget::get_asset(std::string_view name) {
-    for (auto& asset : assets.data() | filter_by_name(name)){
-        return asset;
+    if (auto range = assets.data() | filter_by_name(name); range) {
+        return *std::ranges::begin(range);
     }
-
     cpp_unreachable("The asset does not exist");
 }
 
 budget::asset budget::get_desired_allocation(){
-    for (auto& asset : assets.data() | is_desired) {
-        return asset;
+    if (auto range = assets.data() | is_desired; range) {
+        return *std::ranges::begin(range);
     }
 
     asset asset;
