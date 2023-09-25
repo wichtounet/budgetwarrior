@@ -129,8 +129,6 @@ struct months {
     }
 };
 
-//using years = std::chrono::years;
-
 struct years {
     date_type value;
     explicit years(date_type value) : value(value) {}
