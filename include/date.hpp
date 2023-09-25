@@ -323,7 +323,7 @@ struct date {
         // Update the year if necessary
         if(_month > 12){
             *this += years((_month - 1) / 12);
-            _month = (_month) % 12;
+            _month = _month % 12;
         }
 
         // Update the day of month, if necessary
