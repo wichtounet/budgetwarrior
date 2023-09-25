@@ -246,220 +246,223 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
         }
     } else if (subcommand == "class") {
         if (args.size() == 2) {
+            return budget::show_asset_classes(w);
+        }
+
+        const auto& subsubcommand = args[2];
+
+        if (subsubcommand == "add") {
+            asset_class clas;
+            clas.guid = generate_guid();
+
+            edit_string(clas.name, "Name", not_empty_checker());
+
+            if (asset_class_exists(clas.name)) {
+                throw budget_exception("This asset class already exists");
+            }
+
+            auto id = add_asset_class(clas);
+            std::cout << "Asset Clas " << id << " has been created" << std::endl;
+        } else if (subsubcommand == "edit") {
+            size_t id = 0;
+
+            enough_args(args, 4);
+
+            id = to_number<size_t>(args[3]);
+
+            if (!asset_class_exists(id)) {
+                throw budget_exception("This asset class does not exist");
+            }
+
+            auto clas = get_asset_class(id);
+
+            edit_string(clas.name, "Name", not_empty_checker());
+
+            if (all_asset_classes() | not_id(id) | filter_by_name(clas.name)) {
+                throw budget_exception("This asset class already exists");
+            }
+
+            if (edit_asset_class(clas)) {
+                std::cout << "Asset Class " << id << " has been modified" << std::endl;
+            }
+        } else if (subsubcommand == "delete") {
+            size_t id = 0;
+
+            enough_args(args, 4);
+
+            id = to_number<size_t>(args[3]);
+
+            if (!asset_class_exists(id)) {
+                throw budget_exception("This asset class does not exist");
+            }
+
+            auto clas = get_asset_class(id);
+
+            for (auto& asset : all_assets()) {
+                if (get_asset_class_allocation(asset, clas)) {
+                    throw budget_exception("Cannot delete an asset class that is still used");
+                }
+            }
+
+            asset_class_delete(id);
+
+            std::cout << "Asset class " << id << " has been deleted" << std::endl;
+        } else if (subsubcommand == "show") {
             budget::show_asset_classes(w);
         } else {
-            const auto& subsubcommand = args[2];
-
-            if (subsubcommand == "add") {
-                asset_class clas;
-                clas.guid = generate_guid();
-
-                edit_string(clas.name, "Name", not_empty_checker());
-
-                if (asset_class_exists(clas.name)) {
-                    throw budget_exception("This asset class already exists");
-                }
-
-                auto id = add_asset_class(clas);
-                std::cout << "Asset Clas " << id << " has been created" << std::endl;
-            } else if (subsubcommand == "edit") {
-                size_t id = 0;
-
-                enough_args(args, 4);
-
-                id = to_number<size_t>(args[3]);
-
-                if (!asset_class_exists(id)) {
-                    throw budget_exception("This asset class does not exist");
-                }
-
-                auto clas = get_asset_class(id);
-
-                edit_string(clas.name, "Name", not_empty_checker());
-
-                if (all_asset_classes() | not_id(id) | filter_by_name(clas.name)) {
-                    throw budget_exception("This asset class already exists");
-                }
-
-                if (edit_asset_class(clas)) {
-                    std::cout << "Asset Class " << id << " has been modified" << std::endl;
-                }
-            } else if (subsubcommand == "delete") {
-                size_t id = 0;
-
-                enough_args(args, 4);
-
-                id = to_number<size_t>(args[3]);
-
-                if (!asset_class_exists(id)) {
-                    throw budget_exception("This asset class does not exist");
-                }
-
-                auto clas = get_asset_class(id);
-
-                for (auto& asset : all_assets()) {
-                    if (get_asset_class_allocation(asset, clas)) {
-                        throw budget_exception("Cannot delete an asset class that is still used");
-                    }
-                }
-
-                asset_class_delete(id);
-
-                std::cout << "Asset class " << id << " has been deleted" << std::endl;
-            } else if (subsubcommand == "show") {
-                budget::show_asset_classes(w);
-            } else {
-                throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
-            }
+            throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
         }
+
     } else if (subcommand == "value") {
         if (args.size() == 2) {
-            budget::show_asset_values(w);
-        } else {
-            const auto& subsubcommand = args[2];
-
-            if (subsubcommand == "set") {
-                asset_value asset_value;
-                asset_value.guid      = generate_guid();
-                asset_value.liability = false;
-
-                std::string asset_name;
-                edit_string_complete(asset_name, "Asset", get_asset_names(w.cache), not_empty_checker(), asset_checker());
-                asset_value.asset_id = get_asset(asset_name).id;
-
-                edit_money(asset_value.amount, "Amount", not_negative_checker());
-
-                asset_value.set_date = budget::local_day();
-                edit_date(asset_value.set_date, "Date");
-
-                auto id = add_asset_value(asset_value);
-                std::cout << "Asset Value " << id << " has been created" << std::endl;
-            } else if (subsubcommand == "show") {
-                budget::show_asset_values(w);
-            } else if (subsubcommand == "small") {
-                budget::small_show_asset_values(w);
-            } else if (subsubcommand == "list") {
-                list_asset_values(w);
-            } else if (subsubcommand == "edit") {
-                size_t id = 0;
-
-                enough_args(args, 4);
-
-                id = to_number<size_t>(args[3]);
-
-                if (!asset_value_exists(id)) {
-                    throw budget_exception("There are no asset values with id " + args[3]);
-                }
-
-                auto value = get_asset_value(id);
-
-                if (value.liability) {
-                    throw budget_exception("Cannot edit liability value from the asset module");
-                }
-
-                std::string asset_name = get_asset(value.asset_id).name;
-                edit_string_complete(asset_name, "Asset", get_asset_names(w.cache), not_empty_checker(), asset_checker());
-                value.asset_id = get_asset(asset_name).id;
-
-                edit_money(value.amount, "Amount", not_negative_checker());
-                edit_date(value.set_date, "Date");
-
-                if (edit_asset_value(value)) {
-                    std::cout << "Asset Value " << id << " has been modified" << std::endl;
-                }
-            } else if (subsubcommand == "delete") {
-                enough_args(args, 4);
-
-                const auto id = to_number<size_t>(args[3]);
-
-                auto value = get_asset_value(id);
-
-                if (value.liability) {
-                    throw budget_exception("Cannot edit liability value from the asset module");
-                }
-
-                asset_value_delete(id);
-
-                std::cout << "Asset value " << id << " has been deleted" << std::endl;
-            } else {
-                throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
-            }
+            return budget::show_asset_values(w);
         }
+
+        const auto& subsubcommand = args[2];
+
+        if (subsubcommand == "set") {
+            asset_value asset_value;
+            asset_value.guid      = generate_guid();
+            asset_value.liability = false;
+
+            std::string asset_name;
+            edit_string_complete(asset_name, "Asset", get_asset_names(w.cache), not_empty_checker(), asset_checker());
+            asset_value.asset_id = get_asset(asset_name).id;
+
+            edit_money(asset_value.amount, "Amount", not_negative_checker());
+
+            asset_value.set_date = budget::local_day();
+            edit_date(asset_value.set_date, "Date");
+
+            auto id = add_asset_value(asset_value);
+            std::cout << "Asset Value " << id << " has been created" << std::endl;
+        } else if (subsubcommand == "show") {
+            budget::show_asset_values(w);
+        } else if (subsubcommand == "small") {
+            budget::small_show_asset_values(w);
+        } else if (subsubcommand == "list") {
+            list_asset_values(w);
+        } else if (subsubcommand == "edit") {
+            size_t id = 0;
+
+            enough_args(args, 4);
+
+            id = to_number<size_t>(args[3]);
+
+            if (!asset_value_exists(id)) {
+                throw budget_exception("There are no asset values with id " + args[3]);
+            }
+
+            auto value = get_asset_value(id);
+
+            if (value.liability) {
+                throw budget_exception("Cannot edit liability value from the asset module");
+            }
+
+            std::string asset_name = get_asset(value.asset_id).name;
+            edit_string_complete(asset_name, "Asset", get_asset_names(w.cache), not_empty_checker(), asset_checker());
+            value.asset_id = get_asset(asset_name).id;
+
+            edit_money(value.amount, "Amount", not_negative_checker());
+            edit_date(value.set_date, "Date");
+
+            if (edit_asset_value(value)) {
+                std::cout << "Asset Value " << id << " has been modified" << std::endl;
+            }
+        } else if (subsubcommand == "delete") {
+            enough_args(args, 4);
+
+            const auto id = to_number<size_t>(args[3]);
+
+            auto value = get_asset_value(id);
+
+            if (value.liability) {
+                throw budget_exception("Cannot edit liability value from the asset module");
+            }
+
+            asset_value_delete(id);
+
+            std::cout << "Asset value " << id << " has been deleted" << std::endl;
+        } else {
+            throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
+        }
+
     } else if (subcommand == "share") {
         if (args.size() == 2) {
-            list_asset_shares(w);
-        } else {
-            const auto& subsubcommand = args[2];
-
-            if (subsubcommand == "add") {
-                if (get_share_asset_names(w.cache).empty()) {
-                    throw budget_exception("There are no asset with shares, create one first");
-                }
-
-                asset_share asset_share;
-                asset_share.guid = generate_guid();
-
-                std::string asset_name;
-                edit_string_complete(asset_name, "Asset", get_share_asset_names(w.cache), not_empty_checker(), share_asset_checker());
-                asset_share.asset_id = get_asset(asset_name).id;
-
-                asset_share.shares = 0;
-                edit_number(asset_share.shares, "Shares");
-
-                asset_share.price = 0;
-                edit_money(asset_share.price, "Price", not_negative_checker());
-
-                asset_share.date = budget::local_day();
-                edit_date(asset_share.date, "Date");
-
-                auto id = add_asset_share(asset_share);
-                std::cout << "Asset Share " << id << " has been created" << std::endl;
-            } else if (subsubcommand == "list") {
-                list_asset_shares(w);
-            } else if (subsubcommand == "test") {
-                enough_args(args, 4);
-
-                const auto& quote = args[3];
-
-                std::cout << quote << ":" << budget::share_price(quote) << std::endl;
-            } else if (subsubcommand == "edit") {
-                enough_args(args, 4);
-
-                const auto id = to_number<size_t>(args[3]);
-
-                if (!asset_share_exists(id)) {
-                    throw budget_exception("There are no asset share with id " + args[3]);
-                }
-
-                auto share = get_asset_share(id);
-
-                std::string asset_name = get_asset(share.asset_id).name;
-                edit_string_complete(asset_name, "Asset", get_share_asset_names(w.cache), not_empty_checker(), share_asset_checker());
-                share.asset_id = get_asset(asset_name).id;
-
-                edit_number(share.shares, "Shares");
-                edit_money(share.price, "Price", not_negative_checker());
-                edit_date(share.date, "Date");
-
-                if (edit_asset_share(share)) {
-                    std::cout << "Asset Share " << id << " has been modified" << std::endl;
-                }
-            } else if (subsubcommand == "delete") {
-                enough_args(args, 4);
-
-                const auto id = to_number<size_t>(args[3]);
-
-                if (!asset_share_exists(id)) {
-                    throw budget_exception("There are no asset share with id " + args[3]);
-                }
-
-                asset_share_delete(id);
-
-                std::cout << "Asset share " << id << " has been deleted" << std::endl;
-            } else {
-                throw budget_exception("Invalid subcommand share \"" + subsubcommand + "\"");
-            }
+            return list_asset_shares(w);
         }
+
+        const auto& subsubcommand = args[2];
+
+        if (subsubcommand == "add") {
+            if (get_share_asset_names(w.cache).empty()) {
+                throw budget_exception("There are no asset with shares, create one first");
+            }
+
+            asset_share asset_share;
+            asset_share.guid = generate_guid();
+
+            std::string asset_name;
+            edit_string_complete(asset_name, "Asset", get_share_asset_names(w.cache), not_empty_checker(), share_asset_checker());
+            asset_share.asset_id = get_asset(asset_name).id;
+
+            asset_share.shares = 0;
+            edit_number(asset_share.shares, "Shares");
+
+            asset_share.price = 0;
+            edit_money(asset_share.price, "Price", not_negative_checker());
+
+            asset_share.date = budget::local_day();
+            edit_date(asset_share.date, "Date");
+
+            auto id = add_asset_share(asset_share);
+            std::cout << "Asset Share " << id << " has been created" << std::endl;
+        } else if (subsubcommand == "list") {
+            list_asset_shares(w);
+        } else if (subsubcommand == "test") {
+            enough_args(args, 4);
+
+            const auto& quote = args[3];
+
+            std::cout << quote << ":" << budget::share_price(quote) << std::endl;
+        } else if (subsubcommand == "edit") {
+            enough_args(args, 4);
+
+            const auto id = to_number<size_t>(args[3]);
+
+            if (!asset_share_exists(id)) {
+                throw budget_exception("There are no asset share with id " + args[3]);
+            }
+
+            auto share = get_asset_share(id);
+
+            std::string asset_name = get_asset(share.asset_id).name;
+            edit_string_complete(asset_name, "Asset", get_share_asset_names(w.cache), not_empty_checker(), share_asset_checker());
+            share.asset_id = get_asset(asset_name).id;
+
+            edit_number(share.shares, "Shares");
+            edit_money(share.price, "Price", not_negative_checker());
+            edit_date(share.date, "Date");
+
+            if (edit_asset_share(share)) {
+                std::cout << "Asset Share " << id << " has been modified" << std::endl;
+            }
+        } else if (subsubcommand == "delete") {
+            enough_args(args, 4);
+
+            const auto id = to_number<size_t>(args[3]);
+
+            if (!asset_share_exists(id)) {
+                throw budget_exception("There are no asset share with id " + args[3]);
+            }
+
+            asset_share_delete(id);
+
+            std::cout << "Asset share " << id << " has been deleted" << std::endl;
+        } else {
+            throw budget_exception("Invalid subcommand share \"" + subsubcommand + "\"");
+        }
+
     } else if (subcommand == "distribution") {
         auto desired = get_desired_allocation();
 
