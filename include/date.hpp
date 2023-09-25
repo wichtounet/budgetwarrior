@@ -61,8 +61,8 @@ struct month {
 
     operator date_type() const { return value; }
 
-    month& operator=(date_type value){
-        this->value = value;
+    month& operator=(date_type new_value){
+        this->value = new_value;
 
         return *this;
     }
@@ -100,8 +100,8 @@ struct year {
     year(date_type value) : value(value) {}
     operator date_type() const { return value; }
 
-    year& operator=(date_type value){
-        this->value = value;
+    year& operator=(date_type new_value){
+        this->value = new_value;
 
         return *this;
     }
@@ -122,8 +122,8 @@ struct months {
     explicit months(date_type value) : value(value) {}
     operator date_type() const { return value; }
 
-    months& operator=(date_type value){
-        this->value = value;
+    months& operator=(date_type new_value){
+        this->value = new_value;
 
         return *this;
     }
