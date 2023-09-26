@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <atomic>
 
 #include "cpp_utils/assert.hpp"
 
@@ -333,7 +334,7 @@ private:
 
     const char* module;
     const char* path;
-    volatile bool changed = false;
+    std::atomic<bool> changed = false;
     mutable server_lock lock;
     std::vector<T> data_;
 };

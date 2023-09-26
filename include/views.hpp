@@ -384,7 +384,6 @@ bool range_contains(const R& r, const std::ranges::range_value_t<R> & value) {
 #endif
 }
 
-
 // TODO(C+23) In the future, we can simply ranges::to<std::vector> but it is not yet implemented with GCC
 
 template <std::ranges::range R>
@@ -406,7 +405,7 @@ auto to_vector(R&& r) {
 template <std::ranges::range R>
 auto min_with_default(R&& r, std::ranges::range_value_t<R> def) {
     if (r) {
-        return std::ranges::min(r);
+        return std::ranges::min(std::forward<R>(r));
     }
 
     return def;
