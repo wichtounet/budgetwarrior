@@ -78,7 +78,7 @@ For other systems, you'll have to install from sources.
 Build from source
 -----------------
 
-A modern compiler is necessary. I am working with GCC 13 and clang 16. You need to set the
+A modern compiler is necessary. I am working with GCC 13 and clang 17. You need to set the
 $CXX variable before executing make.
 
 Linux
