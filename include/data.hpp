@@ -169,16 +169,15 @@ struct data_handler {
         if (is_server_mode()) {
             auto params = value.get_params();
 
-            auto res = budget::api_post(std::string("/") + get_module() + "/edit/", params);
-
-            if (!res.success) {
+            if (auto res = budget::api_post(std::string("/") + get_module() + "/edit/", params); !res.success) {
                 LOG_F(ERROR, "Failed to edit from {}", get_module());
 
                 return false;
             }
-            return true;
 
+            return true;
         }
+
         for (auto& v : data_) {
             if (v.id == value.id) {
                 v = value;
@@ -247,13 +246,7 @@ struct data_handler {
     bool exists(size_t id) {
         server_lock_guard l(lock);
 
-        for (auto& entry : data_) {
-            if (entry.id == id) {
-                return true;
-            }
-        }
-
-        return false;
+        return std::ranges::any_of(data_, [id](const auto & entry) { return entry.id == id; });
     }
 
     T operator[](size_t id) const {

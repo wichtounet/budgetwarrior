@@ -301,7 +301,7 @@ budget::money budget::share_price(const std::string& ticker, budget::date d){
         return share_prices[key].value;
     }
 
-    for (auto [new_key, new_value] : quotes) {
+    for (const auto & [new_key, new_value] : quotes) {
         share_prices[new_key] = {new_value, true};
     }
 

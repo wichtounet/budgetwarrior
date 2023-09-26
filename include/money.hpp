@@ -37,7 +37,7 @@ struct money {
 
     static money from_double(double dollars) {
         const auto dollars_long = static_cast<long>(dollars);
-        return {dollars_long, static_cast<int>((dollars - dollars_long) * SCALE)};
+        return {dollars_long, static_cast<int>((dollars - static_cast<double>(dollars_long)) * SCALE)};
     }
 
     money& operator=(long dollars){

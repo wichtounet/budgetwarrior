@@ -183,7 +183,7 @@ budget::income budget::new_income(budget::money amount, bool print){
     budget::date const d = budget::local_day();
 
     budget::date const since(d.year(), d.month(), 1);
-    budget::date const until = budget::date(2099, 12, 31);
+    budget::date const until(2099, 12, 31);
 
     budget::income new_income;
     new_income.guid  = generate_guid();
