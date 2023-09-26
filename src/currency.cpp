@@ -29,7 +29,7 @@ struct currency_cache_key {
     currency_cache_key(const budget::date& date, std::string_view from, std::string_view to)
         : date(date), from(from), to(to) {}
 
-    friend bool operator<=>(const currency_cache_key & lhs, const currency_cache_key & rhs) = default;
+    friend bool operator==(const currency_cache_key & lhs, const currency_cache_key & rhs) = default;
 };
 
 // We use a struct so that we can store values of 1 that can indicate either 
