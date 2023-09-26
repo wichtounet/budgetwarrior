@@ -23,7 +23,7 @@ namespace {
 using graph_type = std::vector<std::vector<std::string>>;
 
 void render(budget::writer& w, graph_type& graph) {
-    std::reverse(graph.begin(), graph.end());
+    std::ranges::reverse(graph);
 
     for (auto& line : graph) {
         for (auto& col : line) {

@@ -130,7 +130,7 @@ void budget::current_monthly_objective_status(budget::writer& w, bool full_align
         return;
     }
 
-    auto monthly_objectives = std::count_if(w.cache.objectives().begin(), w.cache.objectives().end(), [](auto& objective) {
+    auto monthly_objectives = std::ranges::count_if(w.cache.objectives(), [](auto& objective) {
         return objective.type == "monthly";
     });
 

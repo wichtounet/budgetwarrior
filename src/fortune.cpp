@@ -69,8 +69,7 @@ void budget::status_fortunes(budget::writer& w, bool short_view){
 
     auto sorted_values = fortunes.data();
 
-    std::sort(sorted_values.begin(), sorted_values.end(),
-        [](const budget::fortune& a, const budget::fortune& b){ return a.check_date < b.check_date; });
+    std::ranges::sort(sorted_values, [](const budget::fortune& a, const budget::fortune& b) { return a.check_date < b.check_date; });
 
     budget::money previous;
     budget::money const first = sorted_values.front().amount;

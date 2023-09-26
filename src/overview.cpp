@@ -238,7 +238,7 @@ void add_values_column(budget::month                            month,
     std::vector<size_t> current(columns, contents.size());
 
     std::vector<T> sorted_values = values;
-    std::sort(sorted_values.begin(), sorted_values.end(), [](const T& a, const T& b) { return a.date < b.date; });
+    std::ranges::sort(sorted_values, [](const T& a, const T& b) { return a.date < b.date; });
 
     for (auto& expense : sorted_values) {
         if (expense.date.year() == year && expense.date.month() == month) {
@@ -347,7 +347,7 @@ void aggregate_overview(const Data & data, budget::writer& w, bool full, bool di
             sorted_data.push_back(std::make_pair(name, amount));
         }
 
-        std::sort(sorted_data.begin(), sorted_data.end(),
+        std::ranges::sort(sorted_data,
             [](const s_items& a, const s_items& b){ return a.second > b.second; });
 
         for (auto& [name, amount] : sorted_data) {
@@ -411,7 +411,7 @@ void aggregate_overview_month(const Data & data, budget::writer& w, bool full, b
             sorted_data.push_back(std::make_pair(name, amount));
         }
 
-        std::sort(sorted_data.begin(), sorted_data.end(),
+        std::ranges::sort(sorted_data,
             [](const s_items& a, const s_items& b){ return a.second > b.second; });
 
         for (auto& [name, amount] : sorted_data) {
@@ -478,7 +478,7 @@ void aggregate_overview_fv(const Data & data, budget::writer& w, bool full, bool
             sorted_data.push_back(std::make_pair(name, amount));
         }
 
-        std::sort(sorted_data.begin(), sorted_data.end(),
+        std::ranges::sort(sorted_data,
             [](const s_items& a, const s_items& b){ return a.second > b.second; });
 
         for (auto& [name, amount] : sorted_data) {

@@ -35,13 +35,7 @@ struct share_price_cache_key {
 
     share_price_cache_key(budget::date date, std::string ticker) : date(date), ticker(std::move(std::move(ticker))) {}
 
-    friend bool operator<(const share_price_cache_key & lhs, const share_price_cache_key & rhs){
-        return std::tie(lhs.date, lhs.ticker) < std::tie(rhs.date, rhs.ticker);
-    }
-
-    friend bool operator==(const share_price_cache_key & lhs, const share_price_cache_key & rhs){
-        return std::tie(lhs.date, lhs.ticker) == std::tie(rhs.date, rhs.ticker);
-    }
+    friend auto operator<=>(const share_price_cache_key & lhs, const share_price_cache_key & rhs) = default;
 };
 
 // We use a struct so that we can store values of 1 that can indicate either

@@ -205,9 +205,10 @@ double budget::exchange_rate(const std::string& from, const std::string& to, con
 
     // Return directly if we already have the data in cache
     {
+
         server_lock_guard l(exchanges_lock);
 
-        if (exchanges.find(key) != exchanges.end()) {
+        if (exchanges.contains(key)) {
             return exchanges[key].value;
         }
     }

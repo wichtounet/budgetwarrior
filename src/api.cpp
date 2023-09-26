@@ -93,7 +93,7 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
     req.method = "POST";
     req.path = api_complete;
 
-    req.set_header("Host", (server + ":" + std::to_string(server_port)).c_str());
+    req.set_header("Host", std::format("{}:{}", server, server_port).c_str());
     req.set_header("Accept", "*/*");
     req.set_header("User-Agent", "cpp-httplib/0.1");
 

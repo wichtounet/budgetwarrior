@@ -173,7 +173,7 @@ std::string budget::get_string_complete(const std::vector<std::string>& choices)
 
                 for (const auto& choice : choices) {
                     if (choice.size() > answer.size()) {
-                        if (choice.substr(0, answer.size()) == answer) {
+                        if (choice.starts_with(answer)) {
                             ++count;
                             valid = choice;
                         }
