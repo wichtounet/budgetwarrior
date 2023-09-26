@@ -13,7 +13,7 @@ jobs:
     strategy:
         matrix:
             os: [ubuntu-latest]
-            compiler: [g++-13,clang++-16]
+            compiler: [g++-13,clang++-17]
 
     steps:
     - name: Checkout code
@@ -27,9 +27,9 @@ jobs:
     - name: install LLVM compiler
       run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
+          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main"
           sudo apt update
-          sudo apt install clang-16
+          sudo apt install clang-17
 
     - name: Build binaries
       env:
