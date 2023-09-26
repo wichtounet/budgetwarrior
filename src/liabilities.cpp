@@ -180,73 +180,74 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
         }
     } else if (subcommand == "value") {
         if (args.size() == 2) {
-            budget::show_asset_values(w, true);
-        } else {
-            const auto& subsubcommand = args[2];
-
-            if (subsubcommand == "set") {
-                asset_value asset_value;
-                asset_value.guid      = generate_guid();
-                asset_value.liability = true;
-
-                std::string liability_name;
-                edit_string_complete(liability_name, "Liability", get_liabilities_names(), not_empty_checker(), liability_checker());
-                asset_value.asset_id = get_liability(liability_name).id;
-
-                edit_money(asset_value.amount, "Amount", not_negative_checker());
-
-                asset_value.set_date = budget::local_day();
-                edit_date(asset_value.set_date, "Date");
-
-                auto id = add_asset_value(asset_value);
-                std::cout << "Asset Value " << id << " has been created" << std::endl;
-            } else if (subsubcommand == "show") {
-                show_asset_values(w, true);
-            } else if (subsubcommand == "list") {
-                list_asset_values(w, true);
-            } else if (subsubcommand == "edit") {
-                size_t id = 0;
-
-                enough_args(args, 4);
-
-                id = to_number<size_t>(args[3]);
-
-                auto value = get_asset_value(id);
-
-                if (!value.liability) {
-                    throw budget_exception("Cannot edit asset value from the liability module");
-                }
-
-                std::string liability_name = get_liability(value.asset_id).name;
-                edit_string_complete(liability_name, "Asset", get_liabilities_names(), not_empty_checker(), liability_checker());
-                value.asset_id = get_liability(liability_name).id;
-
-                edit_money(value.amount, "Amount", not_negative_checker());
-                edit_date(value.set_date, "Date");
-
-                if (edit_asset_value(value)) {
-                    std::cout << "Asset Value " << id << " has been modified" << std::endl;
-                }
-            } else if (subsubcommand == "delete") {
-                size_t id = 0;
-
-                enough_args(args, 4);
-
-                id = to_number<size_t>(args[3]);
-
-                auto value = get_asset_value(id);
-
-                if (!value.liability) {
-                    throw budget_exception("Cannot edit asset value from the liability module");
-                }
-
-                asset_value_delete(id);
-
-                std::cout << "Asset value " << id << " has been deleted" << std::endl;
-            } else {
-                throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
-            }
+            return budget::show_asset_values(w, true);
         }
+
+        const auto& subsubcommand = args[2];
+
+        if (subsubcommand == "set") {
+            asset_value asset_value;
+            asset_value.guid      = generate_guid();
+            asset_value.liability = true;
+
+            std::string liability_name;
+            edit_string_complete(liability_name, "Liability", get_liabilities_names(), not_empty_checker(), liability_checker());
+            asset_value.asset_id = get_liability(liability_name).id;
+
+            edit_money(asset_value.amount, "Amount", not_negative_checker());
+
+            asset_value.set_date = budget::local_day();
+            edit_date(asset_value.set_date, "Date");
+
+            auto id = add_asset_value(asset_value);
+            std::cout << "Asset Value " << id << " has been created" << std::endl;
+        } else if (subsubcommand == "show") {
+            show_asset_values(w, true);
+        } else if (subsubcommand == "list") {
+            list_asset_values(w, true);
+        } else if (subsubcommand == "edit") {
+            size_t id = 0;
+
+            enough_args(args, 4);
+
+            id = to_number<size_t>(args[3]);
+
+            auto value = get_asset_value(id);
+
+            if (!value.liability) {
+                throw budget_exception("Cannot edit asset value from the liability module");
+            }
+
+            std::string liability_name = get_liability(value.asset_id).name;
+            edit_string_complete(liability_name, "Asset", get_liabilities_names(), not_empty_checker(), liability_checker());
+            value.asset_id = get_liability(liability_name).id;
+
+            edit_money(value.amount, "Amount", not_negative_checker());
+            edit_date(value.set_date, "Date");
+
+            if (edit_asset_value(value)) {
+                std::cout << "Asset Value " << id << " has been modified" << std::endl;
+            }
+        } else if (subsubcommand == "delete") {
+            size_t id = 0;
+
+            enough_args(args, 4);
+
+            id = to_number<size_t>(args[3]);
+
+            auto value = get_asset_value(id);
+
+            if (!value.liability) {
+                throw budget_exception("Cannot edit asset value from the liability module");
+            }
+
+            asset_value_delete(id);
+
+            std::cout << "Asset value " << id << " has been deleted" << std::endl;
+        } else {
+            throw budget_exception("Invalid subcommand value \"" + subsubcommand + "\"");
+        }
+
     } else {
         throw budget_exception("Invalid subcommand \"" + subcommand + "\"");
     }
