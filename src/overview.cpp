@@ -13,6 +13,7 @@
 
 #include "cpp_utils/assert.hpp"
 
+#include "cpp_utils/hash.hpp"
 #include "overview.hpp"
 #include "console.hpp"
 #include "data_cache.hpp"
@@ -266,21 +267,7 @@ void add_values_column(budget::month                            month,
     add_recap_line(contents, title, total);
 }
 
-struct icompare_str {
-    bool operator()(const std::string& lhs, const std::string& rhs) const {
-        // Note: This is very fast, but not very good for locale
-        return strcasecmp(lhs.c_str(), rhs.c_str()) == 0;
-    }
-
-    size_t operator()(const std::string& value) const {
-        auto l_value = value;
-        std::transform(l_value.begin(), l_value.end(), l_value.begin(), ::tolower);
-        const std::hash<std::string> hasher;
-        return hasher(l_value);
-    }
-};
-
-using acc_data_t = std::unordered_map<std::string, std::unordered_map<std::string, budget::money, icompare_str, icompare_str>>;
+using acc_data_t = cpp::string_hash_map<cpp::istring_hash_map<budget::money>>;
 
 template<typename Data, typename Functor>
 std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, bool disable_groups, const std::string& separator, Functor&& func){
