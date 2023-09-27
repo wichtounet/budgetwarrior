@@ -59,8 +59,8 @@ size_t budget::rsize(const std::string& value) {
         v = v.substr(7);
     }
 
-    static wchar_t buf[1025];
-    return mbstowcs(buf, v.c_str(), 1024);
+    static std::array<wchar_t, 1025> buf;
+    return mbstowcs(buf.data(), v.c_str(), 1024);
 }
 
 size_t budget::rsize_after(const std::string& value) {
@@ -80,8 +80,8 @@ size_t budget::rsize_after(const std::string& value) {
         index = v.find('\033');
     }
 
-    static wchar_t buf[1025];
-    return mbstowcs(buf, v.c_str(), 1024);
+    static std::array<wchar_t, 1025> buf;
+    return mbstowcs(buf.data(), v.c_str(), 1024);
 }
 
 bool budget::option(std::string_view option, std::vector<std::string>& args) {
@@ -159,31 +159,33 @@ std::string budget::get_string_complete(const std::vector<std::string>& choices)
         const char c = getch();
 
         if (+c == 127) {
-            if (!answer.empty()) {
-                std::cout << "\b \b";
-                answer.pop_back();
+            if (answer.empty()) {
+                continue;
             }
+
+            std::cout << "\b \b";
+            answer.pop_back();
         } else if (c == '\r' || c == '\n') {
             std::cout << std::endl;
             return answer;
         } else if (c == '\t') {
-            if (!answer.empty()) {
-                size_t count = 0;
-                std::string valid;
+            if (answer.empty()) {
+                continue;
+            }
 
-                for (const auto& choice : choices) {
-                    if (choice.size() > answer.size()) {
-                        if (choice.starts_with(answer)) {
-                            ++count;
-                            valid = choice;
-                        }
-                    }
-                }
+            size_t      count = 0;
+            std::string valid;
 
-                if (count == 1) {
-                    std::cout << valid.substr(answer.size(), valid.size());
-                    answer = valid;
+            for (const auto& choice : choices) {
+                if (choice.size() > answer.size() && choice.starts_with(answer)) {
+                    ++count;
+                    valid = choice;
                 }
+            }
+
+            if (count == 1) {
+                std::cout << valid.substr(answer.size(), valid.size());
+                answer = valid;
             }
         } else if (c == '\033') {
             getch();

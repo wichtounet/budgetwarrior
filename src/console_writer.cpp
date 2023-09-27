@@ -13,7 +13,7 @@
 
 namespace {
 
-std::string success_to_string(int success) {
+std::string success_to_string(unsigned long success) {
     std::stringstream ss;
 
     if (success < 25) {
@@ -29,7 +29,7 @@ std::string success_to_string(int success) {
     budget::print_minimum(ss, success, 5);
     ss << "%\033[0m  ";
 
-    success     = std::min(success, 109);
+    success     = std::min(success, 109UL);
     const size_t good = success == 0 ? 0 : (success / 10) + 1;
 
     for (size_t i = 0; i < good; ++i) {
