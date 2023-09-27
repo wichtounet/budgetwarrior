@@ -183,7 +183,7 @@ budget::money compute_total_budget_account(budget::account & account, budget::mo
 }
 
 std::vector<budget::money> compute_total_budget(data_cache & cache, budget::month month, budget::year year){
-    std::unordered_map<std::string, budget::money> tmp;
+    cpp::string_hash_map<budget::money> tmp;
 
     // By default, the start is the year of the overview
     auto start_year_report = year;
@@ -231,7 +231,7 @@ void add_values_column(budget::month                            month,
                        budget::year                             year,
                        const std::string&                       title,
                        std::vector<std::vector<std::string>>&   contents,
-                       std::unordered_map<std::string, size_t>& indexes,
+                       cpp::string_hash_map<size_t>& indexes,
                        size_t                                   columns,
                        const std::vector<T>&                    values,
                        std::vector<budget::money>&              total) {
@@ -328,7 +328,7 @@ template<typename Data, typename Functor>
 void aggregate_overview(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
     auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
 
-    std::unordered_map<std::string, budget::money> totals;
+    cpp::string_hash_map<budget::money> totals;
 
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
@@ -392,7 +392,7 @@ void aggregate_overview_month(const Data & data, budget::writer& w, bool full, b
 
     auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
 
-    std::unordered_map<std::string, budget::money> totals;
+    cpp::string_hash_map<budget::money> totals;
 
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
@@ -459,7 +459,7 @@ template<typename Data, typename Functor>
 void aggregate_overview_fv(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
     auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
 
-    std::unordered_map<std::string, budget::money> totals;
+    cpp::string_hash_map<budget::money> totals;
 
     std::vector<std::string> columns;
     std::vector<std::vector<std::string>> contents;
@@ -588,9 +588,9 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
         columns.emplace_back("C. Mean");
     }
 
-    std::unordered_map<std::string, size_t> row_mapping;
-    std::unordered_map<std::string, budget::money> account_totals;;
-    std::unordered_map<std::string, budget::money> account_current_totals;;
+    cpp::string_hash_map<size_t> row_mapping;
+    cpp::string_hash_map<budget::money> account_totals;;
+    cpp::string_hash_map<budget::money> account_current_totals;;
     std::vector<budget::money> totals(13, budget::money());
 
     //Prepare the rows
@@ -862,9 +862,9 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
     std::vector<budget::money> totals(12, budget::money());
 
-    std::unordered_map<std::string, size_t> row_mapping;
-    std::unordered_map<std::string, budget::money> account_totals;
-    std::unordered_map<std::string, budget::money> account_current_totals;
+    cpp::string_hash_map<size_t> row_mapping;
+    cpp::string_hash_map<budget::money> account_totals;
+    cpp::string_hash_map<budget::money> account_current_totals;
 
     //Prepare the rows
 
@@ -1037,8 +1037,8 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
 
     std::vector<budget::money> totals(12, budget::money());
 
-    std::unordered_map<std::string, size_t> row_mapping;
-    std::unordered_map<std::string, std::vector<budget::money>> account_previous;
+    cpp::string_hash_map<size_t> row_mapping;
+    cpp::string_hash_map<std::vector<budget::money>> account_previous;
 
     //Prepare the rows
 
@@ -1114,7 +1114,7 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     writer << title_begin << "Overview of " << month << " " << year << budget::year_month_selector{"overview", year, month} << title_end;
 
     std::vector<std::string> columns;
-    std::unordered_map<std::string, size_t> indexes;
+    cpp::string_hash_map<size_t> indexes;
     std::vector<std::vector<std::string>> contents;
     std::vector<money> total_expenses(accounts.size(), budget::money());
     std::vector<money> total_earnings(accounts.size(), budget::money());
@@ -1241,7 +1241,7 @@ void budget::display_month_account_overview(size_t account_id, budget::month mon
     writer << title_begin << "Account Overview of " << month << " " << year << budget::year_month_selector{"account_overview", year, month} << title_end;
 
     std::vector<std::string> columns{account.name};
-    std::unordered_map<std::string, size_t> indexes{{account.name, 0}};
+    cpp::string_hash_map<size_t> indexes{{account.name, 0}};
     std::vector<std::vector<std::string>> contents;
     std::vector<money> total_expenses(1, budget::money());
     std::vector<money> total_earnings(1, budget::money());
@@ -1435,7 +1435,7 @@ void budget::add_expenses_column(budget::month                            month,
                                  budget::year                             year,
                                  const std::string&                       title,
                                  std::vector<std::vector<std::string>>&   contents,
-                                 std::unordered_map<std::string, size_t>& indexes,
+                                 cpp::string_hash_map<size_t>& indexes,
                                  size_t                                   columns,
                                  const std::vector<expense>&              values,
                                  std::vector<budget::money>&              total) {
@@ -1446,7 +1446,7 @@ void budget::add_earnings_column(budget::month                            month,
                                  budget::year                             year,
                                  const std::string&                       title,
                                  std::vector<std::vector<std::string>>&   contents,
-                                 std::unordered_map<std::string, size_t>& indexes,
+                                 cpp::string_hash_map<size_t>& indexes,
                                  size_t                                   columns,
                                  const std::vector<earning>&              values,
                                  std::vector<budget::money>&              total) {

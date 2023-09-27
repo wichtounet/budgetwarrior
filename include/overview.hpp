@@ -11,6 +11,8 @@
 #include <string>
 #include <array>
 
+#include "cpp_utils/hash.hpp"
+
 #include "module_traits.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
@@ -51,22 +53,22 @@ void aggregate_month_overview(budget::writer& w, bool full, bool disable_groups,
 
 // Utilities
 
-void add_expenses_column(budget::month                            month,
-                         budget::year                             year,
-                         const std::string&                       title,
-                         std::vector<std::vector<std::string>>&   contents,
-                         std::unordered_map<std::string, size_t>& indexes,
-                         size_t                                   columns,
-                         const std::vector<expense>&              values,
-                         std::vector<budget::money>&              total);
+void add_expenses_column(budget::month                          month,
+                         budget::year                           year,
+                         const std::string&                     title,
+                         std::vector<std::vector<std::string>>& contents,
+                         cpp::string_hash_map<size_t>&          indexes,
+                         size_t                                 columns,
+                         const std::vector<expense>&            values,
+                         std::vector<budget::money>&            total);
 
-void add_earnings_column(budget::month                            month,
-                         budget::year                             year,
-                         const std::string&                       title,
-                         std::vector<std::vector<std::string>>&   contents,
-                         std::unordered_map<std::string, size_t>& indexes,
-                         size_t                                   columns,
-                         const std::vector<earning>&              values,
-                         std::vector<budget::money>&              total);
+void add_earnings_column(budget::month                          month,
+                         budget::year                           year,
+                         const std::string&                     title,
+                         std::vector<std::vector<std::string>>& contents,
+                         cpp::string_hash_map<size_t>&          indexes,
+                         size_t                                 columns,
+                         const std::vector<earning>&            values,
+                         std::vector<budget::money>&            total);
 
 } //end of namespace budget

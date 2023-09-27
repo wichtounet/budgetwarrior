@@ -10,6 +10,7 @@
 #include <unordered_set>
 
 #include "cpp_utils/assert.hpp"
+#include "cpp_utils/hash.hpp"
 
 #include "data_cache.hpp"
 #include "summary.hpp"
@@ -209,7 +210,7 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
     columns.emplace_back("Balance");
     columns.emplace_back("Local");
 
-    std::unordered_map<std::string, budget::money> account_previous;
+    cpp::string_hash_map<budget::money> account_previous;
 
     //Fill the table
 

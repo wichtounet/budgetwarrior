@@ -9,6 +9,8 @@
 #include <fstream>
 #include <unordered_map>
 
+#include "cpp_utils/hash.hpp"
+
 #include <unistd.h>    //for getuid
 #include <sys/types.h> //for getuid
 #include <sys/stat.h>  //For mkdir
@@ -32,27 +34,7 @@ using namespace budget;
 
 namespace {
 
-// This structures allows us to hash std::string and std::string_view in
-// a similar way. This allows to use the C++20 feature that allows searching
-// inside a container a std::string with a std::string view
-struct transparent_string_hash {
-    using hash_type      = std::hash<std::string_view>;
-    using is_transparent = void;
-
-    std::size_t operator()(const char* str) const {
-        return hash_type{}(str);
-    }
-
-    std::size_t operator()(std::string_view str) const {
-        return hash_type{}(str);
-    }
-
-    std::size_t operator()(const std::string& str) const {
-        return hash_type{}(str);
-    }
-};
-
-using config_type = std::unordered_map<std::string, std::string, transparent_string_hash, std::equal_to<>>;
+using config_type = cpp::string_hash_map<std::string>;
 
 bool server_running = false;
 
