@@ -169,7 +169,7 @@ budget::data_writer& budget::data_writer::operator<<(const bool& value){
         parts.emplace_back(buffer.begin(), p);
         return *this;
     }
-    throw budget::budget_exception("\"" + std::to_string(temp) + "\" cant' be converted to string");
+    throw budget::budget_exception(std::format("\"{}\" can't be converted to string", temp));
 }
 
 budget::data_writer& budget::data_writer::operator<<(const size_t& value){
@@ -179,7 +179,7 @@ budget::data_writer& budget::data_writer::operator<<(const size_t& value){
         parts.emplace_back(buffer.begin(), p);
         return *this;
     }
-    throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
+    throw budget::budget_exception(std::format("\"{}\" can't be converted to string", value));
 }
 
 budget::data_writer& budget::data_writer::operator<<(const int64_t& value){
@@ -189,7 +189,7 @@ budget::data_writer& budget::data_writer::operator<<(const int64_t& value){
         parts.emplace_back(buffer.begin(), p);
         return *this;
     }
-    throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
+    throw budget::budget_exception(std::format("\"{}\" can't be converted to string", value));
 }
 
 budget::data_writer& budget::data_writer::operator<<(const int32_t& value){
@@ -199,7 +199,7 @@ budget::data_writer& budget::data_writer::operator<<(const int32_t& value){
         parts.emplace_back(buffer.begin(), p);
         return *this;
     }
-    throw budget::budget_exception("\"" + std::to_string(value) + "\" cant' be converted to string");
+    throw budget::budget_exception(std::format("\"{}\" can't be converted to string", value));
 }
 
 budget::data_writer& budget::data_writer::operator<<(const std::string& value){
