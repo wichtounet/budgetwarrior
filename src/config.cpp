@@ -314,8 +314,8 @@ std::string budget::get_server_listen(){
     return config_value("server_listen", "localhost");
 }
 
-size_t budget::get_server_port(){
-    return to_number<size_t>(config_value("server_port", "8080"));
+uint16_t budget::get_server_port(){
+    return to_number<uint16_t>(config_value("server_port", "8080"));
 }
 
 bool budget::is_server_mode(){

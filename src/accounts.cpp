@@ -447,7 +447,7 @@ void budget::show_accounts(budget::writer& w){
     // Display the accounts
 
     for(const auto& account : w.cache.accounts() | only_open_ended){
-        const float part = 100.0 * (account.amount.value / float(total.value));
+        const float part = 100.0f * (float(account.amount.value) / float(total.value));
 
         char buffer[32];
         snprintf(buffer, 32, "%.2f%%", part);

@@ -22,7 +22,7 @@ namespace budget {
  * However, this would require many changes since each conversion must be explicit and many operators are missing
  */
 
-using date_type = unsigned short;
+using date_type = uint16_t;
 
 struct date_exception : std::exception {
     explicit date_exception(std::string  message) : message_(std::move(message)) {}
@@ -175,10 +175,10 @@ struct date {
 
     // The number of days of this year until today
     // January 1 is 1
-    size_t day_of_year() const {
-        size_t result = 0;
+    date_type day_of_year() const {
+        date_type result = 0;
 
-        for (size_t m = 1; m < _month; ++m) {
+        for (date_type m = 1; m < _month; ++m) {
             result += days_month(_year, m);
         }
 
@@ -188,7 +188,7 @@ struct date {
     }
 
     // The current week number
-    size_t week() const {
+    date_type week() const {
         return 1 + day_of_year() / 7;
     }
 
@@ -204,10 +204,10 @@ struct date {
     }
 
     // ISO-8601 Week Number
-    size_t iso_week() const {
-        const int doy      = day_of_year();
-        const int dow      = day_of_the_week() - 1;
-        const int dowFirst = date(_year, 1, 1).day_of_the_week() - 1;
+    date_type iso_week() const {
+        const auto doy      = day_of_year();
+        const auto dow      = day_of_the_week() - 1;
+        const auto dowFirst = date(_year, 1, 1).day_of_the_week() - 1;
 
         if (dow < dowFirst) {
             return (doy + 6) / 7 + 1;
@@ -379,7 +379,7 @@ struct date {
             _month = 12;
         } else if(_month < months){
             *this -= years(1);
-            _month = 12 - (int(months) - _month);
+            _month = 12 - (months - _month);
         } else {
             _month -= months;
         }

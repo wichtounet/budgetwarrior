@@ -195,10 +195,10 @@ int budget::compute_success(const budget::status& status, const budget::objectiv
     int success = 0;
     if (objective.op == "min") {
         auto percent = basis.dollars() / static_cast<double>(amount.dollars());
-        success      = percent * 100;
+        success      = int(percent * 100);
     } else if (objective.op == "max") {
         auto percent = amount.dollars() / static_cast<double>(basis.dollars());
-        success      = percent * 100;
+        success      = int(percent * 100);
     }
 
     success = std::max(0, success);

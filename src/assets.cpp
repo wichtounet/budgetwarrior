@@ -1222,7 +1222,7 @@ budget::money budget::get_net_worth_cash(){
 
 namespace {
 
-int get_shares(const budget::asset& asset, const budget::date& d, data_cache& cache) {
+int64_t get_shares(const budget::asset& asset, const budget::date& d, data_cache& cache) {
     int64_t shares = 0;
 
     for (const auto& asset_share : cache.sorted_asset_shares()) {
@@ -1248,9 +1248,7 @@ int get_shares(const budget::asset& asset, const budget::date& d, data_cache& ca
 
 budget::money budget::get_asset_value(const budget::asset& asset, const budget::date& d, data_cache& cache) {
     if (asset.share_based) [[unlikely]] {
-        const int64_t shares = get_shares(asset, d, cache);
-
-        if (shares > 0) {
+        if (const int64_t shares = get_shares(asset, d, cache); shares > 0) {
             return static_cast<int>(shares) * share_price(asset.ticker, d);
         }
     } else {
@@ -1306,9 +1304,7 @@ budget::money budget::get_asset_value_conv(const budget::asset& asset, const bud
 
 bool budget::is_ticker_active(data_cache & cache, std::string_view ticker) {
     for (const auto & asset : cache.assets() | share_based_only | filter_by_ticker(ticker)) {
-        const int64_t shares = get_shares(asset, local_day(), cache);
-
-        if (shares > 0) {
+        if (const int64_t shares = get_shares(asset, local_day(), cache); shares > 0) {
             return true;
         }
     }

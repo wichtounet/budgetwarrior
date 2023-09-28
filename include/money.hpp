@@ -14,7 +14,7 @@
 
 namespace budget {
 
-constexpr const int SCALE = 100;
+constexpr const long SCALE = 100;
 
 struct money {
     long value;
@@ -107,7 +107,7 @@ struct money {
     }
 
     money& operator*=(double factor){
-        value *= factor;
+        value = long(value * factor);
         return *this;
     }
 
@@ -118,7 +118,7 @@ struct money {
     }
 
     money& operator*=(float factor){
-        value *= factor;
+        value = long(value * factor);
         return *this;
     }
 
@@ -150,8 +150,13 @@ struct money {
         return *this;
     }
 
+    money& operator/=(long factor){
+        value /= factor;
+        return *this;
+    }
+
     double operator/(money m) const {
-        return value / double(m.value);
+        return double(value) / double(m.value);
     }
 
     friend money operator*(double factor, money m){
@@ -191,11 +196,11 @@ struct money {
     explicit operator bool() const { return value; }
 
     explicit operator float() const {
-        return value / float(SCALE);
+        return float(value) / float(SCALE);
     }
 
     explicit operator double() const {
-        return value / double(SCALE);
+        return double(value) / double(SCALE);
     }
 
     money abs() const {
@@ -213,7 +218,7 @@ money money_from_string(std::string_view money_string);
 
 std::ostream& operator<<(std::ostream& stream, const money& amount);
 
-money random_money(size_t min, size_t max);
+money random_money(long min, long max);
 
 std::string random_name(size_t length);
 

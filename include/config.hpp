@@ -41,7 +41,7 @@ void        internal_config_remove(std::string_view key);
 std::string get_web_user();
 std::string get_web_password();
 std::string get_server_listen();
-size_t get_server_port();
+uint16_t get_server_port();
 
 /*!
  * \brief Indicates if the server is running in secure mode.

@@ -144,11 +144,11 @@ budget::api_response budget::api_get(const std::string& api) {
     auto server_port = budget::get_server_port();
 
     if (is_server_ssl()) {
-        httplib::SSLClient cli(server.c_str(), server_port);
+        httplib::SSLClient cli(server.c_str(), int(server_port));
         return base_api_get(cli, api);
     }
 
-    httplib::Client cli(server.c_str(), server_port);
+    httplib::Client cli(server.c_str(), int(server_port));
     return base_api_get(cli, api);
 }
 
@@ -159,10 +159,10 @@ budget::api_response budget::api_post(const std::string& api, const std::map<std
     auto server_port = budget::get_server_port();
 
     if (is_server_ssl()) {
-        httplib::SSLClient cli(server.c_str(), server_port);
+        httplib::SSLClient cli(server.c_str(), int(server_port));
         return base_api_post(cli, api, params);
     }
 
-    httplib::Client cli(server.c_str(), server_port);
+    httplib::Client cli(server.c_str(), int(server_port));
     return base_api_post(cli, api, params);
 }
