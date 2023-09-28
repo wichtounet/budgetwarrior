@@ -162,7 +162,7 @@ budget::money budget::get_base_income(data_cache & cache){
 budget::money budget::get_base_income(data_cache& cache, const budget::date& d) {
     // First, we try to get the base income from the incomes module
 
-    for (auto & income : cache.incomes()) {
+    for (const auto & income : cache.incomes()) {
         if (income.since <= d && income.until >= d) {
             return income.amount;
         }
@@ -172,7 +172,7 @@ budget::money budget::get_base_income(data_cache& cache, const budget::date& d) 
 
     budget::money income;
 
-    for (auto& account : all_accounts(cache, d.year(), d.month())) {
+    for (const auto& account : all_accounts(cache, d.year(), d.month())) {
         income += account.amount;
     }
 

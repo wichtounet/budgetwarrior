@@ -32,7 +32,7 @@ budget::date last_date(const budget::recurring& recurring) {
     budget::date last(1400, 1, 1);
 
     if (recurring.type == "expense") {
-        for (auto& expense : all_expenses()) {
+        for (const auto& expense : all_expenses()) {
             if (expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account) {
                 if (expense.date > last) {
                     last = expense.date;
@@ -40,7 +40,7 @@ budget::date last_date(const budget::recurring& recurring) {
             }
         }
     } else if (recurring.type == "earning") {
-        for (auto& earning : all_earnings()) {
+        for (const auto& earning : all_earnings()) {
             if (earning.name == recurring.name && earning.amount == recurring.amount && get_account(earning.account).name == recurring.account) {
                 if (earning.date > last) {
                     last = earning.date;

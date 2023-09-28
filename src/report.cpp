@@ -25,8 +25,8 @@ using graph_type = std::vector<std::vector<std::string>>;
 void render(budget::writer& w, graph_type& graph) {
     std::ranges::reverse(graph);
 
-    for (auto& line : graph) {
-        for (auto& col : line) {
+    for (const auto& line : graph) {
+        for (const auto& col : line) {
             w << col;
         }
 
@@ -102,7 +102,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
             budget::money m_expenses;
             budget::money m_earnings;
 
-            for (auto& account : all_accounts(w.cache, year, month)) {
+            for (const auto& account : all_accounts(w.cache, year, month)) {
                 if (!filter || account.name == filter_account) {
                     auto expenses = fold_left_auto(all_expenses_month(w.cache, account.id, year, month) | to_amount);
                     auto earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, month) | to_amount);
@@ -145,7 +145,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
         budget::money total_earnings;
         budget::money total_balance;
 
-        for (auto& account : all_accounts(w.cache, year, month)) {
+        for (const auto& account : all_accounts(w.cache, year, month)) {
             if (!filter || account.name == filter_account) {
                 auto expenses = fold_left_auto(all_expenses_month(w.cache, account.id, year, month) | to_amount);
                 auto earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, month) | to_amount);

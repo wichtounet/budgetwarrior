@@ -234,7 +234,7 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
     for (unsigned short i = sm; i <= month; ++i) {
         const budget::month m = i;
 
-        for (auto& account : all_accounts(w.cache, year, m)) {
+        for (const auto& account : all_accounts(w.cache, year, m)) {
             auto total_expenses = fold_left_auto(w.cache.expenses() | filter_by_account(account.id) | filter_by_date(year, m) | to_amount);
             auto total_earnings = fold_left_auto(w.cache.earnings() | filter_by_account(account.id) | filter_by_date(year, m) | to_amount);
 

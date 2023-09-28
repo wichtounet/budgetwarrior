@@ -235,7 +235,7 @@ void budget::prefetch_share_price_cache(){
         const server_lock_guard l(shares_lock);
 
         // Collect all the tickers
-        for (auto& [key, value] : share_prices) {
+        for (const auto& [key, value] : share_prices) {
             tickers.insert(key.ticker);
         }
     }

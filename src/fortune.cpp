@@ -146,7 +146,7 @@ budget::money budget::current_fortune(){
     budget::money fortune_amount = all.front().amount;
     date fortune_date            = all.front().check_date;
 
-    for (auto& fortune : all) {
+    for (const auto& fortune : all) {
         if (fortune.check_date > fortune_date) {
             fortune_amount = fortune.amount;
             fortune_date   = fortune.check_date;

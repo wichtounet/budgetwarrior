@@ -34,7 +34,7 @@ data_handler<liability> liabilities{"liabilities", "liabilities.data"};
 std::vector<std::string> get_liabilities_names(){
     std::vector<std::string> names;
 
-    for (auto& liability : all_liabilities()) {
+    for (const auto& liability : all_liabilities()) {
         names.push_back(liability.name);
     }
 
@@ -336,7 +336,7 @@ budget::date budget::liability_start_date(data_cache& cache) {
 
     auto asset_values = cache.asset_values();
 
-    for (auto& liability : cache.liabilities()) {
+    for (const auto& liability : cache.liabilities()) {
         start = std::min(start, min_with_default(asset_values | liability_only | filter_by_asset(liability.id) | to_date, start));
     }
 
@@ -442,7 +442,7 @@ bool budget::no_liabilities() {
 budget::money budget::get_liability_value(const budget::liability& liability, const budget::date& d, data_cache& cache) {
     budget::money asset_value_amount;
 
-    for (auto& asset_value : cache.sorted_group_asset_values(true)[liability.id]) {
+    for (const auto& asset_value : cache.sorted_group_asset_values(true)[liability.id]) {
         if (asset_value.set_date <= d) {
             if (asset_value.liability) {
                 asset_value_amount = asset_value.amount;

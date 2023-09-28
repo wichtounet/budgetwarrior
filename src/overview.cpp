@@ -49,7 +49,7 @@ bool invalid_accounts_all(){
                 return true;
             }
 
-            for(auto& c : current_accounts){
+            for(const auto& c : current_accounts){
                 bool found = false;
 
                 for (const auto& p : previous) {
@@ -85,10 +85,10 @@ bool invalid_accounts(budget::year year){
             return true;
         }
 
-        for(auto& c : current_accounts){
+        for(const auto& c : current_accounts){
             bool found = false;
 
-            for(auto& p : previous){
+            for(const auto& p : previous){
                 if(p.name == c.name){
                     found = true;
                     break;
@@ -152,7 +152,7 @@ budget::money compute_total_budget_account(budget::account & account, budget::mo
             // Note: we still need to access the previous accounts since the
             // current account could be a more recent version of an archived
             // account
-            for(auto& prev_account : all_accounts(cache, y, m)){
+            for(const auto& prev_account : all_accounts(cache, y, m)){
                 if (prev_account.name == account.name) {
                     total += prev_account.amount;
                     total -= fold_left_auto(all_expenses_month(cache, prev_account.id, y, m) | to_amount);
@@ -173,7 +173,7 @@ budget::money compute_total_budget_account(budget::account & account, budget::mo
     // Note: Here we do not strictly have to access the previous version
     // since this version is supposed to be called with match account/month/year
     // But doing so may prevent issue
-    for (auto& prev_account : all_accounts(cache, year, month)) {
+    for (const auto& prev_account : all_accounts(cache, year, month)) {
         if (prev_account.name == account.name) {
             total += prev_account.amount;
             break;
@@ -202,7 +202,7 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
                 break;
             }
 
-            for(auto& account : all_accounts(cache, y, m)){
+            for(const auto& account : all_accounts(cache, y, m)){
                 tmp[account.name] += account.amount;
                 tmp[account.name] -= fold_left_auto(all_expenses_month(cache, account.id, y, m) | to_amount);
                 tmp[account.name] += fold_left_auto(all_earnings_month(cache, account.id, y, m) | to_amount);
@@ -218,7 +218,7 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
 
     std::vector<budget::money> total_budgets;
 
-    for(auto& account : all_accounts(cache, year, month)){
+    for(const auto& account : all_accounts(cache, year, month)){
         tmp[account.name] += account.amount;
 
         total_budgets.push_back(tmp[account.name]);
@@ -302,7 +302,7 @@ std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, boo
     }
 
     data_cache cache;
-    for (auto& account : current_accounts(cache)) {
+    for (const auto& account : current_accounts(cache)) {
         if (!acc_data.contains(account.name)) {
             acc_data[account.name];
         }
@@ -1029,7 +1029,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
 
     //Prepare the rows
 
-    for(auto& account : all_accounts(w.cache, year, sm)){
+    for(const auto& account : all_accounts(w.cache, year, sm)){
         row_mapping[account.name] = contents.size();
 
         contents.push_back({account.name});
@@ -1040,7 +1040,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
     if(year > today.year()){
         auto pretotal = compute_total_budget(w.cache, sm, year);
         size_t i = 0;
-        for(auto& account : all_accounts(w.cache, year, sm)){
+        for(const auto& account : all_accounts(w.cache, year, sm)){
             account_previous[account.name][sm - 1] += pretotal[i++] - account.amount;
         }
     }
@@ -1050,7 +1050,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
     for(unsigned short i = sm; i <= 12; ++i){
         const budget::month m = i;
 
-        for(auto& account : all_accounts(w.cache, year, m)){
+        for(const auto& account : all_accounts(w.cache, year, m)){
             budget::money total_expenses;
             budget::money total_earnings;
 

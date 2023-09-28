@@ -61,7 +61,7 @@ std::map<std::string, std::string, std::less<>> budget::objective::get_params() 
 void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_align){
     size_t yearly = 0;
 
-    for (auto& objective : w.cache.objectives()) {
+    for (const auto& objective : w.cache.objectives()) {
         if (objective.type == "yearly") {
             ++yearly;
         }
@@ -76,11 +76,11 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
 
         size_t width = 0;
         if (full_align) {
-            for (auto& objective : w.cache.objectives()) {
+            for (const auto& objective : w.cache.objectives()) {
                 width = std::max(rsize(objective.name), width);
             }
         } else {
-            for (auto& objective : w.cache.objectives() | filter_by_type("yearly")) {
+            for (const auto& objective : w.cache.objectives() | filter_by_type("yearly")) {
                 width = std::max(rsize(objective.name), width);
             }
         }
@@ -91,7 +91,7 @@ void budget::yearly_objective_status(budget::writer& w, bool lines, bool full_al
         std::vector<std::string> columns = {"Goal", "Status", "Progress"};
         std::vector<std::vector<std::string>> contents;
 
-        for (auto& objective : w.cache.objectives() | filter_by_type("yearly")) {
+        for (const auto& objective : w.cache.objectives() | filter_by_type("yearly")) {
             contents.push_back({objective.name, get_status(year_status, objective), get_success(year_status, objective)});
         }
 
@@ -107,7 +107,7 @@ void budget::monthly_objective_status(budget::writer& w){
     auto current_year  = today.year();
     auto sm            = start_month(w.cache, current_year);
 
-    for (auto& objective : w.cache.objectives() | filter_by_type("monthly")) {
+    for (const auto& objective : w.cache.objectives() | filter_by_type("monthly")) {
         std::vector<std::string>              columns = {objective.name, "Status", "Progress"};
         std::vector<std::vector<std::string>> contents;
 
