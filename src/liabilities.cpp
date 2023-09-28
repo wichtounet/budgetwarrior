@@ -154,10 +154,8 @@ void budget::liabilities_module::handle(const std::vector<std::string>& args){
         // Verify that there are no OTHER liability with this name
 
         for (auto& other_asset : all_liabilities()) {
-            if (other_asset.id != id) {
-                if (other_asset.name == liability.name) {
-                    throw budget_exception("There is already an liability with the name " + liability.name);
-                }
+            if (other_asset.id != id && other_asset.name == liability.name) {
+                throw budget_exception("There is already an liability with the name " + liability.name);
             }
         }
 

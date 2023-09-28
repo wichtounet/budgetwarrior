@@ -20,6 +20,7 @@
 #include "budget_exception.hpp"
 #include "expenses.hpp"
 #include "earnings.hpp"
+#include "views.hpp"
 #include "writer.hpp"
 
 using namespace budget;
@@ -32,26 +33,26 @@ budget::date last_date(const budget::recurring& recurring) {
     budget::date last(1400, 1, 1);
 
     if (recurring.type == "expense") {
-        for (const auto& expense : all_expenses()) {
-            if (expense.name == recurring.name && expense.amount == recurring.amount && get_account(expense.account).name == recurring.account) {
-                if (expense.date > last) {
-                    last = expense.date;
-                }
+        for (const auto& expense : all_expenses() | filter_by_name(recurring.name) | filter_by_amount(recurring.amount)) {
+            if (get_account(expense.account).name == recurring.account && expense.date > last) {
+                last = expense.date;
             }
         }
-    } else if (recurring.type == "earning") {
-        for (const auto& earning : all_earnings()) {
-            if (earning.name == recurring.name && earning.amount == recurring.amount && get_account(earning.account).name == recurring.account) {
-                if (earning.date > last) {
-                    last = earning.date;
-                }
-            }
-        }
-    } else {
-        throw budget_exception("Invalid recurring type " + recurring.type);
+
+        return last;
     }
 
-    return last;
+    if (recurring.type == "earning") {
+        for (const auto& earning : all_earnings() | filter_by_name(recurring.name) | filter_by_amount(recurring.amount)) {
+            if (get_account(earning.account).name == recurring.account && earning.date > last) {
+                last = earning.date;
+            }
+        }
+
+        return last;
+    }
+
+    throw budget_exception("Invalid recurring type " + recurring.type);
 }
 
 bool recurring_not_triggered(const budget::recurring & recurring ) {

@@ -431,18 +431,16 @@ void budget::estimate_wishes(budget::writer& w) {
                 }
             }
 
-            if (fortune_amount >= wish.amount) {
-                if (month_objective && year_objective) {
-                    if (wish.amount >= month_status.budget) {
-                        if (year_status.balance > wish.amount) {
-                            status = day.month().as_short_string() + " " + to_string(day.year());
-                            ok     = true;
-                        }
-                    } else {
-                        if (month_status.balance > wish.amount) {
-                            status = day.month().as_short_string() + " " + to_string(day.year());
-                            ok     = true;
-                        }
+            if (fortune_amount >= wish.amount && month_objective && year_objective) {
+                if (wish.amount >= month_status.budget) {
+                    if (year_status.balance > wish.amount) {
+                        status = day.month().as_short_string() + " " + to_string(day.year());
+                        ok     = true;
+                    }
+                } else {
+                    if (month_status.balance > wish.amount) {
+                        status = day.month().as_short_string() + " " + to_string(day.year());
+                        ok     = true;
                     }
                 }
             }
@@ -475,18 +473,16 @@ void budget::estimate_wishes(budget::writer& w) {
                 }
             }
 
-            if (fortune_amount >= wish.amount) {
-                if (month_objective) {
-                    if (wish.amount >= month_status.budget) {
-                        if (year_status.balance > wish.amount) {
-                            status = day.month().as_short_string() + " " + to_string(day.year());
-                            ok     = true;
-                        }
-                    } else {
-                        if (month_status.balance > wish.amount) {
-                            status = day.month().as_short_string() + " " + to_string(day.year());
-                            ok     = true;
-                        }
+            if (fortune_amount >= wish.amount && month_objective) {
+                if (wish.amount >= month_status.budget) {
+                    if (year_status.balance > wish.amount) {
+                        status = day.month().as_short_string() + " " + to_string(day.year());
+                        ok     = true;
+                    }
+                } else {
+                    if (month_status.balance > wish.amount) {
+                        status = day.month().as_short_string() + " " + to_string(day.year());
+                        ok     = true;
                     }
                 }
             }

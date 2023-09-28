@@ -20,6 +20,7 @@
 #include "compute.hpp"
 #include "budget_exception.hpp"
 #include "config.hpp"
+#include "views.hpp"
 #include "writer.hpp"
 
 using namespace budget;
@@ -241,24 +242,22 @@ void add_values_column(budget::month                            month,
     std::vector<T> sorted_values = values;
     std::ranges::sort(sorted_values, [](const T& a, const T& b) { return a.date < b.date; });
 
-    for (auto& expense : sorted_values) {
-        if (expense.date.year() == year && expense.date.month() == month) {
-            if (indexes.contains(get_account(expense.account).name)) {
-                const size_t index = indexes[get_account(expense.account).name];
-                size_t& row  = current[index];
+    for (auto& expense : sorted_values | filter_by_date(year, month)) {
+        if (indexes.contains(get_account(expense.account).name)) {
+            const size_t index = indexes[get_account(expense.account).name];
+            size_t&      row   = current[index];
 
-                if (contents.size() <= row) {
-                    contents.emplace_back(columns * 3, "");
-                }
-
-                contents[row][index * 3]     = to_string(expense.date.day());
-                contents[row][index * 3 + 1] = expense.name;
-                contents[row][index * 3 + 2] = to_string(expense.amount);
-
-                total[index] += expense.amount;
-
-                ++row;
+            if (contents.size() <= row) {
+                contents.emplace_back(columns * 3, "");
             }
+
+            contents[row][index * 3]     = to_string(expense.date.day());
+            contents[row][index * 3 + 1] = expense.name;
+            contents[row][index * 3 + 2] = to_string(expense.amount);
+
+            total[index] += expense.amount;
+
+            ++row;
         }
     }
 

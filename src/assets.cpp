@@ -682,10 +682,8 @@ void budget::asset::load(data_reader & reader){
         ticker = "";
     }
 
-    if (config_contains("random")) {
-        if (!(name == "DESIRED" && currency == "DESIRED")) {
-            name = budget::random_name(5);
-        }
+    if (config_contains("random") && !(name == "DESIRED" && currency == "DESIRED")) {
+        name = budget::random_name(5);
     }
 }
 
