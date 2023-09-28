@@ -172,7 +172,7 @@ void budget::refresh_currency_cache(){
     }
 
     // Refresh/Prefetch the current exchange rates
-    for (auto & [key, value] : copy) {
+    for (const auto & [key, value] : copy) {
         exchange_rate(key.from, key.to);
     }
 

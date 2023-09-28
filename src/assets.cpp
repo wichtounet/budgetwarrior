@@ -1227,7 +1227,7 @@ namespace {
 int get_shares(const budget::asset& asset, const budget::date& d, data_cache& cache) {
     int64_t shares = 0;
 
-    for (auto& asset_share : cache.sorted_asset_shares()) {
+    for (const auto& asset_share : cache.sorted_asset_shares()) {
         if (asset_share.date <= d) {
             if (asset_share.asset_id == asset.id) {
                 shares += asset_share.shares;
@@ -1307,7 +1307,7 @@ budget::money budget::get_asset_value_conv(const budget::asset& asset, const bud
 }
 
 bool budget::is_ticker_active(data_cache & cache, std::string_view ticker) {
-    for (auto & asset : cache.assets() | share_based_only | filter_by_ticker(ticker)) {
+    for (const auto & asset : cache.assets() | share_based_only | filter_by_ticker(ticker)) {
         const int64_t shares = get_shares(asset, local_day(), cache);
 
         if (shares > 0) {

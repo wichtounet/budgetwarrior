@@ -185,7 +185,7 @@ fs::path budget::home_folder() {
     }
     return fs::path{"c:\\"};
 #else
-    struct passwd *pw = getpwuid(getuid());
+    const struct passwd *pw = getpwuid(getuid());
 
     const char* homedir = pw->pw_dir;
 
