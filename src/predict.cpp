@@ -88,13 +88,13 @@ void predict_overview(){
 
 } // end of anonymous namespace
 
-void budget::predict_module::load(){
+void budget::predict_module::load() const {
     load_accounts();
     load_expenses();
     load_earnings();
 }
 
-void budget::predict_module::handle(std::vector<std::string>& args){
+void budget::predict_module::handle(std::vector<std::string>& args) const {
     if(no_accounts()){
         throw budget_exception("No accounts defined, you should start by defining some of them");
     }

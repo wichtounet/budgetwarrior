@@ -104,7 +104,7 @@ constexpr bool disable_preloading() {
 
 struct module_loader {
     template<typename Module>
-    inline void operator()(){
+    inline void operator()() const {
         if constexpr (needs_preloading<Module>) {
             Module module;
             module.preload();

@@ -16,8 +16,8 @@
 namespace budget {
 
 struct predict_module {
-    void load();
-    void handle(std::vector<std::string>& args);
+    void load() const;
+    void handle(std::vector<std::string>& args) const;
 };
 
 template<>
