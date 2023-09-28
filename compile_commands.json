@@ -1,7 +1,7 @@
 [
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -13,7 +13,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -29,7 +29,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -41,7 +41,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -57,7 +57,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -69,7 +69,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -85,7 +85,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -97,7 +97,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -113,7 +113,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -125,7 +125,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -141,7 +141,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -153,7 +153,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -169,7 +169,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -181,7 +181,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -197,7 +197,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -209,7 +209,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -225,7 +225,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -237,7 +237,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -253,7 +253,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -265,7 +265,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -281,7 +281,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -293,7 +293,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -309,7 +309,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -321,7 +321,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -337,7 +337,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -349,7 +349,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -365,7 +365,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -377,7 +377,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -393,7 +393,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -405,7 +405,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -421,7 +421,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -433,7 +433,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -449,7 +449,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -461,7 +461,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -477,7 +477,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -489,7 +489,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -505,7 +505,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -517,7 +517,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -533,7 +533,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -545,7 +545,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -561,7 +561,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -573,7 +573,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -589,7 +589,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -601,7 +601,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -617,7 +617,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -629,7 +629,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -645,7 +645,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -657,7 +657,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -673,7 +673,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -685,7 +685,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -701,7 +701,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -713,7 +713,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -729,7 +729,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -741,7 +741,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -757,7 +757,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -769,7 +769,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -785,7 +785,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -797,7 +797,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -813,7 +813,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -825,7 +825,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -841,7 +841,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -853,7 +853,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -869,7 +869,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -881,7 +881,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -897,7 +897,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -909,7 +909,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -925,7 +925,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -937,7 +937,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -953,7 +953,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -965,7 +965,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -981,7 +981,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -993,7 +993,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -1009,7 +1009,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -1021,7 +1021,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -1037,7 +1037,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -1049,7 +1049,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
@@ -1065,7 +1065,7 @@
     },
     {
         "arguments": [
-            "clang++-16",
+            "clang++-17",
             "-c",
             "-g",
             "-Iinclude",
@@ -1077,7 +1077,7 @@
             "-Wno-long-long",
             "-Winit-self",
             "-Wdocumentation",
-            "-std=c++2a",
+            "-std=c++23",
             "-pthread",
             "-isystem",
             "cpp-httplib",
