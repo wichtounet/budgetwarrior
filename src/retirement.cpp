@@ -249,7 +249,7 @@ void budget::retirement_status(budget::writer& w) {
         auto current_nw = nw;
         size_t months   = 0;
 
-        auto new_savings_rate = (income - (expenses - dec * 12)) / income;;
+        auto new_savings_rate = (income - (expenses - dec * 12)) / income;
 
         while (current_nw < years * (expenses - (dec * 12))) {
             current_nw *= 1.0 + (roi / 100.0) / 12;

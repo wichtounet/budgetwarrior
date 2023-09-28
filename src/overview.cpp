@@ -75,7 +75,7 @@ bool invalid_accounts(budget::year year){
 
     auto sm = start_month(cache, year);
 
-    std::vector<budget::account> previous = all_accounts(cache, year, sm);;
+    std::vector<budget::account> previous = all_accounts(cache, year, sm);
 
     for(unsigned short i = sm + 1; i < 13; ++i){
         const budget::month month = i;
