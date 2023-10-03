@@ -107,7 +107,7 @@ struct money {
     }
 
     money& operator*=(double factor){
-        value = long(value * factor);
+        value = long(double(value) * factor);
         return *this;
     }
 
@@ -118,7 +118,7 @@ struct money {
     }
 
     money& operator*=(float factor){
-        value = long(value * factor);
+        value = long(float(value) * factor);
         return *this;
     }
 
@@ -173,11 +173,11 @@ struct money {
 
     friend auto operator<=>(const budget::money & lhs, const budget::money & rhs) = default;
 
-    int cents() const {
+    long cents() const {
         return std::abs(value % SCALE);
     }
 
-    int dollars() const {
+    long dollars() const {
         return value / SCALE;
     }
 
