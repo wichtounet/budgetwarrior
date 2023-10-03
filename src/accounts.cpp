@@ -217,13 +217,13 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
             std::cout << "Account " << id << " has been modified" << std::endl;
         }
     } else if (subcommand == "transfer") {
-        std::string from_name;
-        edit_string_complete(from_name, "Transfer from", all_account_names(), not_empty_checker(), account_checker());
+        std::string from_account;
+        edit_string_complete(from_account, "Transfer from", all_account_names(), not_empty_checker(), account_checker());
 
-        std::string to_name;
-        edit_string_complete(to_name, "Transfer to", all_account_names(), not_empty_checker(), account_checker());
+        std::string to_account;
+        edit_string_complete(to_account, "Transfer to", all_account_names(), not_empty_checker(), account_checker());
 
-        if (from_name == to_name) {
+        if (from_account == to_account) {
             throw budget_exception("Cannot transfer to an from the same account");
         }
 
@@ -238,7 +238,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
         expense.date    = budget::local_day();
         expense.name    = name;
         expense.amount  = amount;
-        expense.account = get_account(from_name, expense.date.year(), expense.date.month()).id;
+        expense.account = get_account(from_account, expense.date.year(), expense.date.month()).id;
 
         add_expense(std::move(expense));
 
@@ -247,7 +247,7 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
         earning.date    = budget::local_day();
         earning.name    = name;
         earning.amount  = amount;
-        earning.account = get_account(to_name, earning.date.year(), earning.date.month()).id;
+        earning.account = get_account(to_account, earning.date.year(), earning.date.month()).id;
 
         add_earning(std::move(earning));
     } else if (subcommand == "migrate") {
