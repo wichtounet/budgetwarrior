@@ -453,12 +453,12 @@ void budget::show_accounts(budget::writer& w){
     for(const auto& account : w.cache.accounts() | only_open_ended){
         const float part = 100.0f * (float(account.amount.value) / float(total.value));
 
-        char buffer[32];
-        snprintf(buffer, 32, "%.2f%%", part);
+        std::array<char, 32> buffer{};
+        snprintf(buffer.data(), 32, "%.2f%%", part);
 
         contents.push_back({to_string(account.id), account.name,
             to_string(account.amount),
-            buffer,
+            std::string(buffer.data()),
             "::edit::accounts::" + to_string(account.id)});
     }
 

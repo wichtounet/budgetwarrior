@@ -72,7 +72,7 @@ void budget::asset_share::load(data_reader & reader){
         static std::random_device rd;
         static std::mt19937_64 engine(rd());
 
-        std::uniform_int_distribution<int> dist(1, 1000);
+        std::uniform_int_distribution dist(1, 1000);
         shares = dist(engine);
     }
 }
