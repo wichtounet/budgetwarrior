@@ -671,9 +671,9 @@ void budget::asset::load(data_reader & reader){
 
     auto assets_parts = splitv(assets_parts_str, ';');
     for (size_t i = 0; i + 1 < assets_parts.size(); i += 2) {
-        auto id    = to_number<size_t>(assets_parts[i]);
-        auto alloc = money_from_string(assets_parts[i + 1]);
-        classes.emplace_back(id, alloc);
+        auto class_id = to_number<size_t>(assets_parts[i]);
+        auto alloc    = money_from_string(assets_parts[i + 1]);
+        classes.emplace_back(class_id, alloc);
     }
 
     reader >> active;
