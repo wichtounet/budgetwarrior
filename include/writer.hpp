@@ -76,6 +76,13 @@ struct set_button {
 };
 
 struct writer {
+    writer()              = default;
+    writer(const writer&) = delete;
+    writer(writer&&)      = delete;
+    writer& operator=(const writer&) = delete;
+    writer& operator=(writer&&) = delete;
+    virtual ~writer()           = default;
+
     data_cache cache;
 
     virtual writer& operator<<(std::string_view value) = 0;
@@ -125,6 +132,12 @@ struct console_writer : writer {
     std::ostream& os;
 
     explicit console_writer(std::ostream& os);
+
+    console_writer(const console_writer&) = delete;
+    console_writer(console_writer&&)      = delete;
+    console_writer& operator=(const console_writer&) = delete;
+    console_writer& operator=(console_writer&&) = delete;
+    ~console_writer() override                  = default;
 
     writer& operator<<(std::string_view value) override;
     writer& operator<<(double value) override;
