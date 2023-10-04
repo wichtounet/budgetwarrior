@@ -134,9 +134,9 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
     budget::money min_earnings;
     budget::money min_balance;
 
-    std::vector<int> expenses(12);
-    std::vector<int> earnings(12);
-    std::vector<int> balances(12);
+    std::vector<long> expenses(12);
+    std::vector<long> earnings(12);
+    std::vector<long> balances(12);
 
     for (auto i = sm; i <= today.month(); ++i) {
         const budget::month month = i;
@@ -225,13 +225,13 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
         min = -1 * ((std::abs(min) / scale) + 1) * scale;
     }
 
-    unsigned int max = std::max(max_earnings, std::max(max_expenses, max_balance)).dollars();
+    unsigned long max = std::max(max_earnings, std::max(max_expenses, max_balance)).dollars();
     max              = ((max / scale) + 1) * scale;
 
-    const unsigned int levels = max / scale + std::abs(min) / scale;
+    const unsigned long levels = max / scale + std::abs(min) / scale;
 
-    const unsigned int step_height = height / levels;
-    const unsigned int precision   = scale / step_height;
+    const unsigned long step_height = height / levels;
+    const unsigned long precision   = scale / step_height;
 
     auto graph_height = 9 + step_height * levels;
     auto graph_width  = graph_width_func(col_width);
