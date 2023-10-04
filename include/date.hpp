@@ -106,8 +106,21 @@ struct year {
         return *this;
     }
 
+    year operator-(date_type remove) const {
+        return {static_cast<date_type>(value - remove)};
+    }
+
+    year operator+(date_type add) const {
+        return {static_cast<date_type>(value + add)};
+    }
+
     bool is_default() const {
         return value == 0;
+    }
+
+    year operator++() {
+        ++value;
+        return *this;
     }
 };
 

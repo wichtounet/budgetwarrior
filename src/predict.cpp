@@ -66,7 +66,7 @@ void predict_overview(){
     }
 
     if (today.month() < 12) {
-        auto prev_year = today.year() - 1;
+        budget::year prev_year = today.year() - date_type(1);
         for (budget::month m = today.month() + 1; m <= 12; m = m + 1) {
             for (auto& expense : expenses | filter_by_date(prev_year, m)) {
                 expense.date = {today.year(), expense.date.month(), expense.date.day()};

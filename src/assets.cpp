@@ -1006,7 +1006,7 @@ void budget::show_asset_values(budget::writer& w, bool liability){
             for (auto& clas : w.cache.asset_classes()) {
                 if (classes.contains(clas.name)) {
                     auto amount = classes[clas.name];
-                    line.emplace_back(budget::to_string_precision(100 * amount.dollars() / (double) assets_total.dollars(), 2));
+                    line.emplace_back(budget::to_string_precision(100.0 * (amount / assets_total), 2));
                 } else {
                     line.emplace_back("0");
                 }

@@ -142,7 +142,7 @@ budget::money compute_total_budget_account(budget::account & account, budget::mo
 
     budget::money total;
 
-    for(budget::year y = start_year_report; y <= year; y = y + 1){
+    for(budget::year y = start_year_report; y <= year; ++y){
         budget::month m = start_month(cache, y);
 
         while(true){
@@ -195,7 +195,7 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
         start_year_report = start_year(cache);
     }
 
-    for(budget::year y = start_year_report; y <= year; y = y + 1){
+    for(budget::year y = start_year_report; y <= year; ++y){
         budget::month m = start_month(cache, y);
 
         while(true){
@@ -213,7 +213,7 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
                 break;
             }
 
-            m = m + 1;
+            ++m;
         }
     }
 
@@ -641,7 +641,7 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
     if(last){
         contents.push_back({"Previous Year"});
 
-        const budget::year last_year = year - 1;
+        const budget::year last_year = year - date_type(1);
         budget::money total;
 
         for(unsigned short j = sm; j < 13; ++j){
@@ -922,7 +922,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         for (unsigned short i = sm; i < 13; ++i) {
             const budget::month m = i;
 
-            auto status = compute_month_status(w.cache, year - 1, m);
+            auto status = compute_month_status(w.cache, year - date_type(1), m);
 
             contents.back().push_back(format_money(status.balance));
 
@@ -983,12 +983,12 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         for (unsigned short i = sm; i < 13; ++i) {
             budget::month const m = i;
 
-            auto status = compute_month_status(w.cache, year - 1, m);
+            auto status = compute_month_status(w.cache, year - date_type(1), m);
 
             double savings_rate = 0.0;
 
             if (status.balance.dollars() > 0) {
-                savings_rate = 100.0 * (status.balance.dollars() / double((status.budget + status.earnings).dollars()));
+                savings_rate = 100.0 * (status.balance / (status.budget + status.earnings));
             }
 
             contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
@@ -1083,7 +1083,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
         for(unsigned short i = sm; i < 13; ++i){
             const budget::month m = i;
 
-            auto status = compute_month_status(w.cache, year - 1, m);
+            auto status = compute_month_status(w.cache, year - date_type(1), m);
 
             total += status.balance;
 
@@ -1266,7 +1266,7 @@ void budget::display_year_overview_header(budget::year year, budget::writer& w){
 
     auto today       = budget::local_day();
     auto status      = year == today.year() ? compute_year_status(w.cache, year, today.month()) : compute_year_status(w.cache, year);
-    auto prev_year   = year - 1;
+    auto prev_year   = year - date_type(1);
     auto prev_status = prev_year == today.year() ? compute_year_status(w.cache, prev_year, today.month()) : compute_year_status(w.cache, prev_year);
 
     std::vector<std::vector<std::string>> contents;
