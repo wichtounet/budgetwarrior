@@ -131,6 +131,20 @@ TEST_CASE("money/factor/2") {
     FAST_CHECK_EQ(a, budget::money(-50, 5));
 }
 
+TEST_CASE("money/divide/1") {
+    budget::money a(100, 0);
+    budget::money b(20, 0);
+
+    FAST_CHECK_EQ(a / b, 5.0);
+}
+
+TEST_CASE("money/divide/2") {
+    budget::money a(100, 12);
+    budget::money b(20, 24);
+
+    FAST_CHECK_EQ(a / b, (10012.0 / 2024.0));
+}
+
 TEST_CASE("money/conversions/bool/1") {
     budget::money a(100, 10);
     budget::money b(-100, 10);
