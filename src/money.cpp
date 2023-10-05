@@ -82,8 +82,8 @@ budget::money budget::random_money(long min, long max){
     static std::random_device rd;
     static std::mt19937_64 engine(rd());
 
-    std::uniform_int_distribution<long> dollars_dist(min, max);
-    std::uniform_int_distribution<int> cents_dist(0, 99);
+    std::uniform_int_distribution dollars_dist(min, max);
+    std::uniform_int_distribution cents_dist(0, 99);
 
     return {dollars_dist(engine), cents_dist(engine)};
 }

@@ -214,7 +214,7 @@ void budget::retirement_status(budget::writer& w) {
     contents.push_back({""s, ""s});
     contents.push_back({"Current Withdrawal Rate"s, to_string(100.0 * (expenses / nw)) + "%"});
     contents.push_back({"Months of FI"s, to_string(nw / (expenses / 12))});
-    contents.push_back({"Years of FI"s, to_string(nw / (expenses))});
+    contents.push_back({"Years of FI"s, to_string(nw / expenses)});
 
     contents.push_back({""s, ""s});
     contents.push_back({"Current Yearly Allowance"s, to_string(nw * (wrate / 100.0))});

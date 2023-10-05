@@ -404,13 +404,7 @@ void budget::show_liabilities(budget::writer& w){
 }
 
 bool budget::liability::is_fi() const {
-    for (const auto& [class_id, alloc] : classes) {
-        if (get_asset_class(class_id).fi) {
-            return true;
-        }
-    }
-
-    return false;
+    return std::ranges::any_of(classes, [](auto & c) { return get_asset_class(c.first).fi; });
 }
 
 bool budget::liability_exists(size_t id){
