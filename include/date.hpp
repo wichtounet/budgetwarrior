@@ -285,7 +285,7 @@ struct date {
 
         // Thanks to leap years, this has to be complicated!
 
-        const date_type y = _year - (_month < 3);
+        const date_type y = _year - (_month < 3 ? 1 : 0);
         const date_type dow = (y + y / 4 - y / 100 + y / 400 + t[_month - 1] + _day) % 7;
         return dow ? dow : 7;
     }
