@@ -34,7 +34,7 @@ void render(budget::writer& w, graph_type& graph) {
     }
 }
 
-void write(graph_type& graph, int row, int col, const std::string& value) {
+void write(graph_type& graph, long row, long col, const std::string& value) {
     for (size_t i = 0; i < value.size(); ++i) {
         graph[row][col + i] = value[i];
     }
@@ -219,7 +219,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
         col_width = 2;
     }
 
-    int min = 0;
+    long min = 0;
     if (min_expenses.negative() || min_earnings.negative() || min_balance.negative()) {
         min = std::min(min_expenses, std::min(min_earnings, min_balance)).dollars();
         min = -1 * ((std::abs(min) / scale) + 1) * scale;
@@ -245,15 +245,15 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
     //Display scale
 
     for (size_t i = 0; i <= levels; ++i) {
-        const int level = min + i * scale;
+        const long level = min + i * scale;
 
         write(graph, 4 + step_height * i, 1, to_string(level));
     }
 
     //Display bar
 
-    const unsigned int min_index  = 3;
-    const unsigned int zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
+    const unsigned long min_index  = 3;
+    const unsigned long zero_index = min_index + 1 + (std::abs(min) / scale) * step_height;
 
     const auto first_bar = scale_width + 2;
 
@@ -297,7 +297,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
     //Display legend
 
-    const int start_legend = first_bar + (3 * col_width + 4) * (today.month() - sm + date_type(1)) + 4;
+    const long start_legend = first_bar + (3 * col_width + 4) * (today.month() - sm + date_type(1)) + 4;
 
     graph[4][start_legend - 2] = "|";
     graph[3][start_legend - 2] = "|";

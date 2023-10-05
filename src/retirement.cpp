@@ -136,11 +136,11 @@ void budget::retirement_module::handle(std::vector<std::string>& args) {
     }
 }
 
-float budget::fi_ratio(const budget::date & d, data_cache& cache) {
+double budget::fi_ratio(const budget::date & d, data_cache& cache) {
     return fixed_fi_ratio(d, cache, running_expenses(cache, d));
 }
 
-float budget::fixed_fi_ratio(const budget::date & d, data_cache& cache, const money& expenses) {
+double budget::fixed_fi_ratio(const budget::date & d, data_cache& cache, const money& expenses) {
     auto wrate   = to_number<double>(internal_config_value("withdrawal_rate"));
     auto years   = double(100.0 / wrate);
     auto nw      = get_fi_net_worth(d, cache);

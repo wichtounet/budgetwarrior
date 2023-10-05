@@ -258,7 +258,7 @@ void budget::list_wishes(budget::writer& w){
             total += wish.amount;
 
             if (wish.paid) {
-                auto a = static_cast<double>(wish.paid_amount.dollars()) / wish.amount.dollars();
+                auto a = wish.paid_amount / wish.amount;
 
                 acc += a;
                 acc_counter += 1;
