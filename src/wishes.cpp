@@ -339,49 +339,47 @@ void budget::status_wishes(budget::writer& w){
         if(fortune_amount < wish.amount){
             status = std::string("::red") + "Impossible";
             details = "(not enough fortune)";
-        } else {
-            if(month_status.balance > wish.amount){
-                if(!w.cache.objectives().empty()){
-                    if(month_objective && year_objective){
-                        status = std::string("::green") + "Perfect";
-                        details = "(On month balance, all objectives fullfilled)";
-                    } else if(month_objective){
-                        status = std::string("::green") + "Good";
-                        details = "(On month balance, month objectives fullfilled)";
-                    } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        status = "::blueOK";
-                        details = "(On month balance, " + to_string(yearly_breaks + monthly_breaks) + " objectives broken)";
-                    } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        status = std::string("::red") + "Warning";
-                        details = "(On month balance, objectives not fullfilled)";
-                    }
-                } else {
-                    status = "OK (on month balance)";
-                    details = "(on month balance)";
-                }
-            } else if(year_status.balance > wish.amount){
-                if(!w.cache.objectives().empty()){
-                    if(month_objective && year_objective){
-                        status = std::string("::green") + "Perfect";
-                        details = "(On year balance, all objectives fullfilled)";
-                    } else if(month_objective){
-                        status = std::string("::green") + "Good";
-                        details = "(On year balance, month objectives fullfilled)";
-                    } else if(yearly_breaks > 0 || monthly_breaks > 0){
-                        status = "::blueOK";
-                        details = "(On year balance, " + to_string(yearly_breaks + monthly_breaks) + " objectives broken)";
-                    } else if(yearly_breaks == 0 && monthly_breaks == 0){
-                        status = std::string("::red") + "Warning";
-                        details = "(On year balance, objectives not fullfilled)";
-                    }
-                } else {
-                    status = "::blueOK";
-                    details = "(on year balance)";
+        } else if (month_status.balance > wish.amount) {
+            if (!w.cache.objectives().empty()) {
+                if (month_objective && year_objective) {
+                    status  = std::string("::green") + "Perfect";
+                    details = "(On month balance, all objectives fullfilled)";
+                } else if (month_objective) {
+                    status  = std::string("::green") + "Good";
+                    details = "(On month balance, month objectives fullfilled)";
+                } else if (yearly_breaks > 0 || monthly_breaks > 0) {
+                    status  = "::blueOK";
+                    details = "(On month balance, " + to_string(yearly_breaks + monthly_breaks) + " objectives broken)";
+                } else if (yearly_breaks == 0 && monthly_breaks == 0) {
+                    status  = std::string("::red") + "Warning";
+                    details = "(On month balance, objectives not fullfilled)";
                 }
             } else {
-                status = std::string("::red") + "Warning";
-                details = "(on fortune only)";
+                status  = "OK (on month balance)";
+                details = "(on month balance)";
             }
+        } else if (year_status.balance > wish.amount) {
+            if (!w.cache.objectives().empty()) {
+                if (month_objective && year_objective) {
+                    status  = std::string("::green") + "Perfect";
+                    details = "(On year balance, all objectives fullfilled)";
+                } else if (month_objective) {
+                    status  = std::string("::green") + "Good";
+                    details = "(On year balance, month objectives fullfilled)";
+                } else if (yearly_breaks > 0 || monthly_breaks > 0) {
+                    status  = "::blueOK";
+                    details = "(On year balance, " + to_string(yearly_breaks + monthly_breaks) + " objectives broken)";
+                } else if (yearly_breaks == 0 && monthly_breaks == 0) {
+                    status  = std::string("::red") + "Warning";
+                    details = "(On year balance, objectives not fullfilled)";
+                }
+            } else {
+                status  = "::blueOK";
+                details = "(on year balance)";
+            }
+        } else {
+            status  = std::string("::red") + "Warning";
+            details = "(on fortune only)";
         }
 
         contents.push_back({to_string(wish.id), wish.name, to_string(wish.amount), wish_status_short(wish.importance), wish_status_short(wish.urgency), status, details, "::edit::wishes::" + to_string(wish.id)});

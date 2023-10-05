@@ -47,16 +47,7 @@ bool invalid_accounts_all(){
             }
 
             for(const auto& c : current_accounts){
-                bool found = false;
-
-                for (const auto& p : previous) {
-                    if (p.name == c.name) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if(!found){
+                if(!std::ranges::any_of(previous, [&c](const auto & p) { return p.name == c.name; })){
                     return true;
                 }
             }
