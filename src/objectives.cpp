@@ -111,9 +111,7 @@ void budget::monthly_objective_status(budget::writer& w){
         std::vector<std::string>              columns = {objective.name, "Status", "Progress"};
         std::vector<std::vector<std::string>> contents;
 
-        for (unsigned short i = sm; i <= current_month; ++i) {
-            budget::month const month = i;
-
+        for (budget::month month = sm; month <= current_month; ++month) {
             // Compute the month status
             auto status = budget::compute_month_status(w.cache, current_year, month);
 

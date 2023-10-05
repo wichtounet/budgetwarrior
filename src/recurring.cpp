@@ -56,7 +56,7 @@ budget::date last_date(const budget::recurring& recurring) {
 }
 
 bool recurring_not_triggered(const budget::recurring & recurring ) {
-    return last_date(recurring).year() == 1400;
+    return last_date(recurring).year() == budget::year(1400);
 }
 
 void generate_recurring(const budget::date & date, const recurring & recurring) {

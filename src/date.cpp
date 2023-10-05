@@ -62,7 +62,7 @@ std::string budget::date_to_string(const budget::date& date) {
     }
 
     // Convert the month
-    auto* month_ptr = date.month() < 10 ? str.data() + 6 : str.data() + 5;
+    auto* month_ptr = date.month() < budget::month(10) ? str.data() + 6 : str.data() + 5;
     if (auto [p, ec] = std::to_chars(month_ptr, str.data() + 7, static_cast<date_type>(date.month())); ec != std::errc() || p != str.data() + 7) {
         throw date_exception("Can't convert month to string");
     }
@@ -76,12 +76,12 @@ std::string budget::date_to_string(const budget::date& date) {
     return str;
 }
 
-unsigned short budget::start_month(data_cache & cache, budget::year year){
+budget::month budget::start_month(data_cache & cache, budget::year year){
     const budget::month m = min_with_default(cache.expenses() | filter_by_year(year) | to_month, 12);
     return min_with_default(cache.earnings() | filter_by_year(year) | to_month, m);
 }
 
-unsigned short budget::start_year(data_cache & cache){
+budget::year budget::start_year(data_cache & cache){
     auto today = budget::local_day();
     const budget::year y = min_with_default(cache.expenses() | not_template | to_year, today.year());
     return min_with_default(cache.earnings() | not_template | to_year, y);

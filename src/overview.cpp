@@ -36,14 +36,10 @@ bool invalid_accounts_all(){
 
     const std::vector<budget::account> previous = all_accounts(cache, sy, start_month(cache, sy));
 
-    for(unsigned short j = sy; j <= today.year(); ++j){
-        const budget::year year = j;
-
+    for(budget::year year = sy; year <= today.year(); ++year){
         auto sm = start_month(cache, year);
 
-        for(unsigned short i = sm; i < 13; ++i){
-            const budget::month month = i;
-
+        for(budget::month month = sm; month.is_valid(); ++month){
             auto current_accounts = all_accounts(cache, year, month);
 
             if(current_accounts.size() != previous.size()){
@@ -77,10 +73,8 @@ bool invalid_accounts(budget::year year){
 
     std::vector<budget::account> previous = all_accounts(cache, year, sm);
 
-    for(unsigned short i = sm + 1; i < 13; ++i){
-        const budget::month month = i;
-
-        auto current_accounts = all_accounts(cache, year, month);
+    for(budget::month m = sm + date_type(1); m.is_valid(); ++m){
+        auto current_accounts = all_accounts(cache, year, m);
 
         if(current_accounts.size() != previous.size()){
             return true;
@@ -163,11 +157,11 @@ budget::money compute_total_budget_account(budget::account & account, budget::mo
                 }
             }
 
-            if (y != year && m == 12) {
+            if (y != year && m.is_last()) {
                 break;
             }
 
-            m = m + 1;
+            ++m;
         }
     }
 
@@ -209,7 +203,7 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
                 tmp[account.name] += fold_left_auto(all_earnings_month(cache, account.id, y, m) | to_amount);
             }
 
-            if(y != year && m == 12){
+            if(y != year && m.is_last()){
                 break;
             }
 
@@ -505,16 +499,16 @@ void add_month_columns(std::vector<std::string>& columns, budget::month sm){
     }
 }
 
-int get_current_months(budget::year year){
+budget::month get_current_months(budget::year year){
     data_cache cache;
 
     auto sm = start_month(cache, year);
-    auto current_months = 12 - sm + 1;
+    budget::month current_months = budget::month(12) - sm + budget::month(1);
 
     auto today = budget::local_day();
 
     if(today.year() == year){
-        current_months = today.month() - sm + 1;
+        current_months = today.month() - sm + date_type(1);
     }
 
     return current_months;
@@ -589,9 +583,7 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
 
     //Fill the table
 
-    for(unsigned short j = sm; j < 13; ++j){
-        const budget::month m = j;
-
+    for(budget::month m = sm; m.is_valid(); ++m){
         for(auto& account : all_accounts(w.cache, year, m)){
             budget::money month_total;
 
@@ -610,7 +602,7 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
             contents[row_mapping[account.name]].push_back(to_string(month_total));
 
             account_totals[account.name] += month_total;
-            totals[j-1] += month_total;
+            totals[m.value - 1] += month_total;
 
             if(m < sm + current_months){
                 account_current_totals[account.name] += month_total;
@@ -944,9 +936,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         double total_savings_rate         = 0.0;
         double current_total_savings_rate = 0.0;
 
-        for (unsigned short i = sm; i < 13; ++i) {
-            const budget::month m = i;
-
+        for (budget::month m = sm; m.is_valid(); ++m) {
             auto status = compute_month_status(w.cache, year, m);
 
             auto savings        = status.income - status.expenses;
@@ -958,7 +948,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
             contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
 
-            if (i < sm + current_months) {
+            if (m < sm + current_months) {
                 current_total_savings_rate += savings_rate;
             }
 
@@ -980,9 +970,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         double total_savings_rate         = 0.0;
         double current_total_savings_rate = 0.0;
 
-        for (unsigned short i = sm; i < 13; ++i) {
-            budget::month const m = i;
-
+        for (budget::month m = sm; m.is_valid(); ++m) {
             auto status = compute_month_status(w.cache, year - date_type(1), m);
 
             double savings_rate = 0.0;
@@ -993,7 +981,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
             contents.back().push_back(to_string_precision(savings_rate, 2) + "%");
 
-            if (i < sm + current_months) {
+            if (m < sm + current_months) {
                 current_total_savings_rate += savings_rate;
             }
 
@@ -1040,7 +1028,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
         auto pretotal = compute_total_budget(w.cache, sm, year);
         size_t i = 0;
         for(const auto& account : all_accounts(w.cache, year, sm)){
-            account_previous[account.name][sm - 1] += pretotal[i++] - account.amount;
+            account_previous[account.name][sm.value - 1] += pretotal[i++] - account.amount;
         }
     }
 
@@ -1343,7 +1331,7 @@ void budget::display_year_overview(budget::year year, budget::writer& w){
     }
 
     auto today = budget::local_day();
-    const bool current = year == today.year() && today.month() != 12;
+    const bool current = year == today.year() && today.month() != budget::month(12);
 
     display_local_balance(w, year, current, false, true);
     display_balance(w, year, false, true);

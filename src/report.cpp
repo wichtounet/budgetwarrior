@@ -165,9 +165,9 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
             total_balance = get_base_income(w.cache, budget::date(year, month, 1)) + total_earnings - total_expenses;
         }
 
-        expenses[month - 1] = total_expenses.dollars();
-        earnings[month - 1] = total_earnings.dollars();
-        balances[month - 1] = total_balance.dollars();
+        expenses[month.value - 1] = total_expenses.dollars();
+        earnings[month.value - 1] = total_earnings.dollars();
+        balances[month.value - 1] = total_balance.dollars();
 
         max_expenses = std::max(max_expenses, total_expenses);
         max_earnings = std::max(max_earnings, total_earnings);
@@ -257,16 +257,14 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
     const auto first_bar = scale_width + 2;
 
-    for (auto i = sm; i <= today.month(); ++i) {
-        const budget::month month = i;
-
-        auto col_start = first_bar + (3 * col_width + 4) * (i - sm);
+    for (budget::month month = sm; month <= today.month(); ++month) {
+        auto col_start = first_bar + (3 * col_width + 4) * (month.value - sm.value);
 
         //Display month legend
         auto month_str = month.as_short_string();
         write(graph, 1, col_start + 2, month_str);
 
-        for (size_t j = 0; j < expenses[month - 1] / precision; ++j) {
+        for (size_t j = 0; j < expenses[month.value - 1] / precision; ++j) {
             for (size_t x = 0; x < col_width; ++x) {
                 graph[zero_index + j][col_start + x] = "\033[1;41m \033[0m";
             }
@@ -274,7 +272,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
         col_start += col_width + 1;
 
-        for (size_t j = 0; j < earnings[month - 1] / precision; ++j) {
+        for (size_t j = 0; j < earnings[month.value - 1] / precision; ++j) {
             for (size_t x = 0; x < col_width; ++x) {
                 graph[zero_index + j][col_start + x] = "\033[1;42m \033[0m";
             }
@@ -282,14 +280,14 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
         col_start += col_width + 1;
 
-        if (balances[month - 1] >= 0) {
-            for (size_t j = 0; j < balances[month - 1] / precision; ++j) {
+        if (balances[month.value - 1] >= 0) {
+            for (size_t j = 0; j < balances[month.value - 1] / precision; ++j) {
                 for (size_t x = 0; x < col_width; ++x) {
                     graph[zero_index + j][col_start + x] = "\033[1;44m \033[0m";
                 }
             }
         } else {
-            for (size_t j = 0; j < std::abs(balances[month - 1]) / precision; ++j) {
+            for (size_t j = 0; j < std::abs(balances[month.value - 1]) / precision; ++j) {
                 for (size_t x = 0; x < col_width; ++x) {
                     graph[zero_index - 1 - j][col_start + x] = "\033[1;44m \033[0m";
                 }
@@ -299,7 +297,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
     //Display legend
 
-    const int start_legend = first_bar + (3 * col_width + 4) * (today.month() - sm + 1) + 4;
+    const int start_legend = first_bar + (3 * col_width + 4) * (today.month() - sm + date_type(1)) + 4;
 
     graph[4][start_legend - 2] = "|";
     graph[3][start_legend - 2] = "|";

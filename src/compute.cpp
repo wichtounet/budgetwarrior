@@ -21,7 +21,7 @@ budget::status budget::compute_year_status(data_cache & cache) {
 }
 
 budget::status budget::compute_year_status(data_cache & cache, year year) {
-    return compute_year_status(cache, year, 12);
+    return compute_year_status(cache, year, month(12));
 }
 
 budget::status budget::compute_year_status(data_cache & cache, year year, month month) {
@@ -32,7 +32,7 @@ budget::status budget::compute_year_status(data_cache & cache, year year, month 
     status.expenses = fold_left_auto(all_expenses_between(cache, year, sm, month) | to_amount);
     status.earnings = fold_left_auto(all_earnings_between(cache, year, sm, month) | to_amount);
 
-    for (unsigned short i = sm; i <= month; ++i) {
+    for (budget::month i = sm; i <= month; ++i) {
         status.budget += fold_left_auto(all_accounts(cache, year, i) | to_amount);
         status.base_income += get_base_income(cache, budget::date(year, i, 1));
     }
@@ -97,7 +97,7 @@ budget::status budget::compute_avg_month_status(data_cache & cache, month month)
 budget::status budget::compute_avg_month_status(data_cache & cache, year year, month month) {
     budget::status avg_status;
 
-    for (budget::month m = 1; m < month; m = m + 1) {
+    for (budget::month m(1); m < month; ++m) {
         auto status = compute_month_status(cache, year, m);
 
         avg_status.expenses += status.expenses;

@@ -67,6 +67,14 @@ struct month {
         return *this;
     }
 
+    month operator-(date_type remove) const {
+        return {static_cast<date_type>(value - remove)};
+    }
+
+    month operator+(date_type add) const {
+        return {static_cast<date_type>(value + add)};
+    }
+
     std::string as_short_string() const {
         static constexpr const std::array months{"Jan", "Feb", "Mar", "Apr", "May", "Jun",
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -86,13 +94,19 @@ struct month {
     }
 
     bool is_valid() const {
-        return value <= 13;
+        return value < 13;
+    }
+
+    bool is_last() const {
+        return value == 12;
     }
 
     month operator++() {
         ++value;
         return *this;
     }
+
+    friend auto operator<=>(const month & lhs, const month & rhs) = default;
 };
 
 struct year {
@@ -122,6 +136,8 @@ struct year {
         ++value;
         return *this;
     }
+
+    friend auto operator<=>(const year & lhs, const year & rhs) = default;
 };
 
 struct days {
@@ -173,6 +189,8 @@ struct date {
             throw date_exception(std::format("Invalid day: {}", day));
         }
     }
+
+    // TODO date(year y, month m, day d) : date(y.value, m.value, d.value) {}
 
     budget::year year() const {
         return budget::year{_year};
@@ -494,8 +512,8 @@ inline std::string to_string(budget::date date){
 
 struct data_cache;
 
-unsigned short start_year(data_cache & cache);
-unsigned short start_month(data_cache & cache, budget::year year);
+budget::year start_year(data_cache & cache);
+budget::month start_month(data_cache & cache, budget::year year);
 
 } //end of namespace budget
 

@@ -231,9 +231,7 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
 
     auto sm = start_month(w.cache, year);
 
-    for (unsigned short i = sm; i <= month; ++i) {
-        const budget::month m = i;
-
+    for (budget::month m = sm; m <= month; ++m) {
         for (const auto& account : all_accounts(w.cache, year, m)) {
             auto total_expenses = fold_left_auto(w.cache.expenses() | filter_by_account(account.id) | filter_by_date(year, m) | to_amount);
             auto total_earnings = fold_left_auto(w.cache.earnings() | filter_by_account(account.id) | filter_by_date(year, m) | to_amount);
@@ -241,7 +239,7 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
             auto balance       = account_previous[account.name] + account.amount - total_expenses + total_earnings;
             auto local_balance = account.amount - total_expenses + total_earnings;
 
-            if (i == month) {
+            if (m == month) {
                 contents.push_back({account.name});
 
                 contents.back().push_back(format_money(total_expenses));
@@ -253,7 +251,7 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
                 month_tot_earnings += total_earnings;
                 month_tot_balance += balance;
                 month_tot_local += local_balance;
-            } else if (month > 1 && m == month - 1) {
+            } else if (month > budget::month(1) && m == month - date_type(1)) {
                 prev_expenses += total_expenses;
                 prev_earnings += total_earnings;
                 prev_balance  += balance;
@@ -276,7 +274,7 @@ void budget::account_summary(budget::writer& w, budget::month month, budget::yea
     contents.back().push_back(format_money(month_tot_balance));
     contents.back().push_back(format_money(month_tot_local));
 
-    if(month > 1){
+    if(month > budget::month(1)){
         contents.push_back({"Previous"});
 
         contents.back().push_back(format_money(prev_expenses));
