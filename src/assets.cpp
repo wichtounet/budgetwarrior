@@ -919,13 +919,13 @@ void budget::small_show_asset_values(budget::writer& w){
     w.display_table(columns, contents, 1, {}, 1);
 }
 
-void budget::show_asset_values(budget::writer& w, bool liability){
+void budget::show_asset_values(budget::writer& w, bool is_liability){
     if (no_asset_values() && no_asset_shares()) {
         w << "No asset values" << end_of_line;
         return;
     }
 
-    if (!liability) {
+    if (!is_liability) {
         w << title_begin << "Net Worth" << title_end;
 
         std::vector<std::string> columns = {"Name"};
@@ -1246,10 +1246,10 @@ int64_t get_shares(const budget::asset& asset, const budget::date& d, data_cache
 // 2) If this becomes too high, we can also store the value an asset id for each
 //    possible date (in one pass of all asset values of an asset)
 
-budget::money budget::get_asset_value(const budget::asset& asset, const budget::date& d, data_cache& cache) {
+budget::money budget::get_asset_value(const budget::asset& asset, const budget::date& date, data_cache& cache) {
     if (asset.share_based) [[unlikely]] {
-        if (const int64_t shares = get_shares(asset, d, cache); shares > 0) {
-            return static_cast<int>(shares) * share_price(asset.ticker, d);
+        if (const int64_t shares = get_shares(asset, date, cache); shares > 0) {
+            return static_cast<int>(shares) * share_price(asset.ticker, date);
         }
     } else {
         budget::money asset_value_amount;
@@ -1257,7 +1257,7 @@ budget::money budget::get_asset_value(const budget::asset& asset, const budget::
         auto & asset_values = cache.sorted_group_asset_values(false)[asset.id];
 
         if (!asset_values.empty()) {
-            auto it = std::upper_bound(asset_values.begin(), asset_values.end(), d, [](budget::date d, auto & value) { return d < value.set_date; });
+            auto it = std::upper_bound(asset_values.begin(), asset_values.end(), date, [](budget::date d, auto & value) { return d < value.set_date; });
 
             if (it != asset_values.begin()) {
                 --it;

@@ -26,8 +26,8 @@ namespace {
 
 constexpr size_t running_limit = 12;
 
-money running_expenses(data_cache & cache, const budget::date & d = budget::local_day()){
-    budget::date const end = d - budget::days(d.day() - 1);
+money running_expenses(data_cache & cache, const budget::date & date = budget::local_day()){
+    budget::date const end = date - budget::days(date.day() - 1);
     budget::date const start = end - budget::months(running_limit);
 
     budget::money total;
@@ -172,13 +172,15 @@ void budget::retirement_status(budget::writer& w) {
     auto missing        = years * expenses - nw;
     auto income         = running_income(w.cache);
 
-    size_t base_months   = 0;
-    auto current_nw = nw;
-    while (current_nw < years * expenses) {
-        current_nw *= 1.0 + (roi / 100.0) / 12;
-        current_nw += (savings_rate * income) / 12;
+    size_t base_months = 0;
+    {
+        auto current_nw = nw;
+        while (current_nw < years * expenses) {
+            current_nw *= 1.0 + (roi / 100.0) / 12;
+            current_nw += (savings_rate * income) / 12;
 
-        ++base_months;
+            ++base_months;
+        }
     }
 
     std::vector<std::string> columns = {};

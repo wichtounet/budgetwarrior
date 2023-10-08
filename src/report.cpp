@@ -134,9 +134,9 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
     budget::money min_earnings;
     budget::money min_balance;
 
-    std::vector<long> expenses(12);
-    std::vector<long> earnings(12);
-    std::vector<long> balances(12);
+    std::vector<long> m_expenses(12);
+    std::vector<long> m_earnings(12);
+    std::vector<long> m_balances(12);
 
     for (auto i = sm; i <= today.month(); ++i) {
         const budget::month month = i;
@@ -165,9 +165,9 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
             total_balance = get_base_income(w.cache, budget::date(year, month, 1)) + total_earnings - total_expenses;
         }
 
-        expenses[month.value - 1] = total_expenses.dollars();
-        earnings[month.value - 1] = total_earnings.dollars();
-        balances[month.value - 1] = total_balance.dollars();
+        m_expenses[month.value - 1] = total_expenses.dollars();
+        m_earnings[month.value - 1] = total_earnings.dollars();
+        m_balances[month.value - 1] = total_balance.dollars();
 
         max_expenses = std::max(max_expenses, total_expenses);
         max_earnings = std::max(max_earnings, total_earnings);
@@ -264,7 +264,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
         auto month_str = month.as_short_string();
         write(graph, 1, col_start + 2, month_str);
 
-        for (size_t j = 0; j < expenses[month.value - 1] / precision; ++j) {
+        for (size_t j = 0; j < m_expenses[month.value - 1] / precision; ++j) {
             for (size_t x = 0; x < col_width; ++x) {
                 graph[zero_index + j][col_start + x] = "\033[1;41m \033[0m";
             }
@@ -272,7 +272,7 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
         col_start += col_width + 1;
 
-        for (size_t j = 0; j < earnings[month.value - 1] / precision; ++j) {
+        for (size_t j = 0; j < m_earnings[month.value - 1] / precision; ++j) {
             for (size_t x = 0; x < col_width; ++x) {
                 graph[zero_index + j][col_start + x] = "\033[1;42m \033[0m";
             }
@@ -280,14 +280,14 @@ void budget::report(budget::writer& w, budget::year year, bool filter, const std
 
         col_start += col_width + 1;
 
-        if (balances[month.value - 1] >= 0) {
-            for (size_t j = 0; j < balances[month.value - 1] / precision; ++j) {
+        if (m_balances[month.value - 1] >= 0) {
+            for (size_t j = 0; j < m_balances[month.value - 1] / precision; ++j) {
                 for (size_t x = 0; x < col_width; ++x) {
                     graph[zero_index + j][col_start + x] = "\033[1;44m \033[0m";
                 }
             }
         } else {
-            for (size_t j = 0; j < std::abs(balances[month.value - 1]) / precision; ++j) {
+            for (size_t j = 0; j < std::abs(m_balances[month.value - 1]) / precision; ++j) {
                 for (size_t x = 0; x < col_width; ++x) {
                     graph[zero_index - 1 - j][col_start + x] = "\033[1;44m \033[0m";
                 }

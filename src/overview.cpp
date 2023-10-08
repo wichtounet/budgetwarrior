@@ -259,9 +259,9 @@ std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, boo
     acc_data_t acc_data;
 
     //Accumulate all the data
-    for (auto& data : data) {
-        if (func(data)) {
-            auto name = data.name;
+    for (auto& element : data) {
+        if (func(element)) {
+            auto name = element.name;
 
             if (name[name.size() - 1] == ' ') {
                 name.erase(name.size() - 1, name.size());
@@ -275,13 +275,13 @@ std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, boo
             }
 
             if (full) {
-                acc_data["All accounts"][name] += data.amount;
+                acc_data["All accounts"][name] += element.amount;
             } else {
-                auto account = get_account(data.account);
-                acc_data[account.name][name] += data.amount;
+                auto account = get_account(element.account);
+                acc_data[account.name][name] += element.amount;
             }
 
-            total += data.amount;
+            total += element.amount;
         }
     }
 
@@ -685,8 +685,6 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
     auto& subcommand = args[1];
 
     if (subcommand == "month") {
-        auto today = budget::local_day();
-
         if (args.size() == 2) {
             display_month_overview(today.month(), today.year(), w);
         } else if (args.size() == 3) {
@@ -759,9 +757,7 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
             throw budget_exception("Too many arguments to overview aggregate");
         }
     } else if (subcommand == "account") {
-        auto ask_for_account = [](budget::month m = {0}, budget::year y = {0}) {
-            auto today = budget::local_day();
-
+        auto ask_for_account = [&today](budget::month m = {0}, budget::year y = {0}) {
             if (m.is_default()) {
                 m = today.month();
             }

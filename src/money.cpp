@@ -35,7 +35,7 @@ money budget::money_from_string(std::string_view money_sv){
         if (*p == '.') {
             ++p;
 
-            if (auto [p2, ec] = std::from_chars(p, money_string.data() + money_string.size(), cents); ec == std::errc()) {
+            if (auto [p2, ec2] = std::from_chars(p, money_string.data() + money_string.size(), cents); ec2 == std::errc()) {
                 if (p2 == money_string.data() + money_string.size()) {
                     if (cents >= 0 && cents < 100) {
                         return {dollars, cents};
@@ -64,7 +64,7 @@ std::string budget::money_to_string(const money& amount) {
             *p2++ = '0';
         }
 
-        if (auto [p3, ec] = std::to_chars(p2, buffer.end(), amount.cents()); ec == std::errc()) {
+        if (auto [p3, ec2] = std::to_chars(p2, buffer.end(), amount.cents()); ec2 == std::errc()) {
             return {buffer.begin(), p3};
         }
 
