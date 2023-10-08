@@ -270,8 +270,6 @@ int main(int argc, const char* argv[]) {
             code = 1;
         }
     } catch (const budget_exception& exception) {
-        // TODO We should be able to differentiate between real errors and
-        // command line errors
         std::cout << exception.message() << std::endl;
 
         code = 2;

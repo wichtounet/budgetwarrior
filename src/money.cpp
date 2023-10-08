@@ -22,7 +22,7 @@ money budget::money_from_string(std::string_view money_sv){
 
     // In order to read locale-dependent data (legacy), we need
     // to allow , in the numbers
-    // TODO In the future, we can remove this code
+    // In the future, we can remove this code
     std::erase(money_string, ',');
 
     int dollars = 0;

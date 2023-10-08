@@ -336,5 +336,5 @@ void budget::console_writer::display_graph([[maybe_unused]] std::string_view    
                                            [[maybe_unused]] std::vector<std::string>&        categories,
                                            [[maybe_unused]] std::vector<std::string>         series_names,
                                            [[maybe_unused]] std::vector<std::vector<float>>& series_values) {
-    os << "TODO: unimplemented" << std::endl;
+    os << "unimplemented" << std::endl;
 }
