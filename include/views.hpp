@@ -14,6 +14,8 @@
 #include "expenses.hpp"
 #include "liabilities.hpp"
 
+namespace ranges = std::ranges;
+
 namespace budget {
 
 // We define views without parameters as an adaptor to avoid having to use ()
