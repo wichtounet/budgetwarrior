@@ -404,7 +404,7 @@ void budget::estimate_wishes(budget::writer& w) {
 
         std::string status;
 
-        for (size_t i = 0; i < 24 && !ok; ++i) {
+        for (date_type i = 0; i < 24 && !ok; ++i) {
             auto day = today + months(i);
 
             auto month_status = budget::compute_month_status(w.cache, day.year(), day.month());
@@ -456,7 +456,7 @@ void budget::estimate_wishes(budget::writer& w) {
 
         std::string status;
 
-        for (size_t i = 0; i < 24 && !ok; ++i) {
+        for (date_type i = 0; i < 24 && !ok; ++i) {
             auto day          = today + months(i);
             auto month_status = budget::compute_month_status(w.cache, day.year(), day.month());
             auto year_status  = budget::compute_year_status(w.cache, day.year(), day.month());

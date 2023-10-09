@@ -52,7 +52,7 @@ money running_expenses(data_cache & cache, const budget::date & date = budget::l
 double running_savings_rate(data_cache & cache, const budget::date & sd = budget::local_day()){
     double savings_rate = 0.0;
 
-    for(size_t i = 1; i <= running_limit; ++i){
+    for(date_type i = 1; i <= running_limit; ++i){
         auto d = sd - budget::months(i);
 
         auto expenses = fold_left_auto(all_expenses_month(cache, d.year(), d.month()) | to_amount);
@@ -75,7 +75,7 @@ double running_savings_rate(data_cache & cache, const budget::date & sd = budget
 budget::money running_income(data_cache & cache, const budget::date & sd = budget::local_day()){
     budget::money income;
 
-    for(size_t i = 1; i <= running_limit; ++i){
+    for(date_type i = 1; i <= running_limit; ++i){
         auto d = sd - budget::months(i);
 
         auto earnings = fold_left_auto(all_earnings_month(cache, d.year(), d.month()) | to_amount);
@@ -170,7 +170,7 @@ void budget::retirement_status(budget::writer& w) {
     auto missing        = years * expenses - nw;
     auto income         = running_income(w.cache);
 
-    size_t base_months = 0;
+    date_type base_months = 0;
     {
         auto current_nw = nw;
         while (current_nw < years * expenses) {
