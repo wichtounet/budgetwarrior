@@ -1254,9 +1254,7 @@ budget::money budget::get_asset_value(const budget::asset& asset, const budget::
     } else {
         budget::money asset_value_amount;
 
-        auto & asset_values = cache.sorted_group_asset_values(false)[asset.id];
-
-        if (!asset_values.empty()) {
+        if (auto & asset_values = cache.sorted_group_asset_values(false)[asset.id]; !asset_values.empty()) {
             auto it = std::upper_bound(asset_values.begin(), asset_values.end(), date, [](budget::date d, auto & value) { return d < value.set_date; });
 
             if (it != asset_values.begin()) {

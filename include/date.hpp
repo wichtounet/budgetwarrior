@@ -238,9 +238,8 @@ struct date {
     date_type iso_week() const {
         const auto doy      = day_of_year();
         const auto dow      = day_of_the_week() - 1;
-        const auto dowFirst = date(_year, 1, 1).day_of_the_week() - 1;
 
-        if (dow < dowFirst) {
+        if (const auto dowFirst = date(_year, 1, 1).day_of_the_week() - 1; dow < dowFirst) {
             return (doy + 6) / 7 + 1;
         }
 
