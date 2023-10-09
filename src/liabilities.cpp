@@ -488,9 +488,7 @@ void budget::migrate_liabilities_6_to_7(){
         reader >> liability.name;
         reader >> liability.currency;
 
-        auto asset_classes = all_asset_classes();
-
-        for (auto & clas : asset_classes) {
+        for (auto asset_classes = all_asset_classes(); auto & clas : asset_classes) {
             liability.classes.emplace_back(clas.id, 0);
         }
 
