@@ -252,7 +252,7 @@ void add_values_column(budget::month                            month,
 using acc_data_t = cpp::string_hash_map<cpp::istring_hash_map<budget::money>>;
 
 template<typename Data, typename Functor>
-std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, bool disable_groups, const std::string& separator, Functor&& func){
+std::pair<budget::money, acc_data_t> aggregate(data_cache & cache, const Data & data, bool full, bool disable_groups, const std::string& separator, Functor&& func){
     budget::money total;
     acc_data_t acc_data;
 
@@ -283,7 +283,6 @@ std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, boo
         }
     }
 
-    data_cache cache;
     for (const auto& account : current_accounts(cache)) {
         if (!acc_data.contains(account.name)) {
             acc_data[account.name];
@@ -295,7 +294,7 @@ std::pair<budget::money, acc_data_t> aggregate(const Data & data, bool full, boo
 
 template<typename Data, typename Functor>
 void aggregate_overview(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
-    auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
+    auto [total, acc_data] = aggregate(w.cache, data, full, disable_groups, separator, func);
 
     cpp::string_hash_map<budget::money> totals;
 
@@ -359,7 +358,7 @@ void aggregate_overview_month(const Data & data, budget::writer& w, bool full, b
         months = 12 - budget::start_month(w.cache, year) + 1;
     }
 
-    auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
+    auto [total, acc_data] = aggregate(w.cache, data, full, disable_groups, separator, func);
 
     cpp::string_hash_map<budget::money> totals;
 
@@ -426,7 +425,7 @@ budget::money future_value(budget::money start) {
 
 template<typename Data, typename Functor>
 void aggregate_overview_fv(const Data & data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
-    auto [total, acc_data] = aggregate(data, full, disable_groups, separator, func);
+    auto [total, acc_data] = aggregate(w.cache, data, full, disable_groups, separator, func);
 
     cpp::string_hash_map<budget::money> totals;
 
