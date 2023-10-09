@@ -144,7 +144,7 @@ std::string budget::base64_encode(std::string_view in){
 std::string budget::html_base64_decode(std::string_view in) {
     std::string out(in);
 
-    std::replace(out.begin(), out.end(), '_', '=');
+    std::ranges::replace(out, '_', '=');
 
     return base64_decode(out);
 }
@@ -152,7 +152,7 @@ std::string budget::html_base64_decode(std::string_view in) {
 std::string budget::html_base64_encode(std::string_view in){
     std::string out = base64_encode(in);
 
-    std::replace(out.begin(), out.end(), '=', '_');
+    std::ranges::replace(out, '=', '_');
 
     return out;
 }
