@@ -114,9 +114,7 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
     return add_recap_line(contents, title, values, [](const T& t){return t;});
 }
 
-budget::money compute_total_budget_account(budget::account & account, budget::month month, budget::year year){
-    data_cache cache;
-
+budget::money compute_total_budget_account(data_cache & cache, budget::account & account, budget::month month, budget::year year){
     // By default, the start is the year of the overview
     auto start_year_report = year;
 
@@ -490,9 +488,7 @@ void add_month_columns(std::vector<std::string>& columns, budget::month sm){
     }
 }
 
-budget::month get_current_months(budget::year year){
-    data_cache cache;
-
+budget::month get_current_months(data_cache & cache, budget::year year){
     auto sm = start_month(cache, year);
     budget::month current_months = budget::month(12) - sm + budget::month(1);
 
@@ -506,11 +502,11 @@ budget::month get_current_months(budget::year year){
 }
 
 template<bool Mean = false, bool CMean = false>
-inline void generate_total_line(std::vector<std::vector<std::string>>& contents, std::vector<budget::money>& totals, budget::year year, budget::month sm){
+inline void generate_total_line(data_cache & cache, std::vector<std::vector<std::string>>& contents, std::vector<budget::money>& totals, budget::year year, budget::month sm){
     std::vector<std::string> last_row;
     last_row.emplace_back("Total");
 
-    auto current_months = get_current_months(year);
+    auto current_months = get_current_months(cache, year);
 
     budget::money total_total;
     budget::money current_total;
@@ -547,7 +543,7 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
 
     auto sm = start_month(w.cache, year);
     auto months = 12 - sm + 1;
-    auto current_months = get_current_months(year);
+    auto current_months = get_current_months(w.cache, year);
 
     columns.push_back(title);
     add_month_columns(columns, sm);
@@ -616,9 +612,9 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
     //Generate the final total line
 
     if(current){
-        generate_total_line<true, true>(contents, totals, year, sm);
+        generate_total_line<true, true>(w.cache, contents, totals, year, sm);
     } else {
-        generate_total_line<true, false>(contents, totals, year, sm);
+        generate_total_line<true, false>(w.cache, contents, totals, year, sm);
     }
 
     if(last){
@@ -813,7 +809,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
     auto sm = start_month(w.cache, year);
     auto months = 12 - sm + 1;
-    auto current_months = get_current_months(year);
+    auto current_months = get_current_months(w.cache, year);
 
     columns.emplace_back("Local Balance");
     add_month_columns(columns, sm);
@@ -888,9 +884,9 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
     //Generate the total final line
 
     if(current){
-        generate_total_line<true, true>(contents, totals, year, sm);
+        generate_total_line<true, true>(w.cache, contents, totals, year, sm);
     } else {
-        generate_total_line<true, false>(contents, totals, year, sm);
+        generate_total_line<true, false>(w.cache, contents, totals, year, sm);
     }
 
     if (last) {
@@ -1048,7 +1044,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
 
     //Generate the final total line
 
-    generate_total_line(contents, totals, year, sm);
+    generate_total_line(w.cache, contents, totals, year, sm);
 
     if(last){
         contents.push_back({"Previous Year"});
@@ -1217,7 +1213,7 @@ void budget::display_month_account_overview(size_t account_id, budget::month mon
     //Budget
     contents.emplace_back(columns.size() * 3, "");
     add_recap_line<budget::account>(contents, "Budget", {account}, [](const budget::account& a) { return format_money(a.amount); });
-    auto total_budget = compute_total_budget_account(account, month, year);
+    auto total_budget = compute_total_budget_account(writer.cache, account, month, year);
     add_recap_line<budget::money>(contents, "Total Budget", {total_budget}, [](const budget::money& m){ return format_money(m);});
 
     //Balances
