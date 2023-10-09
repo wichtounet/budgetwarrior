@@ -54,20 +54,17 @@ budget::date get_valid_date(const budget::date & d){
     if (d >= budget::local_day()) {
         auto now = std::chrono::system_clock::now();
         auto tt  = std::chrono::system_clock::to_time_t(now);
-        auto tm  = *std::localtime(&tt);
 
         // We make sure that we are on a new U.S: day
         // TODO This should be done by getting the current time in the U.S.
-        if (tm.tm_hour > 15) {
+        if (auto tm  = *std::localtime(&tt); tm.tm_hour > 15) {
             return get_valid_date(budget::local_day() - budget::days(1));
         }
 
         return get_valid_date(budget::local_day() - budget::days(2));
     }
 
-    auto dow = d.day_of_the_week();
-
-    if (dow == 6 || dow == 7){
+    if (auto dow = d.day_of_the_week(); dow == 6 || dow == 7){
         return get_valid_date(d - budget::days(dow - 5));
     }
 
@@ -149,9 +146,9 @@ std::map<share_price_cache_key, budget::money, std::less<>> get_share_price_v3(c
             const share_price_cache_key key(d, ticker);
             quotes[key] = m;
         }
-    } catch (const budget::date_exception& e) {
+    } catch (const budget::date_exception&) {
         return {};
-    } catch (const budget::budget_exception& e) {
+    } catch (const budget::budget_exception&) {
         return {};
     }
 

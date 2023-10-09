@@ -491,9 +491,7 @@ budget::month get_current_months(data_cache & cache, budget::year year){
     auto sm = start_month(cache, year);
     budget::month current_months = budget::month(12) - sm + budget::month(1);
 
-    auto today = budget::local_day();
-
-    if(today.year() == year){
+    if(auto today = budget::local_day(); today.year() == year){
         current_months = today.month() - sm + date_type(1);
     }
 
@@ -1008,8 +1006,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
     auto today = budget::local_day();
     if(year > today.year()){
         auto pretotal = compute_total_budget(w.cache, sm, year);
-        size_t i = 0;
-        for(const auto& account : all_accounts(w.cache, year, sm)){
+        for(size_t i = 0; const auto& account : all_accounts(w.cache, year, sm)){
             account_previous[account.name][sm.value - 1] += pretotal[i++] - account.amount;
         }
     }
