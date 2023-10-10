@@ -18,6 +18,8 @@ namespace ranges = std::ranges;
 
 namespace budget {
 
+std::string get_account_name(size_t id);
+
 // We define views without parameters as an adaptor to avoid having to use ()
 
 namespace detail {
@@ -220,6 +222,10 @@ inline auto not_id(size_t id) {
 
 inline auto filter_by_account(size_t id) {
     return std::views::filter([id] (const auto & expense) { return expense.account == id; });
+}
+
+inline auto filter_by_account_name(std::string_view name) {
+    return std::views::filter([name] (const auto & expense) { return get_account_name(expense.account) == name; });
 }
 
 inline auto filter_by_asset(size_t id) {

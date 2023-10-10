@@ -375,6 +375,10 @@ budget::account budget::get_account(size_t id){
     return accounts[id];
 }
 
+std::string budget::get_account_name(size_t id){
+    return accounts[id].name;
+}
+
 budget::account budget::get_account(std::string_view name, budget::year year, budget::month month) {
     if (auto range = accounts.data() | active_at_date({year, month, 5}) | filter_by_name(name); range) {
         return *std::ranges::begin(range);

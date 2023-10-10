@@ -62,6 +62,7 @@ std::vector<budget::account> current_accounts(data_cache & cache);
 
 budget::account get_account(size_t id);
 budget::account get_account(std::string_view name, year year, month month);
+std::string get_account_name(size_t id);
 
 void set_accounts_changed();
 void set_accounts_next_id(size_t next_id);

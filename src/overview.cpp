@@ -571,16 +571,10 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
         for(auto& account : all_accounts(w.cache, year, m)){
             budget::money month_total;
 
-            for(auto& value : values){
-                if(relaxed){
-                    if(get_account(value.account).name == account.name && value.date.year() == year && value.date.month() == m){
-                        month_total += value.amount;
-                    }
-                } else {
-                    if(value.account == account.id && value.date.year() == year && value.date.month() == m){
-                        month_total += value.amount;
-                    }
-                }
+            if (relaxed) {
+                month_total = fold_left_auto(values | filter_by_account_name(account.name) | filter_by_date(year, m) | to_amount);
+            } else {
+                month_total = fold_left_auto(values | filter_by_account(account.id) | filter_by_date(year, m) | to_amount);
             }
 
             contents[row_mapping[account.name]].push_back(to_string(month_total));
