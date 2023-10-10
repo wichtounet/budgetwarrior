@@ -286,12 +286,7 @@ std::string budget::internal_config_value(std::string_view key){
 
 void budget::internal_config_set(std::string_view key, std::string_view value){
     const server_lock_guard l(internal_config_lock);
-    auto              it = internal.find(key);
-    if (it != internal.end()) {
-        it->second = value;
-    } else {
-        internal.emplace(key, value);
-    }
+    internal.insert_or_assign(std::string(key), value);
 }
 
 void budget::internal_config_remove(std::string_view key){
