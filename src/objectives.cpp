@@ -416,5 +416,5 @@ std::string budget::get_status(const budget::status& status, const budget::objec
 std::string budget::get_success(const budget::status& status, const budget::objective& objective){
     auto success = compute_success(status, objective);
 
-    return "::success" + std::to_string(success);
+    return std::format("::success{}", success);
 }
