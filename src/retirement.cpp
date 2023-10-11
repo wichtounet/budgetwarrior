@@ -240,7 +240,8 @@ void budget::retirement_status(budget::writer& w) {
             ++months;
         }
 
-        w << p_begin << "Increasing Savings Rate by " << dec << "% would save " << (base_months - months) / 12.0 << " years (in " << months / 12.0 << " years)" << p_end;
+        w << p_begin << "Increasing Savings Rate by " << dec << "% would save " << double(base_months - months) / 12.0 << " years (in " << double(months) / 12.0
+          << " years)" << p_end;
     }
 
     const std::array<int, 5> exp_decs{10, 50, 100, 200, 500};
@@ -258,6 +259,7 @@ void budget::retirement_status(budget::writer& w) {
             ++months;
         }
 
-        w << p_begin << "Decreasing monthly expenses by " << dec << " " << currency << " would save " << (base_months - months) / 12.0 << " years (in " << months / 12.0 << " (adjusted) years)" << p_end;
+        w << p_begin << "Decreasing monthly expenses by " << dec << " " << currency << " would save " << double(base_months - months) / 12.0 << " years (in "
+          << double(months) / 12.0 << " (adjusted) years)" << p_end;
     }
 }
