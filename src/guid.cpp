@@ -5,6 +5,8 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <array>
+
 #ifdef _WIN32
 #include <windows.h>
 #pragma comment(lib, "rpcrt4.lib")  // UuidCreate - Minimum supported OS Win 2000
@@ -25,10 +27,10 @@ std::string budget::generate_guid(){
     return ret;
 #else
     uuid_t uuid;
-    char uuid_string[37];
+    std::array<char,37> uuid_string{};
 
     uuid_generate(uuid);
-    uuid_unparse_upper(uuid, uuid_string);
+    uuid_unparse_upper(uuid, uuid_string.data());
 #endif
-    return std::string(uuid_string);
+    return {uuid_string.data()};
 }
