@@ -96,22 +96,6 @@ share_cache_value get_invalid_value(const share_price_cache_key & key) {
     return {budget::money(1), false};
 }
 
-std::string exec_command(const std::string& command) {
-    std::stringstream output;
-
-    char buffer[1024];
-
-    FILE* stream = popen(command.c_str(), "r");
-
-    while (fgets(buffer, 1024, stream) != nullptr) {
-        output << buffer;
-    }
-
-    pclose(stream);
-
-    return output.str();
-}
-
 // V3 is using Yahoo Finance
 // Starting from this version, the get_share_price function must be thread
 // safe. This means, it cannot touch the cache itself
@@ -119,7 +103,7 @@ std::map<share_price_cache_key, budget::money, std::less<>> get_share_price_v3(c
     std::string const command =
         "yfinance_quote.py " + ticker + " " + date_to_string(start_date) + " " + date_to_string(end_date);
 
-    auto result = exec_command(command);
+    auto result = budget::exec_command(command);
 
     if (result.empty()) {
         LOG_F(ERROR, "Price(v3): yfinance_quote.py returned nothing");

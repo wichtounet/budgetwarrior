@@ -74,4 +74,6 @@ std::string base64_encode(std::string_view in);
 std::string html_base64_decode(std::string_view in);
 std::string html_base64_encode(std::string_view in);
 
+std::string exec_command(const std::string& command);
+
 } //end of namespace budget

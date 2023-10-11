@@ -172,24 +172,8 @@ struct aliases_collector {
     }
 };
 
-std::string exec_command(const std::string& command) {
-    std::stringstream output;
-
-    char buffer[1024];
-
-    FILE* stream = popen(command.c_str(), "r");
-
-    while (fgets(buffer, 1024, stream) != nullptr) {
-        output << buffer;
-    }
-
-    pclose(stream);
-
-    return output.str();
-}
-
 bool has_enough_colors(){
-    auto colors = exec_command("tput colors");
+    auto colors = budget::exec_command("tput colors");
     colors = colors.substr(0, colors.length() - 1);
 
     return to_number<int>(colors) > 4;

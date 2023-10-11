@@ -25,6 +25,22 @@
 #include "expenses.hpp"
 #include "earnings.hpp"
 
+std::string budget::exec_command(const std::string& command) {
+    std::stringstream output;
+
+    std::array<char, 1024> buffer{};
+
+    FILE* stream = popen(command.c_str(), "r");
+
+    while (fgets(buffer.data(), 1024, stream) != nullptr) {
+        output << buffer.data();
+    }
+
+    pclose(stream);
+
+    return output.str();
+}
+
 unsigned short budget::terminal_width(){
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
