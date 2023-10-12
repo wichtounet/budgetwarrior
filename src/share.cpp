@@ -9,6 +9,7 @@
 
 #include <math.h>
 
+#include <chrono>
 #include <iostream>
 #include <map>
 #include <set>
@@ -52,12 +53,15 @@ budget::server_lock shares_lock;
 budget::date get_valid_date(const budget::date & d){
     // We cannot get closing price in the future, so we use the day before date
     if (d >= budget::local_day()) {
-        auto now = std::chrono::system_clock::now();
-        auto tt  = std::chrono::system_clock::to_time_t(now);
+        const auto now  = std::chrono::system_clock::now();
+        const auto zone = std::chrono::current_zone();
+        const auto time = zone->to_local(now);
+
+        const std::chrono::hh_mm_ss hms{time - std::chrono::floor<std::chrono::days>(time)};
 
         // We make sure that we are on a new U.S: day
         // TODO This should be done by getting the current time in the U.S.
-        if (auto tm  = *std::localtime(&tt); tm.tm_hour > 15) {
+        if (hms.hours().count() > 15) {
             return get_valid_date(budget::local_day() - budget::days(1));
         }
 
