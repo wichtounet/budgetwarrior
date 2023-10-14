@@ -24,6 +24,20 @@ std::string get_account_name(size_t id);
 
 namespace detail {
 
+struct monthly_only_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, monthly_only_adaptor) {
+        return std::forward<R>(r) | std::views::filter([](const auto& objective) { return objective.type == "monthly"; });
+    }
+};
+
+struct yearly_only_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, yearly_only_adaptor) {
+        return std::forward<R>(r) | std::views::filter([](const auto& objective) { return objective.type == "yearly"; });
+    }
+};
+
 struct share_based_only_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, share_based_only_adaptor) {
@@ -348,6 +362,8 @@ inline constexpr detail::is_active_adaptor is_active;
 inline constexpr detail::active_today_adaptor active_today;
 inline constexpr detail::only_open_ended_adaptor only_open_ended;
 inline constexpr detail::not_open_ended_adaptor not_open_ended;
+inline constexpr detail::monthly_only_adaptor monthly_only;
+inline constexpr detail::yearly_only_adaptor yearly_only;
 inline constexpr detail::share_based_only_adaptor share_based_only;
 inline constexpr detail::not_share_based_adaptor not_share_based;
 inline constexpr detail::to_name_adaptor to_name;

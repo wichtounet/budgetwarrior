@@ -11,6 +11,7 @@
 
 #include "cpp_utils/string.hpp"
 
+#include "views.hpp"
 #include "wishes.hpp"
 #include "objectives.hpp"
 #include "expenses.hpp"
@@ -413,33 +414,27 @@ void budget::estimate_wishes(budget::writer& w) {
             bool month_objective = true;
             bool year_objective  = true;
 
-            for (auto& objective : w.cache.objectives()) {
-                if (objective.type == "monthly") {
-                    auto success_after  = budget::compute_success(month_status.add_expense(wish.amount), objective);
+            for (auto& objective : w.cache.objectives() | monthly_only) {
+                auto success_after  = budget::compute_success(month_status.add_expense(wish.amount), objective);
 
-                    if (success_after < 100) {
-                        month_objective = false;
-                    }
-                } else if (objective.type == "yearly") {
-                    auto success_after  = budget::compute_success(year_status.add_expense(wish.amount), objective);
+                if (success_after < 100) {
+                    month_objective = false;
+                }
+            }
 
-                    if (success_after < 100) {
-                        year_objective = false;
-                    }
+            for (auto& objective : w.cache.objectives() | yearly_only) {
+                auto success_after  = budget::compute_success(year_status.add_expense(wish.amount), objective);
+
+                if (success_after < 100) {
+                    year_objective = false;
                 }
             }
 
             if (fortune_amount >= wish.amount && month_objective && year_objective) {
-                if (wish.amount >= month_status.budget) {
-                    if (year_status.balance > wish.amount) {
-                        status = day.month().as_short_string() + " " + to_string(day.year());
-                        ok     = true;
-                    }
-                } else {
-                    if (month_status.balance > wish.amount) {
-                        status = day.month().as_short_string() + " " + to_string(day.year());
-                        ok     = true;
-                    }
+                if ((wish.amount >= month_status.budget && year_status.balance > wish.amount)
+                    || (wish.amount < month_status.budget && month_status.balance > wish.amount)) {
+                    status = day.month().as_short_string() + " " + to_string(day.year());
+                    ok     = true;
                 }
             }
         }
@@ -472,16 +467,10 @@ void budget::estimate_wishes(budget::writer& w) {
             }
 
             if (fortune_amount >= wish.amount && month_objective) {
-                if (wish.amount >= month_status.budget) {
-                    if (year_status.balance > wish.amount) {
-                        status = day.month().as_short_string() + " " + to_string(day.year());
-                        ok     = true;
-                    }
-                } else {
-                    if (month_status.balance > wish.amount) {
-                        status = day.month().as_short_string() + " " + to_string(day.year());
-                        ok     = true;
-                    }
+                if ((wish.amount >= month_status.budget && year_status.balance > wish.amount)
+                    || (wish.amount < month_status.budget && month_status.balance > wish.amount)) {
+                    status = day.month().as_short_string() + " " + to_string(day.year());
+                    ok     = true;
                 }
             }
         }
