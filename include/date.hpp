@@ -47,11 +47,17 @@ struct day {
     date_type value;
     explicit day(date_type value) : value(value) {}
 
-    operator date_type() const { return value; }
+    explicit operator date_type() const { return value; }
 
     bool is_default() const {
         return value == 0;
     }
+
+    day operator-(date_type remove) const {
+        return day{static_cast<date_type>(value - remove)};
+    }
+
+    friend auto operator<=>(const day & lhs, const day & rhs) = default;
 };
 
 struct month {
@@ -143,6 +149,7 @@ struct year {
 struct days {
     date_type value;
     explicit days(date_type value) : value(value) {}
+    explicit days(day value) : value(value.value) {}
     operator date_type() const { return value; }
 };
 
@@ -176,17 +183,19 @@ struct date {
 
     explicit date() = default;
 
+    date(budget::year year, budget::month month, budget::day day) : date(year.value, month.value, day.value) {}
+
     date(date_type year, date_type month, date_type day) : _year(year), _month(month), _day(day) {
-        if(year < 1400){
-            throw date_exception(std::format("Year not in the valid range: {}", year));
+        if(_year < 1400){
+            throw date_exception(std::format("Year not in the valid range: {}", _year));
         }
 
-        if(month == 0 || month > 12){
-            throw date_exception(std::format("Invalid month: {}", month));
+        if(_month == 0 || _month > 12){
+            throw date_exception(std::format("Invalid month: {}", _month));
         }
 
-        if(day == 0 || day > days_month(year, month)){
-            throw date_exception(std::format("Invalid day: {}", day));
+        if(_day == 0 || _day > days_month(_year, _month)){
+            throw date_exception(std::format("Invalid day: {}", _day));
         }
     }
 
@@ -507,6 +516,21 @@ std::string date_to_string(const date& date);
 template<>
 inline std::string to_string(budget::date date){
     return date_to_string(date);
+}
+
+template<>
+inline std::string to_string(budget::day day){
+    return to_string(static_cast<date_type>(day));
+}
+
+template<>
+inline std::string to_string(budget::month month){
+    return to_string(static_cast<date_type>(month));
+}
+
+template<>
+inline std::string to_string(budget::year year){
+    return to_string(static_cast<date_type>(year));
 }
 
 struct data_cache;

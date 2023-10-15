@@ -68,7 +68,7 @@ std::string budget::date_to_string(const budget::date& date) {
     }
 
     // Convert the month
-    auto* day_ptr = date.day() < 10 ? str.data() + 9 : str.data() + 8;
+    auto* day_ptr = static_cast<date_type>(date.day()) < 10 ? str.data() + 9 : str.data() + 8;
     if (auto [p, ec] = std::to_chars(day_ptr, str.data() + 10, static_cast<date_type>(date.day())); ec != std::errc() || p != str.data() + 10) {
         throw date_exception("Can't convert day to string");
     }

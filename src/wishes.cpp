@@ -285,7 +285,7 @@ void budget::status_wishes(budget::writer& w){
 
     auto today = budget::local_day();
 
-    if(today.day() < 12){
+    if(today.day() < budget::day(12)){
         w << "WARNING: It is early in the month, no one can know what may happen ;)" << end_of_line;
     }
 

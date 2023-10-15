@@ -336,7 +336,7 @@ void budget::status_objectives(budget::writer& w){
     } else {
         auto today = budget::local_day();
 
-        if(today.day() < 12){
+        if(today.day() < budget::day(12)){
             w << p_begin << "WARNING: It is early in the month, no one can know what may happen ;)" << p_end;
         }
 
