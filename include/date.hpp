@@ -45,7 +45,7 @@ protected:
 
 struct day {
     date_type value;
-    day(date_type value) : value(value) {}
+    explicit day(date_type value) : value(value) {}
 
     operator date_type() const { return value; }
 
@@ -57,7 +57,7 @@ struct day {
 struct month {
     date_type value;
 
-    month(date_type value) : value(value) {}
+    explicit month(date_type value) : value(value) {}
 
     operator date_type() const { return value; }
 
@@ -68,11 +68,11 @@ struct month {
     }
 
     month operator-(date_type remove) const {
-        return {static_cast<date_type>(value - remove)};
+        return month{static_cast<date_type>(value - remove)};
     }
 
     month operator+(date_type add) const {
-        return {static_cast<date_type>(value + add)};
+        return month{static_cast<date_type>(value + add)};
     }
 
     std::string as_short_string() const {
@@ -111,7 +111,7 @@ struct month {
 
 struct year {
     date_type value;
-    year(date_type value) : value(value) {}
+    explicit year(date_type value) : value(value) {}
     operator date_type() const { return value; }
 
     year& operator=(date_type new_value){
@@ -121,11 +121,11 @@ struct year {
     }
 
     year operator-(date_type remove) const {
-        return {static_cast<date_type>(value - remove)};
+        return year{static_cast<date_type>(value - remove)};
     }
 
     year operator+(date_type add) const {
-        return {static_cast<date_type>(value + add)};
+        return year{static_cast<date_type>(value + add)};
     }
 
     bool is_default() const {

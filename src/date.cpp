@@ -77,7 +77,7 @@ std::string budget::date_to_string(const budget::date& date) {
 }
 
 budget::month budget::start_month(data_cache & cache, budget::year year){
-    const budget::month m = min_with_default(cache.expenses() | filter_by_year(year) | to_month, 12);
+    const budget::month m = min_with_default(cache.expenses() | filter_by_year(year) | to_month, budget::month(12));
     return min_with_default(cache.earnings() | filter_by_year(year) | to_month, m);
 }
 

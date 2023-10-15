@@ -480,9 +480,7 @@ void aggregate_overview_fv(const Data & data, budget::writer& w, bool full, bool
 }
 
 void add_month_columns(std::vector<std::string>& columns, budget::month sm){
-    for(unsigned short i = sm; i < 13; ++i){
-        const budget::month m = i;
-
+    for(budget::month m = sm; m.is_valid(); ++m){
         columns.emplace_back(m.as_long_string());
     }
 }
@@ -507,14 +505,13 @@ inline void generate_total_line(data_cache & cache, std::vector<std::vector<std:
 
     budget::money total_total;
     budget::money current_total;
-    for(unsigned short i = sm; i < 13; ++i){
-        auto total = totals[i - 1];
+    for(budget::month m = sm; m.is_valid(); ++m){
+        auto total = totals[m.value - 1];
 
         last_row.push_back(format_money(total));
 
         total_total += total;
 
-        const budget::month m = i;
         if(m < sm + current_months){
             current_total += total;
         }
@@ -614,9 +611,7 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
         const budget::year last_year = year - date_type(1);
         budget::money total;
 
-        for(unsigned short j = sm; j < 13; ++j){
-            const budget::month m = j;
-
+        for(budget::month m = sm; m.is_valid(); ++m){
             budget::money month_total;
 
             for(auto& value : values){
@@ -744,7 +739,7 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
             throw budget_exception("Too many arguments to overview aggregate");
         }
     } else if (subcommand == "account") {
-        auto ask_for_account = [&today](budget::month m = {0}, budget::year y = {0}) {
+        auto ask_for_account = [&today](budget::month m = budget::month{0}, budget::year y = budget::year{0}) {
             if (m.is_default()) {
                 m = today.month();
             }
@@ -828,9 +823,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
     //Fill the table
 
-    for(unsigned short i = sm; i < 13; ++i){
-        const budget::month m = i;
-
+    for(budget::month m = sm; m.is_valid(); ++m){
         for(auto& account : all_accounts(w.cache, year, m)){
             budget::money total_expenses;
             budget::money total_earnings;
@@ -850,7 +843,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
             account_totals[account.name] += month_total;
 
-            totals[i - 1] += month_total;
+            totals[m.value - 1] += month_total;
 
             if(m < sm + current_months){
                 account_current_totals[account.name] += month_total;
@@ -885,9 +878,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
         budget::money total;
 
-        for (unsigned short i = sm; i < 13; ++i) {
-            const budget::month m = i;
-
+        for(budget::month m = sm; m.is_valid(); ++m){
             auto status = compute_month_status(w.cache, year - date_type(1), m);
 
             contents.back().push_back(format_money(status.balance));
@@ -1007,9 +998,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
 
     //Fill the table
 
-    for(unsigned short i = sm; i <= 12; ++i){
-        const budget::month m = i;
-
+    for(budget::month m = sm; m.is_valid(); ++m){
         for(const auto& account : all_accounts(w.cache, year, m)){
             budget::money total_expenses;
             budget::money total_earnings;
@@ -1023,10 +1012,10 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
                 total_earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, m) | to_amount);
             }
 
-            auto month_total = account_previous[account.name][i - 1] + account.amount - total_expenses + total_earnings;
-            account_previous[account.name][i] = month_total;
+            auto month_total = account_previous[account.name][m.value - 1] + account.amount - total_expenses + total_earnings;
+            account_previous[account.name][m.value] = month_total;
 
-            totals[i - 1] += month_total;
+            totals[m.value - 1] += month_total;
 
             contents[row_mapping[account.name]].push_back(format_money(month_total));
         }
@@ -1041,9 +1030,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
 
         budget::money total;
 
-        for(unsigned short i = sm; i < 13; ++i){
-            const budget::month m = i;
-
+        for(budget::month m = sm; m.is_valid(); ++m){
             auto status = compute_month_status(w.cache, year - date_type(1), m);
 
             total += status.balance;
