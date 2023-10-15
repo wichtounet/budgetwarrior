@@ -12,7 +12,7 @@
 #include "budget_exception.hpp"
 #include "utils.hpp"
 
-std::vector<std::string> budget::parse_args(int argc, const char* argv[], const std::vector<std::pair<const char*, const char*>>& aliases){
+std::vector<std::string> budget::parse_args(int argc, char* argv[], const std::vector<std::pair<const char*, const char*>>& aliases){
     std::vector<std::string> args;
 
     for(int i = 0; i < argc - 1; ++i){
