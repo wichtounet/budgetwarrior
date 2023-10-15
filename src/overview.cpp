@@ -988,8 +988,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
         account_previous[account.name] = std::vector<budget::money>(13, budget::money());
     }
 
-    auto today = budget::local_day();
-    if(year > today.year()){
+    if(auto today = budget::local_day(); year > today.year()){
         auto pretotal = compute_total_budget(w.cache, sm, year);
         for(size_t i = 0; const auto& account : all_accounts(w.cache, year, sm)){
             account_previous[account.name][sm.value - 1] += pretotal[i++] - account.amount;
