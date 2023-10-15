@@ -181,11 +181,11 @@ bool has_enough_colors(){
 
 } //end of anonymous namespace
 
-int main(int argc, const char* argv[]) {
+int main(int argc, char* argv[]) {
     const std::locale global_locale("");
     std::locale::global(global_locale);
 
-    budget::init_logging(argc, const_cast<char**>(argv));
+    budget::init_logging(argc, argv);
 
     //Collect all aliases
     aliases_collector collector;
