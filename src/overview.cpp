@@ -114,7 +114,7 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
     return add_recap_line(contents, title, values, [](const T& t){return t;});
 }
 
-budget::money compute_total_budget_account(data_cache & cache, budget::account & account, budget::month month, budget::year year){
+budget::money compute_total_budget_account(data_cache & cache, const budget::account & account, budget::month month, budget::year year){
     // By default, the start is the year of the overview
     auto start_year_report = year;
 

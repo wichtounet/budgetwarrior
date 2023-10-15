@@ -94,7 +94,7 @@ void budget::predict_module::load() const {
     load_earnings();
 }
 
-void budget::predict_module::handle(std::vector<std::string>& args) const {
+void budget::predict_module::handle(const std::vector<std::string>& args) const {
     if(no_accounts()){
         throw budget_exception("No accounts defined, you should start by defining some of them");
     }
