@@ -57,13 +57,13 @@ TEST_CASE("date/minus/days") {
 
     FAST_CHECK_EQ(a.year(), budget::year(2010));
     FAST_CHECK_EQ(a.month(), budget::month(5));
-    FAST_CHECK_EQ(a.day(), 5);
+    FAST_CHECK_EQ(a.day(), budget::day(5));
 
     a -= budget::days(10);
 
     FAST_CHECK_EQ(a.year(), budget::year(2010));
     FAST_CHECK_EQ(a.month(), budget::month(4));
-    FAST_CHECK_EQ(a.day(), 25);
+    FAST_CHECK_EQ(a.day(), budget::day(25));
 }
 
 TEST_CASE("date/minus/month") {
@@ -72,13 +72,13 @@ TEST_CASE("date/minus/month") {
 
     FAST_CHECK_EQ(a.year(), budget::year(2010));
     FAST_CHECK_EQ(a.month(), budget::month(4));
-    FAST_CHECK_EQ(a.day(), 6);
+    FAST_CHECK_EQ(a.day(), budget::day(6));
 
     a -= budget::months(10);
 
     FAST_CHECK_EQ(a.year(), budget::year(2009));
     FAST_CHECK_EQ(a.month(), budget::month(6));
-    FAST_CHECK_EQ(a.day(), 6);
+    FAST_CHECK_EQ(a.day(), budget::day(6));
 }
 
 TEST_CASE("date/minus/years") {
@@ -87,13 +87,13 @@ TEST_CASE("date/minus/years") {
 
     FAST_CHECK_EQ(a.year(), budget::year(2009));
     FAST_CHECK_EQ(a.month(), budget::month(5));
-    FAST_CHECK_EQ(a.day(), 6);
+    FAST_CHECK_EQ(a.day(), budget::day(6));
 
     a -= budget::years(10);
 
     FAST_CHECK_EQ(a.year(), budget::year(1999));
     FAST_CHECK_EQ(a.month(), budget::month(5));
-    FAST_CHECK_EQ(a.day(), 6);
+    FAST_CHECK_EQ(a.day(), budget::day(6));
 }
 
 TEST_CASE("date/plus/days") {
@@ -102,13 +102,13 @@ TEST_CASE("date/plus/days") {
 
     FAST_CHECK_EQ(a.year(), budget::year(2010));
     FAST_CHECK_EQ(a.month(), budget::month(5));
-    FAST_CHECK_EQ(a.day(), 7);
+    FAST_CHECK_EQ(a.day(), budget::day(7));
 
     a += budget::days(30);
 
     FAST_CHECK_EQ(a.year(), budget::year(2010));
     FAST_CHECK_EQ(a.month(), budget::month(6));
-    FAST_CHECK_EQ(a.day(), 6);
+    FAST_CHECK_EQ(a.day(), budget::day(6));
 }
 
 TEST_CASE("date/plus/month") {
@@ -117,13 +117,13 @@ TEST_CASE("date/plus/month") {
 
     FAST_CHECK_EQ(a.year(), budget::year(2010));
     FAST_CHECK_EQ(a.month(), budget::month(6));
-    FAST_CHECK_EQ(a.day(), 6);
+    FAST_CHECK_EQ(a.day(), budget::day(6));
 
     a += budget::months(10);
 
     FAST_CHECK_EQ(a.year(), budget::year(2011));
     FAST_CHECK_EQ(a.month(), budget::month(4));
-    FAST_CHECK_EQ(a.day(), 6);
+    FAST_CHECK_EQ(a.day(), budget::day(6));
 }
 
 TEST_CASE("date/plus/years") {
@@ -132,13 +132,13 @@ TEST_CASE("date/plus/years") {
 
     FAST_CHECK_EQ(a.year(), budget::year(2011));
     FAST_CHECK_EQ(a.month(), budget::month(5));
-    FAST_CHECK_EQ(a.day(), 6);
+    FAST_CHECK_EQ(a.day(), budget::day(6));
 
     a += budget::years(10);
 
     FAST_CHECK_EQ(a.year(), budget::year(2021));
     FAST_CHECK_EQ(a.month(), budget::month(5));
-    FAST_CHECK_EQ(a.day(), 6);
+    FAST_CHECK_EQ(a.day(), budget::day(6));
 }
 
 TEST_CASE("date/is_leap") {
