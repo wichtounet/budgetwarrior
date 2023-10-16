@@ -7,6 +7,7 @@
 
 #include <iostream>
 
+#include "date.hpp"
 #include "version.hpp"
 #include "budget_exception.hpp"
 
@@ -25,4 +26,5 @@ void budget::version_module::handle(const std::vector<std::string>& args){
 
     std::cout << get_version() << std::endl;
     std::cout << "Copyright 2013-2020 Baptiste Wicht" << std::endl;
+    std::cout << "Time: " << local_day() << std::endl;
 }
