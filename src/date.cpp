@@ -17,13 +17,13 @@
 #include "views.hpp"
 
 budget::date budget::local_day(){
-    auto tt = time(nullptr);
-    auto* timeval = localtime(&tt);
+    const std::chrono::time_point now{std::chrono::system_clock::now()};
+    const std::chrono::year_month_day ymd{std::chrono::floor<std::chrono::days>(now)};
 
     return {
-        static_cast<date_type>(timeval->tm_year + 1900),
-        static_cast<date_type>(timeval->tm_mon + 1),
-        static_cast<date_type>(timeval->tm_mday)};
+        static_cast<date_type>(static_cast<int>(ymd.year())),
+        static_cast<date_type>(static_cast<unsigned>(ymd.month())),
+        static_cast<date_type>(static_cast<unsigned>(ymd.day()))};
 }
 
 budget::date budget::date_from_string(std::string_view str){
