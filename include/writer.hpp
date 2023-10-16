@@ -89,8 +89,9 @@ struct writer {
     virtual writer& operator<<(double value) = 0;
 
     virtual writer& operator<<(const budget::money& m) = 0;
+    virtual writer& operator<<(const budget::year& y) = 0;
     virtual writer& operator<<(const budget::month& m) = 0;
-    virtual writer& operator<<(const budget::year& m) = 0;
+    virtual writer& operator<<(const budget::day& d) = 0;
 
     virtual writer& operator<<(const end_of_line_t& m) = 0;
     virtual writer& operator<<(const p_begin_t& m) = 0;
@@ -143,8 +144,9 @@ struct console_writer : writer {
     writer& operator<<(double value) override;
 
     writer& operator<<(const budget::money& m) override;
+    writer& operator<<(const budget::year& y) override;
     writer& operator<<(const budget::month& m) override;
-    writer& operator<<(const budget::year& m) override;
+    writer& operator<<(const budget::day& d) override;
 
     writer& operator<<(const end_of_line_t& m) override;
     writer& operator<<(const p_begin_t& m) override;

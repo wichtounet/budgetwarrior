@@ -121,6 +121,12 @@ budget::writer& budget::console_writer::operator<<(const budget::money& m) {
     return *this;
 }
 
+budget::writer& budget::console_writer::operator<<(const budget::day& d) {
+    os << d.value;
+
+    return *this;
+}
+
 budget::writer& budget::console_writer::operator<<(const budget::month& m) {
     os << m.as_short_string();
 
