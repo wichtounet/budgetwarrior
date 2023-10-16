@@ -87,6 +87,10 @@ struct writer {
 
     virtual writer& operator<<(std::string_view value) = 0;
     virtual writer& operator<<(double value) = 0;
+    virtual writer& operator<<(size_t value) = 0;
+    virtual writer& operator<<(long value) = 0;
+    virtual writer& operator<<(int value) = 0;
+    virtual writer& operator<<(unsigned value) = 0;
 
     virtual writer& operator<<(const budget::money& m) = 0;
     virtual writer& operator<<(const budget::year& y) = 0;
@@ -142,6 +146,10 @@ struct console_writer : writer {
 
     writer& operator<<(std::string_view value) override;
     writer& operator<<(double value) override;
+    writer& operator<<(size_t value) override;
+    writer& operator<<(long value) override;
+    writer& operator<<(int value) override;
+    writer& operator<<(unsigned value) override;
 
     writer& operator<<(const budget::money& m) override;
     writer& operator<<(const budget::year& y) override;

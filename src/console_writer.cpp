@@ -111,7 +111,22 @@ budget::writer& budget::console_writer::operator<<(std::string_view value) {
 
 budget::writer& budget::console_writer::operator<<(double value) {
     os << value;
-
+    return *this;
+}
+budget::writer& budget::console_writer::operator<<(size_t value) {
+    os << value;
+    return *this;
+}
+budget::writer& budget::console_writer::operator<<(long value) {
+    os << value;
+    return *this;
+}
+budget::writer& budget::console_writer::operator<<(int value) {
+    os << value;
+    return *this;
+}
+budget::writer& budget::console_writer::operator<<(unsigned value) {
+    os << value;
     return *this;
 }
 
