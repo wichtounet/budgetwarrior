@@ -173,7 +173,9 @@ struct years {
 
 struct date;
 
+std::ostream& operator<<(std::ostream& stream, const year& month);
 std::ostream& operator<<(std::ostream& stream, const month& month);
+std::ostream& operator<<(std::ostream& stream, const day& month);
 std::ostream& operator<<(std::ostream& stream, const date& date);
 
 struct date {
@@ -510,6 +512,9 @@ struct date {
 date local_day();
 
 date date_from_string(std::string_view str);
+year year_from_string(std::string_view str);
+month month_from_string(std::string_view str);
+day day_from_string(std::string_view str);
 
 std::string date_to_string(const date& date);
 

@@ -50,6 +50,18 @@ budget::date budget::date_from_string(std::string_view str){
     return {y, m, d};
 }
 
+budget::year budget::year_from_string(std::string_view str){
+    return budget::year{to_number<date_type>(str)};
+}
+
+budget::month budget::month_from_string(std::string_view str){
+    return budget::month{to_number<date_type>(str)};
+}
+
+budget::day budget::day_from_string(std::string_view str){
+    return budget::day{to_number<date_type>(str)};
+}
+
 std::string budget::date_to_string(const budget::date& date) {
     std::string str(10, '0');
 
@@ -91,6 +103,14 @@ std::ostream& budget::operator<<(std::ostream& stream, const date& date){
     return stream << date_to_string(date);
 }
 
+std::ostream& budget::operator<<(std::ostream& stream, const year& year){
+    return stream << year.value;
+}
+
 std::ostream& budget::operator<<(std::ostream& stream, const month& month){
     return stream << month.as_short_string();
+}
+
+std::ostream& budget::operator<<(std::ostream& stream, const day& day){
+    return stream << day.value;
 }
