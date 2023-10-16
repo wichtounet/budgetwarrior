@@ -150,13 +150,13 @@ struct days {
     date_type value;
     explicit days(date_type value) : value(value) {}
     explicit days(day value) : value(value.value) {}
-    operator date_type() const { return value; }
+    explicit operator date_type() const { return value; }
 };
 
 struct months {
     date_type value;
     explicit months(date_type value) : value(value) {}
-    operator date_type() const { return value; }
+    explicit operator date_type() const { return value; }
 
     months& operator=(date_type new_value){
         this->value = new_value;
@@ -346,18 +346,18 @@ struct date {
 
     date& operator+=(months months){
         // Handle the NOP addition
-        if(months == 0){
+        if(months.value == 0){
             return *this;
         }
 
         // First add several years if necessary
-        if (months >= 12) {
+        if (months.value >= 12) {
             *this += years(months.value / 12);
-            months = months.value % 12;
+            months.value = months.value % 12;
         }
 
         // Add the remaining months
-        _month += months;
+        _month += months.value;
 
         // Update the year if necessary
         if(_month > 12){
@@ -372,7 +372,7 @@ struct date {
     }
 
     date& operator+=(days d){
-        while(d > 0){
+        while(d.value > 0){
             ++_day;
 
             if(_day > days_month(_year, _month)){
@@ -385,7 +385,7 @@ struct date {
                 }
             }
 
-            d = days(d - 1);
+            d.value = d.value - 1;
         }
 
         return *this;
@@ -403,24 +403,24 @@ struct date {
 
     date& operator-=(months months){
         // Handle the NOP subtraction
-        if(months == 0){
+        if(months.value == 0){
             return *this;
         }
 
         // First remove several years if necessary
-        if (months >= 12) {
+        if (months.value >= 12) {
             *this -= years(months.value / 12);
-            months = months.value % 12;
+            months.value = months.value % 12;
         }
 
-        if(_month == months){
+        if(_month == months.value){
             *this -= years(1);
             _month = 12;
-        } else if(_month < months){
+        } else if(_month < months.value){
             *this -= years(1);
-            _month = 12 - (months - _month);
+            _month = 12 - (months.value - _month);
         } else {
-            _month -= months;
+            _month -= months.value;
         }
 
         _day = std::min(_day, days_month(_year, _month));
@@ -429,7 +429,7 @@ struct date {
     }
 
     date& operator-=(days d){
-        while(d > 0){
+        while(d.value > 0){
             --_day;
             if(_day == 0){
                 --_month;
@@ -442,7 +442,7 @@ struct date {
                 _day = days_month(_year, _month);
             }
 
-            d = days(d - 1);
+            d.value = d.value - 1;
         }
 
         return *this;
