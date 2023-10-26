@@ -206,7 +206,7 @@ fs::path budget::budget_folder() {
         return fs::path{data_home} / "budget";
     }
 
-    return home_folder() / "/.local/share/budget";
+    return home_folder() / ".budget";
 }
  
 fs::path budget::path_to_home_file(std::string_view file) {
