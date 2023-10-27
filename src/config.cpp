@@ -14,7 +14,6 @@
 
 #include <unistd.h>    //for getuid
 #include <sys/types.h> //for getuid
-#include <sys/stat.h>  //For mkdir
 #ifdef _WIN32
 #include <shlobj.h>
 #else
