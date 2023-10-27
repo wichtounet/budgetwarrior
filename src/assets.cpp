@@ -88,6 +88,12 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
     } else if (subcommand == "portfolio") {
         budget::show_asset_portfolio(w);
     } else if (subcommand == "add") {
+        auto asset_classes = all_asset_classes();
+
+        if (asset_classes.empty()) {
+            throw budget_exception("You must first create asset classes before creating assets");
+        }
+
         asset asset;
         asset.guid = generate_guid();
 
@@ -102,8 +108,6 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
         asset.portfolio_alloc = 0;
         asset.share_based     = false;
         asset.ticker          = "";
-
-        auto asset_classes = all_asset_classes();
 
         do {
             for (auto& clas : asset_classes) {
