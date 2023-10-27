@@ -5,6 +5,7 @@
 //  http://opensource.org/licenses/MIT)
 //=======================================================================
 
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
@@ -100,20 +101,16 @@ bool verify_folder(){
         std::cin >> answer;
 
         if(answer == "yes" || answer == "y"){
-#ifdef _WIN32
-            if(mkdir(folder_path.c_str()) == 0){
-#else
-            if(mkdir(folder_path.c_str(), ACCESSPERMS) == 0){
-#endif
+            std::error_code er;
+            if (fs::create_directories(folder_path, er)) {
                 std::cout << "The folder " << folder_path << " was created. " << std::endl;
-
                 return true;
             }
-            std::cout << "Impossible to create the folder " << folder_path << std::endl;
 
+            std::cout << "Impossible to create the folder " << folder_path << " error: " << er.message() << std::endl;
             return false;
-
         }
+
         return false;
     }
 
