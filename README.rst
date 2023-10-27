@@ -144,9 +144,7 @@ Or::
 
     $ man budget
 
-if you have installed the man pages.
-
-to see all the available commands.
+if you have installed the man pages to see all the available commands.
 
 If you want to use the web interface, you will need to use another project: https://github.com/wichtounet/budgetwarrior_web
 
