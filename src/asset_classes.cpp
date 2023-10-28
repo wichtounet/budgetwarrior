@@ -63,7 +63,12 @@ void budget::asset_class::load(data_reader & reader){
     reader >> id;
     reader >> guid;
     reader >> name;
-    reader >> fi;
+
+    if (reader.peek().empty() || reader.peek() == " ") {
+        fi = false;
+    } else {
+        reader >> fi;
+    }
 }
 
 bool budget::asset_class_exists(const std::string& name){
