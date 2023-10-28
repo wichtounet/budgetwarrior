@@ -265,6 +265,13 @@ void budget::assets_module::handle(const std::vector<std::string>& args){
                 throw budget_exception("This asset class already exists");
             }
 
+            std::cout << "Is this part of your retirement (FI) ? [yes/no] ? ";
+
+            std::string answer;
+
+            std::getline(std::cin, answer);
+            clas.fi = answer == "yes" || answer == "y";
+
             auto id = add_asset_class(clas);
             std::cout << "Asset Clas " << id << " has been created" << std::endl;
         } else if (subsubcommand == "edit") {
