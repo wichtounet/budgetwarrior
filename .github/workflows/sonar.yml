@@ -34,7 +34,7 @@ jobs:
           mkdir gcov-reports
           pushd gcov-reports
           for f in $(find ../debug -iname '*.o'); do
-            gcov --preserve-paths  -o $f x
+            gcov-13 --preserve-paths  -o $f x
           done
           popd
       - name: Run sonar-scanner
