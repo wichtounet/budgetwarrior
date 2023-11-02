@@ -4,3 +4,4 @@ release_debug
 debug
 *.plist
 .cache
+gcov-reports
