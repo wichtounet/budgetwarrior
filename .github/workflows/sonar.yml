@@ -37,7 +37,6 @@ jobs:
             gcov --preserve-paths  -o $f x
           done
           popd
-        run: make run_release_debug_test
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
