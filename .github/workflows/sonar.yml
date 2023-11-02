@@ -28,7 +28,7 @@ jobs:
         run: |
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make -j5 debug debug_test
       - name: Run the tests
-        run: make run_release_debug_test
+        run: make run_debug_test
       - name: Generate coverage reports
         run: |
           mkdir gcov-reports
