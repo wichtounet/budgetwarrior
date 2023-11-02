@@ -8,6 +8,9 @@ include make-utils/cpp-utils.mk
 # Use C++23
 $(eval $(call use_cpp23))
 
+# Enable code coverage in debug mode
+$(eval $(call enable_coverage))
+
 CXX_FLAGS += -pthread
 
 LD_FLAGS += -luuid -lssl -lcrypto -ldl
