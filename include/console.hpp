@@ -377,7 +377,7 @@ struct one_of_checker {
     }
 
     bool operator()(const std::string& value) const {
-        return std::ranges::find(values, value) != std::ranges::begin(values);
+        return std::ranges::find(values, value) != std::ranges::end(values);
     }
 
     std::string message() const {
