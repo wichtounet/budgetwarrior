@@ -112,10 +112,35 @@ void budget::check_for_recurrings(){
     bool changed = false;
 
     for (auto& recurring : recurrings.data()) {
-        if (recurring.recurs == "monthly") {
+        if (recurring.recurs == "yearly") {
             if (recurring_not_triggered(recurring)) {
                 // If the recurring has never been created, we create it for
-                // the first at the time of today
+                // the first time at the beginning of the current year
+
+                generate_recurring({now.year(), 1, 1}, recurring);
+
+                changed = true;
+            } else {
+                auto last = last_date(recurring);
+
+                // If the recurring has already been triggered, we trigger again
+                // for each of the missing years
+
+                budget::date recurring_date(last.year(), 1, 1);
+
+                while (recurring_date.year() != now.year()) {
+                    // Get to the next year
+                    recurring_date += budget::years(1);
+
+                    generate_recurring(recurring_date, recurring);
+
+                    changed = true;
+                }
+            }
+        } else if (recurring.recurs == "monthly") {
+            if (recurring_not_triggered(recurring)) {
+                // If the recurring has never been created, we create it for
+                // the first time at the time of today
 
                 generate_recurring({now.year(), now.month(), 1}, recurring);
 
@@ -140,7 +165,7 @@ void budget::check_for_recurrings(){
         } else if (recurring.recurs == "weekly") {
             if (recurring_not_triggered(recurring)) {
                 // If the recurring has never been created, we create it for
-                // the first at the time of today
+                // the first time at the time of today
 
                 if (now.week() == 53) {
                     // We do not create recurring expenses in week 52 (53-1)
@@ -226,11 +251,14 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
             edit_string_complete(recurring.account, "Account", all_account_names(), not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
-            edit_string_complete(recurring.recurs, "Recurrence", {"monthly", "weekly"}, not_empty_checker(), one_of_checker({"monthly", "weekly"}));
+            edit_string_complete(recurring.recurs, "Recurrence", {"yearly", "monthly", "weekly"}, not_empty_checker(), one_of_checker({"yearly", "monthly", "weekly"}));
             edit_string_complete(recurring.type, "Type", {"expense", "earning"}, not_empty_checker(), one_of_checker({"expense", "earning"}));
 
             auto id = add_recurring(std::move(recurring));
             std::cout << "Recurring " << id << " has been created" << std::endl;
+
+            // This will take charge of creating the proper recurring expense / earning
+            check_for_recurrings();
         } else if (subcommand == "delete") {
             enough_args(args, 3);
 
@@ -253,7 +281,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
             edit_string_complete(recurring.account, "Account", all_account_names(), not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
-            edit_string_complete(recurring.recurs, "Recurrence", {"monthly","weekly"}, not_empty_checker(), one_of_checker({"monthly","weekly"}));
+            edit_string_complete(recurring.recurs, "Recurrence", {"yearly", "monthly","weekly"}, not_empty_checker(), one_of_checker({"yearly", "monthly","weekly"}));
 
             if (edit_recurring(recurring, previous_recurring)) {
                 std::cout << "Recurring operation " << id << " has been modified" << std::endl;
@@ -362,13 +390,6 @@ recurring budget::recurring_get(size_t id) {
 }
 
 size_t budget::add_recurring(budget::recurring&& recurring) {
-    // Create the equivalent expense
-
-    generate_recurring(budget::local_day(), recurring);
-
-    save_expenses();
-    save_earnings();
-
     return recurrings.add(std::move(recurring));
 }
 
