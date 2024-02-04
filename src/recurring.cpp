@@ -176,6 +176,7 @@ void budget::check_for_recurrings(){
 
     if (changed) {
         save_expenses();
+        save_earnings();
     }
 
     internal_config_remove("recurring:last_checked");
