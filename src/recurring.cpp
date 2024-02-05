@@ -29,6 +29,8 @@ namespace {
 
 data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
 
+const std::vector<std::string> recurrences{"yearly", "monthly", "weekly"};
+
 budget::date last_date(const budget::recurring& recurring) {
     budget::date last(1400, 1, 1);
 
@@ -251,7 +253,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
             edit_string_complete(recurring.account, "Account", all_account_names(), not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
-            edit_string_complete(recurring.recurs, "Recurrence", {"yearly", "monthly", "weekly"}, not_empty_checker(), one_of_checker({"yearly", "monthly", "weekly"}));
+            edit_string_complete(recurring.recurs, "Recurrence", recurrences, not_empty_checker(), one_of_checker(recurrences));
             edit_string_complete(recurring.type, "Type", {"expense", "earning"}, not_empty_checker(), one_of_checker({"expense", "earning"}));
 
             auto id = add_recurring(std::move(recurring));
@@ -281,7 +283,7 @@ void budget::recurring_module::handle(const std::vector<std::string>& args) {
             edit_string_complete(recurring.account, "Account", all_account_names(), not_empty_checker(), account_checker());
             edit_string(recurring.name, "Name", not_empty_checker());
             edit_money(recurring.amount, "Amount", not_negative_checker());
-            edit_string_complete(recurring.recurs, "Recurrence", {"yearly", "monthly","weekly"}, not_empty_checker(), one_of_checker({"yearly", "monthly","weekly"}));
+            edit_string_complete(recurring.recurs, "Recurrence", recurrences, not_empty_checker(), one_of_checker(recurrences));
 
             if (edit_recurring(recurring, previous_recurring)) {
                 std::cout << "Recurring operation " << id << " has been modified" << std::endl;
