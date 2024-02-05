@@ -169,12 +169,15 @@ TEST_CASE("date/day_of_the_week") {
     FAST_CHECK_EQ(budget::date(2019, 3, 7).day_of_the_week(), 4);
 }
 
+// start_of_week() starts on Sunday
 TEST_CASE("date/start_of_week") {
     FAST_CHECK_EQ(budget::date(2020, 11, 4).start_of_week(), budget::date(2020, 11, 3));
     FAST_CHECK_EQ(budget::date(2020, 11, 5).start_of_week(), budget::date(2020, 11, 3));
     FAST_CHECK_EQ(budget::date(2020, 11, 3).start_of_week(), budget::date(2020, 11, 3));
     FAST_CHECK_EQ(budget::date(2020, 10, 1).start_of_week(), budget::date(2020, 9, 29));
     FAST_CHECK_EQ(budget::date(2020, 10, 2).start_of_week(), budget::date(2020, 9, 29));
+    FAST_CHECK_EQ(budget::date(2024, 2, 5).start_of_week(), budget::date(2024, 2, 4));
+    FAST_CHECK_EQ(budget::date(2024, 2, 6).start_of_week(), budget::date(2024, 2, 4));
 }
 
 TEST_CASE("date/week") {
