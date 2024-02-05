@@ -61,7 +61,7 @@ bool recurring_not_triggered(const budget::recurring & recurring ) {
     return last_date(recurring).year() == budget::year(1400);
 }
 
-void generate_recurring(const budget::date & date, const recurring & recurring) {
+bool generate_recurring(const budget::date & date, const recurring & recurring) {
     if (recurring.type == "expense") {
         budget::expense recurring_expense;
 
@@ -85,6 +85,8 @@ void generate_recurring(const budget::date & date, const recurring & recurring) 
     } else {
         throw budget_exception("Invalid recurring type " + recurring.type);
     }
+
+    return true;
 }
 
 } //end of anonymous namespace
@@ -119,24 +121,20 @@ void budget::check_for_recurrings(){
                 // If the recurring has never been created, we create it for
                 // the first time at the beginning of the current year
 
-                generate_recurring({now.year(), 1, 1}, recurring);
-
-                changed = true;
+                changed |= generate_recurring({now.year(), 1, 1}, recurring);
             } else {
                 auto last = last_date(recurring);
 
                 // If the recurring has already been triggered, we trigger again
                 // for each of the missing years
 
-                budget::date recurring_date(last.year(), 1, 1);
+                budget::date recurring_date(last.year() + date_type(1), 1, 1);
 
-                while (recurring_date.year() != now.year()) {
+                while (recurring_date < now) {
+                    changed |= generate_recurring(recurring_date, recurring);
+
                     // Get to the next year
                     recurring_date += budget::years(1);
-
-                    generate_recurring(recurring_date, recurring);
-
-                    changed = true;
                 }
             }
         } else if (recurring.recurs == "quarterly") {
@@ -146,24 +144,17 @@ void budget::check_for_recurrings(){
 
                 date_type quarter_start = 3 * ((now.month() - date_type(1)) / 3) + 1;
 
-                generate_recurring({now.year(), quarter_start, 1}, recurring);
-
-                changed = true;
+                changed |= generate_recurring({now.year(), quarter_start, 1}, recurring);
             } else {
                 auto last = last_date(recurring);
 
                 // If the recurring has already been triggered, we trigger again
                 // for each of the missing quarters
 
-                budget::date recurring_date(last.year(), last.month(), 1);
-
-                // Get to the next quarter
-                recurring_date += budget::months(3);
+                budget::date recurring_date(last.year(), last.month() + date_type(3), 1);
 
                 while (recurring_date < now) {
-                    generate_recurring(recurring_date, recurring);
-
-                    changed = true;
+                    changed |= generate_recurring(recurring_date, recurring);
 
                     // Get to the next quarter
                     recurring_date += budget::months(3);
@@ -174,24 +165,20 @@ void budget::check_for_recurrings(){
                 // If the recurring has never been created, we create it for
                 // the first time at the time of today
 
-                generate_recurring({now.year(), now.month(), 1}, recurring);
-
-                changed = true;
+                changed |= generate_recurring({now.year(), now.month(), 1}, recurring);
             } else {
                 auto last = last_date(recurring);
 
                 // If the recurring has already been triggered, we trigger again
                 // for each of the missing months
 
-                budget::date recurring_date(last.year(), last.month(), 1);
+                budget::date recurring_date(last.year(), last.month() + date_type(1), 1);
 
-                while (!(recurring_date.year() == now.year() && recurring_date.month() == now.month())) {
+                while (recurring_date < now) {
+                    changed |= generate_recurring(recurring_date, recurring);
+
                     // Get to the next month
                     recurring_date += budget::months(1);
-
-                    generate_recurring(recurring_date, recurring);
-
-                    changed = true;
                 }
             }
         } else if (recurring.recurs == "weekly") {
@@ -201,12 +188,10 @@ void budget::check_for_recurrings(){
 
                 if (now.week() == 53) {
                     // We do not create recurring expenses in week 52 (53-1)
-                    generate_recurring((now - days(7)).start_of_week(), recurring);
+                    changed |= generate_recurring((now - days(7)).start_of_week(), recurring);
                 } else {
-                    generate_recurring(now.start_of_week(), recurring);
+                    changed |= generate_recurring(now.start_of_week(), recurring);
                 }
-
-                changed = true;
             } else {
                 auto last = last_date(recurring);
 
@@ -217,9 +202,7 @@ void budget::check_for_recurrings(){
                 while (recurring_date < now) {
                     // We skip the last week of the year since it's incomplete
                     if (recurring_date.week() < 53) {
-                        generate_recurring(recurring_date, recurring);
-
-                        changed = true;
+                        changed |= generate_recurring(recurring_date, recurring);
                     }
 
                     // Advance by one week
