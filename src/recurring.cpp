@@ -29,7 +29,7 @@ namespace {
 
 data_handler<recurring> recurrings { "recurrings", "recurrings.data" };
 
-const std::vector<std::string> recurrences{"yearly", "quarterly", "monthly", "weekly"};
+const std::vector<std::string> recurrences{"yearly", "bi-yearly", "quarterly", "monthly", "weekly"};
 
 budget::date last_date(const budget::recurring& recurring) {
     budget::date last(1400, 1, 1);
@@ -135,6 +135,29 @@ void budget::check_for_recurrings(){
 
                     // Get to the next year
                     recurring_date += budget::years(1);
+                }
+            }
+        } else if (recurring.recurs == "bi-yearly") {
+            if (recurring_not_triggered(recurring)) {
+                // If the recurring has never been created, we create it for
+                // the first time at the beginning of the current semester
+
+                date_type semester_start = 6 * ((now.month() - date_type(1)) / 6) + 1;
+
+                changed |= generate_recurring({now.year(), semester_start, 1}, recurring);
+            } else {
+                auto last = last_date(recurring);
+
+                // If the recurring has already been triggered, we trigger again
+                // for each of the missing quarters
+
+                budget::date recurring_date(last.year(), last.month() + date_type(6), 1);
+
+                while (recurring_date < now) {
+                    changed |= generate_recurring(recurring_date, recurring);
+
+                    // Get to the next quarter
+                    recurring_date += budget::months(6);
                 }
             }
         } else if (recurring.recurs == "quarterly") {
