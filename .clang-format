@@ -52,7 +52,6 @@ Cpp11BracedListStyle: true
 
 # Avoid too many empty lines
 MaxEmptyLinesToKeep: 1
-KeepEmptyLinesAtTheStartOfBlocks: false
 
 # Templates should always be on a separate line
 AlwaysBreakTemplateDeclarations: true
