@@ -273,7 +273,7 @@ void budget::console_writer::display_table(std::vector<std::string>& columns, st
 
         auto& row = contents[i];
 
-        const bool underline = std::ranges::contains(lines, i);
+        const bool underline = range_contains(lines, i);
 
         for (size_t j = 0; j < row.size(); j += groups) {
             size_t acc_width = 0;
