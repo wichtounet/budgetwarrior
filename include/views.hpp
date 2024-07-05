@@ -388,7 +388,16 @@ inline constexpr detail::not_template_adaptor not_template;
 template <std::ranges::range R>
 auto fold_left_auto(R&& r) {
     using type = std::ranges::range_value_t<R>;
+#ifdef __clang__
+    type value{};
+    for (const type & v : r) {
+        value += v;
+    }
+    return value;
+#else
+    // On GCC; we can simply use fold left
     return std::ranges::fold_left(std::forward<R>(r), type{}, std::plus<type>());
+#endif
 }
 
 // TODO(C+23) In the future, we can simply ranges::to<std::vector> but it is not yet implemented with GCC
@@ -416,6 +425,18 @@ auto min_with_default(R&& r, std::ranges::range_value_t<R> def) {
     }
 
     return def;
+}
+
+// Stupid clang does not support std::ranges::contains
+
+template <std::ranges::range R>
+bool range_contains(const R& r, const std::ranges::range_value_t<R> & value) {
+#ifdef __clang__
+    return std::ranges::find(std::ranges::begin(r), std::ranges::end(r), value) == std::ranges::end(r);
+#else
+    // On GCC; we can simply use the algorithm
+    return std::ranges::contains(r, value);
+#endif
 }
 
 } //end of namespace budget
