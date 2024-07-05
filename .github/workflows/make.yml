@@ -13,7 +13,7 @@ jobs:
     strategy:
         matrix:
             os: [ubuntu-latest]
-            compiler: [g++-13,clang++-18]
+            compiler: [g++-14,clang++-18]
 
     steps:
     - name: Checkout code
@@ -22,7 +22,7 @@ jobs:
         submodules: recursive
 
     - name: Install GCC compiler
-      run: sudo apt install g++-13
+      run: sudo apt install g++-14
 
     - name: install LLVM compiler
       run: |
