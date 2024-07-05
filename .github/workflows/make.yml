@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
         matrix:
-            os: [ubuntu-latest]
+            os: [ubuntu-24.04]
             compiler: [g++-14,clang++-18]
 
     steps:
@@ -27,7 +27,7 @@ jobs:
     - name: install LLVM compiler
       run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
+          sudo apt-add-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-18 main"
           sudo apt update
           sudo apt install clang-18
 
