@@ -9,8 +9,8 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-  CC: gcc-13
-  CXX: g++-13
+  CC: gcc-14
+  CXX: g++-14
 
 jobs:
   build:
@@ -23,14 +23,14 @@ jobs:
       matrix:
         # clang on macos-latest cannot compile ranges
         os: [macos-latest]
-        compiler: [g++-13]
+        compiler: [g++-14]
         exclude:
           # Only default compiler on macos-latest
           - os: macos-latest
             compiler: clang
         include:
           - os: macos-latest
-            compiler: g++-13
+            compiler: g++-14
 
     steps:
 
