@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
       - name: Install GCC compiler
-        run: sudo apt install g++-14 uuid-dev uuid-runtim
+        run: sudo apt install g++-14 uuid-dev uuid-runtime
       - name: Install sonar-scanner and build-wrapper
         uses: SonarSource/sonarcloud-github-c-cpp@v2
       - name: Run build-wrapper
