@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/root/.local/share/pipx/venvs/yfinance/bin/python3
 
 import yfinance as yf
 import sys
