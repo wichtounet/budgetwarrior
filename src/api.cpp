@@ -44,7 +44,8 @@ budget::api_response base_api_get(Cli& cli, const std::string& api) {
     auto base_res = std::make_shared<httplib::Response>();
 
     std::shared_ptr<httplib::Response> res;
-    if (cli.send(req, *base_res)) {
+    auto error = httplib::Error::Success;
+    if (cli.send(req, *base_res, error)) {
         res = base_res;
     } else {
         res = nullptr;
@@ -110,7 +111,8 @@ budget::api_response base_api_post(Cli& cli, const std::string& api, const std::
     auto base_res = std::make_shared<httplib::Response>();
 
     std::shared_ptr<httplib::Response> res;
-    if (cli.send(req, *base_res)) {
+    auto error = httplib::Error::Success;
+    if (cli.send(req, *base_res, error)) {
         res = base_res;
     } else {
         res = nullptr;
