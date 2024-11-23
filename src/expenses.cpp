@@ -215,6 +215,8 @@ void budget::expense::save(data_writer& writer) const {
     writer << name;
     writer << amount;
     writer << date;
+    writer << original_name;
+    writer << temporary;
 }
 
 void budget::expense::load(data_reader & reader){
@@ -224,6 +226,8 @@ void budget::expense::load(data_reader & reader){
     reader >> name;
     reader >> amount;
     reader >> date;
+    reader >> original_name;
+    reader >> temporary;
 
     if (config_contains("random")) {
         amount = budget::random_money(10, 1500);
@@ -353,4 +357,23 @@ void budget::expense_delete(size_t id) {
 
 expense budget::expense_get(size_t id) {
     return expenses[id];
+}
+
+void budget::migrate_expenses_9_to_10(){
+    expenses.load([](data_reader & reader, expense& expense){
+        reader >> expense.id;
+        reader >> expense.guid;
+        reader >> expense.account;
+        reader >> expense.name;
+        reader >> expense.amount;
+        reader >> expense.date;
+
+        // Version 10 added support for importing
+        expense.original_name = "";
+        expense.temporary = false;
+    });
+
+    set_expenses_changed();
+
+    expenses.save();
 }

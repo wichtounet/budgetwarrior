@@ -16,6 +16,7 @@
 // For database migration
 #include "assets.hpp"
 #include "liabilities.hpp"
+#include "expenses.hpp"
 
 namespace {
 
@@ -248,6 +249,10 @@ bool budget::migrate_database(size_t old_data_version) {
 
         if (old_data_version <= 8 && DATA_VERSION >= 9) {
             migrate_assets_8_to_9();
+        }
+
+        if (old_data_version <= 9 && DATA_VERSION >= 10) {
+            migrate_expenses_9_to_10();
         }
 
         internal_config_set("data_version", to_string(DATA_VERSION));

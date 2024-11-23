@@ -43,6 +43,8 @@ struct expense {
     std::string name;
     size_t account;
     money amount;
+    std::string original_name;
+    bool temporary;
 
     std::map<std::string, std::string, std::less<>> get_params() const ;
 
@@ -70,5 +72,7 @@ void show_expenses(budget::writer& w);
 void search_expenses(std::string_view search, budget::writer& w);
 
 bool indirect_edit_expense(const expense & expense, bool propagate = true);
+
+void migrate_expenses_9_to_10();
 
 } //end of namespace budget
