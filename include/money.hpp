@@ -9,6 +9,7 @@
 
 #include <string>
 #include <ostream>
+#include <format>
 
 #include "utils.hpp"
 
@@ -230,3 +231,22 @@ inline std::string to_string(money amount){
 }
 
 } //end of namespace budget
+
+namespace std {
+
+template <>
+struct hash<budget::money> {
+    std::size_t operator()(budget::money d) const noexcept {
+        const std::hash<long> hasher;
+        return hasher(d.value);
+    }
+};
+
+template <>
+struct formatter<budget::money> : std::formatter<std::string> {
+    auto format(budget::money p, format_context& ctx) const {
+        return formatter<string>::format(money_to_string(p), ctx);
+    }
+};
+
+} // end of namespace std

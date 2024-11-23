@@ -10,6 +10,7 @@
 #include <ctime>
 #include <limits>
 #include <chrono>
+#include <format>
 
 #include "cpp_utils/assert.hpp"
 
@@ -579,6 +580,13 @@ struct hash<budget::date> {
         seed ^= hasher(d._month) + 0x9e3779b9 + (seed<<6) + (seed>>2);
         seed ^= hasher(d._year) + 0x9e3779b9 + (seed<<6) + (seed>>2);
         return seed;
+    }
+};
+
+template <>
+struct formatter<budget::date> : std::formatter<std::string> {
+    auto format(budget::date p, format_context& ctx) const {
+        return formatter<string>::format(date_to_string(p), ctx);
     }
 };
 
