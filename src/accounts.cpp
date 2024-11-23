@@ -65,7 +65,7 @@ void migrate_account(const std::string& source_account_name, const std::string& 
 
         destination_account.amount += account.amount;
 
-        for (auto& expense : all_expenses() | filter_by_account(source_id)) {
+        for (auto& expense : all_expenses() | persistent | filter_by_account(source_id)) {
             expense.account = destination_id;
             indirect_edit_expense(expense, false);
         }
@@ -166,7 +166,7 @@ void budget::archive_accounts_impl(bool month){
         mapping[sources[i]] = id;
     }
 
-    for (auto& expense : all_expenses() | since(since_date)) {
+    for (auto& expense : all_expenses() | persistent | since(since_date)) {
         if (mapping.contains(expense.account)) {
             expense.account = mapping[expense.account];
             indirect_edit_expense(expense, false);

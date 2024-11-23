@@ -35,7 +35,7 @@ budget::date last_date(const budget::recurring& recurring) {
     budget::date last(1400, 1, 1);
 
     if (recurring.type == "expense") {
-        for (const auto& expense : all_expenses() | filter_by_name(recurring.name) | filter_by_amount(recurring.amount)) {
+        for (const auto& expense : all_expenses() | persistent | filter_by_name(recurring.name) | filter_by_amount(recurring.amount)) {
             if (get_account(expense.account).name == recurring.account && expense.date > last) {
                 last = expense.date;
             }
@@ -437,7 +437,7 @@ bool budget::edit_recurring(const budget::recurring& recurring, const budget::re
     auto now = budget::local_day();
 
     if (recurring.type == "expense") {
-        for (auto& expense : all_expenses()) {
+        for (auto& expense : all_expenses() | persistent) {
             if (expense.date.year() == now.year() && expense.date.month() == now.month() && expense.name == previous_recurring.name
                 && expense.amount == previous_recurring.amount && get_account(expense.account).name == previous_recurring.account) {
                 expense.name    = recurring.name;

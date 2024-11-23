@@ -53,7 +53,7 @@ void predict_overview(){
         ++i;
     }
 
-    for(auto& expense : expenses){
+    for(auto& expense : expenses | persistent){
         if(account_mappings.contains(get_account(expense.account).name)){
             expense.amount *= (expense_multipliers[account_mappings[get_account(expense.account).name]] / 100.0);
         }
@@ -68,7 +68,7 @@ void predict_overview(){
     if (today.month() < budget::month(12)) {
         budget::year prev_year = today.year() - date_type(1);
         for (budget::month m = today.month() + date_type(1); m.is_valid(); ++m) {
-            for (auto& expense : expenses | filter_by_date(prev_year, m)) {
+            for (auto& expense : expenses | persistent | filter_by_date(prev_year, m)) {
                 expense.date = {today.year(), expense.date.month(), expense.date.day()};
             }
 

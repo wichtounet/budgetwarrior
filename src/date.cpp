@@ -89,13 +89,13 @@ std::string budget::date_to_string(const budget::date& date) {
 }
 
 budget::month budget::start_month(data_cache & cache, budget::year year){
-    const budget::month m = min_with_default(cache.expenses() | filter_by_year(year) | to_month, budget::month(12));
+    const budget::month m = min_with_default(cache.expenses() | persistent | filter_by_year(year) | to_month, budget::month(12));
     return min_with_default(cache.earnings() | filter_by_year(year) | to_month, m);
 }
 
 budget::year budget::start_year(data_cache & cache){
     auto today = budget::local_day();
-    const budget::year y = min_with_default(cache.expenses() | not_template | to_year, today.year());
+    const budget::year y = min_with_default(cache.expenses() | persistent | not_template | to_year, today.year());
     return min_with_default(cache.earnings() | not_template | to_year, y);
 }
 
