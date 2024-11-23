@@ -272,6 +272,10 @@ inline auto filter_by_name(std::string_view name) {
     return std::views::filter([name] (const auto & account) { return account.name == name; });
 }
 
+inline auto filter_by_original_name(std::string_view name) {
+    return std::views::filter([name] (const auto & account) { return account.original_name == name; });
+}
+
 inline auto filter_by_amount(budget::money amount) {
     return std::views::filter([amount] (const auto & element) { return element.amount == amount; });
 }
@@ -306,6 +310,16 @@ inline auto filter_by_date(budget::year year, budget::month month) {
             return element.year() == year && element.month() == month;
         } else {
             return element.date.year() == year && element.date.month() == month;
+        }
+    });
+}
+
+inline auto filter_by_date(budget::date date) {
+    return std::views::filter([date] <typename T> (const T & element) -> bool {
+        if constexpr (std::is_same_v<T, budget::date>) {
+            return element == date;
+        } else {
+            return element.date == date;
         }
     });
 }
