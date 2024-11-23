@@ -38,6 +38,20 @@ struct yearly_only_adaptor {
     }
 };
 
+struct temporary_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, temporary_adaptor) {
+        return std::forward<R>(r) | std::views::filter([](const auto& expense) { return expense.temporary; });
+    }
+};
+
+struct persistent_adaptor {
+    template <std::ranges::range R>
+    friend auto operator|(R&& r, persistent_adaptor) {
+        return std::forward<R>(r) | std::views::filter([](const auto& expense) { return !expense.temporary; });
+    }
+};
+
 struct share_based_only_adaptor {
     template <std::ranges::range R>
     friend auto operator|(R&& r, share_based_only_adaptor) {
@@ -366,6 +380,8 @@ inline constexpr detail::monthly_only_adaptor monthly_only;
 inline constexpr detail::yearly_only_adaptor yearly_only;
 inline constexpr detail::share_based_only_adaptor share_based_only;
 inline constexpr detail::not_share_based_adaptor not_share_based;
+inline constexpr detail::temporary_adaptor temporary;
+inline constexpr detail::persistent_adaptor persistent;
 inline constexpr detail::to_name_adaptor to_name;
 inline constexpr detail::to_amount_adaptor to_amount;
 inline constexpr detail::to_date_adaptor to_date;

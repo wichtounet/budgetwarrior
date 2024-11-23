@@ -34,7 +34,7 @@ void show_templates() {
 
     size_t count = 0;
 
-    for (const auto& expense : expenses.data() | template_only) {
+    for (const auto& expense : all_expenses() | template_only) {
         contents.push_back({to_string(expense.id), get_account(expense.account).name, expense.name, to_string(expense.amount)});
         ++count;
     }
@@ -252,7 +252,7 @@ void budget::show_all_expenses(budget::writer& w){
     std::vector<std::string> columns = {"ID", "Date", "Account", "Name", "Amount", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for (auto& expense : expenses.data()) {
+    for (auto& expense : all_expenses()) {
         contents.push_back({to_string(expense.id),
                             to_string(expense.date),
                             get_account(expense.account).name,
@@ -273,7 +273,7 @@ void budget::search_expenses(std::string_view search, budget::writer& w){
     money total;
     size_t count = 0;
 
-    for (auto& expense : expenses.data()) {
+    for (auto& expense : all_expenses()) {
         auto it = std::ranges::search(
                 expense.name, search, [](char a, char b) { return std::tolower(a) == std::tolower(b); });
 
@@ -310,7 +310,7 @@ void budget::show_expenses(budget::month month, budget::year year, budget::write
     money total;
     size_t count = 0;
 
-    for (auto& expense : expenses.data() | filter_by_date(year, month)) {
+    for (auto& expense : all_expenses() | filter_by_date(year, month)) {
         contents.push_back({to_string(expense.id),
                             to_string(expense.date),
                             get_account(expense.account).name,
