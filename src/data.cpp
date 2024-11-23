@@ -238,14 +238,6 @@ bool budget::migrate_database(size_t old_data_version) {
     if (old_data_version < DATA_VERSION) {
         LOG_F(INFO, "Migrating database to version {}...", DATA_VERSION);
 
-        if (old_data_version <= 4 && DATA_VERSION >= 5) {
-            migrate_assets_4_to_5();
-        }
-
-        if (old_data_version <= 5 && DATA_VERSION >= 6) {
-            migrate_assets_5_to_6();
-        }
-
         if (old_data_version <= 6 && DATA_VERSION >= 7) {
             migrate_liabilities_6_to_7();
         }

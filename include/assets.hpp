@@ -153,8 +153,6 @@ void save_asset_shares();
 void load_assets();
 void save_assets();
 
-void migrate_assets_4_to_5();
-void migrate_assets_5_to_6();
 void migrate_assets_7_to_8();
 void migrate_assets_8_to_9();
 
