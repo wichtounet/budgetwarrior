@@ -8,5 +8,6 @@
 #pragma once
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
+#define CPPHTTPLIB_FORM_URL_ENCODED_PAYLOAD_MAX_LENGTH 32768
 
 #include "httplib.h"
