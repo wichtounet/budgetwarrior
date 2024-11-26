@@ -32,6 +32,7 @@ money budget::money_from_string(std::string_view money_sv){
         if (p == money_string.data() + money_string.size()) {
             return {dollars, cents};
         }
+
         if (*p == '.') {
             ++p;
 
@@ -45,7 +46,39 @@ money budget::money_from_string(std::string_view money_sv){
         }
     }
 
-    throw budget::budget_exception("\"" + std::string(money_string) + "\" is not a valid amount of money");
+    throw budget::budget_exception(std::format("\"{}\" is not a valid amount of money", money_sv));
+}
+
+money budget::single_money_from_string(std::string_view money_sv){
+    int dollars = 0;
+    int cents = 0;
+
+    if (auto [p, ec] = std::from_chars(money_sv.data(), money_sv.data() + money_sv.size(), dollars); ec == std::errc()) {
+        if (p == money_sv.data() + money_sv.size()) {
+            return {dollars, cents};
+        }
+
+        if (*p == '.') {
+            ++p;
+
+            bool zero = *p == '0';
+
+            if (auto [p2, ec2] = std::from_chars(p, money_sv.data() + money_sv.size(), cents); ec2 == std::errc()) {
+                if (p2 == money_sv.data() + money_sv.size()) {
+                    if (cents >= 0 && cents < 100) {
+                        if (!zero && cents < 10)  {
+                            return {dollars, 10 * cents};
+                        }
+
+                        return {dollars, cents};
+                    }
+                }
+            }
+        }
+    }
+
+    throw budget::budget_exception(std::format("\"{}\" is not a valid amount of money", money_sv));
+
 }
 
 std::string budget::money_to_string(const money& amount) {

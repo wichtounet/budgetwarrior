@@ -28,7 +28,7 @@ budget::date budget::local_day(){
 
 budget::date budget::date_from_string(std::string_view str){
     if (str.size() != 10) {
-        throw date_exception("Invalid size for date_from_string");
+        throw date_exception(std::format("Invalid size for date_from_string while parsing {}", str));
     }
 
     date_type y = 0;
@@ -36,15 +36,39 @@ budget::date budget::date_from_string(std::string_view str){
     date_type d = 0;
 
     if (auto [p, ec] = std::from_chars(str.data(), str.data() + 4, y); ec != std::errc() || p != str.data() + 4) {
-        throw date_exception("Invalid year in date_from_string");
+        throw date_exception(std::format("Invalid year in date_from_string while parsing {}", str));
     }
 
     if (auto [p, ec] = std::from_chars(str.data() + 5, str.data() + 7, m); ec != std::errc() || p != str.data() + 7) {
-        throw date_exception("Invalid month in date_from_string");
+        throw date_exception(std::format("Invalid month in date_from_string while parsing {}", str));
     }
 
     if (auto [p, ec] = std::from_chars(str.data() + 8, str.data() + 10, d); ec != std::errc() || p != str.data() + 10) {
-        throw date_exception("Invalid day in date_from_string");
+        throw date_exception(std::format("Invalid day in date_from_string while parsing {}", str));
+    }
+
+    return {y, m, d};
+}
+
+budget::date budget::dmy_date_from_string(std::string_view str){
+    if (str.size() != 10) {
+        throw date_exception(std::format("Invalid size for dmy_date_from_string while parsing {}", str));
+    }
+
+    date_type y = 0;
+    date_type m = 0;
+    date_type d = 0;
+
+    if (auto [p, ec] = std::from_chars(str.data(), str.data() + 2, d); ec != std::errc() || p != str.data() + 2) {
+        throw date_exception(std::format("Invalid day in dmy_date_from_string while parsing {}", str));
+    }
+
+    if (auto [p, ec] = std::from_chars(str.data() + 3, str.data() + 5, m); ec != std::errc() || p != str.data() + 5) {
+        throw date_exception(std::format("Invalid month in dmy_date_from_string while parsing {}", str));
+    }
+
+    if (auto [p, ec] = std::from_chars(str.data() + 6, str.data() + 10, y); ec != std::errc() || p != str.data() + 10) {
+        throw date_exception(std::format("Invalid year in dmy_date_from_string while parsing {}", str));
     }
 
     return {y, m, d};
