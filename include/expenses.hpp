@@ -37,14 +37,14 @@ struct module_traits<expenses_module> {
 };
 
 struct expense {
-    size_t id;
-    std::string guid;
+    size_t       id;
+    std::string  guid;
     budget::date date;
-    std::string name;
-    size_t account;
-    money amount;
-    std::string original_name;
-    bool temporary;
+    std::string  name;
+    size_t       account;
+    money        amount;
+    std::string  original_name;
+    bool         temporary = false;
 
     std::map<std::string, std::string, std::less<>> get_params() const ;
 
