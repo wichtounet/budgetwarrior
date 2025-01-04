@@ -320,3 +320,10 @@ TEST_CASE("date/diff") {
     FAST_CHECK_EQ(budget::date(2231, 5, 5) - budget::date(2020, 3, 3), 77128);
     FAST_CHECK_EQ(budget::date(2020, 3, 3) - budget::date(2231, 5, 5), -77128);
 }
+
+TEST_CASE("date/extra/1") {
+    budget::date x1(2025, 1, 1);
+
+    FAST_CHECK_UNARY(x1 - budget::days(1) == budget::date(2024, 12, 31));
+    FAST_CHECK_UNARY(x1 - budget::days(10) == budget::date(2024, 12, 22));
+}
