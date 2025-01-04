@@ -243,6 +243,13 @@ budget::money budget::share_price(const std::string& ticker){
 }
 
 budget::money budget::share_price(const std::string& ticker, budget::date d){
+    if (d > budget::local_day()) {
+        LOG_F(ERROR,
+              "Asking for a share price {} in the future ({}), this should not happen",
+              ticker,
+              budget::to_string(d));
+    }
+
     auto date = get_valid_date(d);
 
     const share_price_cache_key key(date, ticker);
