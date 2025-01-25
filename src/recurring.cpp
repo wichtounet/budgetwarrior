@@ -111,7 +111,9 @@ void budget::check_for_recurrings(){
         return;
     }
 
-    auto now = budget::local_day();
+    const auto now = budget::local_day();
+
+    LOG_F(INFO, "recurrings: Check for recurrings on {}", budget::to_string(now));
 
     bool changed = false;
 
@@ -192,14 +194,20 @@ void budget::check_for_recurrings(){
                 // the first time at the time of today
 
                 changed |= generate_recurring({now.year(), now.month(), 1}, recurring);
+
+                LOG_F(INFO, "recurrings: Created first instance of {}", recurring.id);
             } else {
                 auto last = last_date(recurring);
+
+                LOG_F(INFO, "recurrings: Last date of {} is {}", recurring.id, budget::to_string(last));
 
                 // If the recurring has already been triggered, we trigger again
                 // for each of the missing months
 
                 budget::date recurring_date(last.year(), last.month(), 1);
                 recurring_date += budget::months(1);
+
+                LOG_F(INFO, "recurrings: Next instance of {} is {}", recurring.id, budget::to_string(recurring_date));
 
                 while (recurring_date < now) {
                     changed |= generate_recurring(recurring_date, recurring);
