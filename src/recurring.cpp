@@ -128,7 +128,8 @@ void budget::check_for_recurrings(){
                 // If the recurring has already been triggered, we trigger again
                 // for each of the missing years
 
-                budget::date recurring_date(last.year() + date_type(1), 1, 1);
+                budget::date recurring_date(last.year(), 1, 1);
+                recurring_date += budget::years(1);
 
                 while (recurring_date < now) {
                     changed |= generate_recurring(recurring_date, recurring);
@@ -151,7 +152,8 @@ void budget::check_for_recurrings(){
                 // If the recurring has already been triggered, we trigger again
                 // for each of the missing quarters
 
-                budget::date recurring_date(last.year(), last.month() + date_type(6), 1);
+                budget::date recurring_date(last.year(), last.month(), 1);
+                recurring_date += budget::months(6);
 
                 while (recurring_date < now) {
                     changed |= generate_recurring(recurring_date, recurring);
@@ -174,7 +176,8 @@ void budget::check_for_recurrings(){
                 // If the recurring has already been triggered, we trigger again
                 // for each of the missing quarters
 
-                budget::date recurring_date(last.year(), last.month() + date_type(3), 1);
+                budget::date recurring_date(last.year(), last.month(), 1);
+                recurring_date += budget::months(3);
 
                 while (recurring_date < now) {
                     changed |= generate_recurring(recurring_date, recurring);
@@ -195,7 +198,8 @@ void budget::check_for_recurrings(){
                 // If the recurring has already been triggered, we trigger again
                 // for each of the missing months
 
-                budget::date recurring_date(last.year(), last.month() + date_type(1), 1);
+                budget::date recurring_date(last.year(), last.month(), 1);
+                recurring_date += budget::months(1);
 
                 while (recurring_date < now) {
                     changed |= generate_recurring(recurring_date, recurring);
