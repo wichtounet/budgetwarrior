@@ -26,3 +26,11 @@ TEST_CASE("retirement/fixed_fi_ratio/2") {
 
     FAST_CHECK_EQ(budget::fixed_fi_ratio(wrate, nw, expenses), 0.4);
 }
+
+TEST_CASE("retirement/fixed_fi_ratio/3") {
+    const double        wrate(4.0);
+    const budget::money expenses(100000);
+    const budget::money nw(3000000);
+
+    FAST_CHECK_EQ(budget::fixed_fi_ratio(wrate, nw, expenses), 1.2);
+}
