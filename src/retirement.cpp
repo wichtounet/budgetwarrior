@@ -33,11 +33,13 @@ money running_expenses(data_cache & cache, const budget::date & date = budget::l
     budget::money total;
 
     if (auto & expenses = cache.sorted_expenses(); !expenses.empty()) {
-        auto it = ranges::lower_bound(expenses.begin(), expenses.end(), start, ranges::less_equal{}, [](const auto & value) { return value.date; });
+        auto it = ranges::lower_bound(expenses.begin(), expenses.end(), start, ranges::less{}, [](const auto & value) { return value.date; });
 
         while (it != expenses.end()) {
             if (it->date <= end) {
-                total += it->amount;
+                if (it->temporary) {
+                    total += it->amount;
+                }
 
                 ++it;
             } else {
