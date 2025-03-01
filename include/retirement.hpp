@@ -34,6 +34,7 @@ struct asset_value;
 
 double fi_ratio(const budget::date & d, data_cache & cache);
 double fixed_fi_ratio(const budget::date & d, data_cache & cache, const money & expenses);
+double fixed_fi_ratio(double wrate, const money & nw, const money & expenses);
 
 void retirement_status(budget::writer& w);
 

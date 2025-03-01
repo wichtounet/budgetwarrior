@@ -138,10 +138,15 @@ double budget::fi_ratio(const budget::date & d, data_cache& cache) {
     return fixed_fi_ratio(d, cache, running_expenses(cache, d));
 }
 
-double budget::fixed_fi_ratio(const budget::date & d, data_cache& cache, const money& expenses) {
-    auto wrate   = to_number<double>(internal_config_value("withdrawal_rate"));
+double budget::fixed_fi_ratio(const budget::date& d, data_cache& cache, const money& expenses) {
+    const auto wrate = to_number<double>(internal_config_value("withdrawal_rate"));
+    const auto nw    = get_fi_net_worth(d, cache);
+
+    return fixed_fi_ratio(wrate, nw, expenses);
+}
+
+double budget::fixed_fi_ratio(double wrate, const money & nw, const money & expenses) {
     auto years   = double(100.0 / wrate);
-    auto nw      = get_fi_net_worth(d, cache);
     auto missing = years * expenses - nw;
 
     return nw / missing;
