@@ -147,11 +147,13 @@ TEST_CASE("date/is_leap") {
     FAST_CHECK_UNARY(budget::date(2000, 1, 1).is_leap());
     FAST_CHECK_UNARY(budget::date(2212, 1, 1).is_leap());
     FAST_CHECK_UNARY(budget::date(2400, 1, 1).is_leap());
+    FAST_CHECK_UNARY(budget::date(2024, 1, 1).is_leap());
 
     FAST_CHECK_UNARY(!budget::date(1805, 1, 1).is_leap());
     FAST_CHECK_UNARY(!budget::date(1943, 1, 1).is_leap());
     FAST_CHECK_UNARY(!budget::date(2001, 1, 1).is_leap());
     FAST_CHECK_UNARY(!budget::date(2399, 1, 1).is_leap());
+    FAST_CHECK_UNARY(!budget::date(2025, 1, 1).is_leap());
 }
 
 TEST_CASE("date/day_of_the_week") {
@@ -326,4 +328,25 @@ TEST_CASE("date/extra/1") {
 
     FAST_CHECK_UNARY(x1 - budget::days(1) == budget::date(2024, 12, 31));
     FAST_CHECK_UNARY(x1 - budget::days(10) == budget::date(2024, 12, 22));
+}
+
+TEST_CASE("date/leap/1") {
+    FAST_CHECK_UNARY(budget::date(2024, 1, 1).is_leap());
+    FAST_CHECK_UNARY(!budget::date(2025, 1, 1).is_leap());
+
+    budget::date m1(2024, 2, 28);
+
+    m1 += budget::days(1);
+    FAST_CHECK_EQ(m1, budget::date(2024, 2, 29));
+
+    m1 += budget::days(1);
+    FAST_CHECK_EQ(m1, budget::date(2024, 3, 1));
+
+    budget::date m2(2025, 2, 28);
+
+    m2 += budget::days(1);
+    FAST_CHECK_EQ(m2, budget::date(2025, 3, 1));
+
+    m2 += budget::days(1);
+    FAST_CHECK_EQ(m2, budget::date(2025, 3, 2));
 }
