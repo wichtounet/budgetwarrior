@@ -167,20 +167,21 @@ void budget::retirement_status(budget::writer& w) {
         }
     }
 
-    auto currency       = get_default_currency();
-    auto wrate          = to_number<double>(internal_config_value("withdrawal_rate"));
-    auto roi            = to_number<double>(internal_config_value("expected_roi"));
-    auto years          = double(100.0 / wrate);
-    auto expenses       = running_expenses(w.cache);
-    auto savings_rate   = running_savings_rate(w.cache);
-    auto nw             = get_fi_net_worth(w.cache);
-    auto missing        = years * expenses - nw;
-    auto income         = running_income(w.cache);
+    const auto currency     = get_default_currency();
+    const auto wrate        = to_number<double>(internal_config_value("withdrawal_rate"));
+    const auto roi          = to_number<double>(internal_config_value("expected_roi"));
+    const auto years        = double(100.0 / wrate);
+    const auto expenses     = running_expenses(w.cache);
+    const auto savings_rate = running_savings_rate(w.cache);
+    const auto nw           = get_fi_net_worth(w.cache);
+    const auto goal         = years * expenses;
+    const auto missing      = goal - nw;
+    const auto income       = running_income(w.cache);
 
     date_type base_months = 0;
     {
         auto current_nw = nw;
-        while (current_nw < years * expenses) {
+        while (current_nw < goal) {
             current_nw *= 1.0 + (roi / 100.0) / 12;
             current_nw += (savings_rate * income) / 12;
 
@@ -202,7 +203,7 @@ void budget::retirement_status(budget::writer& w) {
     contents.push_back({""s, ""s});
     contents.push_back({"Running expenses"s, to_string(expenses) + " " + currency});
     contents.push_back({"Monthly expenses"s, to_string(expenses / 12) + " " + currency});
-    contents.push_back({"Target Net Worth"s, to_string(years * expenses) + " " + currency});
+    contents.push_back({"Target Net Worth"s, to_string(goal) + " " + currency});
 
     contents.push_back({""s, ""s});
     contents.push_back({"Current Net Worth"s, to_string(nw) + " " + currency});
@@ -210,7 +211,7 @@ void budget::retirement_status(budget::writer& w) {
     contents.push_back({"Running Income"s, to_string(income) + " " + currency});
     contents.push_back({"Running Savings Rate"s, to_string(100 * savings_rate) + "%"});
     contents.push_back({"Yearly savings"s, to_string(savings_rate * income) + " " + currency});
-    contents.push_back({"FI Ratio"s, to_string(100 * (nw / missing)) + "%"});
+    contents.push_back({"FI Ratio"s, to_string(100 * (nw / goal)) + "%"});
 
     auto fi_date = budget::local_day() + budget::months(base_months);
     contents.push_back({""s, ""s});
@@ -240,7 +241,7 @@ void budget::retirement_status(budget::writer& w) {
         auto current_nw = nw;
         size_t months   = 0;
 
-        while (current_nw < years * expenses) {
+        while (current_nw < goal) {
             current_nw *= 1.0 + (roi / 100.0) / 12;
             current_nw += (dec_savings_rate * income) / 12;
 
