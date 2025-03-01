@@ -50,6 +50,14 @@ struct expense {
 
     void load(data_reader & reader);
     void save(data_writer& writer) const;
+
+    constexpr bool is_persistent() const {
+        return !temporary;
+    }
+
+    constexpr bool is_temporary() const {
+        return temporary;
+    }
 };
 
 void load_expenses();

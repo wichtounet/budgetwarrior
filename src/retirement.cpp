@@ -37,7 +37,7 @@ money running_expenses(data_cache & cache, const budget::date & date = budget::l
 
         while (it != expenses.end()) {
             if (it->date <= end) {
-                if (it->temporary) {
+                if (it->is_persistent()) {
                     total += it->amount;
                 }
 
