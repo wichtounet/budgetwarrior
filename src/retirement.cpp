@@ -146,10 +146,10 @@ double budget::fixed_fi_ratio(const budget::date& d, data_cache& cache, const mo
 }
 
 double budget::fixed_fi_ratio(double wrate, const money & nw, const money & expenses) {
-    auto years   = double(100.0 / wrate);
-    auto missing = years * expenses - nw;
+    const auto years   = double(100.0 / wrate);
+    const auto goal = years * expenses;
 
-    return nw / missing;
+    return nw / goal;
 }
 
 void budget::retirement_status(budget::writer& w) {
