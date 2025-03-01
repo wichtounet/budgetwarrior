@@ -66,7 +66,7 @@ TEST_CASE("date/minus/days") {
     FAST_CHECK_EQ(a.day(), budget::day(25));
 }
 
-TEST_CASE("date/minus/month") {
+TEST_CASE("date/minus/month/1") {
     budget::date a(2010, 5, 6);
     a -= budget::months(1);
 
@@ -79,6 +79,22 @@ TEST_CASE("date/minus/month") {
     FAST_CHECK_EQ(a.year(), budget::year(2009));
     FAST_CHECK_EQ(a.month(), budget::month(6));
     FAST_CHECK_EQ(a.day(), budget::day(6));
+}
+
+TEST_CASE("date/minus/month/2") {
+    budget::date a(2025, 3, 1);
+    a -= budget::months(12);
+
+    FAST_CHECK_EQ(a.year(), budget::year(2024));
+    FAST_CHECK_EQ(a.month(), budget::month(3));
+    FAST_CHECK_EQ(a.day(), budget::day(1));
+
+    budget::date b(2025, 2, 1);
+    b -= budget::months(12);
+
+    FAST_CHECK_EQ(b.year(), budget::year(2024));
+    FAST_CHECK_EQ(b.month(), budget::month(2));
+    FAST_CHECK_EQ(b.day(), budget::day(1));
 }
 
 TEST_CASE("date/minus/years") {
