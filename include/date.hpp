@@ -337,6 +337,14 @@ struct date {
         return {_year, _month, days_month(_year, _month)};
     }
 
+    date previous_month() const {
+        return *this - budget::months(1);
+    }
+
+    date next_month() const {
+        return *this + budget::months(1);
+    }
+
     date& operator+=(years years){
         if(static_cast<date_type>(years) >= std::numeric_limits<date_type>::max() - _year){
             throw date_exception("Year too high (will overflow)");
