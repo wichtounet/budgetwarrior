@@ -27,13 +27,13 @@ namespace {
 constexpr size_t running_limit = 12;
 
 money running_expenses(data_cache & cache, const budget::date & date = budget::local_day()){
-    budget::date const end = date.previous_month().end_of_month();  // The end is the last day of the previous month
-    budget::date const start = end - budget::months(running_limit); // The start is N months before the end date
+    budget::date const end = date.previous_month().end_of_month();                     // The end is the last day of the previous month
+    budget::date const start = (end - budget::months(running_limit)).start_of_month(); // The start is N months before the end date
 
     budget::money total;
 
     if (auto & expenses = cache.sorted_expenses(); !expenses.empty()) {
-        auto it = ranges::lower_bound(expenses.begin(), expenses.end(), start, ranges::less{}, [](const auto & value) { return value.date; });
+        auto it = ranges::lower_bound(expenses.begin(), expenses.end(), start, ranges::less_equal{}, [](const auto & value) { return value.date; });
 
         while (it != expenses.end()) {
             if (it->date <= end) {
