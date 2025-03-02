@@ -15,6 +15,7 @@
 #include "cpp_utils/assert.hpp"
 
 #include "cpp_utils/hash.hpp"
+#include "date.hpp"
 #include "overview.hpp"
 #include "console.hpp"
 #include "data_cache.hpp"
@@ -1148,8 +1149,14 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
         second_contents.emplace_back(std::vector<std::string>{"Tax Rate", budget::to_string(tax_rate) + "%"});
     }
 
+    const budget::date today = budget::local_day();
     const budget::date month_start(year, month, 1);
-    const budget::date month_end = month_start.end_of_month();
+    budget::date       month_end = month_start.end_of_month();
+
+    // If we are on the current month, we avoid going into the future
+    if (month_start.year() == today.year() && month_start.month() == today.month()) {
+        month_end = today;
+    }
 
     auto net_worth_end = get_net_worth(month_end, writer.cache);
     auto net_worth_month_start = get_net_worth(month_start, writer.cache);
