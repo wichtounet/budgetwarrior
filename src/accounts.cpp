@@ -495,8 +495,8 @@ void budget::account_delete(size_t id) {
 
     accounts.remove(id);
 
-    if (budget::is_server_mode()) {
-      LOG_F(INFO, "acounts: Delete account {}", id);
+    if (budget::is_server_running()) {
+        LOG_F(INFO, "accounts: Delete account {}", id);
     }
 }
 

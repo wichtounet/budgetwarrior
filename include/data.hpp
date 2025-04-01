@@ -321,6 +321,10 @@ private:
             entry.save(writer);
             file << writer.to_string() << std::endl;
         }
+        
+        if (is_server_running()) {
+            LOG_F(INFO, "data: Saving data to {}", file_path.string());
+        }
 
         changed = false;
     }
