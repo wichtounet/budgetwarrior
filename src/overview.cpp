@@ -100,7 +100,11 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
 
     total_line.emplace_back("");
     total_line.push_back(title);
-    total_line.push_back(to_string(functor(values.front())));
+    if (values.empty()) {
+        total_line.emplace_back("N/A");
+    } else {
+        total_line.push_back(to_string(functor(values.front())));
+    }
 
     for(size_t i = 1; i < values.size(); ++i){
         total_line.emplace_back("");
