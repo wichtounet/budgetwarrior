@@ -5,7 +5,7 @@ default: release_debug
 include make-utils/flags.mk
 include make-utils/cpp-utils.mk
 
-# Use C++23
+# Use C++26
 $(eval $(call use_cpp26))
 
 # Enable code coverage in debug mode
@@ -40,13 +40,13 @@ release_debug_test: release_debug_budget_test
 release_test: release_budget_test
 
 run_debug_test: debug_budget_test
-	./debug/bin/budget_test
+	./$(debug)/bin/budget_test
 
 run_release_debug_test: release_debug_budget_test
-	./release_debug/bin/budget_test
+	./$(release_debug)/bin/budget_test
 
 run_release_test: release_budget_test
-	./release/bin/budget_test
+	./$(release)/bin/budget_test
 
 all: release release_debug debug
 
@@ -66,7 +66,7 @@ install: release_debug
 	@ echo "Installation of budgetwarrior"
 	@ echo "============================="
 	@ echo ""
-	install release_debug/bin/budget $(bindir)/budget
+	install $(release_debug)/bin/budget $(bindir)/budget
 	install tools/yfinance_quote.py $(bindir)/yfinance_quote.py
 
 install_light: install
