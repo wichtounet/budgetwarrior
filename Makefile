@@ -6,7 +6,7 @@ include make-utils/flags.mk
 include make-utils/cpp-utils.mk
 
 # Use C++23
-$(eval $(call use_cpp23))
+$(eval $(call use_cpp26))
 
 # Enable code coverage in debug mode
 $(eval $(call enable_coverage))
