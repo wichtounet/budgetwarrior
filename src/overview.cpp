@@ -835,9 +835,8 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
             budget::money total_earnings;
 
             if(relaxed){
-                auto relaxed_filter = [account](const auto & e){return get_account(e.account).name == account.name; };
-                total_expenses = fold_left_auto(w.cache.expenses() | persistent | filter_by_date(year, m) | std::views::filter(relaxed_filter) | to_amount);
-                total_earnings = fold_left_auto(w.cache.earnings() | filter_by_date(year, m) | std::views::filter(relaxed_filter) | to_amount);
+                total_expenses = fold_left_auto(w.cache.expenses() | persistent | filter_by_date(year, m) | filter_by_account_name(account.name) | to_amount);
+                total_earnings = fold_left_auto(w.cache.earnings() | filter_by_date(year, m) | filter_by_account_name(account.name) | to_amount);
             } else {
                 total_expenses = fold_left_auto(all_expenses_month(w.cache, account.id, year, m) | to_amount);
                 total_earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, m) | to_amount);
@@ -1009,9 +1008,8 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
             budget::money total_earnings;
 
             if(relaxed){
-                auto relaxed_filter = [account](const auto & e){return get_account(e.account).name == account.name; };
-                total_expenses = fold_left_auto(w.cache.expenses() | persistent | filter_by_date(year, m) | std::views::filter(relaxed_filter) | to_amount);
-                total_earnings = fold_left_auto(w.cache.earnings() | filter_by_date(year, m) | std::views::filter(relaxed_filter) | to_amount);
+                total_expenses = fold_left_auto(w.cache.expenses() | persistent | filter_by_date(year, m) | filter_by_account_name(account.name) | to_amount);
+                total_earnings = fold_left_auto(w.cache.earnings() | filter_by_date(year, m) | filter_by_account_name(account.name) | to_amount);
             } else {
                 total_expenses = fold_left_auto(all_expenses_month(w.cache, account.id, year, m) | to_amount);
                 total_earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, m) | to_amount);
