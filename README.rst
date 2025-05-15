@@ -9,14 +9,6 @@ budgetwarrior 1.1.0
    :target: https://github.com/wichtounet/budgetwarrior/actions/workflows/cmake.yml
    :alt: Mac OS Build
 
-.. image:: https://github.com/wichtounet/budgetwarrior/actions/workflows/sonar.yml/badge.svg
-   :target: https://github.com/wichtounet/budgetwarrior/actions/workflows/sonar.yml
-   :alt: Sonar Build
-
-.. image:: https://sonarcloud.io/api/project_badges/measure?project=wichtounet_budgetwarrior&metric=alert_status
-   :target: https://sonarcloud.io/summary/new_code?id=wichtounet_budgetwarrior
-   :alt: SonarSource analysis
-
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT
    :alt: MIT License
