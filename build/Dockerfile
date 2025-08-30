@@ -1,8 +1,7 @@
-FROM ubuntu:latest
+FROM wichtounet/cpp:latest
 
 # Install dependencies
-RUN apt-get update && apt-get -y upgrade && apt-get -y install make gcc-14 g++-14 libssl-dev uuid-dev libcurl4-openssl-dev gdb openssl locales pipx && rm -rf /var/lib/apt/lists/*
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 60 --slave /usr/bin/g++ g++ /usr/bin/g++-14
+RUN apt-get update && apt-get -y upgrade && apt-get -y install pipx && rm -rf /var/lib/apt/lists/*
 RUN pipx install yfinance
 
 # Set the locale
