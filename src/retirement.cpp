@@ -171,23 +171,26 @@ void budget::retirement_status(budget::writer& w) {
     const auto wrate        = to_number<double>(internal_config_value("withdrawal_rate"));
     const auto roi          = to_number<double>(internal_config_value("expected_roi"));
     const auto years        = double(100.0 / wrate);
-    const auto expenses     = running_expenses(w.cache);
     const auto savings_rate = running_savings_rate(w.cache);
     const auto nw           = get_fi_net_worth(w.cache);
-    const auto goal         = years * expenses;
-    const auto missing      = goal - nw;
     const auto income       = running_income(w.cache);
 
-    date_type base_months = 0;
+    const auto run_expenses     = running_expenses(w.cache);
+    const auto run_goal         = years * run_expenses;
+    const auto run_missing      = run_goal - nw;
+
+    date_type run_base_months = 0;
     {
         auto current_nw = nw;
-        while (current_nw < goal) {
+        while (current_nw < run_goal) {
             current_nw *= 1.0 + (roi / 100.0) / 12;
             current_nw += (savings_rate * income) / 12;
 
-            ++base_months;
+            ++run_base_months;
         }
     }
+
+    auto run_fi_date = budget::local_day() + budget::months(run_base_months);
 
     std::vector<std::string> columns = {};
     std::vector<std::vector<std::string>> contents;
@@ -199,30 +202,24 @@ void budget::retirement_status(budget::writer& w) {
     contents.push_back({"Annual Return"s, to_string(roi) + "%"});
     contents.push_back({"Years of expense"s, to_string(years)});
 
-    // The target
-    contents.push_back({""s, ""s});
-    contents.push_back({"Running expenses"s, to_string(expenses) + " " + currency});
-    contents.push_back({"Monthly expenses"s, to_string(expenses / 12) + " " + currency});
-    contents.push_back({"Target Net Worth"s, to_string(goal) + " " + currency});
-
     contents.push_back({""s, ""s});
     contents.push_back({"Current Net Worth"s, to_string(nw) + " " + currency});
-    contents.push_back({"Missing Net Worth"s, to_string(missing) + " " + currency});
     contents.push_back({"Running Income"s, to_string(income) + " " + currency});
     contents.push_back({"Running Savings Rate"s, to_string(100 * savings_rate) + "%"});
     contents.push_back({"Yearly savings"s, to_string(savings_rate * income) + " " + currency});
-    contents.push_back({"FI Ratio"s, to_string(100 * (nw / goal)) + "%"});
 
-    auto fi_date = budget::local_day() + budget::months(base_months);
-    contents.push_back({""s, ""s});
-    contents.push_back({"Months to FI"s, to_string(base_months)});
-    contents.push_back({"Years to FI"s, to_string(base_months / 12.0)});
-    contents.push_back({"Date to FI"s, to_string(fi_date)});
-
-    contents.push_back({""s, ""s});
-    contents.push_back({"Current Withdrawal Rate"s, to_string(100.0 * (expenses / nw)) + "%"});
-    contents.push_back({"Months of FI"s, to_string(nw / (expenses / 12))});
-    contents.push_back({"Years of FI"s, to_string(nw / expenses)});
+    // The target (running expenses)
+    contents.push_back({"Current expense"s, ""s});
+    contents.push_back({"Running expenses"s, to_string(run_expenses) + " " + currency});
+    contents.push_back({"Target Net Worth"s, to_string(run_goal) + " " + currency});
+    contents.push_back({"Missing Net Worth"s, to_string(run_missing) + " " + currency});
+    contents.push_back({"FI Ratio"s, to_string(100 * (nw / run_goal)) + "%"});
+    contents.push_back({"Months to FI"s, to_string(run_base_months)});
+    contents.push_back({"Years to FI"s, to_string(run_base_months / 12.0)});
+    contents.push_back({"Date to FI"s, to_string(run_fi_date)});
+    contents.push_back({"Current Withdrawal Rate"s, to_string(100.0 * (run_expenses / nw)) + "%"});
+    contents.push_back({"Months of FI"s, to_string(nw / (run_expenses / 12))});
+    contents.push_back({"Years of FI"s, to_string(nw / run_expenses)});
 
     contents.push_back({""s, ""s});
     contents.push_back({"Current Yearly Allowance"s, to_string(nw * (wrate / 100.0))});
