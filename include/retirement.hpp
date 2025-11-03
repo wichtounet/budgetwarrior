@@ -13,11 +13,11 @@
 #include "module_traits.hpp"
 #include "writer_fwd.hpp"
 #include "date.hpp"
+#include "money.hpp"
 
 namespace budget {
 
 struct data_cache;
-struct money;
 
 struct retirement_module {
     void load();
@@ -36,6 +36,6 @@ double fi_ratio(const budget::date & d, data_cache & cache);
 double fixed_fi_ratio(const budget::date & d, data_cache & cache, const money & expenses);
 double fixed_fi_ratio(double wrate, const money & nw, const money & expenses);
 
-void retirement_status(budget::writer& w);
+void retirement_status(budget::writer& w, const money & fi_expenses = {});
 
 } //end of namespace budget
