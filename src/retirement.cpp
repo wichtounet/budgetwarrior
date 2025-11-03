@@ -210,6 +210,7 @@ void budget::retirement_status(budget::writer& w, const budget::money & fi_expen
 
     // The target (running expenses)
     {
+        contents.push_back({""s, ""s});
         contents.push_back({"Current expense"s, ""s});
         contents.push_back({"Running expenses"s, to_string(run_expenses) + " " + currency});
         contents.push_back({"Target Net Worth"s, to_string(run_goal) + " " + currency});
@@ -241,6 +242,7 @@ void budget::retirement_status(budget::writer& w, const budget::money & fi_expen
 
         auto fi_fi_date = budget::local_day() + budget::months(fi_base_months);
 
+        contents.push_back({""s, ""s});
         contents.push_back({"Target expense"s, ""s});
         contents.push_back({"Target expenses"s, to_string(fi_expenses) + " " + currency});
         contents.push_back({"Target Net Worth"s, to_string(fi_goal) + " " + currency});
