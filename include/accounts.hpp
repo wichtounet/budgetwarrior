@@ -40,6 +40,7 @@ struct account {
     money amount;
     date since;
     date until;
+    bool hide_if_empty;
 
     std::map<std::string, std::string, std::less<>> get_params() const ;
 

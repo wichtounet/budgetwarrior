@@ -101,12 +101,13 @@ void migrate_account(const std::string& source_account_name, const std::string& 
 std::map<std::string, std::string, std::less<>> budget::account::get_params() const {
     std::map<std::string, std::string, std::less<>> params;
 
-    params["input_id"]     = budget::to_string(id);
-    params["input_guid"]   = guid;
-    params["input_name"]   = name;
-    params["input_amount"] = budget::to_string(amount);
-    params["input_since"]  = budget::to_string(since);
-    params["input_until"]  = budget::to_string(until);
+    params["input_id"]            = budget::to_string(id);
+    params["input_guid"]          = guid;
+    params["input_name"]          = name;
+    params["input_amount"]        = budget::to_string(amount);
+    params["input_since"]         = budget::to_string(since);
+    params["input_until"]         = budget::to_string(until);
+    params["input_hide_if_empty"] = hide_if_empty ? "true" : "false";
 
     return params;
 }
@@ -394,6 +395,7 @@ void budget::account::save(data_writer& writer) const {
     writer << amount;
     writer << since;
     writer << until;
+    writer << hide_if_empty;
 }
 
 void budget::account::load(data_reader& reader) {
@@ -403,6 +405,12 @@ void budget::account::load(data_reader& reader) {
     reader >> amount;
     reader >> since;
     reader >> until;
+
+    if (reader.peek().empty() || reader.peek() == " ") {
+        hide_if_empty = false;
+    } else {
+        reader >> hide_if_empty;
+    }
 
     if (config_contains("random")) {
         amount = budget::random_money(1000, 10000);
