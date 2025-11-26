@@ -27,9 +27,9 @@ using namespace budget;
 
 namespace {
 
-data_handler<account> accounts { "accounts", "accounts.data" };
+data_handler<account> accounts{"accounts", "accounts.data"};
 
-size_t get_account_id(std::string_view name, budget::year year, budget::month month){
+size_t get_account_id(std::string_view name, budget::year year, budget::month month) {
     if (auto range = accounts.data() | filter_by_name(name) | active_at_date({year, month, 5}); range) {
         return std::ranges::begin(range)->id;
     }
@@ -96,7 +96,7 @@ void migrate_account(const std::string& source_account_name, const std::string& 
     std::cout << "Migration done" << std::endl;
 }
 
-} //end of anonymous namespace
+} // end of anonymous namespace
 
 std::map<std::string, std::string, std::less<>> budget::account::get_params() const {
     std::map<std::string, std::string, std::less<>> params;
@@ -111,20 +111,20 @@ std::map<std::string, std::string, std::less<>> budget::account::get_params() co
     return params;
 }
 
-void budget::accounts_module::load(){
+void budget::accounts_module::load() {
     load_accounts();
     load_expenses();
     load_earnings();
 }
 
-void budget::accounts_module::unload(){
+void budget::accounts_module::unload() {
     save_accounts();
     save_expenses();
     save_earnings();
 }
 
-void budget::archive_accounts_impl(bool month){
-    std::vector<size_t> sources;
+void budget::archive_accounts_impl(bool month) {
+    std::vector<size_t>          sources;
     std::vector<budget::account> copies;
 
     auto today = budget::local_day();
@@ -185,10 +185,10 @@ void budget::archive_accounts_impl(bool month){
     accounts.set_changed();
 }
 
-void budget::accounts_module::handle(const std::vector<std::string>& args){
+void budget::accounts_module::handle(const std::vector<std::string>& args) {
     console_writer w(std::cout);
 
-    if(args.size() == 1){
+    if (args.size() == 1) {
         return show_accounts(w);
     }
 
@@ -363,19 +363,19 @@ void budget::accounts_module::handle(const std::vector<std::string>& args){
     }
 }
 
-void budget::load_accounts(){
+void budget::load_accounts() {
     accounts.load();
 }
 
-void budget::save_accounts(){
+void budget::save_accounts() {
     accounts.save();
 }
 
-budget::account budget::get_account(size_t id){
+budget::account budget::get_account(size_t id) {
     return accounts[id];
 }
 
-std::string budget::get_account_name(size_t id){
+std::string budget::get_account_name(size_t id) {
     return accounts[id].name;
 }
 
@@ -396,7 +396,7 @@ void budget::account::save(data_writer& writer) const {
     writer << until;
 }
 
-void budget::account::load(data_reader & reader){
+void budget::account::load(data_reader& reader) {
     reader >> id;
     reader >> guid;
     reader >> name;
@@ -409,61 +409,59 @@ void budget::account::load(data_reader & reader){
     }
 }
 
-bool budget::account_exists(const std::string& name){
+bool budget::account_exists(const std::string& name) {
     return !!(accounts.data() | filter_by_name(name));
 }
 
-std::vector<account> budget::all_accounts(){
+std::vector<account> budget::all_accounts() {
     return accounts.data();
 }
 
-std::vector<budget::account> budget::current_accounts(data_cache & cache){
+std::vector<budget::account> budget::current_accounts(data_cache& cache) {
     auto today = budget::local_day();
     return all_accounts(cache, today.year(), today.month());
 }
 
-std::vector<account> budget::all_accounts(data_cache & cache, budget::year year, budget::month month){
+std::vector<account> budget::all_accounts(data_cache& cache, budget::year year, budget::month month) {
     return to_vector(cache.accounts() | active_at_date({year, month, 5}));
 }
 
-void budget::set_accounts_changed(){
+void budget::set_accounts_changed() {
     accounts.set_changed();
 }
 
-void budget::set_accounts_next_id(size_t next_id){
+void budget::set_accounts_next_id(size_t next_id) {
     accounts.next_id = next_id;
 }
 
-std::vector<std::string> budget::all_account_names(){
+std::vector<std::string> budget::all_account_names() {
     return to_vector(accounts.data() | active_today | to_name);
 }
 
-void budget::show_accounts(budget::writer& w){
+void budget::show_accounts(budget::writer& w) {
     w << title_begin << "Accounts " << add_button("accounts") << title_end;
 
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "Part", "Edit"};
+    std::vector<std::string>              columns = {"ID", "Name", "Amount", "Part", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
     // Compute the total
 
     money total;
 
-    for(const auto& account : w.cache.accounts() | only_open_ended){
+    for (const auto& account : w.cache.accounts() | only_open_ended) {
         total += account.amount;
     }
 
     // Display the accounts
 
-    for(const auto& account : w.cache.accounts() | only_open_ended){
+    for (const auto& account : w.cache.accounts() | only_open_ended) {
         const float part = 100.0f * (float(account.amount.value) / float(total.value));
 
         std::array<char, 32> buffer{};
         snprintf(buffer.data(), 32, "%.2f%%", part);
 
-        contents.push_back({to_string(account.id), account.name,
-            to_string(account.amount),
-            std::string(buffer.data()),
-            "::edit::accounts::" + to_string(account.id)});
+        contents.push_back(
+                {to_string(account.id), account.name, to_string(account.amount), std::string(buffer.data()), "::edit::accounts::" + to_string(account.id)});
     }
 
     contents.push_back({"", "Total", to_string(total), "", ""});
@@ -471,20 +469,25 @@ void budget::show_accounts(budget::writer& w){
     w.display_table(columns, contents, 1, {}, 0, 1);
 }
 
-void budget::show_all_accounts(budget::writer& w){
+void budget::show_all_accounts(budget::writer& w) {
     w << title_begin << "All Accounts " << add_button("accounts") << title_end;
 
-    std::vector<std::string> columns = {"ID", "Name", "Amount", "Since", "Until", "Edit"};
+    std::vector<std::string>              columns = {"ID", "Name", "Amount", "Since", "Until", "Edit"};
     std::vector<std::vector<std::string>> contents;
 
-    for(const auto& account : w.cache.accounts()){
-        contents.push_back({to_string(account.id), account.name, to_string(account.amount), to_string(account.since), to_string(account.until), "::edit::accounts::" + to_string(account.id)});
+    for (const auto& account : w.cache.accounts()) {
+        contents.push_back({to_string(account.id),
+                            account.name,
+                            to_string(account.amount),
+                            to_string(account.since),
+                            to_string(account.until),
+                            "::edit::accounts::" + to_string(account.id)});
     }
 
     w.display_table(columns, contents);
 }
 
-bool budget::account_exists(size_t id){
+bool budget::account_exists(size_t id) {
     return accounts.exists(id);
 }
 
@@ -504,19 +507,19 @@ bool budget::no_accounts() {
     return accounts.empty();
 }
 
-size_t budget::add_account(budget::account&& account){
+size_t budget::add_account(budget::account&& account) {
     return accounts.add(std::move(account));
 }
 
-bool budget::edit_account(const budget::account& account){
+bool budget::edit_account(const budget::account& account) {
     return accounts.indirect_edit(account);
 }
 
-budget::date budget::find_new_since(){
-    budget::date date(1400,1,1);
+budget::date budget::find_new_since() {
+    budget::date date(1400, 1, 1);
 
-    for(const auto& account : accounts.data() | not_open_ended){
-        if(account.until - days(1) > date){
+    for (const auto& account : accounts.data() | not_open_ended) {
+        if (account.until - days(1) > date) {
             date = account.until - days(1);
         }
     }
