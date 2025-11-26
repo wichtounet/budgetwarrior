@@ -212,6 +212,12 @@ void budget::accounts_module::handle(const std::vector<std::string>& args) {
             throw budget_exception("An account with this name already exists");
         }
 
+        std::cout << "Should we hide this account if empty? [yes/no] ? ";
+
+        std::string answer;
+        std::getline(std::cin, answer);
+        account.hide_if_empty = answer == "yes" || answer == "y";
+
         auto id = accounts.add(std::move(account));
         std::cout << "Account " << id << " has been created" << std::endl;
     } else if (subcommand == "delete") {
@@ -263,6 +269,12 @@ void budget::accounts_module::handle(const std::vector<std::string>& args) {
         auto account = accounts[id];
 
         edit_string(account.name, "Name", not_empty_checker());
+
+        std::cout << "Should we hide this account if empty? [yes/no] ? ";
+
+        std::string answer;
+        std::getline(std::cin, answer);
+        account.hide_if_empty = answer == "yes" || answer == "y";
 
         // Verify that there are no OTHER account with this name
         // in the current set of accounts (taking archiving into account)
@@ -406,7 +418,7 @@ void budget::account::load(data_reader& reader) {
     reader >> since;
     reader >> until;
 
-    if (reader.peek().empty() || reader.peek() == " ") {
+    if (!reader.more()) {
         hide_if_empty = false;
     } else {
         reader >> hide_if_empty;
