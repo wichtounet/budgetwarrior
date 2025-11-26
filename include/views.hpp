@@ -274,6 +274,12 @@ inline auto filter_by_name(std::string_view name) {
     return std::views::filter([name](const auto& account) { return account.name == name; });
 }
 
+inline auto filter_accounts(const std::vector<budget::account>& accounts) {
+    return std::views::filter([&accounts](const auto& account) {
+        return std::ranges::find_if(accounts, [&account](const auto& filter_account) { return filter_account.name == account.name; }) != accounts.end();
+    });
+}
+
 inline auto filter_by_original_name(std::string_view name) {
     return std::views::filter([name](const auto& account) { return account.original_name == name; });
 }

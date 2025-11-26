@@ -173,7 +173,7 @@ budget::money compute_total_budget_account(data_cache& cache, const budget::acco
     return total;
 }
 
-std::vector<budget::money> compute_total_budget(data_cache& cache, budget::month month, budget::year year) {
+std::vector<budget::money> compute_total_budget(data_cache& cache, budget::month month, budget::year year, const std::vector<budget::account>& accounts) {
     cpp::string_hash_map<budget::money> tmp;
 
     // By default, the start is the year of the overview
@@ -192,7 +192,7 @@ std::vector<budget::money> compute_total_budget(data_cache& cache, budget::month
                 break;
             }
 
-            for (const auto& account : all_accounts(cache, y, m)) {
+            for (const auto& account : all_accounts(cache, y, m) | filter_accounts(accounts)) {
                 tmp[account.name] += account.amount;
                 tmp[account.name] -= fold_left_auto(all_expenses_month(cache, account.id, y, m) | to_amount);
                 tmp[account.name] += fold_left_auto(all_earnings_month(cache, account.id, y, m) | to_amount);
@@ -208,7 +208,7 @@ std::vector<budget::money> compute_total_budget(data_cache& cache, budget::month
 
     std::vector<budget::money> total_budgets;
 
-    for (const auto& account : all_accounts(cache, year, month)) {
+    for (const auto& account : all_accounts(cache, year, month) | filter_accounts(accounts)) {
         tmp[account.name] += account.amount;
 
         total_budgets.push_back(tmp[account.name]);
@@ -986,7 +986,9 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
 
     // Prepare the rows
 
-    for (const auto& account : all_accounts(w.cache, year, sm)) {
+    auto accounts = all_accounts(w.cache, year, sm);
+
+    for (const auto& account : accounts) {
         row_mapping[account.name] = contents.size();
 
         contents.push_back({account.name});
@@ -994,7 +996,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
     }
 
     if (auto today = budget::local_day(); year > today.year()) {
-        auto pretotal = compute_total_budget(w.cache, sm, year);
+        auto pretotal = compute_total_budget(w.cache, sm, year, accounts);
         for (size_t i = 0; const auto& account : all_accounts(w.cache, year, sm)) {
             account_previous[account.name][sm.value - 1] += pretotal[i++] - account.amount;
         }
@@ -1048,6 +1050,18 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
 void budget::display_month_overview(budget::month month, budget::year year, budget::writer& writer) {
     auto accounts = all_accounts(writer.cache, year, month);
 
+    auto filter = [&writer, year, month](const auto& account) {
+        if (account.hide_if_empty) {
+            auto total_expenses = fold_left_auto(writer.cache.expenses() | filter_by_account(account.id) | filter_by_date(year, month) | to_amount);
+            auto total_earnings = fold_left_auto(writer.cache.earnings() | filter_by_account(account.id) | filter_by_date(year, month) | to_amount);
+            return !total_earnings && !total_expenses;
+        }
+
+        return false;
+    };
+
+    accounts.erase(std::ranges::remove_if(accounts, filter).begin(), accounts.end());
+
     writer << title_begin << "Overview of " << month << " " << year << budget::year_month_selector{"overview", year, month} << title_end;
 
     std::vector<std::string>              columns;
@@ -1071,7 +1085,7 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     // Budget
     contents.emplace_back(columns.size() * 3, "");
     add_recap_line(contents, "Budget", accounts, [](const budget::account& a) { return format_money(a.amount); });
-    auto total_budgets = compute_total_budget(writer.cache, month, year);
+    auto total_budgets = compute_total_budget(writer.cache, month, year, accounts);
     add_recap_line(contents, "Total Budget", total_budgets, [](const budget::money& m) { return format_money(m); });
 
     // Balances
