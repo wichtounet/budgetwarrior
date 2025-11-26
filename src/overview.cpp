@@ -29,7 +29,7 @@ using namespace budget;
 
 namespace {
 
-bool invalid_accounts_all(){
+bool invalid_accounts_all() {
     data_cache cache;
 
     auto sy = start_year(cache);
@@ -38,18 +38,18 @@ bool invalid_accounts_all(){
 
     const std::vector<budget::account> previous = all_accounts(cache, sy, start_month(cache, sy));
 
-    for(budget::year year = sy; year <= today.year(); ++year){
+    for (budget::year year = sy; year <= today.year(); ++year) {
         auto sm = start_month(cache, year);
 
-        for(budget::month month = sm; month.is_valid(); ++month){
+        for (budget::month month = sm; month.is_valid(); ++month) {
             auto current_accounts = all_accounts(cache, year, month);
 
-            if(current_accounts.size() != previous.size()){
+            if (current_accounts.size() != previous.size()) {
                 return true;
             }
 
-            for(const auto& c : current_accounts){
-                if(!std::ranges::any_of(previous, [&c](const auto & p) { return p.name == c.name; })){
+            for (const auto& c : current_accounts) {
+                if (!std::ranges::any_of(previous, [&c](const auto& p) { return p.name == c.name; })) {
                     return true;
                 }
             }
@@ -59,31 +59,31 @@ bool invalid_accounts_all(){
     return false;
 }
 
-bool invalid_accounts(budget::year year){
+bool invalid_accounts(budget::year year) {
     data_cache cache;
 
     auto sm = start_month(cache, year);
 
     std::vector<budget::account> previous = all_accounts(cache, year, sm);
 
-    for(budget::month m = sm + date_type(1); m.is_valid(); ++m){
+    for (budget::month m = sm + date_type(1); m.is_valid(); ++m) {
         auto current_accounts = all_accounts(cache, year, m);
 
-        if(current_accounts.size() != previous.size()){
+        if (current_accounts.size() != previous.size()) {
             return true;
         }
 
-        for(const auto& c : current_accounts){
+        for (const auto& c : current_accounts) {
             bool found = false;
 
-            for(const auto& p : previous){
-                if(p.name == c.name){
+            for (const auto& p : previous) {
+                if (p.name == c.name) {
                     found = true;
                     break;
                 }
             }
 
-            if(!found){
+            if (!found) {
                 return true;
             }
         }
@@ -94,8 +94,8 @@ bool invalid_accounts(budget::year year){
     return false;
 }
 
-template<typename T, typename J>
-void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::string& title, const std::vector<T>& values, J functor){
+template <typename T, typename J>
+void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::string& title, const std::vector<T>& values, J functor) {
     std::vector<std::string> total_line;
 
     total_line.emplace_back("");
@@ -106,7 +106,7 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
         total_line.push_back(to_string(functor(values.front())));
     }
 
-    for(size_t i = 1; i < values.size(); ++i){
+    for (size_t i = 1; i < values.size(); ++i) {
         total_line.emplace_back("");
         total_line.emplace_back("");
         total_line.push_back(to_string(functor(values[i])));
@@ -115,34 +115,34 @@ void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::
     contents.push_back(std::move(total_line));
 }
 
-template<typename T>
-void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::string& title, const std::vector<T>& values){
-    return add_recap_line(contents, title, values, [](const T& t){return t;});
+template <typename T>
+void add_recap_line(std::vector<std::vector<std::string>>& contents, const std::string& title, const std::vector<T>& values) {
+    return add_recap_line(contents, title, values, [](const T& t) { return t; });
 }
 
-budget::money compute_total_budget_account(data_cache & cache, const budget::account & account, budget::month month, budget::year year){
+budget::money compute_total_budget_account(data_cache& cache, const budget::account& account, budget::month month, budget::year year) {
     // By default, the start is the year of the overview
     auto start_year_report = year;
 
     // Using option, can change to the beginning of all time
-    if(budget::config_contains_and_true("multi_year_balance")){
+    if (budget::config_contains_and_true("multi_year_balance")) {
         start_year_report = start_year(cache);
     }
 
     budget::money total;
 
-    for(budget::year y = start_year_report; y <= year; ++y){
+    for (budget::year y = start_year_report; y <= year; ++y) {
         budget::month m = start_month(cache, y);
 
-        while(true){
-            if(y == year && m >= month){
+        while (true) {
+            if (y == year && m >= month) {
                 break;
             }
 
             // Note: we still need to access the previous accounts since the
             // current account could be a more recent version of an archived
             // account
-            for(const auto& prev_account : all_accounts(cache, y, m)){
+            for (const auto& prev_account : all_accounts(cache, y, m)) {
                 if (prev_account.name == account.name) {
                     total += prev_account.amount;
                     total -= fold_left_auto(all_expenses_month(cache, prev_account.id, y, m) | to_amount);
@@ -173,32 +173,32 @@ budget::money compute_total_budget_account(data_cache & cache, const budget::acc
     return total;
 }
 
-std::vector<budget::money> compute_total_budget(data_cache & cache, budget::month month, budget::year year){
+std::vector<budget::money> compute_total_budget(data_cache& cache, budget::month month, budget::year year) {
     cpp::string_hash_map<budget::money> tmp;
 
     // By default, the start is the year of the overview
     auto start_year_report = year;
 
     // Using option, can change to the beginning of all time
-    if(budget::config_contains_and_true("multi_year_balance")){
+    if (budget::config_contains_and_true("multi_year_balance")) {
         start_year_report = start_year(cache);
     }
 
-    for(budget::year y = start_year_report; y <= year; ++y){
+    for (budget::year y = start_year_report; y <= year; ++y) {
         budget::month m = start_month(cache, y);
 
-        while(true){
-            if(y == year && m >= month){
+        while (true) {
+            if (y == year && m >= month) {
                 break;
             }
 
-            for(const auto& account : all_accounts(cache, y, m)){
+            for (const auto& account : all_accounts(cache, y, m)) {
                 tmp[account.name] += account.amount;
                 tmp[account.name] -= fold_left_auto(all_expenses_month(cache, account.id, y, m) | to_amount);
                 tmp[account.name] += fold_left_auto(all_earnings_month(cache, account.id, y, m) | to_amount);
             }
 
-            if(y != year && m.is_last()){
+            if (y != year && m.is_last()) {
                 break;
             }
 
@@ -208,7 +208,7 @@ std::vector<budget::money> compute_total_budget(data_cache & cache, budget::mont
 
     std::vector<budget::money> total_budgets;
 
-    for(const auto& account : all_accounts(cache, year, month)){
+    for (const auto& account : all_accounts(cache, year, month)) {
         tmp[account.name] += account.amount;
 
         total_budgets.push_back(tmp[account.name]);
@@ -224,7 +224,7 @@ void add_values_column(budget::month                          month,
                        std::vector<std::vector<std::string>>& contents,
                        cpp::string_hash_map<size_t>&          indexes,
                        size_t                                 columns,
-                       R&&                               values,
+                       R&&                                    values,
                        std::vector<budget::money>&            total) {
     std::vector<size_t> current(columns, contents.size());
 
@@ -250,19 +250,19 @@ void add_values_column(budget::month                          month,
         }
     }
 
-    //Totals of expenses
+    // Totals of expenses
     contents.emplace_back(columns * 3, "");
     add_recap_line(contents, title, total);
 }
 
 using acc_data_t = cpp::string_hash_map<cpp::istring_hash_map<budget::money>>;
 
-template<std::ranges::range R, typename Functor>
-std::pair<budget::money, acc_data_t> aggregate(data_cache & cache, R && data, bool full, bool disable_groups, const std::string& separator, Functor&& func){
+template <std::ranges::range R, typename Functor>
+std::pair<budget::money, acc_data_t> aggregate(data_cache& cache, R&& data, bool full, bool disable_groups, const std::string& separator, Functor&& func) {
     budget::money total;
-    acc_data_t acc_data;
+    acc_data_t    acc_data;
 
-    //Accumulate all the data
+    // Accumulate all the data
     for (const auto& element : std::forward<R>(data)) {
         if (func(element)) {
             auto name = element.name;
@@ -298,13 +298,13 @@ std::pair<budget::money, acc_data_t> aggregate(data_cache & cache, R && data, bo
     return {total, acc_data};
 }
 
-template<std::ranges::range R, typename Functor>
-void aggregate_overview(R && data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
+template <std::ranges::range R, typename Functor>
+void aggregate_overview(R&& data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func) {
     auto [total, acc_data] = aggregate(w.cache, std::forward<R>(data), full, disable_groups, separator, func);
 
     cpp::string_hash_map<budget::money> totals;
 
-    std::vector<std::string> columns;
+    std::vector<std::string>              columns;
     std::vector<std::vector<std::string>> contents;
 
     for (auto& account : current_accounts(w.cache)) {
@@ -321,15 +321,14 @@ void aggregate_overview(R && data, budget::writer& w, bool full, bool disable_gr
             sorted_data.push_back(std::make_pair(name, amount));
         }
 
-        std::ranges::sort(sorted_data,
-            [](const s_items& a, const s_items& b){ return a.second > b.second; });
+        std::ranges::sort(sorted_data, [](const s_items& a, const s_items& b) { return a.second > b.second; });
 
         for (auto& [name, amount] : sorted_data) {
-            if(contents.size() <= row){
+            if (contents.size() <= row) {
                 contents.emplace_back(acc_data.size() * 3, "");
             }
 
-            contents[row][column * 3] = name;
+            contents[row][column * 3]     = name;
             contents[row][column * 3 + 1] = to_string(amount);
             contents[row][column * 3 + 2] = to_string_precision(100.0 * (amount / total), 2) + "%";
 
@@ -346,8 +345,8 @@ void aggregate_overview(R && data, budget::writer& w, bool full, bool disable_gr
 
     contents.back()[i++] = "Total";
 
-    for(auto& account : current_accounts(w.cache)){
-        contents.back()[i] = to_string(totals[account.name]);
+    for (auto& account : current_accounts(w.cache)) {
+        contents.back()[i]     = to_string(totals[account.name]);
         contents.back()[i + 1] = to_string_precision(100.0 * (totals[account.name] / total), 2) + "%";
         i += 3;
     }
@@ -355,8 +354,8 @@ void aggregate_overview(R && data, budget::writer& w, bool full, bool disable_gr
     w.display_table(columns, contents, 3);
 }
 
-template<std::ranges::range R, typename Functor>
-void aggregate_overview_month(R && data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year, Functor&& func){
+template <std::ranges::range R, typename Functor>
+void aggregate_overview_month(R&& data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year, Functor&& func) {
     int months = 1;
     if (year == budget::local_day().year()) {
         months = budget::local_day().month();
@@ -368,7 +367,7 @@ void aggregate_overview_month(R && data, budget::writer& w, bool full, bool disa
 
     cpp::string_hash_map<budget::money> totals;
 
-    std::vector<std::string> columns;
+    std::vector<std::string>              columns;
     std::vector<std::vector<std::string>> contents;
 
     for (auto& account : current_accounts(w.cache)) {
@@ -385,15 +384,14 @@ void aggregate_overview_month(R && data, budget::writer& w, bool full, bool disa
             sorted_data.push_back(std::make_pair(name, amount));
         }
 
-        std::ranges::sort(sorted_data,
-            [](const s_items& a, const s_items& b){ return a.second > b.second; });
+        std::ranges::sort(sorted_data, [](const s_items& a, const s_items& b) { return a.second > b.second; });
 
         for (auto& [name, amount] : sorted_data) {
-            if(contents.size() <= row){
+            if (contents.size() <= row) {
                 contents.emplace_back(acc_data.size() * 3, "");
             }
 
-            contents[row][column * 3] = name;
+            contents[row][column * 3]     = name;
             contents[row][column * 3 + 1] = to_string(amount);
             contents[row][column * 3 + 2] = to_string_precision(amount / months, 2);
 
@@ -410,7 +408,7 @@ void aggregate_overview_month(R && data, budget::writer& w, bool full, bool disa
 
     contents.back()[i++] = "Total";
 
-    for(auto& account : current_accounts(w.cache)){
+    for (auto& account : current_accounts(w.cache)) {
         contents.back()[i] = to_string(totals[account.name]);
         i += 3;
     }
@@ -429,13 +427,13 @@ budget::money future_value(budget::money start) {
     return value;
 }
 
-template<std::ranges::range R, typename Functor>
-void aggregate_overview_fv(R && data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func){
+template <std::ranges::range R, typename Functor>
+void aggregate_overview_fv(R&& data, budget::writer& w, bool full, bool disable_groups, const std::string& separator, Functor&& func) {
     auto [total, acc_data] = aggregate(w.cache, std::forward<R>(data), full, disable_groups, separator, func);
 
     cpp::string_hash_map<budget::money> totals;
 
-    std::vector<std::string> columns;
+    std::vector<std::string>              columns;
     std::vector<std::vector<std::string>> contents;
 
     for (auto& account : current_accounts(w.cache)) {
@@ -452,15 +450,14 @@ void aggregate_overview_fv(R && data, budget::writer& w, bool full, bool disable
             sorted_data.push_back(std::make_pair(name, amount));
         }
 
-        std::ranges::sort(sorted_data,
-            [](const s_items& a, const s_items& b){ return a.second > b.second; });
+        std::ranges::sort(sorted_data, [](const s_items& a, const s_items& b) { return a.second > b.second; });
 
         for (auto& [name, amount] : sorted_data) {
-            if(contents.size() <= row){
+            if (contents.size() <= row) {
                 contents.emplace_back(acc_data.size() * 3, "");
             }
 
-            contents[row][column * 3] = name;
+            contents[row][column * 3]     = name;
             contents[row][column * 3 + 1] = to_string(amount);
             contents[row][column * 3 + 2] = to_string_precision(future_value(amount), 2);
 
@@ -477,7 +474,7 @@ void aggregate_overview_fv(R && data, budget::writer& w, bool full, bool disable
 
     contents.back()[i++] = "Total";
 
-    for(auto& account : current_accounts(w.cache)){
+    for (auto& account : current_accounts(w.cache)) {
         contents.back()[i] = to_string(totals[account.name]);
         i += 3;
     }
@@ -485,25 +482,26 @@ void aggregate_overview_fv(R && data, budget::writer& w, bool full, bool disable
     w.display_table(columns, contents, 3);
 }
 
-void add_month_columns(std::vector<std::string>& columns, budget::month sm){
-    for(budget::month m = sm; m.is_valid(); ++m){
+void add_month_columns(std::vector<std::string>& columns, budget::month sm) {
+    for (budget::month m = sm; m.is_valid(); ++m) {
         columns.emplace_back(m.as_long_string());
     }
 }
 
-budget::month get_current_months(data_cache & cache, budget::year year){
-    auto sm = start_month(cache, year);
+budget::month get_current_months(data_cache& cache, budget::year year) {
+    auto          sm             = start_month(cache, year);
     budget::month current_months = budget::month(12) - sm + budget::month(1);
 
-    if(auto today = budget::local_day(); today.year() == year){
+    if (auto today = budget::local_day(); today.year() == year) {
         current_months = today.month() - sm + date_type(1);
     }
 
     return current_months;
 }
 
-template<bool Mean = false, bool CMean = false>
-inline void generate_total_line(data_cache & cache, std::vector<std::vector<std::string>>& contents, std::vector<budget::money>& totals, budget::year year, budget::month sm){
+template <bool Mean = false, bool CMean = false>
+inline void generate_total_line(
+        data_cache& cache, std::vector<std::vector<std::string>>& contents, std::vector<budget::money>& totals, budget::year year, budget::month sm) {
     std::vector<std::string> last_row;
     last_row.emplace_back("Total");
 
@@ -511,24 +509,24 @@ inline void generate_total_line(data_cache & cache, std::vector<std::vector<std:
 
     budget::money total_total;
     budget::money current_total;
-    for(budget::month m = sm; m.is_valid(); ++m){
+    for (budget::month m = sm; m.is_valid(); ++m) {
         auto total = totals[m.value - 1];
 
         last_row.push_back(format_money(total));
 
         total_total += total;
 
-        if(m < sm + current_months){
+        if (m < sm + current_months) {
             current_total += total;
         }
     }
 
-    if(Mean){
+    if (Mean) {
         last_row.push_back(format_money(total_total));
         last_row.push_back(format_money(total_total / (12 - sm + 1)));
     }
 
-    if(CMean){
+    if (CMean) {
         last_row.push_back(format_money(current_total));
         last_row.push_back(format_money(current_total / current_months));
     }
@@ -536,13 +534,13 @@ inline void generate_total_line(data_cache & cache, std::vector<std::vector<std:
     contents.emplace_back(std::move(last_row));
 }
 
-template<std::ranges::range R>
-void display_values(budget::writer& w, budget::year year, const std::string& title, R&& values, bool current = true, bool relaxed = true, bool last = false){
-    std::vector<std::string> columns;
+template <std::ranges::range R>
+void display_values(budget::writer& w, budget::year year, const std::string& title, R&& values, bool current = true, bool relaxed = true, bool last = false) {
+    std::vector<std::string>              columns;
     std::vector<std::vector<std::string>> contents;
 
-    auto sm = start_month(w.cache, year);
-    auto months = 12 - sm + 1;
+    auto sm             = start_month(w.cache, year);
+    auto months         = 12 - sm + 1;
     auto current_months = get_current_months(w.cache, year);
 
     columns.push_back(title);
@@ -550,28 +548,30 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
     columns.emplace_back("Total");
     columns.emplace_back("Mean");
 
-    if(current){
+    if (current) {
         columns.emplace_back("C. Total");
         columns.emplace_back("C. Mean");
     }
 
-    cpp::string_hash_map<size_t> row_mapping;
-    cpp::string_hash_map<budget::money> account_totals;;
-    cpp::string_hash_map<budget::money> account_current_totals;;
+    cpp::string_hash_map<size_t>        row_mapping;
+    cpp::string_hash_map<budget::money> account_totals;
+    ;
+    cpp::string_hash_map<budget::money> account_current_totals;
+    ;
     std::vector<budget::money> totals(13, budget::money());
 
-    //Prepare the rows
+    // Prepare the rows
 
-    for(auto& account : all_accounts(w.cache, year, sm)){
+    for (auto& account : all_accounts(w.cache, year, sm)) {
         row_mapping[account.name] = contents.size();
 
         contents.push_back({account.name});
     }
 
-    //Fill the table
+    // Fill the table
 
-    for(budget::month m = sm; m.is_valid(); ++m){
-        for(auto& account : all_accounts(w.cache, year, m)){
+    for (budget::month m = sm; m.is_valid(); ++m) {
+        for (auto& account : all_accounts(w.cache, year, m)) {
             budget::money month_total;
 
             if (relaxed) {
@@ -585,43 +585,43 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
             account_totals[account.name] += month_total;
             totals[m.value - 1] += month_total;
 
-            if(m < sm + current_months){
+            if (m < sm + current_months) {
                 account_current_totals[account.name] += month_total;
             }
         }
     }
 
-    //Generate total and mean columns for each account
+    // Generate total and mean columns for each account
 
-    for(auto& account : all_accounts(w.cache, year, sm)){
+    for (auto& account : all_accounts(w.cache, year, sm)) {
         contents[row_mapping[account.name]].push_back(to_string(account_totals[account.name]));
         contents[row_mapping[account.name]].push_back(to_string(account_totals[account.name] / months));
 
-        if(current){
+        if (current) {
             contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name]));
             contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name] / current_months));
         }
     }
 
-    //Generate the final total line
+    // Generate the final total line
 
-    if(current){
+    if (current) {
         generate_total_line<true, true>(w.cache, contents, totals, year, sm);
     } else {
         generate_total_line<true, false>(w.cache, contents, totals, year, sm);
     }
 
-    if(last){
+    if (last) {
         contents.push_back({"Previous Year"});
 
         const budget::year last_year = year - date_type(1);
-        budget::money total;
+        budget::money      total;
 
-        for(budget::month m = sm; m.is_valid(); ++m){
+        for (budget::month m = sm; m.is_valid(); ++m) {
             budget::money month_total;
 
-            for(auto& value : values){
-                if(value.date.year() == last_year && value.date.month() == m){
+            for (auto& value : values) {
+                if (value.date.year() == last_year && value.date.month() == m) {
                     month_total += value.amount;
                 }
             }
@@ -634,7 +634,7 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
         contents.back().push_back(to_string(total));
         contents.back().push_back(to_string(total / 12));
 
-        if(current){
+        if (current) {
             contents.back().push_back(to_string(total));
             contents.back().push_back(to_string(total / 12));
         }
@@ -645,7 +645,7 @@ void display_values(budget::writer& w, budget::year year, const std::string& tit
 
 } // end of anonymous namespace
 
-void budget::overview_module::load(){
+void budget::overview_module::load() {
     load_accounts();
     load_incomes();
     load_expenses();
@@ -787,20 +787,20 @@ void budget::overview_module::handle(std::vector<std::string>& args) {
     }
 }
 
-void budget::display_expenses(budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
+void budget::display_expenses(budget::writer& w, budget::year year, bool current, bool relaxed, bool last) {
     display_values(w, year, "Expenses", all_expenses() | persistent, current, relaxed, last);
 }
 
-void budget::display_earnings(budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
+void budget::display_earnings(budget::writer& w, budget::year year, bool current, bool relaxed, bool last) {
     display_values(w, year, "Earnings", all_earnings(), current, relaxed, last);
 }
 
-void budget::display_local_balance(budget::writer& w, budget::year year, bool current, bool relaxed, bool last){
-    std::vector<std::string> columns;
+void budget::display_local_balance(budget::writer& w, budget::year year, bool current, bool relaxed, bool last) {
+    std::vector<std::string>              columns;
     std::vector<std::vector<std::string>> contents;
 
-    auto sm = start_month(w.cache, year);
-    auto months = 12 - sm + 1;
+    auto sm             = start_month(w.cache, year);
+    auto months         = 12 - sm + 1;
     auto current_months = get_current_months(w.cache, year);
 
     columns.emplace_back("Local Balance");
@@ -808,33 +808,33 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
     columns.emplace_back("Total");
     columns.emplace_back("Mean");
 
-    if(current){
+    if (current) {
         columns.emplace_back("C. Total");
         columns.emplace_back("C. Mean");
     }
 
     std::vector<budget::money> totals(12, budget::money());
 
-    cpp::string_hash_map<size_t> row_mapping;
+    cpp::string_hash_map<size_t>        row_mapping;
     cpp::string_hash_map<budget::money> account_totals;
     cpp::string_hash_map<budget::money> account_current_totals;
 
-    //Prepare the rows
+    // Prepare the rows
 
-    for(auto& account : all_accounts(w.cache, year, sm)){
+    for (auto& account : all_accounts(w.cache, year, sm)) {
         row_mapping[account.name] = contents.size();
 
         contents.push_back({account.name});
     }
 
-    //Fill the table
+    // Fill the table
 
-    for(budget::month m = sm; m.is_valid(); ++m){
-        for(auto& account : all_accounts(w.cache, year, m)){
+    for (budget::month m = sm; m.is_valid(); ++m) {
+        for (auto& account : all_accounts(w.cache, year, m)) {
             budget::money total_expenses;
             budget::money total_earnings;
 
-            if(relaxed){
+            if (relaxed) {
                 total_expenses = fold_left_auto(w.cache.expenses() | persistent | filter_by_date(year, m) | filter_by_account_name(account.name) | to_amount);
                 total_earnings = fold_left_auto(w.cache.earnings() | filter_by_date(year, m) | filter_by_account_name(account.name) | to_amount);
             } else {
@@ -850,19 +850,19 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
             totals[m.value - 1] += month_total;
 
-            if(m < sm + current_months){
+            if (m < sm + current_months) {
                 account_current_totals[account.name] += month_total;
             }
         }
     }
 
-    //Generate total and mean columns for each account
+    // Generate total and mean columns for each account
 
-    for(auto& account : all_accounts(w.cache, year, sm)){
+    for (auto& account : all_accounts(w.cache, year, sm)) {
         contents[row_mapping[account.name]].push_back(format_money(account_totals[account.name]));
         contents[row_mapping[account.name]].push_back(format_money(account_totals[account.name] / months));
 
-        if(current){
+        if (current) {
             contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name]));
             contents[row_mapping[account.name]].push_back(format_money(account_current_totals[account.name] / current_months));
         }
@@ -870,9 +870,9 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
     auto c_foot = contents.size();
 
-    //Generate the total final line
+    // Generate the total final line
 
-    if(current){
+    if (current) {
         generate_total_line<true, true>(w.cache, contents, totals, year, sm);
     } else {
         generate_total_line<true, false>(w.cache, contents, totals, year, sm);
@@ -883,7 +883,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
 
         budget::money total;
 
-        for(budget::month m = sm; m.is_valid(); ++m){
+        for (budget::month m = sm; m.is_valid(); ++m) {
             auto status = compute_month_status(w.cache, year - date_type(1), m);
 
             contents.back().push_back(format_money(status.balance));
@@ -909,7 +909,7 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
         for (budget::month m = sm; m.is_valid(); ++m) {
             auto status = compute_month_status(w.cache, year, m);
 
-            auto savings        = status.income - status.expenses;
+            auto   savings      = status.income - status.expenses;
             double savings_rate = 0.0;
 
             if (savings.dollars() > 0) {
@@ -970,8 +970,8 @@ void budget::display_local_balance(budget::writer& w, budget::year year, bool cu
     w.display_table(columns, contents, 1, {6, 8}, 0, contents.size() - c_foot);
 }
 
-void budget::display_balance(budget::writer& w, budget::year year, bool relaxed, bool last){
-    std::vector<std::string> columns;
+void budget::display_balance(budget::writer& w, budget::year year, bool relaxed, bool last) {
+    std::vector<std::string>              columns;
     std::vector<std::vector<std::string>> contents;
 
     auto sm = start_month(w.cache, year);
@@ -981,33 +981,33 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
 
     std::vector<budget::money> totals(12, budget::money());
 
-    cpp::string_hash_map<size_t> row_mapping;
+    cpp::string_hash_map<size_t>                     row_mapping;
     cpp::string_hash_map<std::vector<budget::money>> account_previous;
 
-    //Prepare the rows
+    // Prepare the rows
 
-    for(const auto& account : all_accounts(w.cache, year, sm)){
+    for (const auto& account : all_accounts(w.cache, year, sm)) {
         row_mapping[account.name] = contents.size();
 
         contents.push_back({account.name});
         account_previous[account.name] = std::vector<budget::money>(13, budget::money());
     }
 
-    if(auto today = budget::local_day(); year > today.year()){
+    if (auto today = budget::local_day(); year > today.year()) {
         auto pretotal = compute_total_budget(w.cache, sm, year);
-        for(size_t i = 0; const auto& account : all_accounts(w.cache, year, sm)){
+        for (size_t i = 0; const auto& account : all_accounts(w.cache, year, sm)) {
             account_previous[account.name][sm.value - 1] += pretotal[i++] - account.amount;
         }
     }
 
-    //Fill the table
+    // Fill the table
 
-    for(budget::month m = sm; m.is_valid(); ++m){
-        for(const auto& account : all_accounts(w.cache, year, m)){
+    for (budget::month m = sm; m.is_valid(); ++m) {
+        for (const auto& account : all_accounts(w.cache, year, m)) {
             budget::money total_expenses;
             budget::money total_earnings;
 
-            if(relaxed){
+            if (relaxed) {
                 total_expenses = fold_left_auto(w.cache.expenses() | persistent | filter_by_date(year, m) | filter_by_account_name(account.name) | to_amount);
                 total_earnings = fold_left_auto(w.cache.earnings() | filter_by_date(year, m) | filter_by_account_name(account.name) | to_amount);
             } else {
@@ -1015,7 +1015,7 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
                 total_earnings = fold_left_auto(all_earnings_month(w.cache, account.id, year, m) | to_amount);
             }
 
-            auto month_total = account_previous[account.name][m.value - 1] + account.amount - total_expenses + total_earnings;
+            auto month_total                        = account_previous[account.name][m.value - 1] + account.amount - total_expenses + total_earnings;
             account_previous[account.name][m.value] = month_total;
 
             totals[m.value - 1] += month_total;
@@ -1024,16 +1024,16 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
         }
     }
 
-    //Generate the final total line
+    // Generate the final total line
 
     generate_total_line(w.cache, contents, totals, year, sm);
 
-    if(last){
+    if (last) {
         contents.push_back({"Previous Year"});
 
         budget::money total;
 
-        for(budget::month m = sm; m.is_valid(); ++m){
+        for (budget::month m = sm; m.is_valid(); ++m) {
             auto status = compute_month_status(w.cache, year - date_type(1), m);
 
             total += status.balance;
@@ -1045,36 +1045,36 @@ void budget::display_balance(budget::writer& w, budget::year year, bool relaxed,
     w.display_table(columns, contents, 1, {}, 0, last ? 2 : 1);
 }
 
-void budget::display_month_overview(budget::month month, budget::year year, budget::writer& writer){
+void budget::display_month_overview(budget::month month, budget::year year, budget::writer& writer) {
     auto accounts = all_accounts(writer.cache, year, month);
 
     writer << title_begin << "Overview of " << month << " " << year << budget::year_month_selector{"overview", year, month} << title_end;
 
-    std::vector<std::string> columns;
-    cpp::string_hash_map<size_t> indexes;
+    std::vector<std::string>              columns;
+    cpp::string_hash_map<size_t>          indexes;
     std::vector<std::vector<std::string>> contents;
-    std::vector<money> total_expenses(accounts.size(), budget::money());
-    std::vector<money> total_earnings(accounts.size(), budget::money());
+    std::vector<money>                    total_expenses(accounts.size(), budget::money());
+    std::vector<money>                    total_earnings(accounts.size(), budget::money());
 
-    for(auto& account : accounts){
+    for (auto& account : accounts) {
         indexes[account.name] = columns.size();
         columns.push_back(account.name);
     }
 
-    //Expenses
+    // Expenses
     add_values_column(month, year, "Expenses", contents, indexes, columns.size(), writer.cache.expenses() | persistent, total_expenses);
 
-    //Earnings
+    // Earnings
     contents.emplace_back(columns.size() * 3, "");
     add_values_column(month, year, "Earnings", contents, indexes, columns.size(), writer.cache.earnings(), total_earnings);
 
-    //Budget
+    // Budget
     contents.emplace_back(columns.size() * 3, "");
-    add_recap_line(contents, "Budget", accounts, [](const budget::account& a){return format_money(a.amount);});
+    add_recap_line(contents, "Budget", accounts, [](const budget::account& a) { return format_money(a.amount); });
     auto total_budgets = compute_total_budget(writer.cache, month, year);
-    add_recap_line(contents, "Total Budget", total_budgets, [](const budget::money& m){ return format_money(m);});
+    add_recap_line(contents, "Total Budget", total_budgets, [](const budget::money& m) { return format_money(m); });
 
-    //Balances
+    // Balances
     contents.emplace_back(columns.size() * 3, "");
 
     std::vector<budget::money> balances;
@@ -1082,26 +1082,26 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
 
     budget::money income = get_base_income(writer.cache, budget::date(year, month, 1));
 
-    for(size_t i = 0; i < accounts.size(); ++i){
+    for (size_t i = 0; i < accounts.size(); ++i) {
         balances.push_back(total_budgets[i] - total_expenses[i] + total_earnings[i]);
         local_balances.push_back(accounts[i].amount - total_expenses[i] + total_earnings[i]);
 
         income += total_earnings[i];
     }
 
-    add_recap_line(contents, "Balance", balances, [](const budget::money& m){ return format_money(m);});
-    add_recap_line(contents, "Local Balance", local_balances, [](const budget::money& m){ return format_money(m);});
+    add_recap_line(contents, "Balance", balances, [](const budget::money& m) { return format_money(m); });
+    add_recap_line(contents, "Local Balance", local_balances, [](const budget::money& m) { return format_money(m); });
 
     writer.display_table(columns, contents, 3);
 
-    auto total_all_expenses = std::accumulate(total_expenses.begin(), total_expenses.end(), budget::money());
-    auto total_all_earnings = std::accumulate(total_earnings.begin(), total_earnings.end(), budget::money());
-    auto total_balance = std::accumulate(balances.begin(), balances.end(), budget::money());
+    auto total_all_expenses  = std::accumulate(total_expenses.begin(), total_expenses.end(), budget::money());
+    auto total_all_earnings  = std::accumulate(total_earnings.begin(), total_earnings.end(), budget::money());
+    auto total_balance       = std::accumulate(balances.begin(), balances.end(), budget::money());
     auto total_local_balance = std::accumulate(local_balances.begin(), local_balances.end(), budget::money());
 
     auto avg_status = budget::compute_avg_month_status(writer.cache, year, month);
 
-    std::vector<std::string> second_columns;
+    std::vector<std::string>              second_columns;
     std::vector<std::vector<std::string>> second_contents;
 
     second_contents.emplace_back(std::vector<std::string>{"Total expenses", budget::to_string(total_all_expenses)});
@@ -1109,11 +1109,11 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     budget::money taxes;
 
     if (has_taxes_account()) {
-       auto taxes_account_name = taxes_account().name;
+        auto taxes_account_name = taxes_account().name;
 
-       auto expenses_no_taxes = total_all_expenses - total_expenses[indexes[taxes_account_name]];
-       second_contents.emplace_back(std::vector<std::string>{"Expenses w/o taxes", budget::to_string(expenses_no_taxes)});
-       taxes = total_expenses[indexes[taxes_account_name]];
+        auto expenses_no_taxes = total_all_expenses - total_expenses[indexes[taxes_account_name]];
+        second_contents.emplace_back(std::vector<std::string>{"Expenses w/o taxes", budget::to_string(expenses_no_taxes)});
+        taxes = total_expenses[indexes[taxes_account_name]];
     }
 
     second_contents.emplace_back(std::vector<std::string>{"Avg expenses", budget::to_string(avg_status.expenses)});
@@ -1163,7 +1163,7 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
             month_end = today;
         }
 
-        auto net_worth_end = get_net_worth(month_end, writer.cache);
+        auto net_worth_end         = get_net_worth(month_end, writer.cache);
         auto net_worth_month_start = get_net_worth(month_start, writer.cache);
 
         auto month_increase = net_worth_end - net_worth_month_start;
@@ -1180,46 +1180,46 @@ void budget::display_month_overview(budget::month month, budget::year year, budg
     writer.display_table(second_columns, second_contents, 1, {}, accounts.size() * 9 + 1);
 }
 
-void budget::display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& writer){
+void budget::display_month_account_overview(size_t account_id, budget::month month, budget::year year, budget::writer& writer) {
     auto account = get_account(account_id);
 
     auto accounts = all_accounts(writer.cache, year, month);
 
     writer << title_begin << "Account Overview of " << month << " " << year << budget::year_month_selector{"account_overview", year, month} << title_end;
 
-    std::vector<std::string> columns{account.name};
-    cpp::string_hash_map<size_t> indexes{{account.name, 0}};
+    std::vector<std::string>              columns{account.name};
+    cpp::string_hash_map<size_t>          indexes{{account.name, 0}};
     std::vector<std::vector<std::string>> contents;
-    std::vector<money> total_expenses(1, budget::money());
-    std::vector<money> total_earnings(1, budget::money());
+    std::vector<money>                    total_expenses(1, budget::money());
+    std::vector<money>                    total_earnings(1, budget::money());
 
-    //Expenses
+    // Expenses
     add_values_column(month, year, "Expenses", contents, indexes, columns.size(), writer.cache.expenses() | persistent, total_expenses);
 
-    //Earnings
+    // Earnings
     contents.emplace_back(columns.size() * 3, "");
     add_values_column(month, year, "Earnings", contents, indexes, columns.size(), writer.cache.earnings(), total_earnings);
 
-    //Budget
+    // Budget
     contents.emplace_back(columns.size() * 3, "");
     add_recap_line<budget::account>(contents, "Budget", {account}, [](const budget::account& a) { return format_money(a.amount); });
     auto total_budget = compute_total_budget_account(writer.cache, account, month, year);
-    add_recap_line<budget::money>(contents, "Total Budget", {total_budget}, [](const budget::money& m){ return format_money(m);});
+    add_recap_line<budget::money>(contents, "Total Budget", {total_budget}, [](const budget::money& m) { return format_money(m); });
 
-    //Balances
+    // Balances
     contents.emplace_back(columns.size() * 3, "");
 
     const std::vector<budget::money> balances{total_budget + total_earnings[0] - total_expenses[0]};
     const std::vector<budget::money> local_balances{account.amount + total_earnings[0] - total_expenses[0]};
 
-    add_recap_line(contents, "Balance", balances, [](const budget::money& m){ return format_money(m);});
-    add_recap_line(contents, "Local Balance", local_balances, [](const budget::money& m){ return format_money(m);});
+    add_recap_line(contents, "Balance", balances, [](const budget::money& m) { return format_money(m); });
+    add_recap_line(contents, "Local Balance", local_balances, [](const budget::money& m) { return format_money(m); });
 
     writer.display_table(columns, contents, 3);
 }
 
-void budget::display_year_overview_header(budget::year year, budget::writer& w){
-    if(invalid_accounts(year)){
+void budget::display_year_overview_header(budget::year year, budget::writer& w) {
+    if (invalid_accounts(year)) {
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
     }
 
@@ -1265,7 +1265,7 @@ void budget::display_year_overview_header(budget::year year, budget::writer& w){
                         format_double(status.savings_rate_after_tax() - prev_status.savings_rate_after_tax()),
                         format_double(100.0 * (status.savings_rate_after_tax() / prev_status.savings_rate_after_tax() - 1.0)) + "%"});
 
-    if (!status.taxes.zero()){
+    if (!status.taxes.zero()) {
         contents.push_back({"Tax Rate",
                             to_string(status.tax_rate()) + "%",
                             format_double_reverse(status.tax_rate() - prev_status.tax_rate()),
@@ -1284,7 +1284,7 @@ void budget::display_year_overview_header(budget::year year, budget::writer& w){
                         format_double(100.0 * (year_increase / prev_year_increase - 1.0)) + "%"});
 
     if (year_increase.zero() || year_increase.negative()) {
-        contents.push_back({"Savings Contribution", "N/A", "" , ""});
+        contents.push_back({"Savings Contribution", "N/A", "", ""});
     } else {
         auto savings_contribution      = 100.0 * (status.savings / year_increase);
         auto prev_savings_contribution = 100.0 * (prev_status.savings / prev_year_increase);
@@ -1298,12 +1298,12 @@ void budget::display_year_overview_header(budget::year year, budget::writer& w){
     w.display_table(columns, contents);
 }
 
-void budget::display_year_overview(budget::year year, budget::writer& w){
-    if(invalid_accounts(year)){
+void budget::display_year_overview(budget::year year, budget::writer& w) {
+    if (invalid_accounts(year)) {
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
     }
 
-    auto today = budget::local_day();
+    auto       today   = budget::local_day();
     const bool current = year == today.year() && today.month() != budget::month(12);
 
     display_local_balance(w, year, current, false, true);
@@ -1312,90 +1312,99 @@ void budget::display_year_overview(budget::year year, budget::writer& w){
     display_earnings(w, year, current, false, true);
 }
 
-void budget::aggregate_all_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator){
-    if(invalid_accounts_all()){
+void budget::aggregate_all_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator) {
+    if (invalid_accounts_all()) {
         throw budget::budget_exception("The accounts of the different years or months have different names, impossible to generate the complete overview. ");
     }
 
     w << title_begin << "Aggregate overview of all time" << title_end;
 
     w << p_begin << "Expenses" << p_end;
-    aggregate_overview(all_expenses() | persistent, w, full, disable_groups, separator, [](const budget::expense& /*expense*/){ return true; });
+    aggregate_overview(all_expenses() | persistent, w, full, disable_groups, separator, [](const budget::expense& /*expense*/) { return true; });
 
     w << p_begin << "Earnings" << p_end;
-    aggregate_overview(all_earnings(), w, full, disable_groups, separator, [](const budget::earning& /*earning*/){ return true; });
+    aggregate_overview(all_earnings(), w, full, disable_groups, separator, [](const budget::earning& /*earning*/) { return true; });
 }
 
-void budget::aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year){
-    if(invalid_accounts(year)){
+void budget::aggregate_year_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year) {
+    if (invalid_accounts(year)) {
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
     }
 
     w << title_begin << "Aggregate overview of " << year << year_selector{"overview/aggregate/year", year} << title_end;
 
     w << p_begin << "Expenses" << p_end;
-    aggregate_overview(all_expenses() | persistent, w, full, disable_groups, separator, [year](const budget::expense& expense){ return expense.date.year() == year; });
+    aggregate_overview(
+            all_expenses() | persistent, w, full, disable_groups, separator, [year](const budget::expense& expense) { return expense.date.year() == year; });
 
     w << p_begin << "Earnings" << p_end;
-    aggregate_overview(all_earnings(), w, full, disable_groups, separator, [year](const budget::earning& earning){ return earning.date.year() == year; });
+    aggregate_overview(all_earnings(), w, full, disable_groups, separator, [year](const budget::earning& earning) { return earning.date.year() == year; });
 }
 
-void budget::aggregate_year_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year){
-    if(invalid_accounts(year)){
+void budget::aggregate_year_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year) {
+    if (invalid_accounts(year)) {
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
     }
 
     w << title_begin << "Aggregate overview of " << year << year_selector{"overview/aggregate/year_month", year} << title_end;
 
     w << p_begin << "Expenses" << p_end;
-    aggregate_overview_month(all_expenses() | persistent, w, full, disable_groups, separator, year, [year](const budget::expense& expense){ return expense.date.year() == year; });
+    aggregate_overview_month(all_expenses() | persistent, w, full, disable_groups, separator, year, [year](const budget::expense& expense) {
+        return expense.date.year() == year;
+    });
 
     w << p_begin << "Earnings" << p_end;
-    aggregate_overview_month(all_earnings(), w, full, disable_groups, separator, year, [year](const budget::earning& earning){ return earning.date.year() == year; });
+    aggregate_overview_month(
+            all_earnings(), w, full, disable_groups, separator, year, [year](const budget::earning& earning) { return earning.date.year() == year; });
 }
 
-void budget::aggregate_year_fv_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year){
-    if(invalid_accounts(year)){
+void budget::aggregate_year_fv_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::year year) {
+    if (invalid_accounts(year)) {
         throw budget::budget_exception("The accounts of the different months have different names, impossible to generate the year overview. ");
     }
 
     w << title_begin << "Aggregate FV overview of " << year << year_selector{"overview/aggregate/year_fv", year} << title_end;
 
     w << p_begin << "Expenses" << p_end;
-    aggregate_overview_fv(all_expenses() | persistent, w, full, disable_groups, separator, [year](const budget::expense& expense){ return expense.date.year() == year; });
+    aggregate_overview_fv(
+            all_expenses() | persistent, w, full, disable_groups, separator, [year](const budget::expense& expense) { return expense.date.year() == year; });
 
     w << p_begin << "Earnings" << p_end;
-    aggregate_overview_fv(all_earnings(), w, full, disable_groups, separator, [year](const budget::earning& earning){ return earning.date.year() == year; });
+    aggregate_overview_fv(all_earnings(), w, full, disable_groups, separator, [year](const budget::earning& earning) { return earning.date.year() == year; });
 }
 
-void budget::aggregate_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::month month, budget::year year){
+void budget::aggregate_month_overview(budget::writer& w, bool full, bool disable_groups, const std::string& separator, budget::month month, budget::year year) {
     w << title_begin << "Aggregate overview of " << month << " " << year << year_month_selector{"overview/aggregate/month", year, month} << title_end;
 
     w << p_begin << "Expenses" << p_end;
-    aggregate_overview(all_expenses() | persistent, w, full, disable_groups, separator, [month,year](const budget::expense& expense){ return expense.date.month() == month && expense.date.year() == year; });
+    aggregate_overview(all_expenses() | persistent, w, full, disable_groups, separator, [month, year](const budget::expense& expense) {
+        return expense.date.month() == month && expense.date.year() == year;
+    });
 
     w << p_begin << "Earnings" << p_end;
-    aggregate_overview(all_earnings(), w, full, disable_groups, separator, [month,year](const budget::earning& earning){ return earning.date.month() == month && earning.date.year() == year; });
+    aggregate_overview(all_earnings(), w, full, disable_groups, separator, [month, year](const budget::earning& earning) {
+        return earning.date.month() == month && earning.date.year() == year;
+    });
 }
 
-void budget::add_expenses_column(budget::month                            month,
-                                 budget::year                             year,
-                                 const std::string&                       title,
-                                 std::vector<std::vector<std::string>>&   contents,
-                                 cpp::string_hash_map<size_t>& indexes,
-                                 size_t                                   columns,
-                                 const std::vector<expense>&              values,
-                                 std::vector<budget::money>&              total) {
+void budget::add_expenses_column(budget::month                          month,
+                                 budget::year                           year,
+                                 const std::string&                     title,
+                                 std::vector<std::vector<std::string>>& contents,
+                                 cpp::string_hash_map<size_t>&          indexes,
+                                 size_t                                 columns,
+                                 const std::vector<expense>&            values,
+                                 std::vector<budget::money>&            total) {
     add_values_column(month, year, title, contents, indexes, columns, values | persistent, total);
 }
 
-void budget::add_earnings_column(budget::month                            month,
-                                 budget::year                             year,
-                                 const std::string&                       title,
-                                 std::vector<std::vector<std::string>>&   contents,
-                                 cpp::string_hash_map<size_t>& indexes,
-                                 size_t                                   columns,
-                                 const std::vector<earning>&              values,
-                                 std::vector<budget::money>&              total) {
+void budget::add_earnings_column(budget::month                          month,
+                                 budget::year                           year,
+                                 const std::string&                     title,
+                                 std::vector<std::vector<std::string>>& contents,
+                                 cpp::string_hash_map<size_t>&          indexes,
+                                 size_t                                 columns,
+                                 const std::vector<earning>&            values,
+                                 std::vector<budget::money>&            total) {
     add_values_column(month, year, title, contents, indexes, columns, values, total);
 }
