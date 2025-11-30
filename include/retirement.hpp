@@ -38,4 +38,8 @@ double fixed_fi_ratio(double wrate, const money & nw, const money & expenses);
 
 void retirement_status(budget::writer& w, const money & fi_expenses = {});
 
+money running_expenses(data_cache & cache, const budget::date & date = budget::local_day());
+double running_savings_rate(data_cache & cache, const budget::date & sd = budget::local_day());
+budget::money running_income(data_cache & cache, const budget::date & sd = budget::local_day());
+
 } //end of namespace budget

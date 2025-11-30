@@ -26,7 +26,29 @@ namespace {
 
 constexpr size_t running_limit = 12;
 
-money running_expenses(data_cache & cache, const budget::date & date = budget::local_day()){
+void retirement_set() {
+    double wrate = 4.0;
+    double roi = 4.0;
+
+    if(internal_config_contains("withdrawal_rate")){
+        wrate = to_number<double>(internal_config_value("withdrawal_rate"));
+    }
+
+    if(internal_config_contains("expected_roi")){
+        roi = to_number<double>(internal_config_value("expected_roi"));
+    }
+
+    edit_double(wrate, "Withdrawal Rate (%)");
+    edit_double(roi, "Expected Annual Return (%)");
+
+    // Save the configuration
+    internal_config_set("withdrawal_rate", to_string(wrate));
+    internal_config_set("expected_roi", to_string(roi));
+}
+
+} // end of anonymous namespace
+
+money budget::running_expenses(data_cache & cache, const budget::date & date){
     budget::date const end = date.previous_month().end_of_month();                     // The end is the last day of the previous month
     budget::date const start = (end - budget::months(running_limit)).start_of_month(); // The start is N months before the end date
 
@@ -51,7 +73,7 @@ money running_expenses(data_cache & cache, const budget::date & date = budget::l
     return total;
 }
 
-double running_savings_rate(data_cache & cache, const budget::date & sd = budget::local_day()){
+double budget::running_savings_rate(data_cache & cache, const budget::date & sd){
     double savings_rate = 0.0;
 
     for(date_type i = 1; i <= running_limit; ++i){
@@ -74,7 +96,7 @@ double running_savings_rate(data_cache & cache, const budget::date & sd = budget
     return savings_rate / running_limit;
 }
 
-budget::money running_income(data_cache & cache, const budget::date & sd = budget::local_day()){
+budget::money budget::running_income(data_cache & cache, const budget::date & sd){
     budget::money income;
 
     for(date_type i = 1; i <= running_limit; ++i){
@@ -86,28 +108,6 @@ budget::money running_income(data_cache & cache, const budget::date & sd = budge
 
     return income;
 }
-
-void retirement_set() {
-    double wrate = 4.0;
-    double roi = 4.0;
-
-    if(internal_config_contains("withdrawal_rate")){
-        wrate = to_number<double>(internal_config_value("withdrawal_rate"));
-    }
-
-    if(internal_config_contains("expected_roi")){
-        roi = to_number<double>(internal_config_value("expected_roi"));
-    }
-
-    edit_double(wrate, "Withdrawal Rate (%)");
-    edit_double(roi, "Expected Annual Return (%)");
-
-    // Save the configuration
-    internal_config_set("withdrawal_rate", to_string(wrate));
-    internal_config_set("expected_roi", to_string(roi));
-}
-
-} // end of anonymous namespace
 
 void budget::retirement_module::load() {
     load_accounts();
