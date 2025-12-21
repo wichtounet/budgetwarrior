@@ -1,4 +1,4 @@
-FROM wichtounet/cpp:gcc15-clang20
+FROM wichtounet/cpp:gcc15
 
 # Install dependencies
 RUN apt-get update && apt-get -y upgrade && apt-get -y install pipx && rm -rf /var/lib/apt/lists/*
