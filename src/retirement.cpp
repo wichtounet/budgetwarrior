@@ -74,26 +74,16 @@ money budget::running_expenses(data_cache & cache, const budget::date & date){
 }
 
 double budget::running_savings_rate(data_cache & cache, const budget::date & sd){
-    double savings_rate = 0.0;
+    auto income = running_income(cache, sd);
+    auto expenses running_expenses(cache, sd);
+    auto savings = income - expenses;
+    auto savings_rate = savings / income;
 
-    for(date_type i = 1; i <= running_limit; ++i){
-        auto d = sd - budget::months(i);
-
-        auto expenses = fold_left_auto(all_expenses_month(cache, d.year(), d.month()) | to_amount);
-        auto earnings = fold_left_auto(all_earnings_month(cache, d.year(), d.month()) | to_amount);
-        auto income   = get_base_income(cache, d);
-
-        auto balance = income + earnings - expenses;
-        auto local   = balance / (income + earnings);
-
-        if(local < 0){
-            local = 0;
-        }
-
-        savings_rate += local;
+    if (savings_rate < 0) {
+        return 0;
+    } else {
+        return savings_rate;
     }
-
-    return savings_rate / running_limit;
 }
 
 budget::money budget::running_income(data_cache & cache, const budget::date & sd){
