@@ -75,7 +75,7 @@ money budget::running_expenses(data_cache & cache, const budget::date & date){
 
 double budget::running_savings_rate(data_cache & cache, const budget::date & sd){
     auto income = running_income(cache, sd);
-    auto expenses running_expenses(cache, sd);
+    auto expenses = running_expenses(cache, sd);
     auto savings = income - expenses;
     auto savings_rate = savings / income;
 
