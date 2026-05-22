@@ -522,6 +522,7 @@ date local_day();
 
 date date_from_string(std::string_view str);
 date dmy_date_from_string(std::string_view str);
+date dmy8_date_from_string(std::string_view str);
 year year_from_string(std::string_view str);
 month month_from_string(std::string_view str);
 day day_from_string(std::string_view str);
