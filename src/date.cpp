@@ -95,7 +95,8 @@ budget::date budget::dmy8_date_from_string(std::string_view str){
         throw date_exception(std::format("Invalid year in dmy_date_from_string while parsing {}", str));
     }
 
-    return {date_type(2000) + y, m, d};
+    date_type year = date_type(2000) + y;
+    return {year, m, d};
 }
 
 budget::year budget::year_from_string(std::string_view str){
