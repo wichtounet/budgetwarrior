@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include <chrono>
+#include <ctime>
 #include <iostream>
 #include <map>
 #include <set>
@@ -53,6 +54,18 @@ budget::server_lock shares_lock;
 budget::date get_valid_date(const budget::date & d){
     // We cannot get closing price in the future, so we use the day before date
     if (d >= budget::local_day()) {
+#ifdef __APPLE__
+        const auto now  = std::time(nullptr);
+        const auto tm   = std::localtime(&now);
+
+        // We make sure that we are on a new U.S: day
+        // TODO This should be done by getting the current time in the U.S.
+        if (tm->tm_hour > 15) {
+            return get_valid_date(budget::local_day() - budget::days(1));
+        }
+
+        return get_valid_date(budget::local_day() - budget::days(2));
+#else
         const auto now  = std::chrono::system_clock::now();
         const auto zone = std::chrono::current_zone();
         const auto time = zone->to_local(now);
@@ -66,6 +79,7 @@ budget::date get_valid_date(const budget::date & d){
         }
 
         return get_valid_date(budget::local_day() - budget::days(2));
+#endif
     }
 
     if (auto dow = d.day_of_the_week(); dow == 6 || dow == 7){
