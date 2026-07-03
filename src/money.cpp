@@ -125,7 +125,11 @@ std::string budget::random_name(size_t length){
     static std::random_device rd;
     static std::mt19937_64 engine(rd());
 
+#ifdef __APPLE__
+    std::uniform_int_distribution<int> letters_dist(0, 25);
+#else
     std::uniform_int_distribution<char> letters_dist(0, 25);
+#endif
 
     std::string name;
 

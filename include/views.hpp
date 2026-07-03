@@ -11,6 +11,9 @@
 
 #include "date.hpp"
 #include "assets.hpp"
+#ifdef __APPLE__
+#include "accounts.hpp"
+#endif
 #include "expenses.hpp"
 #include "liabilities.hpp"
 
